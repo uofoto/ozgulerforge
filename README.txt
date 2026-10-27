@@ -1,7 +1,7 @@
 Özgüler Forge — statik web sitesi
 
-Ana sayfa bu ZIP'in kök dizininde index.html adıyla yer alır.
-Siteyi yayımlamak için arşivdeki tüm dosya ve klasörleri web alanınızın kök dizinine yükleyin; yalnızca index.html dosyasını taşımak yeterli değildir.
+Önizleme: index.html dosyasına çift tıklayıp tarayıcıda açabilirsiniz. index.html, site.css, site.js ve media klasörünü aynı klasör yapısında tutun.
 
-İçerik: index.html, site.css, site.js, media/ görselleri, manus-routes.json ve build çıktıları.
-Uygulama bağlantıları, mevcut umitozguler.com.tr web/PWA adreslerine yönlenir.
+Yayınlama: Arşivdeki tüm dosya ve klasörleri web alanınızın kök dizinine (veya siteyi barındıracağınız alt klasöre) yükleyin. media klasörünü index.html'in yanında bırakın.
+
+Arşivde eski uygulama arayüzü ekran görüntüleri yoktur; dört uygulama için ayrı özgün görseller bulunur.
