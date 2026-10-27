@@ -7,7 +7,7 @@
 <meta name="description" content="Gizliliği önceleyen, cihazında çalışan zarif mobil araçlar: Cep Temizlik, Fotoğraf Ustası, İzsiz Foto ve Filigran.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#f6f3ec;--bg2:#ece7db;--card:#ffffff;--ink:#14181f;--mute:#5d6572;--line:rgba(20,24,31,.1);
@@ -43,9 +43,11 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
 .logo{gap:13px}
 .mk{width:38px;height:38px;flex:none;filter:drop-shadow(0 8px 14px rgba(185,128,42,.38))}
 .mk.sm{width:24px;height:24px;filter:none}
-.wm{display:flex;align-items:baseline;gap:6px;line-height:1}
-.wm b{font:700 21px Sora,Inter,system-ui,sans-serif;letter-spacing:-.015em}
-.wm small{font:500 21px Sora,Inter,system-ui,sans-serif;letter-spacing:-.015em;color:var(--brand)}
+.brand{display:flex;align-items:baseline;gap:7px;line-height:1;font-family:Outfit,Sora,Inter,system-ui,sans-serif;font-size:25px;letter-spacing:-.01em}
+.brand .b1{font-weight:600;color:var(--ink)}
+.brand .b2{font-weight:400;color:#9c6118}
+:root[data-theme="dark"] .brand .b2{color:var(--brand)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand .b2{color:var(--brand)}}
 .fl{display:inline-flex;align-items:center;gap:10px}
 .links{display:flex;gap:26px;font-size:14.5px;color:var(--mute)}
 .links a:hover{color:var(--ink)}
@@ -134,7 +136,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mark" viewBox="0 0 40 40"><defs><mask id="mkm" maskUnits="userSpaceOnUse" x="0" y="0" width="40" height="40"><rect width="40" height="40" fill="#fff"/><path d="M20 12.2C20.9 17 23 19.1 27.8 20 23 20.9 20.9 23 20 27.8 19.1 23 17 20.9 12.2 20 17 19.1 19.1 17 20 12.2Z" fill="#000"/></mask></defs><g mask="url(#mkm)" stroke-linejoin="round"><path d="M20 20L20 3 34.72 11.5Z" fill="#f7cb78" stroke="#f7cb78" stroke-width="1.2"/><path d="M20 20L34.72 11.5 34.72 28.5Z" fill="#dc9d3c" stroke="#dc9d3c" stroke-width="1.2"/><path d="M20 20L34.72 28.5 20 37Z" fill="#a8691b" stroke="#a8691b" stroke-width="1.2"/><path d="M20 20L20 37 5.28 28.5Z" fill="#7a4710" stroke="#7a4710" stroke-width="1.2"/><path d="M20 20L5.28 28.5 5.28 11.5Z" fill="#c48a2d" stroke="#c48a2d" stroke-width="1.2"/><path d="M20 20L5.28 11.5 20 3Z" fill="#ffe9b5" stroke="#ffe9b5" stroke-width="1.2"/><path d="M20 20V3M20 20L34.72 11.5M20 20L34.72 28.5M20 20V37M20 20L5.28 28.5M20 20L5.28 11.5" stroke="#4a2a06" stroke-opacity=".28" stroke-width=".5" fill="none"/><path d="M20 9L29.53 14.5V25.5L20 31 10.47 25.5V14.5Z" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width=".5"/></g></symbol></defs></svg>
 <nav><div class="wrap">
-  <a class="logo" href="#top"><svg class="mk" aria-hidden="true"><use href="#mark"/></svg><span class="wm"><b>Özgüler</b><small>Forge</small></span></a>
+  <a class="logo" href="#top"><svg class="mk" aria-hidden="true"><use href="#mark"/></svg><span class="brand"><span class="b1">Özgüler</span><span class="b2">Forge</span></span></a>
   <div class="links"><a href="#uygulamalar">Uygulamalar</a><a href="#neden">Neden Forge?</a><a href="#iletisim">İletişim</a></div>
   <a class="btn primary" href="#uygulamalar">Keşfet</a>
 </div></nav>
