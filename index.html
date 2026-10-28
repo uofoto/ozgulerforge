@@ -9,94 +9,53 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#f6f3ec;--bg2:#ece7db;--card:#ffffff;--ink:#14181f;--mute:#5d6572;--line:rgba(20,24,31,.1);
-  --glow:rgba(201,150,60,.18);--brand:#b9802a;--shadow:0 20px 50px -20px rgba(20,24,31,.25);
-  --phone:#14181f;--screen:#fbfaf6;--chip:rgba(20,24,31,.06);
-  --c1:#0f9d8a;--c2:#d98a12;--c3:#2f6fe0;--c4:#7a55e0;
-  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0b1016;--bg2:#101823;--card:#121a25;--ink:#eef1f5;--mute:#98a3b3;--line:rgba(255,255,255,.09);
-    --glow:rgba(226,171,82,.14);--brand:#e2ab52;--shadow:0 24px 60px -24px rgba(0,0,0,.7);
-    --phone:#05080c;--screen:#0e151e;--chip:rgba(255,255,255,.07);
-    --c1:#2dd4bf;--c2:#f5b544;--c3:#6aa5ff;--c4:#a78bfa;color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0b1016;--bg2:#101823;--card:#121a25;--ink:#eef1f5;--mute:#98a3b3;--line:rgba(255,255,255,.09);
-  --glow:rgba(226,171,82,.14);--brand:#e2ab52;--shadow:0 24px 60px -24px rgba(0,0,0,.7);
-  --phone:#05080c;--screen:#0e151e;--chip:rgba(255,255,255,.07);
-  --c1:#2dd4bf;--c2:#f5b544;--c3:#6aa5ff;--c4:#a78bfa;color-scheme:dark;
-}
+:root{--bg:#f1f0ed;--bg2:#e6e3dd;--ink:#1b1712;--mute:#645e54;--line:rgba(27,23,18,.12);--brand:#a8691b;--ember:#e8741f;--glow:rgba(232,116,31,.22);--phone:#1b1712;--screen:#fbfaf6;--chip:rgba(27,23,18,.07);--c1:#0f9d8a;--c2:#d98a12;--c3:#2f6fe0;--c4:#7a55e0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#110f0c;--bg2:#1a1612;--ink:#f3ede3;--mute:#a79f92;--line:rgba(243,237,227,.11);--brand:#e2ab52;--glow:rgba(255,122,47,.2);--phone:#050403;--screen:#0e0c0a;--chip:rgba(243,237,227,.08);--c1:#2dd4bf;--c2:#f5b544;--c3:#6aa5ff;--c4:#a78bfa;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#110f0c;--bg2:#1a1612;--ink:#f3ede3;--mute:#a79f92;--line:rgba(243,237,227,.11);--brand:#e2ab52;--glow:rgba(255,122,47,.2);--phone:#050403;--screen:#0e0c0a;--chip:rgba(243,237,227,.08);--c1:#2dd4bf;--c2:#f5b544;--c3:#6aa5ff;--c4:#a78bfa;color-scheme:dark}
 *{box-sizing:border-box;margin:0}
 html{scroll-behavior:smooth;scroll-padding-top:80px;background:var(--bg)}
 body{background:var(--bg);color:var(--ink);font:400 16px/1.65 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
-h1,h2,h3{font-family:Sora,Inter,system-ui,sans-serif;letter-spacing:-.02em;line-height:1.12}
+h1,h2,h3{font-family:Sora,Inter,system-ui,sans-serif;letter-spacing:-.025em;line-height:1.08}
 a{color:inherit;text-decoration:none}
-.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
-nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--line)}
+a:focus-visible,.btn:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(16px);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
 nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
-.logo{display:flex;align-items:center;gap:10px;font:600 18px Sora,sans-serif}
-.logo i{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--c2),var(--brand) 55%,#7a4a10);display:grid;place-items:center;color:#fff;font:700 15px Sora,sans-serif;font-style:normal;box-shadow:0 6px 16px -6px var(--brand)}
-.logo{gap:13px}
-.mk{width:38px;height:38px;flex:none;filter:drop-shadow(0 8px 14px rgba(185,128,42,.38))}
+.logo{display:flex;align-items:center;gap:13px}
+.mk{width:38px;height:38px;flex:none;filter:drop-shadow(0 8px 16px rgba(232,116,31,.4))}
 .mk.sm{width:24px;height:24px;filter:none}
-.brand{display:flex;align-items:baseline;gap:7px;line-height:1;font-family:Outfit,Sora,Inter,system-ui,sans-serif;font-size:25px;letter-spacing:-.01em}
-.brand .b1{font-weight:600;color:var(--ink)}
-.brand .b2{font-weight:400;color:#9c6118}
-:root[data-theme="dark"] .brand .b2{color:var(--brand)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .brand .b2{color:var(--brand)}}
+.brand{display:flex;align-items:baseline;gap:7px;line-height:1;font:600 25px Outfit,Sora,sans-serif;letter-spacing:-.01em}
+.brand .b2{font-weight:400;color:var(--brand)}
 .fl{display:inline-flex;align-items:center;gap:10px}
-.links{display:flex;gap:26px;font-size:14.5px;color:var(--mute)}
+.links{display:flex;gap:28px;font-size:14.5px;color:var(--mute)}
 .links a:hover{color:var(--ink)}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:600;font-size:15px;transition:.25s;border:1px solid transparent}
-.btn.primary{background:var(--ink);color:var(--bg)}
-.btn.primary:hover{transform:translateY(-2px);box-shadow:0 12px 24px -10px var(--ink)}
-.btn.ghost{border-color:var(--line);background:var(--card)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:999px;font-weight:600;font-size:15px;transition:transform .25s,box-shadow .25s,border-color .25s;border:1px solid transparent}
+.btn.primary{background:linear-gradient(135deg,#f7cb78,#e08f2c);color:#1b1208;box-shadow:0 10px 30px -10px var(--ember)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 36px -10px var(--ember)}
+.btn.ghost{border-color:var(--line)}
 .btn.ghost:hover{border-color:var(--brand)}
-.hero{position:relative;padding:96px 0 72px;text-align:center;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:-20% 0 auto;height:640px;background:radial-gradient(ellipse at 50% 0,var(--glow),transparent 62%);pointer-events:none}
-.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:7px 15px;border-radius:999px;background:var(--chip);font-size:13px;font-weight:500;color:var(--mute);border:1px solid var(--line)}
-.eyebrow b{width:7px;height:7px;border-radius:50%;background:var(--c1);box-shadow:0 0 0 4px color-mix(in srgb,var(--c1) 25%,transparent)}
-.hero h1{font-size:clamp(38px,6.4vw,76px);font-weight:700;margin:26px auto 22px;max-width:15ch}
-.hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--c2),var(--brand) 40%,var(--c4));-webkit-background-clip:text;background-clip:text;color:transparent}
-.slogan{display:flex;flex-direction:column;align-items:center;gap:6px;margin:0 auto 22px;max-width:60ch}
-.slogan strong{font:600 clamp(17px,2.2vw,21px)/1.4 Sora,Inter,system-ui,sans-serif;letter-spacing:-.01em;color:var(--ink)}
-.slogan span{font:300 clamp(15px,1.9vw,18px)/1.4 Outfit,Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
-.slogan::after{content:"";order:3;width:44px;height:2px;border-radius:2px;margin-top:8px;background:linear-gradient(90deg,var(--c2),var(--brand))}
-.hero p{max-width:60ch;margin:0 auto 34px;font-size:18px;color:var(--mute)}
-.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:68px}
-.stats div{background:var(--card);padding:24px 14px}
-.stats strong{display:block;font:700 28px Sora,sans-serif}
-.stats span{font-size:13.5px;color:var(--mute)}
-section{padding:56px 0}
-.head{max-width:620px;margin-bottom:52px}
-.head small{color:var(--brand);font-weight:600;letter-spacing:.12em;font-size:12.5px;text-transform:uppercase}
-.head h2{font-size:clamp(30px,4vw,46px);margin:12px 0 14px}
-.head p{color:var(--mute);font-size:17px}
-.app{--c:var(--c1);display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:56px;border-radius:32px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:28px;position:relative;overflow:hidden}
-.app::after{content:"";position:absolute;width:420px;height:420px;right:-120px;top:-140px;background:radial-gradient(circle,color-mix(in srgb,var(--c) 22%,transparent),transparent 68%);pointer-events:none}
-.app.rev .txt{order:2}
-.app.a1{--c:var(--c1)}.app.a2{--c:var(--c2)}.app.a3{--c:var(--c3)}.app.a4{--c:var(--c4)}
-.num{font:600 13px Sora,sans-serif;color:var(--c);letter-spacing:.1em}
-.app h3{font-size:clamp(28px,3.4vw,40px);margin:10px 0 8px}
-.tag{font-weight:500;color:var(--c);margin-bottom:16px}
-.app p{color:var(--mute);margin-bottom:22px}
-.feat{list-style:none;padding:0;display:grid;gap:11px;margin-bottom:30px}
-.feat li{display:flex;gap:12px;font-size:15.5px}
-.feat li::before{content:"";flex:none;width:20px;height:20px;margin-top:2px;border-radius:50%;background:color-mix(in srgb,var(--c) 18%,transparent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5.5 10.5l3 3 6-6.5' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/20px no-repeat;border:1px solid color-mix(in srgb,var(--c) 45%,transparent)}
-.open{background:var(--c);color:#fff;box-shadow:0 12px 26px -12px var(--c)}
-.a2 .open,.a1 .open{color:#0b1016}
-.open:hover{transform:translateY(-2px)}
-.open.off,.open.off:hover{background:var(--chip);color:var(--mute);box-shadow:none;transform:none;border-color:var(--line);cursor:not-allowed;user-select:none}
-.stage{display:grid;place-items:center;position:relative;z-index:1}
-.phone{width:262px;aspect-ratio:9/18.6;border-radius:38px;background:var(--phone);padding:9px;box-shadow:0 40px 70px -28px rgba(0,0,0,.55),0 0 0 1px var(--line);transform:rotate(-3deg);transition:.5s}
-.app.rev .phone{transform:rotate(3deg)}
-.app:hover .phone{transform:rotate(0) translateY(-6px)}
-.screen{height:100%;border-radius:30px;background:var(--screen);padding:30px 16px 16px;display:flex;flex-direction:column;gap:11px;position:relative;overflow:hidden}
+.hero{position:relative;padding:84px 0 72px;overflow:hidden}
+.hero::before{content:"";position:absolute;right:-10%;top:-30%;width:900px;height:900px;background:radial-gradient(circle,var(--glow),transparent 62%);pointer-events:none}
+.gem{position:absolute;left:-180px;bottom:-260px;width:760px;height:760px;opacity:.07;transform:rotate(-12deg);pointer-events:none}
+.hgrid{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(42px,6.2vw,84px);font-weight:700;max-width:11ch}
+.slogan{margin:30px 0 22px;padding-left:20px;border-left:3px solid var(--brand);max-width:46ch}
+.slogan strong{display:block;font:600 clamp(18px,2vw,22px)/1.4 Sora,Inter,sans-serif;letter-spacing:-.01em}
+.slogan span{display:block;margin-top:6px;font:300 clamp(16px,1.8vw,20px)/1.4 Outfit,Inter,sans-serif;font-style:italic;color:var(--brand)}
+.hero p{max-width:54ch;margin-bottom:32px;font-size:17px;color:var(--mute)}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.facts{display:flex;flex-wrap:wrap;margin-top:56px;border-top:1px solid var(--line)}
+.facts div{flex:1 1 150px;padding:18px 20px 0 0}
+.facts strong{display:block;font:700 24px Sora,sans-serif}
+.facts span{font-size:13.5px;color:var(--mute)}
+.fan{position:relative;height:540px;display:grid;place-items:center}
+.fan .phone{position:absolute;width:218px;transform:translate(var(--x),var(--y)) rotate(var(--r));animation:rise .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d)}
+.fan .p1{--x:-118px;--y:34px;--r:-9deg;--d:.1s;--c:var(--c2)}
+.fan .p3{--x:118px;--y:34px;--r:9deg;--d:.25s;--c:var(--c4)}
+.fan .p2{--x:0;--y:-12px;--r:0deg;--d:0s;--c:var(--c1);z-index:2;box-shadow:0 50px 80px -24px rgba(232,116,31,.45),0 0 0 1px var(--line)}
+@keyframes rise{from{translate:0 60px;opacity:0}}
+.phone{width:262px;aspect-ratio:9/18.6;border-radius:38px;background:var(--phone);padding:9px;box-shadow:0 40px 70px -28px rgba(0,0,0,.6),0 0 0 1px var(--line)}
+.screen{height:100%;border-radius:30px;background:var(--screen);padding:30px 16px 16px;display:flex;flex-direction:column;gap:11px;position:relative;overflow:hidden;--c:inherit}
 .screen::before{content:"";position:absolute;top:9px;left:50%;width:70px;height:16px;border-radius:9px;background:var(--phone);transform:translateX(-50%)}
 .bar{height:9px;border-radius:5px;background:var(--chip)}
 .bar.t{width:55%;height:13px;background:color-mix(in srgb,var(--ink) 80%,transparent)}
@@ -112,29 +71,52 @@ section{padding:56px 0}
 .meta span{display:flex;justify-content:space-between}.meta s{color:var(--c);text-decoration:none;font-weight:600}
 .shield{width:74px;height:84px;margin:6px auto 2px;background:var(--c);clip-path:polygon(50% 0,100% 16%,100% 55%,50% 100%,0 55%,0 16%);opacity:.92}
 .wm{flex:1;border-radius:16px;background:linear-gradient(150deg,#243b55,#141e30);position:relative;overflow:hidden}
-.wm::before,.wm::after{content:"";position:absolute;inset:-40%;background:repeating-linear-gradient(45deg,transparent 0 22px,color-mix(in srgb,var(--c) 22%,transparent) 22px 23px)}
-.wm::after{background:repeating-linear-gradient(-45deg,transparent 0 22px,color-mix(in srgb,var(--c) 14%,transparent) 22px 23px)}
-.why{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.why div{padding:30px;border-radius:24px;background:var(--card);border:1px solid var(--line)}
-.why .ic{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:var(--chip);font-size:22px;margin-bottom:18px}
-.why h3{font-size:20px;margin-bottom:8px}.why p{color:var(--mute);font-size:15px}
-.final{margin:30px 0 70px;padding:72px 32px;text-align:center;border-radius:36px;background:linear-gradient(135deg,var(--bg2),var(--card));border:1px solid var(--line);position:relative;overflow:hidden}
-.final::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 120%,var(--glow),transparent 60%)}
+.wm::before,.wm::after{content:"";position:absolute;inset:-40%;background:repeating-linear-gradient(45deg,transparent 0 22px,color-mix(in srgb,var(--c) 30%,transparent) 22px 23px)}
+.wm::after{background:repeating-linear-gradient(-45deg,transparent 0 22px,color-mix(in srgb,var(--c) 18%,transparent) 22px 23px)}
+section{padding:64px 0 24px}
+.head{max-width:640px;margin-bottom:28px}
+.head h2{font-size:clamp(32px,4.4vw,54px);margin-bottom:14px}
+.head p{color:var(--mute);font-size:17px}
+.app{--c:var(--c1);display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;padding:72px 0;border-top:1px solid var(--line)}
+.app.a2{--c:var(--c2)}.app.a3{--c:var(--c3)}.app.a4{--c:var(--c4)}
+.app.rev .txt{order:2}
+.app h3{font-size:clamp(34px,4.4vw,56px);margin-bottom:10px}
+.tag{font:500 18px Outfit,Inter,sans-serif;color:var(--c);margin-bottom:18px}
+.app p{color:var(--mute);margin-bottom:24px;max-width:46ch}
+.feat{list-style:none;padding:0;display:grid;gap:11px;margin-bottom:32px}
+.feat li{display:flex;gap:12px;font-size:15.5px}
+.feat li::before{content:"";flex:none;width:20px;height:20px;margin-top:2px;border-radius:6px;transform:rotate(45deg) scale(.62);background:var(--c)}
+.open{background:var(--chip);color:var(--mute);border-color:var(--line);cursor:not-allowed;user-select:none}
+.plate{position:relative;aspect-ratio:1/.95;border-radius:30px;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--c) 42%,transparent),transparent 64%),var(--bg2)}
+.plate::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 34px,color-mix(in srgb,var(--c) 14%,transparent) 34px 35px);mask:linear-gradient(transparent,#000);-webkit-mask:linear-gradient(transparent,#000)}
+.plate .phone{position:relative;transform:rotate(-4deg) translateY(10px);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.rev .plate .phone{transform:rotate(4deg) translateY(10px)}
+.app:hover .plate .phone{transform:rotate(0) translateY(-6px)}
+.why{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.why div{padding:36px 32px 36px 0}
+.why div+div{padding-left:32px;border-left:1px solid var(--line)}
+.why .ic{font-size:28px;margin-bottom:18px}
+.why h3{font-size:22px;margin-bottom:10px}.why p{color:var(--mute);font-size:15px}
+.final{position:relative;margin:40px 0 80px;padding:84px 32px;text-align:center;border-radius:40px;background:linear-gradient(135deg,#f7cb78,#dc9d3c 48%,#a8691b);color:#1b1208;overflow:hidden}
+.final .gem{left:auto;right:-120px;bottom:-200px;width:520px;height:520px;opacity:.16}
 .final>*{position:relative}
-.final h2{font-size:clamp(28px,4vw,44px);margin-bottom:14px}.final p{color:var(--mute);margin:0 auto 28px;max-width:52ch}
+.final h2{font-size:clamp(30px,4.4vw,52px);margin-bottom:14px}
+.final p{margin:0 auto 30px;max-width:48ch;color:rgba(27,18,8,.78)}
+.final .cta{justify-content:center}
+.final .btn.primary{background:#1b1208;color:#f7cb78;box-shadow:none}
 footer{border-top:1px solid var(--line);padding:34px 0;color:var(--mute);font-size:14px}
 footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.rv{opacity:0;transform:translateY(26px);transition:opacity .8s,transform .8s}
-.rv.in{opacity:1;transform:none}
 @media (max-width:900px){
-  .links{display:none}
-  .app{grid-template-columns:1fr;padding:32px 24px;gap:36px}
-  .app.rev .txt{order:0}
-  .why{grid-template-columns:1fr}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .hero{padding-top:64px}
+.links{display:none}
+.hero{padding-top:56px}
+.hgrid{grid-template-columns:1fr}
+.fan{height:440px;transform:scale(.82);margin:-20px 0}
+.app{grid-template-columns:1fr;gap:36px;padding:48px 0}
+.app.rev .txt{order:0}
+.why{grid-template-columns:1fr}
+.why div,.why div+div{padding:28px 0;border-left:0;border-bottom:1px solid var(--line)}
 }
-@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.phone{transition:none}html{scroll-behavior:auto}}
+@media (prefers-reduced-motion:reduce){.fan .phone{animation:none}.plate .phone{transition:none}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
@@ -145,92 +127,36 @@ footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
   <a class="btn primary" href="#uygulamalar">Keşfet</a>
 </div></nav>
 
-<header class="hero" id="top"><div class="wrap">
-  <span class="eyebrow"><b></b>4 uygulama · cihazında çalışır</span>
-  <h1>Telefonun için <em>zarif ve güçlü</em> araçlar.</h1>
+<header class="hero" id="top"><svg class="gem" aria-hidden="true"><use href="#mark"/></svg><div class="wrap">
+ <div class="hgrid">
+  <div>
+  <h1>Telefonun için zarif ve güçlü araçlar.</h1>
   <div class="slogan"><strong>Dijital fikirlerin ve mobil projelerin hayat bulduğu atölye.</strong><span lang="en">Crafting digital experiences.</span></div>
   <p>Özgüler Forge; fotoğraflarını düzenleyen, izlerini temizleyen, imzalayan ve cihazını hafifleten zarif uygulamalar sunar. Sade arayüz, güçlü işlev ve verilerin üzerinde tam kontrol.</p>
-  <div class="cta"><a class="btn primary" href="#uygulamalar">Uygulamaları incele →</a><a class="btn ghost" href="#neden">Neden Forge?</a></div>
-  <div class="stats">
-    <div><strong>4</strong><span>Hazır uygulama</span></div>
-    <div><strong>%100</strong><span>Cihaz üzerinde işlem</span></div>
-    <div><strong>0</strong><span>Analitik ve takipçi</span></div>
-    <div><strong>PWA</strong><span>Ana ekrana eklenir</span></div>
+  <div class="cta"><a class="btn primary" href="#uygulamalar">Uygulamaları incele</a><a class="btn ghost" href="#neden">Neden Forge?</a></div>
   </div>
+  <div class="fan" aria-hidden="true"><div class="phone p1"><div class="screen"><div class="bar t"></div><div class="photo"></div><div class="sl" style="--w:62%"></div><div class="sl" style="--w:35%"></div><div class="sl" style="--w:80%"></div><div class="row"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div></div><div class="phone p3"><div class="screen"><div class="bar t"></div><div class="wm"></div><div class="meta"><span>İmza <s>doğrulandı</s></span></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="pill"></div></div></div><div class="phone p2"><div class="screen"><div class="bar t"></div><div class="ring"></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="bar" style="width:70%"></div><div class="pill"></div></div></div></div>
+ </div>
+ <div class="facts">
+  <div><strong>4</strong><span>Hazır uygulama</span></div>
+  <div><strong>%100</strong><span>Cihaz üzerinde işlem</span></div>
+  <div><strong>0</strong><span>Analitik ve takipçi</span></div>
+  <div><strong>PWA</strong><span>Ana ekrana eklenir</span></div>
+ </div>
 </div></header>
 
 <main class="wrap">
 <section id="uygulamalar">
-  <div class="head rv"><small>Uygulamalar</small><h2>Her biri tek bir işi kusursuz yapar.</h2><p>Karmaşık menüler yok. Aç, kullan, bitir. Dosyaların cihazından çıkmaz.</p></div>
-
-  <article class="app a1 rv">
-    <div class="txt">
-      <span class="num">01</span>
-      <h3>Cep Temizlik</h3>
-      <div class="tag">Telefonunu topla, hafiflet.</div>
-      <p>Telefonunu düzenli ve hızlı tutmana yardım eden pratik temizlik aracı. Tek ekran, net sonuç.</p>
-      <ul class="feat"><li>Sade ve hızlı kullanım</li><li>Tek dokunuşla temizlik akışı</li><li>Ana ekrana uygulama gibi eklenir</li></ul>
-      <span class="btn open off" aria-disabled="true">Yakında</span>
-    </div>
-    <div class="stage"><div class="phone"><div class="screen">
-      <div class="bar t"></div><div class="ring"></div>
-      <div class="row"><div class="bar"></div><div class="bar"></div></div>
-      <div class="bar" style="width:70%"></div><div class="pill"></div>
-    </div></div></div>
-  </article>
-
-  <article class="app a2 rev rv">
-    <div class="txt">
-      <span class="num">02</span>
-      <h3>Fotoğraf Ustası</h3>
-      <div class="tag">Görsel düzenleme stüdyosu.</div>
-      <p>Fotoğraflarını özgün çözünürlükte, tahribatsız biçimde iyileştir. Orijinal dosyan her zaman güvende kalır.</p>
-      <ul class="feat"><li>Akıllı iyileştirme ve 40 hazır görünüm</li><li>Işık, renk, detay ve atmosfer ince ayarı</li><li>İsteğe bağlı Gemini ile yapay zekâ düzenleme</li><li>JPG, PNG, WebP, AVIF · %100 kaliteye kadar dışa aktarım</li></ul>
-      <span class="btn open off" aria-disabled="true">Yakında</span>
-    </div>
-    <div class="stage"><div class="phone"><div class="screen">
-      <div class="bar t"></div><div class="photo"></div>
-      <div class="sl" style="--w:62%"></div><div class="sl" style="--w:35%"></div><div class="sl" style="--w:80%"></div>
-      <div class="row"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-    </div></div></div>
-  </article>
-
-  <article class="app a3 rv">
-    <div class="txt">
-      <span class="num">03</span>
-      <h3>İzsiz Foto</h3>
-      <div class="tag">Gizli verileri sil, HEIC’i dönüştür.</div>
-      <p>Fotoğraf ve videolardaki konum, cihaz ve tarih gibi gömülü üst verileri yalnızca cihazında temizler. Dosyaların yüklenmez.</p>
-      <ul class="feat"><li>JPEG, PNG, WebP ve MP4/MOV/WebM/AVI desteği</li><li>HEIC/HEIF’i PNG, JPEG veya WebP’ye çevirir</li><li>Otomatik doğrulama ve rastgele dosya adı</li><li>Analitik, CDN ve dış yazı tipi yok</li></ul>
-      <span class="btn open off" aria-disabled="true">Yakında</span>
-    </div>
-    <div class="stage"><div class="phone"><div class="screen">
-      <div class="bar t"></div><div class="shield"></div>
-      <div class="meta"><span>Konum <s>silindi</s></span><span>Cihaz <s>silindi</s></span><span>Tarih <s>silindi</s></span></div>
-      <div class="row"><div class="bar"></div><div class="bar"></div></div><div class="pill"></div>
-    </div></div></div>
-  </article>
-
-  <article class="app a4 rev rv">
-    <div class="txt">
-      <span class="num">04</span>
-      <h3>Filigran</h3>
-      <div class="tag">Görünmez dijital imza.</div>
-      <p>Fotoğraflarına cihazından ayrılmadan görünmez bir dijital imza ekle, daha sonra doğrula. Emeğini sessizce sahiplen.</p>
-      <ul class="feat"><li>Görünmez imza ekleme</li><li>İmzayı tek adımda doğrulama</li><li>Cihaz üzerinde işlem</li></ul>
-      <span class="btn open off" aria-disabled="true">Yakında</span>
-    </div>
-    <div class="stage"><div class="phone"><div class="screen">
-      <div class="bar t"></div><div class="wm"></div>
-      <div class="meta"><span>İmza <s>doğrulandı</s></span></div>
-      <div class="row"><div class="bar"></div><div class="bar"></div></div><div class="pill"></div>
-    </div></div></div>
-  </article>
+  <div class="head"><h2>Her biri tek bir işi kusursuz yapar.</h2><p>Karmaşık menüler yok. Aç, kullan, bitir. Dosyaların cihazından çıkmaz.</p></div>
+  <article class="app a1"><div class="txt"><h3>Cep Temizlik</h3><div class="tag">Telefonunu topla, hafiflet.</div><p>Telefonunu düzenli ve hızlı tutmana yardım eden pratik temizlik aracı. Tek ekran, net sonuç.</p><ul class="feat"><li>Sade ve hızlı kullanım</li><li>Tek dokunuşla temizlik akışı</li><li>Ana ekrana uygulama gibi eklenir</li></ul><span class="btn open off" aria-disabled="true">Yakında</span></div><div class="plate"><div class="phone"><div class="screen"><div class="bar t"></div><div class="ring"></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="bar" style="width:70%"></div><div class="pill"></div></div></div></div></article>
+  <article class="app a2 rev"><div class="txt"><h3>Fotoğraf Ustası</h3><div class="tag">Görsel düzenleme stüdyosu.</div><p>Fotoğraflarını özgün çözünürlükte, tahribatsız biçimde iyileştir. Orijinal dosyan her zaman güvende kalır.</p><ul class="feat"><li>Akıllı iyileştirme ve 40 hazır görünüm</li><li>Işık, renk, detay ve atmosfer ince ayarı</li><li>İsteğe bağlı Gemini ile yapay zekâ düzenleme</li><li>JPG, PNG, WebP, AVIF · %100 kaliteye kadar dışa aktarım</li></ul><span class="btn open off" aria-disabled="true">Yakında</span></div><div class="plate"><div class="phone"><div class="screen"><div class="bar t"></div><div class="photo"></div><div class="sl" style="--w:62%"></div><div class="sl" style="--w:35%"></div><div class="sl" style="--w:80%"></div><div class="row"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div></div></div></article>
+  <article class="app a3"><div class="txt"><h3>İzsiz Foto</h3><div class="tag">Gizli verileri sil, HEIC’i dönüştür.</div><p>Fotoğraf ve videolardaki konum, cihaz ve tarih gibi gömülü üst verileri yalnızca cihazında temizler. Dosyaların yüklenmez.</p><ul class="feat"><li>JPEG, PNG, WebP ve MP4/MOV/WebM/AVI desteği</li><li>HEIC/HEIF’i PNG, JPEG veya WebP’ye çevirir</li><li>Otomatik doğrulama ve rastgele dosya adı</li><li>Analitik, CDN ve dış yazı tipi yok</li></ul><span class="btn open off" aria-disabled="true">Yakında</span></div><div class="plate"><div class="phone"><div class="screen"><div class="bar t"></div><div class="shield"></div><div class="meta"><span>Konum <s>silindi</s></span><span>Cihaz <s>silindi</s></span><span>Tarih <s>silindi</s></span></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="pill"></div></div></div></div></article>
+  <article class="app a4 rev"><div class="txt"><h3>Filigran</h3><div class="tag">Görünmez dijital imza.</div><p>Fotoğraflarına cihazından ayrılmadan görünmez bir dijital imza ekle, daha sonra doğrula. Emeğini sessizce sahiplen.</p><ul class="feat"><li>Görünmez imza ekleme</li><li>İmzayı tek adımda doğrulama</li><li>Cihaz üzerinde işlem</li></ul><span class="btn open off" aria-disabled="true">Yakında</span></div><div class="plate"><div class="phone"><div class="screen"><div class="bar t"></div><div class="wm"></div><div class="meta"><span>İmza <s>doğrulandı</s></span></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="pill"></div></div></div></div></article>
 </section>
 
 <section id="neden">
-  <div class="head rv"><small>Neden Forge?</small><h2>Güven, tasarımın temelidir.</h2></div>
-  <div class="why rv">
+  <div class="head"><h2>Güven, tasarımın temelidir.</h2></div>
+  <div class="why">
     <div><div class="ic">🔒</div><h3>Önce gizlilik</h3><p>Dosyaların cihazında işlenir. Takip, analitik ve gereksiz izin yok.</p></div>
     <div><div class="ic">⚡</div><h3>Hızlı ve hafif</h3><p>Mağaza beklemeden kurulur; ana ekrana eklenir, çevrimdışı da çalışır.</p></div>
     <div><div class="ic">✨</div><h3>Titiz tasarım</h3><p>Her ekran tek bir amaca odaklanır. Karmaşa değil, netlik.</p></div>
@@ -238,23 +164,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 </section>
 
 <section id="iletisim">
-  <div class="final rv">
+  <div class="final"><svg class="gem" aria-hidden="true"><use href="#mark"/></svg>
     <h2>Hangisiyle başlamak istersin?</h2>
     <p>Tüm uygulamalar tarayıcıdan açılır ve telefonuna uygulama gibi eklenebilir.</p>
-    <div class="cta"><a class="btn primary" href="#uygulamalar">Uygulamalara dön ↑</a></div>
+    <div class="cta"><a class="btn primary" href="#uygulamalar">Uygulamalara dön</a></div>
   </div>
 </section>
 </main>
 
 <footer><div class="wrap"><span class="fl"><svg class="mk sm" aria-hidden="true"><use href="#mark"/></svg>© 2026 Ümit Özgüler · Özgüler Forge</span><span>ozgulerforge.com.tr</span></div></footer>
-
-<script>
-(function(){
-  var els=document.querySelectorAll('.rv');
-  if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in')});return}
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
-  els.forEach(function(e){io.observe(e)});
-})();
-</script>
 </body>
 </html>
