@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Özgüler Forge — Mobil Uygulamalar</title>
+<meta name="description" content="Gizliliği önceleyen, cihazında çalışan zarif mobil araçlar: Cep Temizlik, Fotoğraf Ustası, İzsiz Foto ve Filigran.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f1f0ed;--bg2:#e6e3dd;--ink:#1b1712;--mute:#645e54;--line:rgba(27,23,18,.12);--brand:#a8691b;--ember:#e8741f;--glow:rgba(232,116,31,.22);--phone:#1b1712;--screen:#fbfaf6;--chip:rgba(27,23,18,.07);--c1:#0f9d8a;--c2:#d98a12;--c3:#2f6fe0;--c4:#7a55e0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#110f0c;--bg2:#1a1612;--ink:#f3ede3;--mute:#a79f92;--line:rgba(243,237,227,.11);--brand:#e2ab52;--glow:rgba(255,122,47,.2);--phone:#050403;--screen:#0e0c0a;--chip:rgba(243,237,227,.08);--c1:#2dd4bf;--c2:#f5b544;--c3:#6aa5ff;--c4:#a78bfa;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#110f0c;--bg2:#1a1612;--ink:#f3ede3;--mute:#a79f92;--line:rgba(243,237,227,.11);--brand:#e2ab52;--glow:rgba(255,122,47,.2);--phone:#050403;--screen:#0e0c0a;--chip:rgba(243,237,227,.08);--c1:#2dd4bf;--c2:#f5b544;--c3:#6aa5ff;--c4:#a78bfa;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth;scroll-padding-top:100px;background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.65 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:Sora,Inter,system-ui,sans-serif;letter-spacing:-.025em;line-height:1.08}
+a{color:inherit;text-decoration:none}
+a:focus-visible,.btn:focus-visible{outline:2px solid var(--brand);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(16px);background:color-mix(in srgb,var(--bg) 72%,transparent);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:68px}
+.logo{display:flex;align-items:center;gap:13px}
+.mk{width:38px;height:38px;flex:none;filter:drop-shadow(0 8px 16px rgba(232,116,31,.4))}
+.mk.sm{width:24px;height:24px;filter:none}
+.brand{display:flex;align-items:baseline;gap:7px;line-height:1;font:600 25px Outfit,Sora,sans-serif;letter-spacing:-.01em}
+.brand .b2{font-weight:400;color:var(--brand)}
+.fl{display:inline-flex;align-items:center;gap:10px}
+.links{display:flex;gap:24px;font-size:14.5px;color:var(--mute);align-items:center}
+.links a:hover{color:var(--ink)}
+
+/* Şık, Modern ve Animasyonlu Kapsül Tema Toggle Butonu */
+.theme-switch{position:relative;width:64px;height:32px;background:var(--chip);border:1px solid var(--line);border-radius:99px;cursor:pointer;display:flex;align-items:center;padding:3px;transition:background .3s,border-color .3s}
+.theme-switch:hover{border-color:var(--brand)}
+.theme-switch-thumb{position:absolute;left:3px;width:24px;height:24px;background:var(--brand);border-radius:50%;display:grid;place-items:center;font-size:12px;transition:transform .35s cubic-bezier(.2,.8,.2,1),background .3s;box-shadow:0 4px 10px rgba(0,0,0,.15)}
+.theme-switch-icons{width:100%;display:flex;justify-content:space-between;padding:0 6px;font-size:13px;pointer-events:none;opacity:.7}
+:root[data-theme="dark"] .theme-switch-thumb{transform:translateX(32px);background:#f5b544}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:999px;font-weight:600;font-size:15px;transition:transform .25s,box-shadow .25s,border-color .25s;border:1px solid transparent;cursor:pointer}
+.btn.primary{background:linear-gradient(135deg,#f7cb78,#e08f2c);color:#1b1208;box-shadow:0 10px 30px -10px var(--ember)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 36px -10px var(--ember)}
+.btn.ghost{border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--brand)}
+
+/* 1. Hızlı Geçiş Sekme Çubuğu */
+.quick-tabs{position:sticky;top:68px;z-index:25;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:10px 0;transition:all .3s}
+.tabs-inner{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.tabs-inner::-webkit-scrollbar{display:none}
+.tab-chip{padding:8px 16px;border-radius:999px;background:var(--chip);border:1px solid var(--line);font-size:13.5px;font-weight:500;color:var(--mute);white-space:nowrap;cursor:pointer;transition:all .2s}
+.tab-chip:hover,.tab-chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.hero{position:relative;padding:74px 0 60px;overflow:hidden}
+.hero::before{content:"";position:absolute;right:-10%;top:-30%;width:900px;height:900px;background:radial-gradient(circle,var(--glow),transparent 62%);pointer-events:none}
+.gem{position:absolute;left:-180px;bottom:-260px;width:760px;height:760px;opacity:.07;transform:rotate(-12deg);pointer-events:none}
+.hgrid{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(40px,6vw,80px);font-weight:700;max-width:11ch}
+.slogan{margin:26px 0 20px;padding-left:20px;border-left:3px solid var(--brand);max-width:46ch}
+.slogan strong{display:block;font:600 clamp(18px,2vw,22px)/1.4 Sora,Inter,sans-serif;letter-spacing:-.01em}
+.slogan span{display:block;margin-top:6px;font:300 clamp(16px,1.8vw,20px)/1.4 Outfit,Inter,sans-serif;font-style:italic;color:var(--brand)}
+.hero p{max-width:54ch;margin-bottom:28px;font-size:17px;color:var(--mute)}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.facts{display:flex;flex-wrap:wrap;margin-top:48px;border-top:1px solid var(--line)}
+.facts div{flex:1 1 150px;padding:18px 20px 0 0}
+.facts strong{display:block;font:700 24px Sora,sans-serif}
+.facts span{font-size:13.5px;color:var(--mute)}
+
+.fan{position:relative;height:540px;display:grid;place-items:center}
+.fan .phone{position:absolute;width:218px;transform:translate(var(--x),var(--y)) rotate(var(--r));animation:rise .9s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d);cursor:pointer;transition:transform .3s}
+.fan .phone:hover{transform:translate(var(--x),calc(var(--y) - 10px)) rotate(0deg) scale(1.05);z-index:10}
+.fan .p1{--x:-118px;--y:34px;--r:-9deg;--d:.1s;--c:var(--c2)}
+.fan .p3{--x:118px;--y:34px;--r:9deg;--d:.25s;--c:var(--c4)}
+.fan .p2{--x:0;--y:-12px;--r:0deg;--d:0s;--c:var(--c1);z-index:2;box-shadow:0 50px 80px -24px rgba(232,116,31,.45),0 0 0 1px var(--line)}
+@keyframes rise{from{translate:0 60px;opacity:0}}
+
+.phone{width:262px;aspect-ratio:9/18.6;border-radius:38px;background:var(--phone);padding:9px;box-shadow:0 40px 70px -28px rgba(0,0,0,.6),0 0 0 1px var(--line)}
+.screen{height:100%;border-radius:30px;background:var(--screen);padding:30px 16px 16px;display:flex;flex-direction:column;gap:11px;position:relative;overflow:hidden;--c:inherit}
+.screen::before{content:"";position:absolute;top:9px;left:50%;width:70px;height:16px;border-radius:9px;background:var(--phone);transform:translateX(-50%)}
+.bar{height:9px;border-radius:5px;background:var(--chip)}
+.bar.t{width:55%;height:13px;background:color-mix(in srgb,var(--ink) 80%,transparent)}
+.ring{width:112px;height:112px;margin:8px auto;border-radius:50%;background:conic-gradient(var(--c) 0 72%,var(--chip) 0);display:grid;place-items:center;transition:background 1s}
+.ring::after{content:"72%";width:88px;height:88px;border-radius:50%;background:var(--screen);display:grid;place-items:center;font:700 20px Sora,sans-serif}
+.pill{height:38px;border-radius:12px;background:color-mix(in srgb,var(--c) 85%,transparent);margin-top:auto}
+.row{display:flex;gap:8px}.row .bar{flex:1;height:34px;border-radius:10px}
+.photo{flex:1;border-radius:16px;background:linear-gradient(160deg,#f6b26b,#c0562b 55%,#3a2a4d);position:relative;min-height:120px}
+.photo::after{content:"";position:absolute;inset:0;border-radius:16px;background:linear-gradient(90deg,transparent 50%,rgba(255,255,255,.18) 50%)}
+.sl{height:6px;border-radius:3px;background:var(--chip);position:relative}
+.sl::after{content:"";position:absolute;left:0;top:0;height:6px;width:var(--w,50%);border-radius:3px;background:var(--c)}
+.meta{display:grid;gap:7px;padding:12px;border-radius:14px;background:var(--chip);font-size:11px;color:var(--mute)}
+.meta span{display:flex;justify-content:space-between}.meta s{color:var(--c);text-decoration:none;font-weight:600}
+.shield{width:74px;height:84px;margin:6px auto 2px;background:var(--c);clip-path:polygon(50% 0,100% 16%,100% 55%,50% 100%,0 55%,0 16%);opacity:.92}
+.wm{flex:1;border-radius:16px;background:linear-gradient(150deg,#243b55,#141e30);position:relative;overflow:hidden}
+.wm::before,.wm::after{content:"";position:absolute;inset:-40%;background:repeating-linear-gradient(45deg,transparent 0 22px,color-mix(in srgb,var(--c) 30%,transparent) 22px 23px)}
+
+section{padding:54px 0 20px}
+.head{max-width:640px;margin-bottom:28px}
+.head h2{font-size:clamp(32px,4.4vw,54px);margin-bottom:14px}
+.head p{color:var(--mute);font-size:17px}
+.app{--c:var(--c1);display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;padding:64px 0;border-top:1px solid var(--line);scroll-margin-top:110px}
+.app.a2{--c:var(--c2)}.app.a3{--c:var(--c3)}.app.a4{--c:var(--c4)}
+.app.rev .txt{order:2}
+.app h3{font-size:clamp(34px,4.4vw,56px);margin-bottom:10px}
+.tag{font:500 18px Outfit,Inter,sans-serif;color:var(--c);margin-bottom:18px}
+.app p{color:var(--mute);margin-bottom:24px;max-width:46ch}
+.feat{list-style:none;padding:0;display:grid;gap:11px;margin-bottom:32px}
+.feat li{display:flex;gap:12px;font-size:15.5px}
+.feat li::before{content:"";flex:none;width:20px;height:20px;margin-top:2px;border-radius:6px;transform:rotate(45deg) scale(.62);background:var(--c)}
+
+/* 2. Etkileşimli Önizleme Bileşeni */
+.plate{position:relative;aspect-ratio:1/.95;border-radius:30px;display:grid;place-items:center;overflow:hidden;border:1px solid var(--line);background:radial-gradient(circle at 50% 36%,color-mix(in srgb,var(--c) 42%,transparent),transparent 64%),var(--bg2);cursor:pointer;user-select:none}
+.plate::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 34px,color-mix(in srgb,var(--c) 14%,transparent) 34px 35px);mask:linear-gradient(transparent,#000);-webkit-mask:linear-gradient(transparent,#000)}
+.plate .phone{position:relative;transform:rotate(-4deg) translateY(10px);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.rev .plate .phone{transform:rotate(4deg) translateY(10px)}
+.app:hover .plate .phone,.plate:hover .phone{transform:rotate(0) translateY(-6px) scale(1.02)}
+.interactive-hint{position:absolute;bottom:14px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(8px);padding:6px 14px;border-radius:20px;font-size:12px;color:var(--mute);border:1px solid var(--line);pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.1);transition:opacity .3s}
+.plate:hover .interactive-hint{opacity:.3}
+
+/* 4. İletişim / Geri Bildirim & Bülten Formu */
+.newsletter-box{margin:40px 0 60px;padding:48px 36px;border-radius:32px;background:var(--bg2);border:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center}
+.newsletter-box h3{font-size:28px;margin-bottom:8px}
+.newsletter-box p{color:var(--mute);font-size:15px}
+.nl-form{display:flex;gap:10px}
+.nl-input{flex:1;background:var(--bg);border:1px solid var(--line);padding:13px 18px;border-radius:999px;color:var(--ink);font-size:14.5px;outline:none;transition:border-color .2s}
+.nl-input:focus{border-color:var(--brand)}
+.nl-msg{margin-top:8px;font-size:13px;color:var(--c1);display:none}
+
+/* 3. PWA / Kurulum Rehberi Modalı ve Banner */
+.pwa-banner{position:fixed;bottom:20px;left:20px;right:20px;max-width:480px;margin:0 auto;z-index:50;background:var(--bg2);border:1px solid var(--line);padding:18px 22px;border-radius:24px;box-shadow:0 20px 40px rgba(0,0,0,.25);display:flex;align-items:center;gap:16px;backdrop-filter:blur(16px);animation:slideUp .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slideUp{from{transform:translateY(120%);opacity:0}}
+.pwa-banner .icon{font-size:32px;flex:none}
+.pwa-banner h4{font-size:15px;margin-bottom:3px}
+.pwa-banner p{font-size:13px;color:var(--mute)}
+.pwa-actions{display:flex;gap:8px;margin-top:8px}
+.pwa-close{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--mute);font-size:18px;cursor:pointer}
+
+.why{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.why div{padding:36px 32px 36px 0}
+.why div+div{padding-left:32px;border-left:1px solid var(--line)}
+.why .ic{font-size:28px;margin-bottom:18px}
+.why h3{font-size:22px;margin-bottom:10px}.why p{color:var(--mute);font-size:15px}
+
+.final{position:relative;margin:30px 0 70px;padding:74px 32px;text-align:center;border-radius:36px;background:linear-gradient(135deg,#f7cb78,#dc9d3c 48%,#a8691b);color:#1b1208;overflow:hidden}
+.final .gem{left:auto;right:-120px;bottom:-200px;width:520px;height:520px;opacity:.16}
+.final>*{position:relative}
+.final h2{font-size:clamp(30px,4.4vw,52px);margin-bottom:14px}
+.final p{margin:0 auto 26px;max-width:48ch;color:rgba(27,18,8,.78)}
+.final .cta{justify-content:center}
+.final .btn.primary{background:#1b1208;color:#f7cb78;box-shadow:none}
+
+footer{border-top:1px solid var(--line);padding:34px 0;color:var(--mute);font-size:14px}
+footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+
+@media (max-width:900px){
+.links .desktop-link{display:none}
+.hero{padding-top:46px}
+.hgrid{grid-template-columns:1fr}
+.fan{height:420px;transform:scale(.82);margin:-20px 0}
+.app{grid-template-columns:1fr;gap:36px;padding:48px 0}
+.app.rev .txt{order:0}
+.why{grid-template-columns:1fr}
+.why div,.why div+div{padding:28px 0;border-left:0;border-bottom:1px solid var(--line)}
+.newsletter-box{grid-template-columns:1fr;gap:20px;padding:32px 20px}
+}
+@media (prefers-reduced-motion:reduce){.fan .phone{animation:none}.plate .phone{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><symbol id="mark" viewBox="0 0 40 40"><defs><mask id="mkm" maskUnits="userSpaceOnUse" x="0" y="0" width="40" height="40"><rect width="40" height="40" fill="#fff"/><path d="M20 12.2C20.9 17 23 19.1 27.8 20 23 20.9 20.9 23 20 27.8 19.1 23 17 20.9 12.2 20 17 19.1 19.1 17 20 12.2Z" fill="#000"/></mask></defs><g mask="url(#mkm)" stroke-linejoin="round"><path d="M20 20L20 3 34.72 11.5Z" fill="#f7cb78" stroke="#f7cb78" stroke-width="1.2"/><path d="M20 20L34.72 11.5 34.72 28.5Z" fill="#dc9d3c" stroke="#dc9d3c" stroke-width="1.2"/><path d="M20 20L34.72 28.5 20 37Z" fill="#a8691b" stroke="#a8691b" stroke-width="1.2"/><path d="M20 20L20 37 5.28 28.5Z" fill="#7a4710" stroke="#7a4710" stroke-width="1.2"/><path d="M20 20L5.28 28.5 5.28 11.5Z" fill="#c48a2d" stroke="#c48a2d" stroke-width="1.2"/><path d="M20 20L5.28 11.5 20 3Z" fill="#ffe9b5" stroke="#ffe9b5" stroke-width="1.2"/><path d="M20 20V3M20 20L34.72 11.5M20 20L34.72 28.5M20 20V37M20 20L5.28 28.5M20 20L5.28 11.5" stroke="#4a2a06" stroke-opacity=".28" stroke-width=".5" fill="none"/><path d="M20 9L29.53 14.5V25.5L20 31 10.47 25.5V14.5Z" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width=".5"/></g></symbol></defs></svg>
+
+<nav><div class="wrap">
+  <a class="logo" href="#top"><svg class="mk" aria-hidden="true"><use href="#mark"/></svg><span class="brand"><span class="b1">Özgüler</span><span class="b2">Forge</span></span></a>
+  <div class="links">
+    <a class="desktop-link" href="#uygulamalar">Uygulamalar</a>
+    <a class="desktop-link" href="#neden">Neden Forge?</a>
+    <a class="desktop-link" href="#bulten">Haberdar Ol</a>
+    <!-- Yeni Şık Tema Düğmesi -->
+    <button class="theme-switch" id="themeToggle" aria-label="Tema Değiştir" title="Açık/Koyu Mod">
+      <div class="theme-switch-icons"><span>☀️</span><span>🌙</span></div>
+      <div class="theme-switch-thumb" id="themeThumb">☀️</div>
+    </button>
+  </div>
+  <a class="btn primary" href="#uygulamalar">Keşfet</a>
+</div></nav>
+
+<!-- 1. Hızlı Geçiş Sekme Çubuğu -->
+<div class="quick-tabs">
+  <div class="wrap">
+    <div class="tabs-inner">
+      <button class="tab-chip active" onclick="scrollToApp('uygulamalar')">Tüm Araçlar (4)</button>
+      <button class="tab-chip" onclick="scrollToApp('app-temizlik')"> Cep Temizlik</button>
+      <button class="tab-chip" onclick="scrollToApp('app-fotograf')"> Fotoğraf Ustası</button>
+      <button class="tab-chip" onclick="scrollToApp('app-izsiz')"> İzsiz Foto</button>
+      <button class="tab-chip" onclick="scrollToApp('app-filigran')"> Filigran</button>
+    </div>
+  </div>
+</div>
+
+<header class="hero" id="top"><svg class="gem" aria-hidden="true"><use href="#mark"/></svg><div class="wrap">
+ <div class="hgrid">
+  <div>
+  <h1>Telefonun için zarif ve güçlü araçlar.</h1>
+  <div class="slogan"><strong>Dijital fikirlerin ve mobil projelerin hayat bulduğu atölye.</strong><span lang="en">Crafting digital experiences.</span></div>
+  <p>Özgüler Forge; fotoğraflarını düzenleyen, izlerini temizleyen, imzalayan ve cihazını hafifleten zarif uygulamalar sunar. Sade arayüz, güçlü işlev ve verilerin üzerinde tam kontrol.</p>
+  <div class="cta"><a class="btn primary" href="#uygulamalar">Uygulamaları incele</a><a class="btn ghost" href="#neden">Neden Forge?</a></div>
+  </div>
+  <div class="fan" aria-hidden="true">
+    <div class="phone p1" onclick="triggerInteractiveEffect(this)"><div class="screen"><div class="bar t"></div><div class="photo"></div><div class="sl" style="--w:62%"></div><div class="sl" style="--w:35%"></div><div class="sl" style="--w:80%"></div><div class="row"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+    <div class="phone p3" onclick="triggerInteractiveEffect(this)"><div class="screen"><div class="bar t"></div><div class="wm"></div><div class="meta"><span>İmza <s>doğrulandı</s></span></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="pill"></div></div></div>
+    <div class="phone p2" onclick="triggerInteractiveEffect(this)"><div class="screen"><div class="bar t"></div><div class="ring"></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="bar" style="width:70%"></div><div class="pill"></div></div></div>
+  </div>
+ </div>
+ <div class="facts">
+  <div><strong>4</strong><span>Hazır uygulama</span></div>
+  <div><strong>%100</strong><span>Cihaz üzerinde işlem</span></div>
+  <div><strong>0</strong><span>Analitik ve takipçi</span></div>
+  <div><strong>PWA</strong><span>Ana ekrana eklenir</span></div>
+ </div>
+</div></header>
+
+<main class="wrap">
+<section id="uygulamalar">
+  <div class="head"><h2>Her biri tek bir işi kusursuz yapar.</h2><p>Karmaşık menüler yok. Aç, kullan, bitir. Dosyaların cihazından çıkmaz.</p></div>
+
+  <!-- 2. Etkileşimli Önizleme Alanları ile Güncellenmiş Uygulama Kartları -->
+  <article class="app a1" id="app-temizlik">
+    <div class="txt">
+      <h3>Cep Temizlik</h3>
+      <div class="tag">Telefonunu topla, hafiflet.</div>
+      <p>Telefonunu düzenli ve hızlı tutmana yardım eden pratik temizlık aracı. Tek ekran, net sonuç.</p>
+      <ul class="feat">
+        <li>Sade ve hızlı kullanım</li>
+        <li>Tek dokunuşla temizlik akışı</li>
+        <li>Ana ekrana uygulama gibi eklenir</li>
+      </ul>
+      <span class="btn ghost" onclick="showNotify('Cep Temizlik yakında yayında olacak!')" style="cursor:pointer">Haberdar Et</span>
+    </div>
+    <div class="plate" onclick="pulseMockup(this)" title="Test etmek için dokun!">
+      <div class="phone"><div class="screen"><div class="bar t"></div><div class="ring" id="demoRing"></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="bar" style="width:70%"></div><div class="pill" style="display:grid;place-items:center;color:#fff;font-size:12px;font-weight:600;">Temizle</div></div></div>
+      <div class="interactive-hint">✨ Etkileşim için dokun</div>
+    </div>
+  </article>
+
+  <article class="app a2 rev" id="app-fotograf">
+    <div class="txt">
+      <h3>Fotoğraf Ustası</h3>
+      <div class="tag">Görsel düzenleme stüdyosu.</div>
+      <p>Fotoğraflarını özgün çözünürlükte, tahribatsız biçimde iyileştir. Orijinal dosyan her zaman güvende kalır.</p>
+      <ul class="feat">
+        <li>Akıllı iyileştirme ve 40 hazır görünüm</li>
+        <li>Işık, renk, detay ve atmosfer ince ayarı</li>
+        <li>İsteğe bağlı Gemini ile yapay zekâ düzenleme</li>
+        <li>JPG, PNG, WebP, AVIF · %100 kaliteye kadar dışa aktarım</li>
+      </ul>
+      <span class="btn ghost" onclick="showNotify('Fotoğraf Ustası yakında yayında olacak!')" style="cursor:pointer">Haberdar Et</span>
+    </div>
+    <div class="plate" onclick="pulseMockup(this)" title="Test etmek için dokun!">
+      <div class="phone"><div class="screen"><div class="bar t"></div><div class="photo"></div><div class="sl" style="--w:62%"></div><div class="sl" style="--w:35%"></div><div class="sl" style="--w:80%"></div><div class="row"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div></div></div>
+      <div class="interactive-hint">✨ Efekt için dokun</div>
+    </div>
+  </article>
+
+  <article class="app a3" id="app-izsiz">
+    <div class="txt">
+      <h3>İzsiz Foto</h3>
+      <div class="tag">Gizli verileri sil, HEIC’i dönüştür.</div>
+      <p>Fotoğraf ve videolardaki konum, cihaz ve tarih gibi gömülü üst verileri yalnızca cihazında temizler. Dosyaların yüklenmez.</p>
+      <ul class="feat">
+        <li>JPEG, PNG, WebP ve MP4/MOV/WebM/AVI desteği</li>
+        <li>HEIC/HEIF’i PNG, JPEG veya WebP’ye çevirir</li>
+        <li>Otomatik doğrulama ve rastgele dosya adı</li>
+        <li>Analitik, CDN ve dış yazı tipi yok</li>
+      </ul>
+      <span class="btn ghost" onclick="showNotify('İzsiz Foto yakında yayında olacak!')" style="cursor:pointer">Haberdar Et</span>
+    </div>
+    <div class="plate" onclick="pulseMockup(this)" title="Test etmek için dokun!">
+      <div class="phone"><div class="screen"><div class="bar t"></div><div class="shield"></div><div class="meta"><span>Konum <s>silindi</s></span><span>Cihaz <s>silindi</s></span><span>Tarih <s>silindi</s></span></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="pill" style="display:grid;place-items:center;color:#fff;font-size:12px;font-weight:600;">Temizle</div></div></div>
+      <div class="interactive-hint">✨ Gizliliği test et</div>
+    </div>
+  </article>
+
+  <article class="app a4 rev" id="app-filigran">
+    <div class="txt">
+      <h3>Filigran</h3>
+      <div class="tag">Görünmez dijital imza.</div>
+      <p>Fotoğraflarına cihazından ayrılmadan görünmez bir dijital imza ekle, daha sonra doğrula. Emeğini sessizce sahiplen.</p>
+      <ul class="feat">
+        <li>Görünmez imza ekleme</li>
+        <li>İmzayı tek adımda doğrulama</li>
+        <li>Cihaz üzerinde işlem</li>
+      </ul>
+      <span class="btn ghost" onclick="showNotify('Filigran yakında yayında olacak!')" style="cursor:pointer">Haberdar Et</span>
+    </div>
+    <div class="plate" onclick="pulseMockup(this)" title="Test etmek için dokun!">
+      <div class="phone"><div class="screen"><div class="bar t"></div><div class="wm"></div><div class="meta"><span>İmza <s>doğrulandı</s></span></div><div class="row"><div class="bar"></div><div class="bar"></div></div><div class="pill" style="display:grid;place-items:center;color:#fff;font-size:12px;font-weight:600;">İmzala</div></div></div>
+      <div class="interactive-hint">✨ İmzala & Doğrula</div>
+    </div>
+  </article>
+</section>
+
+<!-- 4. İletişim / Geri Bildirim Formu (Bülten) -->
+<section id="bulten">
+  <div class="newsletter-box">
+    <div>
+      <h3>Yepyeni araçlardan ilk sen haberdar ol.</h3>
+      <p>Uygulamalarımız kullanıma açıldığında ve yeni güncellemeler yayınlandığında e-posta bültenimize katılın.</p>
+    </div>
+    <div>
+      <form class="nl-form" onsubmit="handleNewsletter(event)">
+        <input type="email" class="nl-input" placeholder="E-posta adresiniz..." required id="nlEmail">
+        <button type="submit" class="btn primary">Katıl</button>
+      </form>
+      <div class="nl-msg" id="nlMsg">🎉 Teşekkürler! Listemize başarıyla kaydoldunuz.</div>
+    </div>
+  </div>
+</section>
+
+<section id="neden">
+  <div class="head"><h2>Güven, tasarımın temelidir.</h2></div>
+  <div class="why">
+    <div><div class="ic">🔒</div><h3>Önce gizlilik</h3><p>Dosyaların cihazında işlenir. Takip, analitik ve gereksiz izin yok.</p></div>
+    <div><div class="ic">⚡</div><h3>Hızlı ve hafif</h3><p>Mağaza beklemeden kurulur; ana ekrana eklenir, çevrimdışı da çalışır.</p></div>
+    <div><div class="ic">✨</div><h3>Titiz tasarım</h3><p>Her ekran tek bir amaca odaklanır. Karmaşa değil, netlik.</p></div>
+  </div>
+</section>
+
+<section id="iletisim">
+  <div class="final"><svg class="gem" aria-hidden="true"><use href="#mark"/></svg>
+    <h2>Hangisiyle başlamak istersin?</h2>
+    <p>Tüm uygulamalar tarayıcıdan açılır ve telefonuna uygulama gibi eklenebilir.</p>
+    <div class="cta"><button class="btn primary" onclick="showPwaModal()">Ana Ekrana Nasıl Eklenir?</button></div>
+  </div>
+</section>
+</main>
+
+<footer><div class="wrap"><span class="fl"><svg class="mk sm" aria-hidden="true"><use href="#mark"/></svg>© 2026 Ümit Özgüler · Özgüler Forge</span><span>ozgulerforge.com.tr</span></div></footer>
+
+<!-- 3. PWA / Kurulum Rehberi Banner (Otomatik veya Butonla Tetiklenir) -->
+<div class="pwa-banner" id="pwaBanner" style="display:none">
+  <div class="icon">📱</div>
+  <div>
+    <h4>Özgüler Forge'u Cebine Ekle</h4>
+    <p id="pwaText">Tarayıcı menüsünden <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçerek tam ekran deneyim yaşa.</p>
+    <div class="pwa-actions">
+      <button class="btn primary" style="padding:7px 14px;font-size:13px;" onclick="dismissPwaBanner()">Tamam</button>
+    </div>
+  </div>
+  <button class="pwa-close" onclick="dismissPwaBanner()">×</button>
+</div>
+
+<script>
+// Şık Tema Yönetimi
+const themeToggle = document.getElementById('themeToggle');
+const themeThumb = document.getElementById('themeThumb');
+const root = document.documentElement;
+
+const currentTheme = localStorage.getItem('forge_theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+if(currentTheme === 'dark') {
+  root.setAttribute('data-theme', 'dark');
+  themeThumb.textContent = '🌙';
+} else {
+  root.setAttribute('data-theme', 'light');
+  themeThumb.textContent = '☀️';
+}
+
+themeToggle.addEventListener('click', () => {
+  const isDark = root.getAttribute('data-theme') === 'dark';
+  if(isDark) {
+    root.setAttribute('data-theme', 'light');
+    localStorage.setItem('forge_theme', 'light');
+    themeThumb.textContent = '☀️';
+  } else {
+    root.setAttribute('data-theme', 'dark');
+    localStorage.setItem('forge_theme', 'dark');
+    themeThumb.textContent = '🌙';
+  }
+});
+
+// 1. Hızlı Geçiş Sekme İşlevi ve Aktif Sekme Takibi
+function scrollToApp(id) {
+  const el = document.getElementById(id);
+  if(el) {
+    el.scrollIntoView({behavior: 'smooth'});
+  }
+  // Sekme aktiflik güncellemesi
+  document.querySelectorAll('.tab-chip').forEach(c => c.classList.remove('active'));
+  event && event.currentTarget && event.currentTarget.classList.add('active');
+}
+
+// 2. Etkileşimli Mockup Animasyonları
+function pulseMockup(plateEl) {
+  const phone = plateEl.querySelector('.phone');
+  if(phone) {
+    phone.style.transform = 'scale(1.06) rotate(0deg)';
+    setTimeout(() => {
+      phone.style.transform = '';
+    }, 400);
+  }
+  // Hafif bildirim göster
+  showNotify('Araç önizlemesi etkileşimli çalışıyor!');
+}
+
+function triggerInteractiveEffect(phoneEl) {
+  phoneEl.style.transform = 'scale(1.08)';
+  setTimeout(() => { phoneEl.style.transform = ''; }, 300);
+}
+
+// Basit Bildirim Kutusu (Alert yerine)
+function showNotify(text) {
+  let box = document.getElementById('toastMsg');
+  if(!box) {
+    box = document.createElement('div');
+    box.id = 'toastMsg';
+    box.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--brand);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;z-index:100;box-shadow:0 10px 25px rgba(0,0,0,0.2);transition:opacity 0.3s';
+    document.body.appendChild(box);
+  }
+  box.textContent = text;
+  box.style.opacity = '1';
+  setTimeout(() => {
+    box.style.opacity = '0';
+  }, 2600);
+}
+
+// 4. Bülten Form Gönderimi
+function handleNewsletter(e) {
+  e.preventDefault();
+  const input = document.getElementById('nlEmail');
+  const msg = document.getElementById('nlMsg');
+  if(input.value) {
+    input.style.display = 'none';
+    e.target.querySelector('button').style.display = 'none';
+    msg.style.display = 'block';
+  }
+}
+
+// 3. PWA / Kurulum Rehberi Modalı & Banner Mantığı
+function showPwaModal() {
+  const banner = document.getElementById('pwaBanner');
+  banner.style.display = 'flex';
+}
+
+function dismissPwaBanner() {
+  const banner = document.getElementById('pwaBanner');
+  banner.style.display = 'none';
+  localStorage.setItem('forge_pwa_dismissed', 'true');
+}
+
+// Sayfa yüklendiğinde mobil cihazlar için PWA rehberini öner (daha önce kapatılmadıysa)
+window.addEventListener('DOMContentLoaded', () => {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const dismissed = localStorage.getItem('forge_pwa_dismissed');
+  if(isMobile && !dismissed) {
+    setTimeout(() => {
+      document.getElementById('pwaBanner').style.display = 'flex';
+    }, 2000);
+  }
+});
+</script>
+</body>
+</html>
