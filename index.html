@@ -62,6 +62,10 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
 .eyebrow b{width:7px;height:7px;border-radius:50%;background:var(--c1);box-shadow:0 0 0 4px color-mix(in srgb,var(--c1) 25%,transparent)}
 .hero h1{font-size:clamp(38px,6.4vw,76px);font-weight:700;margin:26px auto 22px;max-width:15ch}
 .hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--c2),var(--brand) 40%,var(--c4));-webkit-background-clip:text;background-clip:text;color:transparent}
+.slogan{display:flex;flex-direction:column;align-items:center;gap:6px;margin:0 auto 22px;max-width:60ch}
+.slogan strong{font:600 clamp(17px,2.2vw,21px)/1.4 Sora,Inter,system-ui,sans-serif;letter-spacing:-.01em;color:var(--ink)}
+.slogan span{font:300 clamp(15px,1.9vw,18px)/1.4 Outfit,Inter,system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.slogan::after{content:"";order:3;width:44px;height:2px;border-radius:2px;margin-top:8px;background:linear-gradient(90deg,var(--c2),var(--brand))}
 .hero p{max-width:60ch;margin:0 auto 34px;font-size:18px;color:var(--mute)}
 .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:68px}
@@ -144,6 +148,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 <header class="hero" id="top"><div class="wrap">
   <span class="eyebrow"><b></b>4 uygulama · cihazında çalışır</span>
   <h1>Telefonun için <em>zarif ve güçlü</em> araçlar.</h1>
+  <div class="slogan"><strong>Dijital fikirlerin ve mobil projelerin hayat bulduğu atölye.</strong><span lang="en">Crafting digital experiences.</span></div>
   <p>Özgüler Forge; fotoğraflarını düzenleyen, izlerini temizleyen, imzalayan ve cihazını hafifleten zarif uygulamalar sunar. Sade arayüz, güçlü işlev ve verilerin üzerinde tam kontrol.</p>
   <div class="cta"><a class="btn primary" href="#uygulamalar">Uygulamaları incele →</a><a class="btn ghost" href="#neden">Neden Forge?</a></div>
   <div class="stats">
