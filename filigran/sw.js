@@ -2,8 +2,17 @@ const CACHE_NAME = 'filigran-shell-499a16197b';
 const ROOT = new URL('./', self.registration.scope).toString();
 const PRECACHE = [".","assets/UTIF-DE_fZg9J.js","assets/UTIF-D_Egx2_X.js","assets/_commonjs-dynamic-modules-CGE348Hf.js","assets/dm-mono-latin-400-normal-Du9W-GAy.woff2","assets/dm-mono-latin-500-normal-CLN5ozUA.woff2","assets/dm-mono-latin-ext-400-normal-CPKZr-9B.woff2","assets/dm-mono-latin-ext-500-normal-DJqo96_E.woff2","assets/dm-sans-latin-400-normal-COF6noiJ.woff2","assets/dm-sans-latin-500-normal-kGSpR5A9.woff2","assets/dm-sans-latin-600-normal-DrBIvsIy.woff2","assets/dm-sans-latin-700-normal-1DREuLwQ.woff2","assets/dm-sans-latin-ext-400-normal-Cygz-XR6.woff2","assets/dm-sans-latin-ext-500-normal-BBd_G3i-.woff2","assets/dm-sans-latin-ext-600-normal-CFRgRepe.woff2","assets/dm-sans-latin-ext-700-normal-CGQ_Vo0j.woff2","assets/image.worker-DUEu8L13.js","assets/index-DkA9CInW.js","assets/index-br10sDnU.css","assets/playfair-display-latin-600-italic-DUHhWHzL.woff2","assets/playfair-display-latin-600-normal-CHZ-UWfP.woff2","assets/playfair-display-latin-700-italic-DnvGFUOX.woff2","assets/playfair-display-latin-700-normal-CtHl6EpB.woff2","assets/playfair-display-latin-ext-600-italic-BMMU2VFS.woff2","assets/playfair-display-latin-ext-600-normal-Ce0DF62x.woff2","assets/playfair-display-latin-ext-700-italic-BuOqpLMf.woff2","assets/playfair-display-latin-ext-700-normal-DfIbajr-.woff2","assets/wasm-bundle-CBw2mUBK.js","assets/wasm-bundle-DZK6tB_W.js","filigran-mark-192.png","filigran-mark-512.png","filigran-mark.svg","index.html","manifest.webmanifest"].map((file) => file === '.' ? ROOT : new URL(file, ROOT).toString());
 
+// Kabuk dosyaları (sayfa, manifest) zorunlu; diğerleri eksik olsa bile servis worker kurulur.
+const REQUIRED = [ROOT, new URL('index.html', ROOT).toString(), new URL('manifest.webmanifest', ROOT).toString()];
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const results = await Promise.allSettled(PRECACHE.map((url) => cache.add(url)));
+      const failedRequired = results.some((r, i) => r.status === 'rejected' && REQUIRED.includes(PRECACHE[i]));
+      if (failedRequired) throw new Error('Zorunlu kabuk dosyaları önbelleğe alınamadı');
+    }),
+  );
   self.skipWaiting();
 });
 
