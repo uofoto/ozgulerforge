@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE = "video-indir-v2";
+const CACHE = "video-indir-1.0.1"; // app.js içindeki VERSION ile aynı tut
 const SHELL = [
   "./",
   "index.html",

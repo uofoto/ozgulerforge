@@ -8,7 +8,12 @@ const pasteBtn = $("#paste");
 const statusEl = $("#status");
 const results = $("#results");
 
+const VERSION = "1.0.1"; // sw.js içindeki CACHE adıyla aynı tut
 const API = "https://api.fxtwitter.com/status/";
+{
+  const ver = document.querySelector("#ver");
+  if (ver) ver.textContent = "Sürüm " + VERSION;
+}
 const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
   (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
