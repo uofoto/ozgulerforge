@@ -451,9 +451,9 @@ html{background:var(--bg)}
         <section class="results" id="results" hidden>
           <div class="summary">
             <p id="summary" aria-live="polite"></p>
-            <p class="note privacy-note" id="privacy-note"><strong>Fotoğraf silinmedi.</strong> Yalnızca fotoğrafın içine gömülü bilgiler temizlendi. Temizlenmiş kopyayı cihazına kaydetmek için aşağıdaki düğmeyi kullan.</p>
+            <p class="note privacy-note" id="privacy-note"><strong>Fotoğraf silinmedi.</strong> Yalnızca fotoğrafın içine gömülü bilgiler temizlendi. Temizlenmiş fotoğrafı cihazına indirmek için aşağıdaki düğmeyi kullan.</p>
             <div class="row">
-              <button class="btn primary" id="save-all" type="button">Temiz kopyaları kaydet</button>
+              <button class="btn primary" id="save-all" type="button">Temiz fotoğrafları indir</button>
               <button class="btn" id="zip" type="button">ZIP indir</button>
               <button class="btn" id="clear" type="button">Listeyi temizle</button>
             </div>
@@ -462,7 +462,7 @@ html{background:var(--bg)}
           <ol class="list" id="list"></ol>
         </section>
 
-        <p class="note" id="preview-note" hidden><b>Deneme sürümü.</b> Bu önizlemede kaydet ve indir düğmeleri çalışmaz. Temiz fotoğrafı basılı tutup kaydedebilirsin. Telefona kurulan sürümde düğmeler çalışır.</p>
+        <p class="note" id="preview-note" hidden><b>Deneme sürümü.</b> Bu önizlemede indirme düğmeleri çalışmaz. Temiz fotoğrafı basılı tutup kaydedebilirsin. Telefona kurulan sürümde düğmeler çalışır.</p>
         <p class="note" id="install" hidden></p>
       </div>
 
@@ -1419,14 +1419,10 @@ html{background:var(--bg)}
 
     var row = el('div', 'row');
     if (IS_PWA) {
-      var s = el('button', 'btn primary', 'Temiz kopyayı kaydet');
+      var s = el('button', 'btn primary', 'Temiz fotoğrafı indir');
       s.type = 'button';
       s.addEventListener('click', function () { saveFiles([it.out], it); });
-      var d = el('button', 'btn', 'İndir');
-      d.type = 'button';
-      d.addEventListener('click', function () { download(it); });
       row.appendChild(s);
-      row.appendChild(d);
     }
     var v = el('button', 'btn', r.video ? 'Video akışlarını doğrula' : (r.pixelRewritten ? 'Piksel farkını kontrol et' : 'Pikselleri doğrula'));
     v.type = 'button';
@@ -1563,8 +1559,11 @@ html{background:var(--bg)}
       saveNote.hidden = false;
       saveNote.textContent = (count === 1 ? 'Temizlenmiş kopya' : count + ' temizlenmiş kopya') + ' ' + mode + '. Orijinal fotoğraf cihazından silinmedi.';
     }
+    // Telefon/tablette (dokunmatik ana işaretçi) paylaşım menüsü açılır; "Dosyalara Kaydet" dosyayı birebir saklar.
+    // Bilgisayarda doğrudan indirilir.
+    var touchPrimary = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
     try {
-      if (navigator.canShare && navigator.canShare({ files: files })) {
+      if (touchPrimary && navigator.canShare && navigator.canShare({ files: files })) {
         await navigator.share({ files: files });
         savedMessage(files.length, 'paylaşım ekranına gönderildi');
         return;
@@ -1576,7 +1575,7 @@ html{background:var(--bg)}
       var it = single || items.filter(function (x) { return x.out === f; })[0];
       setTimeout(function () { download(it); }, i * 300);
     });
-    savedMessage(files.length, 'indirme için hazırlandı');
+    savedMessage(files.length, 'indirildi');
   }
 
   // ---- piksel doğrulama ----
