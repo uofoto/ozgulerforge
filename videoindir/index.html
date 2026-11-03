@@ -57,7 +57,12 @@
   .meta{font-size:14px;color:var(--muted)}
   .meta b{color:var(--text);font-weight:600}
   .actions{display:flex;gap:8px}
+  .actions{flex-wrap:wrap}
   .actions button{flex:1}
+  a.linkbtn{
+    flex-basis:100%;text-align:center;text-decoration:none;font-weight:600;
+    background:var(--accent);color:var(--accent-text);border-radius:12px;padding:13px 16px;
+  }
   #installRow{margin-top:20px;display:none}
   #iosHint{margin-top:20px;font-size:13px;color:var(--muted);display:none}
   footer{margin-top:28px;font-size:12px;color:var(--muted)}

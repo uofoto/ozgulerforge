@@ -103,9 +103,18 @@ async function downloadVideo(v, name, btn) {
   } catch (e) {
     if (e && e.name === "AbortError") { /* paylaşım penceresi kapatıldı */ }
     else {
-      // Tarayıcı doğrudan indirmeye izin vermediyse videoyu yeni sekmede aç.
-      window.open(v.url, "_blank", "noopener");
-      setStatus("Doğrudan indirilemedi; video yeni sekmede açıldı. Üzerine uzun basıp kaydedebilirsin.", true);
+      // Doğrudan indirme engellendi (CORS, ağ, güvenlik politikası vb.).
+      // Asenkron işlemden sonra window.open açılır pencere engeline takılır;
+      // bu yüzden dokunulabilir gerçek bir bağlantı gösteriyoruz.
+      const reason = (e && e.message) ? e.message : String(e);
+      setStatus("Doğrudan indirilemedi (" + reason + "). Aşağıdaki bağlantıya dokunup videoyu aç, sonra kaydet.", true);
+      const actions = btn.parentElement;
+      if (actions && !actions.querySelector("a.linkbtn")) {
+        actions.append(el("a", {
+          className: "linkbtn", href: v.url, target: "_blank", rel: "noopener",
+          textContent: "Videoyu aç ve kaydet",
+        }));
+      }
     }
   } finally {
     btn.disabled = false;

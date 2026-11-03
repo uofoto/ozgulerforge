@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE = "video-indir-v1";
+const CACHE = "video-indir-v2";
 const SHELL = [
   "./",
   "index.html",
