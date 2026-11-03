@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>İzsiz Foto · Sıfırla</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; font: 16px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #0a0f14; color: #e9f0f5; }
+  main { width: min(26rem, 100%); }
+  h1 { margin: 0 0 6px; font-size: 1.5rem; letter-spacing: -.02em; }
+  p { margin: 0 0 14px; color: #93a4b2; }
+  ul { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 8px; font: .85rem/1.4 ui-monospace, Menlo, Consolas, monospace; }
+  li { padding: 10px 12px; border-radius: 10px; background: #121a22; border: 1px solid #243241; }
+  li.ok { color: #6edc9a; } li.err { color: #ff9a8f; }
+  a.btn { display: inline-block; padding: 12px 20px; border-radius: 12px; background: linear-gradient(135deg, #4cc9ee, #8b8cf5); color: #04202a; font-weight: 700; text-decoration: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>İzsiz Foto'yu sıfırla</h1>
+  <p>Eski sürümde takılı kalan önbelleği temizler. Fotoğraflarına ve diğer uygulamalara dokunmaz.</p>
+  <ul id="log"></ul>
+  <a class="btn" id="go" href="./" hidden>Uygulamayı aç</a>
+</main>
+<script>
+(async function () {
+  var log = document.getElementById('log');
+  function add(t, c) { var li = document.createElement('li'); li.textContent = t; if (c) li.className = c; log.appendChild(li); }
+  var failed = false;
+  try {
+    if ('serviceWorker' in navigator) {
+      var regs = await navigator.serviceWorker.getRegistrations();
+      var base = new URL('./', location.href).href;
+      var mine = regs.filter(function (r) { return r.scope.indexOf(base) === 0; });
+      for (var i = 0; i < mine.length; i++) await mine[i].unregister();
+      add('Service worker kaldırıldı: ' + mine.length, 'ok');
+    } else add('Bu tarayıcıda service worker yok.');
+  } catch (e) { failed = true; add('Service worker kaldırılamadı: ' + e.message, 'err'); }
+  try {
+    var keys = await caches.keys();
+    var mineKeys = keys.filter(function (k) { return k.indexOf('izsiz-') === 0; });
+    for (var j = 0; j < mineKeys.length; j++) await caches.delete(mineKeys[j]);
+    add('Önbellek silindi: ' + (mineKeys.join(', ') || 'yoktu'), 'ok');
+  } catch (e) { failed = true; add('Önbellek silinemedi: ' + e.message, 'err'); }
+  add(failed ? 'Bazı adımlar başarısız oldu.' : 'Hazır. Uygulama yeniden yükleniyor…', failed ? 'err' : 'ok');
+  var go = document.getElementById('go'); go.hidden = false;
+  if (!failed) setTimeout(function () { location.replace('./'); }, 1600);
+})();
+</script>
+</body>
+</html>
