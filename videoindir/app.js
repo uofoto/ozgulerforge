@@ -8,7 +8,7 @@ const pasteBtn = $("#paste");
 const statusEl = $("#status");
 const results = $("#results");
 
-const VERSION = "1.0.1"; // sw.js içindeki CACHE adıyla aynı tut
+const VERSION = "1.0.2"; // sw.js içindeki CACHE adıyla aynı tut
 const API = "https://api.fxtwitter.com/status/";
 {
   const ver = document.querySelector("#ver");
@@ -84,7 +84,8 @@ async function downloadVideo(v, name, btn) {
   const label = btn.textContent;
   btn.disabled = true;
   try {
-    const res = await fetch(v.url);
+    // Referer göndermeyen istek: CDN'in yönlendiren-site kontrolüne takılmaz.
+    const res = await fetch(v.url, { referrerPolicy: "no-referrer", credentials: "omit", mode: "cors" });
     if (!res.ok) throw new Error("HTTP " + res.status);
     const total = Number(res.headers.get("content-length")) || 0;
     const reader = res.body.getReader();
@@ -116,7 +117,7 @@ async function downloadVideo(v, name, btn) {
       const actions = btn.parentElement;
       if (actions && !actions.querySelector("a.linkbtn")) {
         actions.append(el("a", {
-          className: "linkbtn", href: v.url, target: "_blank", rel: "noopener",
+          className: "linkbtn", href: v.url, target: "_blank", rel: "noopener noreferrer",
           textContent: "Videoyu aç ve kaydet",
         }));
       }
@@ -148,7 +149,7 @@ function render(tweet, id) {
     const dl = el("button", { type: "button", textContent: "İndir" });
     dl.addEventListener("click", () => downloadVideo(v, name, dl));
     const open = el("button", { type: "button", className: "ghost", textContent: "Yeni sekmede aç" });
-    open.addEventListener("click", () => window.open(v.url, "_blank", "noopener"));
+    open.addEventListener("click", () => window.open(v.url, "_blank", "noopener,noreferrer"));
 
     const card = el("div", { className: "card" });
     if (v.thumb.startsWith("https://")) {
