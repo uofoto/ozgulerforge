@@ -8,7 +8,7 @@ const REQUIRED = [ROOT, new URL('index.html', ROOT).toString(), new URL('manifes
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      const results = await Promise.allSettled(PRECACHE.map((url) => cache.add(url)));
+      const results = await Promise.allSettled(PRECACHE.map((url) => cache.add(new Request(url, { cache: 'reload' }))));
       const failedRequired = results.some((r, i) => r.status === 'rejected' && REQUIRED.includes(PRECACHE[i]));
       if (failedRequired) throw new Error('Zorunlu kabuk dosyaları önbelleğe alınamadı');
     }),
@@ -26,6 +26,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+  if (event.data && event.data.type === 'GET_VERSION' && event.source) event.source.postMessage({ type: 'VERSION', version: CACHE_NAME });
 });
 
 function networkFirst(request) {
@@ -34,7 +35,7 @@ function networkFirst(request) {
     let settled = false;
     const fallback = () => caches.match(ROOT).then((cached) => cached || Response.error());
     const timer = setTimeout(() => { if (!settled) { settled = true; fallback().then(resolve); } }, 4000);
-    fetch(request).then((response) => {
+    fetch(request.url, { cache: 'reload' }).then((response) => {
       clearTimeout(timer);
       if (response.ok) {
         const copy = response.clone();
@@ -58,7 +59,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   event.respondWith(
-    caches.match(request).then((cached) => cached || fetch(request).then((response) => {
+    caches.open(CACHE_NAME).then((c) => c.match(request)).then((cached) => cached || fetch(request).then((response) => {
       if (response.ok) {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
