@@ -1,9 +1,13 @@
 "use strict";
+importScripts("config.js"); // sürüm tek kaynaktan: config.js
 
-const CACHE = "video-indir-1.0.2"; // app.js içindeki VERSION ile aynı tut
+const CACHE = "forge-" + self.FORGE_CONFIG.version;
 const SHELL = [
   "./",
   "index.html",
+  "legal.html",
+  "style.css",
+  "config.js",
   "app.js",
   "manifest.webmanifest",
   "icons/icon-192.png",
@@ -26,17 +30,14 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   const url = new URL(req.url);
-
-  // API ve video istekleri her zaman ağdan gider; önbelleğe alınmaz.
+  // API ve video istekleri (başka kaynaklar) her zaman doğrudan ağdan gider; önbelleğe alınmaz.
   if (req.method !== "GET" || url.origin !== location.origin) return;
 
-  // Uygulama kabuğu: önce ağ, olmazsa önbellek (güncellemeler kaçmasın).
-  // ?url=/?text= ile gelen paylaşım istekleri de aynı sayfaya eşlenir.
+  // Uygulama kabuğu: önce ağ, olmazsa önbellek.
   e.respondWith(
     fetch(req)
       .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {}); }
         return res;
       })
       .catch(() => caches.match(req, { ignoreSearch: true }).then((hit) => hit || caches.match("index.html")))
