@@ -236,6 +236,12 @@ button { cursor: pointer; }
 .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; color: var(--on-accent); box-shadow: 0 8px 20px -10px color-mix(in srgb, var(--accent) 70%, transparent); }
 .btn.primary:hover { filter: brightness(1.06); }
 .btn:disabled { opacity: .5; cursor: default; }
+.hold-view { position: fixed; inset: 0; z-index: 50; background: rgba(8, 12, 16, .94); color: #fff; display: flex; flex-direction: column; padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); }
+.hold-view[hidden] { display: none; }
+.hold-view p { margin: 0 0 10px; font: 500 .95rem/1.4 var(--f-body); text-align: center; }
+.hold-view .hold-imgs { flex: 1; min-height: 0; overflow-y: auto; display: grid; gap: 12px; align-content: start; justify-items: center; -webkit-touch-callout: default; }
+.hold-view img { max-width: 100%; max-height: 70vh; object-fit: contain; border-radius: 12px; -webkit-user-select: auto; user-select: auto; -webkit-touch-callout: default; }
+.hold-view .btn { align-self: center; margin-top: 10px; }
 .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .item { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; display: grid; gap: 12px; min-width: 0; box-shadow: var(--shadow); }
 .head { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 14px; align-items: center; }
@@ -373,6 +379,11 @@ html{background:var(--bg)}
 </style>
 </head>
 <body>
+<div class="hold-view" id="hold-view" role="dialog" aria-modal="true" aria-label="Fotoğrafı galeriye kaydet" hidden>
+  <p>Fotoğrafa basılı tut, çıkan menüden <b>Fotoğraflara Ekle</b> / <b>Görseli Kaydet</b> (iPhone) ya da <b>Resmi indir</b> (Android) seçeneğine dokun.</p>
+  <div class="hold-imgs" id="hold-imgs"></div>
+  <button class="btn" id="hold-close" type="button">Kapat</button>
+</div>
 <div id="splash" role="presentation" aria-hidden="true">
   <div class="sp-tokens" id="sp-tokens"></div>
   <div class="sp-scan"></div>
@@ -451,9 +462,9 @@ html{background:var(--bg)}
         <section class="results" id="results" hidden>
           <div class="summary">
             <p id="summary" aria-live="polite"></p>
-            <p class="note privacy-note" id="privacy-note"><strong>Fotoğraf silinmedi.</strong> Yalnızca fotoğrafın içine gömülü bilgiler temizlendi. Temizlenmiş fotoğrafı cihazına indirmek için aşağıdaki düğmeyi kullan.</p>
+            <p class="note privacy-note" id="privacy-note"><strong>Fotoğraf silinmedi.</strong> Yalnızca fotoğrafın içine gömülü bilgiler temizlendi. Temizlenmiş fotoğrafı telefonunun galerisine kaydetmek için aşağıdaki düğmeyi kullan.</p>
             <div class="row">
-              <button class="btn primary" id="save-all" type="button">Temiz fotoğrafları indir</button>
+              <button class="btn primary" id="save-all" type="button">Galeriye kaydet</button>
               <button class="btn" id="zip" type="button">ZIP indir</button>
               <button class="btn" id="clear" type="button">Listeyi temizle</button>
             </div>
@@ -549,7 +560,7 @@ html{background:var(--bg)}
         <div class="foot">
           <p>JPEG, PNG, WebP ve MP4/MOV/WebM/AVI içindeki tanınan gömülü verileri cihazında temizler. HEIC/HEIF fotoğrafları PNG, JPEG veya WebP'ye dönüştürür. Dosyalar yüklenmez; uygulama çevrimiçiyken yalnızca kendi yayın adresinden sürüm bilgisini denetleyebilir.</p>
           <p><b>Kayıpsız yükleme (iPhone):</b> "Fotoğraf Kitaplığı" HEIC dosyalarını JPEG'e çevirebilir ve konumu kendisi silebilir. Dosyayı olduğu gibi almak için "Dosya Seç"i kullan. Android'de galeriden Paylaş ile doğrudan bu uygulamaya gönderebilirsin.</p>
-          <p><b>Kayıpsız kaydetme:</b> Paylaşım menüsünde "Dosyalara Kaydet" dosyayı birebir saklar. "Görseli Kaydet" Fotoğraflar'a ekler. ZIP sıkıştırmaz, dosyalar bayt bayt aynı kalır.</p>
+          <p><b>Galeriye kaydetme:</b> "Galeriye kaydet" iPhone'da paylaşım menüsünü açar; "Görseli Kaydet" Fotoğraflar'a ekler. Android'de dosya indirilir ve galerideki "İndirilenler" albümünde görünür. "Paylaş / Dosyalara kaydet" dosyayı birebir saklar. ZIP sıkıştırmaz, dosyalar bayt bayt aynı kalır.</p>
           <p>JPEG, PNG ve WebP üstverileri varsayılan olarak görüntü yeniden kodlanmadan temizlenir. İsteğe bağlı deneysel piksel işlemi RGB kanallarının en düşük bitini sıfırlar ve PNG oluşturur; bu yalnızca basit LSB gömmelerini etkileyebilir, SynthID gibi anahtarlı/dağıtılmış filigranları algılamaz veya kaldırmayı garanti etmez. Bu işlemde EXIF tarihi, ICC profili ve C2PA imzası/köken kaydı çıktıya taşınmaz. MP4/MOV/WebM/AVI videolarda tanınan kapsayıcı metadata alanları temizlenir; video ve ses akışları yeniden kodlanmaz, video kareleri piksel işleminden geçmez. HEIC/HEIF, seçilen biçime cihazda çevrilir; PNG/WebP çözülen 8 bit pikselleri kayıpsız kodlar, JPEG kayıplıdır. HEIC dönüşümünde üstveriler taşınmaz. HEIC dönüştürme sınırı 32 MP'dir; AVIF desteklenmiyor. Fotoğrafı veya videoyu panodan yapıştırarak da ekleyebilirsin.</p>
         </div>
       </details>
@@ -1419,7 +1430,11 @@ html{background:var(--bg)}
 
     var row = el('div', 'row');
     if (IS_PWA) {
-      var s = el('button', 'btn primary', 'Temiz fotoğrafı indir');
+      var g = el('button', 'btn primary', 'Galeriye kaydet');
+      g.type = 'button';
+      g.addEventListener('click', function () { saveToGallery([it.out], it); });
+      row.appendChild(g);
+      var s = el('button', 'btn', 'Paylaş / Dosyalara kaydet');
       s.type = 'button';
       s.addEventListener('click', function () { saveFiles([it.out], it); });
       row.appendChild(s);
@@ -1578,6 +1593,66 @@ html{background:var(--bg)}
     savedMessage(files.length, 'indirildi');
   }
 
+  // ---- galeriye kaydetme ----
+  // Web uygulamaları galeri klasörüne doğrudan yazamaz; platforma göre en yakın yol seçilir:
+  // iPhone/iPad: paylaşım menüsü ("Görseli Kaydet" / "Videoyu Kaydet") Fotoğraflar'a ekler.
+  //   Menü açılamazsa fotoğraf tam ekranda gösterilir; basılı tutup "Fotoğraflara Ekle" seçilir.
+  // Android: dosya indirilir; Chrome indirilen görselleri medya deposuna işler ve galerideki
+  //   "İndirilenler" (Download) albümünde görünür.
+  // Bilgisayar: normal indirme.
+  function isIOS() {
+    return /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  function showHold(files) {
+    var box = $('#hold-imgs');
+    box.textContent = '';
+    var shown = 0;
+    files.forEach(function (f) {
+      if (!/^image\//.test(f.type)) return;
+      var img = new Image();
+      img.alt = f.name;
+      img.src = URL.createObjectURL(f);
+      box.appendChild(img);
+      shown++;
+    });
+    if (!shown) return false;
+    $('#hold-view').hidden = false;
+    return true;
+  }
+  function closeHold() {
+    var box = $('#hold-imgs');
+    Array.prototype.forEach.call(box.querySelectorAll('img'), function (i) { try { URL.revokeObjectURL(i.src); } catch (e) {} });
+    box.textContent = '';
+    $('#hold-view').hidden = true;
+  }
+  async function saveToGallery(files, single) {
+    var saveNote = $('#save-note');
+    var many = files.length > 1;
+    function say(text) { saveNote.hidden = false; saveNote.textContent = text; }
+    if (isIOS()) {
+      try {
+        if (navigator.canShare && navigator.canShare({ files: files })) {
+          await navigator.share({ files: files });
+          say('Paylaşım ekranında ' + (many ? '"N Görseli Kaydet"' : '"Görseli Kaydet"') + ' seçeneğine dokunduysan Fotoğraflar\'a eklendi. Orijinal fotoğraf cihazından silinmedi.');
+          return;
+        }
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+      }
+      if (showHold(files)) {
+        say('Fotoğrafa basılı tutup "Fotoğraflara Ekle" / "Görseli Kaydet" seçeneğine dokun.');
+        return;
+      }
+    }
+    files.forEach(function (f, i) {
+      var it = single || items.filter(function (x) { return x.out === f; })[0];
+      if (it) setTimeout(function () { download(it); }, i * 300);
+    });
+    say(isIOS()
+      ? (many ? files.length + ' dosya indirildi' : 'Dosya indirildi') + '. Dosyalar uygulamasında bulabilirsin.'
+      : (many ? files.length + ' temizlenmiş kopya' : 'Temizlenmiş kopya') + ' indirildi. Galeri uygulamasında "İndirilenler" (Download) albümünde görünür. Orijinal fotoğraf cihazından silinmedi.');
+  }
+
   // ---- piksel doğrulama ----
   function decodeWithImage(blob) {
     return new Promise(function (resolve, reject) {
@@ -1716,8 +1791,10 @@ html{background:var(--bg)}
     if (e.dataTransfer && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
   });
   $('#save-all').addEventListener('click', function () {
-    saveFiles(items.filter(function (i) { return i.out; }).map(function (i) { return i.out; }));
+    saveToGallery(items.filter(function (i) { return i.out; }).map(function (i) { return i.out; }));
   });
+  $('#hold-close').addEventListener('click', closeHold);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#hold-view').hidden) closeHold(); });
   $('#zip').addEventListener('click', async function () {
     var done = items.filter(function (i) { return i.out; });
     if (!done.length) return;
@@ -1755,7 +1832,7 @@ html{background:var(--bg)}
   });
 
   // ---- künye ve güncelleme ----
-  var APP = { version: '2.8.5', date: '02.11.2026', author: 'Ümit Özgüler' };
+  var APP = { version: '2.8.6', date: '05.11.2026', author: 'Ümit Özgüler' };
   $('#a-ver').textContent = APP.version;
   $('#a-date').textContent = APP.date;
   $('#a-author').textContent = APP.author;
