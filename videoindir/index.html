@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<title>X'ten Video İndir · Özgüler Forge</title>
+<meta name="description" content="Özgüler Forge: X (Twitter) gönderilerindeki videoları ve GIF'leri cihazına indir. Hesap, reklam ve takip yok.">
+<meta name="theme-color" content="#14110f">
+<link rel="canonical" href="https://ozgulerforge.com.tr/">
+<meta property="og:title" content="X'ten Video İndir · Özgüler Forge">
+<meta property="og:description" content="X (Twitter) gönderilerindeki videoları cihazına indir. Hesap, reklam ve takip yok.">
+<meta property="og:url" content="https://ozgulerforge.com.tr/">
+<meta property="og:type" content="website">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Forge">
+<script>
+  // Tema titremesini önlemek için erken uygula
+  try{var s=JSON.parse(localStorage.getItem("forge.settings")||"{}");
+    if(s.theme==="light"||s.theme==="dark")document.documentElement.dataset.theme=s.theme;}catch(e){}
+</script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./" aria-label="Özgüler Forge ana sayfa">
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb454"/><stop offset="1" stop-color="#e8590c"/></linearGradient></defs>
+        <rect width="64" height="64" rx="15" fill="#14110f"/>
+        <path d="M27 12h10v20h9L32 48 18 32h9z" fill="url(#g)"/>
+        <rect x="16" y="52" width="32" height="5" rx="2.5" fill="url(#g)"/>
+        <path d="M50 10l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#ffb454"/>
+      </svg>
+      <span class="wordmark"><span class="w1">Özgüler</span><span class="w2">Forge</span></span>
+    </a>
+    <div class="top-actions">
+      <span id="offline" class="chip warn" hidden>Çevrimdışı</span>
+      <button id="settingsBtn" class="icon-btn" type="button" aria-label="Ayarlar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>X'ten <em>Video İndir</em></h1>
+      <p>Gönderi bağlantısını yapıştır; videoyu veya GIF'i tek dokunuşla cihazına kaydet. Hesap, reklam ve takip yok.</p>
+    </section>
+
+    <form id="form" autocomplete="off">
+      <div class="field">
+        <input id="url" type="text" inputmode="url" enterkeyhint="go" placeholder="https://x.com/kullanici/status/123…" aria-label="Gönderi bağlantısı">
+        <button type="button" id="paste" class="btn ghost">Yapıştır</button>
+      </div>
+      <button type="submit" id="go" class="btn primary">Videoyu bul</button>
+    </form>
+
+    <div id="status" role="status" aria-live="polite"></div>
+    <div id="results"></div>
+
+    <div id="installRow" hidden><button id="install" type="button" class="btn ghost" style="width:100%">Uygulamayı ana ekrana ekle</button></div>
+    <div id="iosHint" hidden>iPhone'da: Paylaş simgesi → “Ana Ekrana Ekle”.</div>
+
+    <section class="block" id="historyBlock" hidden>
+      <h2>Son aramalar</h2>
+      <ul class="list" id="historyList"></ul>
+      <p style="margin-top:10px"><button id="clearHistory" type="button" class="link-btn">Geçmişi temizle</button></p>
+    </section>
+
+    <section class="block" aria-labelledby="faqh">
+      <h2 id="faqh">Sık sorulanlar</h2>
+      <details>
+        <summary>“İndir”e basınca hata alıyorum (403 vb.)</summary>
+        <p>Bazı tarayıcılar veya ağlar videonun doğrudan indirilmesini engeller. Bu durumda çıkan panelden önizlemeyi aç: masaüstünde videoya sağ tıklayıp “Videoyu farklı kaydet”, Android'de oynatıcıda ⋮ → İndir, iPhone'da Paylaş → Dosyalara/Fotoğraflara kaydet. VPN, özel DNS veya reklam engelleyici <code>twimg.com</code> adresini engelliyor olabilir.</p>
+      </details>
+      <details>
+        <summary>Hangi bağlantılar çalışır?</summary>
+        <p><code>x.com</code> veya <code>twitter.com</code> üzerindeki herkese açık gönderi bağlantıları. Gizli hesaplar, silinmiş veya yaş kısıtlı gönderiler çalışmayabilir. Gönderide video yoksa bunu belirtiriz.</p>
+      </details>
+      <details>
+        <summary>Telefona nasıl kurarım?</summary>
+        <ol><li><b>Android (Chrome):</b> “Uygulamayı ana ekrana ekle” düğmesi veya menü → Uygulamayı yükle. Kurulunca X'in Paylaş menüsünde “Forge” görünür.</li>
+        <li><b>iPhone (Safari):</b> Paylaş → Ana Ekrana Ekle.</li></ol>
+      </details>
+      <details>
+        <summary>Verilerim nereye gidiyor?</summary>
+        <p>Videolar bizim üzerimizden geçmez; doğrudan X'in sunucularından cihazına iner. Ayrıntılar için <a href="legal.html#gizlilik">Gizlilik Politikası</a>'nı oku.</p>
+      </details>
+    </section>
+
+    <footer>
+      <nav aria-label="Yasal">
+        <a href="legal.html#kosullar">Kullanım Koşulları</a>
+        <a href="legal.html#gizlilik">Gizlilik</a>
+        <a href="legal.html#kvkk">KVKK Aydınlatma</a>
+        <a href="legal.html#cerez">Çerez ve Depolama</a>
+        <a href="legal.html#telif">Telif / İçerik Bildirimi</a>
+      </nav>
+      <p>Özgüler Forge, X Corp. ile bağlantılı veya onaylı değildir. X ve Twitter, sahiplerinin ticari markalarıdır. Yalnızca indirme hakkına sahip olduğun içerikleri indir.</p>
+      <p>© <span id="year"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr</a> · <span id="ver"></span> · <button type="button" id="footUpdate" class="link-btn" style="font-size:13px;padding:0">Güncellemeleri kontrol et</button></p>
+    </footer>
+  </main>
+</div>
+
+<div id="consent" class="consent" role="dialog" aria-labelledby="consentT" hidden>
+  <div class="in">
+    <p id="consentT"><b>Devam etmeden önce:</b> Özgüler Forge'u kullanarak <a href="legal.html#kosullar">Kullanım Koşulları</a>'nı ve <a href="legal.html#gizlilik">Gizlilik Politikası</a>'nı okuduğunu ve yalnızca indirme hakkına sahip olduğun içerikleri indireceğini kabul edersin. Çerez kullanmayız, seni takip etmeyiz.</p>
+    <div class="actions">
+      <a class="btn ghost" href="legal.html">Metinleri oku</a>
+      <button id="accept" type="button" class="btn primary">Kabul ediyorum</button>
+    </div>
+  </div>
+</div>
+
+<dialog id="settings" aria-labelledby="setT">
+  <form method="dialog" class="d-in" autocomplete="off">
+    <h2 id="setT">Ayarlar</h2>
+    <div class="opt">
+      <span class="label">Tema</span>
+      <div class="seg" role="radiogroup" aria-label="Tema">
+        <label><input type="radio" name="theme" value="auto"><span>Otomatik</span></label>
+        <label><input type="radio" name="theme" value="light"><span>Açık</span></label>
+        <label><input type="radio" name="theme" value="dark"><span>Koyu</span></label>
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" id="optHistory"><span>Son aramaları bu cihazda sakla <small style="color:var(--muted)">(gönderi kimliği ve kullanıcı adı; sunucuya gönderilmez)</small></span></label>
+    <label class="check"><input type="checkbox" id="optAutoPaste"><span>Uygulamayı açınca panodaki X bağlantısını yerleştir <small style="color:var(--muted)">(tarayıcı pano izni isteyebilir)</small></span></label>
+    <div class="opt">
+      <span class="label">Güncellemeler</span>
+      <span id="updMsg" class="note" role="status"></span>
+      <button type="button" id="checkUpdate" class="btn">Güncellemeleri kontrol et</button>
+    </div>
+    <button type="button" id="wipe" class="btn ghost danger">Tüm yerel verileri sil</button>
+    <div class="actions"><button class="btn primary" value="close">Tamam</button></div>
+  </form>
+</dialog>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
