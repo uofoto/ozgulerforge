@@ -376,6 +376,24 @@ html{background:var(--bg)}
   #splash .sp-logo .lens { transform: none; animation: none; }
   #splash .sp-word span, #splash .sp-sub { opacity: 1; transform: none; filter: none; animation: none; }
 }
+
+/* ---- seçmeli temizleme ---- */
+.panel-hint { margin: 0; padding: 0 18px 10px; color: var(--ink-2); font-size: .8rem; line-height: 1.45; }
+.item.choosing .head { grid-template-columns: minmax(0, 1fr); }
+.item.choosing .thumb { width: 100%; height: auto; max-height: 20rem; }
+.item.choosing .thumb img, .item.choosing .thumb video { width: 100%; height: auto; max-height: 20rem; object-fit: contain; display: block; }
+.thumb .noprev { padding: 26px 12px; color: var(--ink-2); font-size: .85rem; }
+.chooser { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 12px; min-width: 0; }
+.chooser-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.chooser-head h3 { margin: 0; font: 750 1.05rem/1.3 var(--f-display); letter-spacing: -.01em; }
+.chooser-head .count { font: 500 .75rem/1 var(--f-mono); color: var(--ink-2); white-space: nowrap; }
+.chooser .cat-list { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); }
+.chooser .cat-list .opt:first-child { border-top: 0; }
+.chooser .opt { padding: 12px 14px; }
+.chooser .opt b .size { font: 500 .72rem/1 var(--f-mono); color: var(--ink-2); margin-left: 6px; white-space: nowrap; }
+.chooser .opt small.det { font-family: var(--f-mono); color: var(--ink); overflow-wrap: anywhere; }
+.chooser .opt small.det.warn { color: var(--cut); }
+.btn.big { width: 100%; min-height: 54px; font-size: 1.05rem; letter-spacing: .08em; }
 </style>
 </head>
 <body>
@@ -455,7 +473,7 @@ html{background:var(--bg)}
           <span class="big">Fotoğraf seç</span>
           <span class="hint">veya buraya sürükle · panodan yapıştır</span>
           <span class="cta">Dosya seç</span>
-          <span class="sub">HEIC · HEIF · JPEG · PNG · WebP · MP4 · MOV · WebM · AVI · en fazla 100 MiB/dosya</span>
+          <span class="sub">Seçince hiçbir şey silinmez · önce neyi sileceğini seçersin<br>HEIC · HEIF · JPEG · PNG · WebP · MP4 · MOV · WebM · AVI · en fazla 100 MiB/dosya</span>
         </label>
 
         <p class="note" id="limit-note" hidden aria-live="polite"></p>
@@ -464,6 +482,7 @@ html{background:var(--bg)}
             <p id="summary" aria-live="polite"></p>
             <p class="note privacy-note" id="privacy-note"><strong>Fotoğraf silinmedi.</strong> Yalnızca fotoğrafın içine gömülü bilgiler temizlendi. Temizlenmiş fotoğrafı telefonunun galerisine kaydetmek için aşağıdaki düğmeyi kullan.</p>
             <div class="row">
+              <button class="btn primary" id="clean-all" type="button" hidden>Hepsini TEMİZLE</button>
               <button class="btn primary" id="save-all" type="button">Galeriye kaydet</button>
               <button class="btn" id="zip" type="button">ZIP indir</button>
               <button class="btn" id="clear" type="button">Listeyi temizle</button>
@@ -480,6 +499,7 @@ html{background:var(--bg)}
       <aside class="col-side">
         <section class="panel" aria-label="Seçenekler">
           <h2>Ayarlar</h2>
+          <p class="panel-hint">Neyin silineceğini her fotoğrafın altında seçersin; fotoğraf seçilince hiçbir şey otomatik silinmez.</p>
           <div class="opts">
             <label class="opt stack" for="heic-format">
               <span><b>HEIC/HEIF çıktı biçimi</b><small>PNG ve WebP, 8 bit çözülen pikselleri kayıpsız saklar. JPEG her zaman kayıplıdır; en yüksek kaliteyle kodlanır. Dönüşümde üstveriler taşınmaz.</small>
@@ -493,14 +513,6 @@ html{background:var(--bg)}
               <span><b>Yönü koru</b><small>Dik çekilmiş fotoğraf yan dönmesin. JPEG/PNG/WebP'de yalnızca yön alanı kalır. HEIC/HEIF'te yön görüntüye uygulanır; bu kutudan bağımsızdır ve yön üstverisi taşınmaz.</small></span>
               <input id="o-orient" type="checkbox" checked>
             </label>
-            <label class="opt" for="o-icc">
-              <span><b>Renk profilini koru (ICC)</b><small>Desteklenen JPEG/PNG/WebP dosyalarında profil korunur. HEIC/HEIF dönüşümünde profil üstverisi taşınmaz; görüntü 8 bit RGB'ye çözülür.</small></span>
-              <input id="o-icc" type="checkbox" checked>
-            </label>
-            <label class="opt" for="o-date">
-              <span><b>Çekim tarihini koru</b><small>JPEG/PNG/WebP'de dosyada yalnızca tarih kalır. HEIC/HEIF dönüşümünde çekim tarihi dâhil üstveriler taşınmaz.</small></span>
-              <input id="o-date" type="checkbox">
-            </label>
             <label class="opt" for="o-rename">
               <span><b>Dosya adını rastgele yap</b><small>Dosya adları da kişisel bilgi taşıyabilir (isim, yer, tarih). Açıksa sonuç "foto-a1b2c3.jpg" gibi adlandırılır.</small></span>
               <input id="o-rename" type="checkbox">
@@ -511,14 +523,6 @@ html{background:var(--bg)}
             <label class="opt" for="o-auto">
               <span><b>Her dosyayı otomatik doğrula</b><small>Temizlenen veya PNG/WebP'ye çevrilen fotoğrafın piksellerini karşılaştırır. Kayıplı JPEG çıktısı birebir doğrulanamaz.</small></span>
               <input id="o-auto" type="checkbox" checked>
-            </label>
-            <label class="opt" for="o-trail">
-              <span><b>Dosya sonu eklerini sil</b><small>JPEG'in arkasına eklenen HDR haritası ve hareketli foto videosu çıkarılır. Ana görüntü değişmez.</small></span>
-              <input id="o-trail" type="checkbox" checked>
-            </label>
-            <label class="opt" for="o-c2pa">
-              <span><b>C2PA içerik kökeni bilgisini koru</b><small>JPEG/PNG/WebP'de açıksa içerik kimliği/köken kaydı tutulur. Kapalıysa temizlenir; imza ve köken doğrulaması etkilenebilir. HEIC/HEIF dönüşümünde bu bilgi taşınmaz.</small></span>
-              <input id="o-c2pa" type="checkbox">
             </label>
             <label class="opt" for="o-pixel-rewrite">
               <span><b>Basit piksel işaretlerini temizlemeyi dene (deneysel)</b><small>RGB kanallarının en düşük bitini sıfırlar ve görüntüyü PNG olarak yeniden oluşturur. Yalnızca basit LSB gömmelerini hedefler; SynthID gibi filigranları kaldırma garantisi yoktur. Bazı renk değerleri değişir; EXIF tarihi, ICC profili ve C2PA taşınmaz. Video ve 32 MP üzerindeki görseller desteklenmez.</small></span>
@@ -558,7 +562,7 @@ html{background:var(--bg)}
       <details class="detail">
         <summary>Nasıl çalışır? Ayrıntılı bilgi</summary>
         <div class="foot">
-          <p>JPEG, PNG, WebP ve MP4/MOV/WebM/AVI içindeki tanınan gömülü verileri cihazında temizler. HEIC/HEIF fotoğrafları PNG, JPEG veya WebP'ye dönüştürür. Dosyalar yüklenmez; uygulama çevrimiçiyken yalnızca kendi yayın adresinden sürüm bilgisini denetleyebilir.</p>
+          <p>Fotoğrafı seçince hiçbir şey otomatik silinmez: dosyada bulunan veri türleri (konum, cihaz, tarih, XMP, yapay zekâ/C2PA kayıtları vb.) fotoğrafın altında listelenir; sildirmek istediklerini işaretleyip TEMİZLE'ye basarsın. JPEG, PNG, WebP ve MP4/MOV/WebM/AVI içindeki tanınan gömülü verileri cihazında temizler. HEIC/HEIF fotoğrafları PNG, JPEG veya WebP'ye dönüştürür. Dosyalar yüklenmez; uygulama çevrimiçiyken yalnızca kendi yayın adresinden sürüm bilgisini denetleyebilir.</p>
           <p><b>Kayıpsız yükleme (iPhone):</b> "Fotoğraf Kitaplığı" HEIC dosyalarını JPEG'e çevirebilir ve konumu kendisi silebilir. Dosyayı olduğu gibi almak için "Dosya Seç"i kullan. Android'de galeriden Paylaş ile doğrudan bu uygulamaya gönderebilirsin.</p>
           <p><b>Galeriye kaydetme:</b> "Galeriye kaydet" iPhone'da paylaşım menüsünü açar; "Görseli Kaydet" Fotoğraflar'a ekler. Android'de dosya indirilir ve galerideki "İndirilenler" albümünde görünür. "Paylaş / Dosyalara kaydet" dosyayı birebir saklar. ZIP sıkıştırmaz, dosyalar bayt bayt aynı kalır.</p>
           <p>JPEG, PNG ve WebP üstverileri varsayılan olarak görüntü yeniden kodlanmadan temizlenir. İsteğe bağlı deneysel piksel işlemi RGB kanallarının en düşük bitini sıfırlar ve PNG oluşturur; bu yalnızca basit LSB gömmelerini etkileyebilir, SynthID gibi anahtarlı/dağıtılmış filigranları algılamaz veya kaldırmayı garanti etmez. Bu işlemde EXIF tarihi, ICC profili ve C2PA imzası/köken kaydı çıktıya taşınmaz. MP4/MOV/WebM/AVI videolarda tanınan kapsayıcı metadata alanları temizlenir; video ve ses akışları yeniden kodlanmaz, video kareleri piksel işleminden geçmez. HEIC/HEIF, seçilen biçime cihazda çevrilir; PNG/WebP çözülen 8 bit pikselleri kayıpsız kodlar, JPEG kayıplıdır. HEIC dönüşümünde üstveriler taşınmaz. HEIC dönüştürme sınırı 32 MP'dir; AVIF desteklenmiyor. Fotoğrafı veya videoyu panodan yapıştırarak da ekleyebilirsin.</p>
@@ -710,6 +714,227 @@ html{background:var(--bg)}
     }
     return buf;
   }
+  // ---- Seçmeli temizleme: kategoriler ----
+  const EXIF_CATS = ['gps', 'device', 'owner', 'settings', 'makernote', 'thumb'];
+  const CAT_ORDER = ['gps', 'device', 'owner', 'date', 'settings', 'makernote', 'thumb', 'xmp', 'iptc', 'comment', 'text', 'ai', 'c2pa', 'icc', 'trailing', 'other'];
+  const CAT_LABEL = {
+    gps: 'Konum (GPS)',
+    device: 'Cihaz, lens ve seri numaraları',
+    owner: 'Yazılım, sahip ve açıklamalar',
+    date: 'Tarih ve saat',
+    settings: 'Çekim ayarları (EXIF)',
+    makernote: 'Üretici özel verisi (MakerNote)',
+    thumb: 'Gömülü küçük resim',
+    xmp: 'XMP bilgileri',
+    iptc: 'IPTC / Photoshop bilgileri',
+    comment: 'Yorum alanı',
+    text: 'Metin alanları',
+    ai: 'Yapay zekâ üretim kayıtları',
+    c2pa: 'İçerik kökeni (C2PA / JUMBF)',
+    icc: 'Renk profili (ICC)',
+    trailing: 'Dosya sonu ekleri',
+    other: 'Diğer teknik parçalar',
+  };
+  const CAT_HINT = {
+    gps: 'Fotoğrafın çekildiği yer.',
+    device: 'Telefon/kamera modeli, lens ve seri numaraları.',
+    owner: 'Düzenleme yazılımı, sanatçı, telif ve açıklama metinleri.',
+    date: 'Çekim ve değiştirilme zamanı.',
+    settings: 'Pozlama, ISO, diyafram, odak uzaklığı gibi teknik alanlar.',
+    makernote: 'Üreticinin gömdüğü kapalı veri; seri no ve konum izi içerebilir.',
+    thumb: 'Kırpılmış fotoğrafın eski halini saklayabilir.',
+    xmp: 'Düzenleme geçmişi, yazılım ve kaynak türü (yapay zekâ etiketi dâhil olabilir).',
+    iptc: 'Başlık, anahtar kelime, telif ve yer bilgisi.',
+    comment: 'Dosyaya gömülü serbest metin.',
+    text: 'PNG metin parçaları (yazılım, açıklama vb.).',
+    ai: 'Prompt, model ve üretim parametreleri.',
+    c2pa: 'İçerik kimliği ve yapay zekâ kaynak kaydı. Silinirse imza doğrulaması bozulur.',
+    icc: 'Silersen renkler biraz değişebilir; çoğu zaman tutmak daha iyidir.',
+    trailing: 'HDR haritası, hareketli foto videosu. Ana görüntü değişmez.',
+    other: 'Tanınmayan ek bloklar.',
+  };
+  // Hangi kategoriler silinecek? Eski seçenekler (keepICC vb.) varsayılan olur; opts.remove bunları ezer.
+  function resolveRemove(opts) {
+    const R = {
+      gps: true, device: true, owner: true, date: !opts.keepDate, settings: true, makernote: true, thumb: true,
+      xmp: true, iptc: true, comment: true, text: true, ai: true, c2pa: !opts.keepC2PA, icc: !opts.keepICC,
+      trailing: !!opts.dropTrailing, other: true,
+    };
+    if (opts.remove) for (const k in opts.remove) if (k in R) R[k] = !!opts.remove[k];
+    return R;
+  }
+  const AI_KEYS = /^(parameters|prompt|negative[ _-]?prompt|workflow|dream|sd-metadata|invokeai[\w-]*|generation[ _-]?(data|params)|seed|steps|sampler|model[ _-]?hash|comfyui|nai)/i;
+  function pngTextCat(kw) {
+    const k = kw.toLowerCase();
+    if (k.indexOf('xmp') >= 0) return 'xmp';
+    if (k.indexOf('exif') >= 0) return 'other';
+    if (k.indexOf('iptc') >= 0) return 'iptc';
+    if (AI_KEYS.test(kw)) return 'ai';
+    return 'text';
+  }
+  function exifCat(kind, tag) {
+    if (kind === 'gps') return 'gps';
+    if (kind === 'ifd0') {
+      if (tag === 0x0112 || tag === 0x8769 || tag === 0x8825) return null;
+      if (tag === 0x010f || tag === 0x0110) return 'device';
+      if (tag === 0x0131 || tag === 0x013b || tag === 0x8298 || tag === 0x010e || tag === 0x013c || (tag >= 0x9c9b && tag <= 0x9c9f)) return 'owner';
+      if (tag === 0x0132) return 'date';
+      return 'settings';
+    }
+    if (tag === 0xa001) return null; // ColorSpace: renk doğruluğu için kalır
+    if (tag === 0x9003 || tag === 0x9004 || (tag >= 0x9010 && tag <= 0x9012) || (tag >= 0x9290 && tag <= 0x9292)) return 'date';
+    if (tag === 0xa420 || (tag >= 0xa431 && tag <= 0xa435)) return 'device';
+    if (tag === 0xa430 || tag === 0x9286) return 'owner';
+    if (tag === 0x927c) return 'makernote';
+    return 'settings';
+  }
+  // TIFF/EXIF bloğunun KOPYASINDA seçilen kategorileri siler: girdiler IFD'den çıkarılır, değerleri sıfırlanır.
+  // Yön (Orientation) ve ColorSpace korunur. Kaynak bayt dizisine dokunulmaz.
+  function filterTiff(u, s, e, R, keepOrient) {
+    const res = { tiff: null, present: {}, zeroed: 0, kept: 0 };
+    if (!u || e - s < 8 || e > u.length) return res;
+    const t = u.slice(s, e);
+    const L = t.length;
+    const le = t[0] === 0x49 && t[1] === 0x49;
+    if (!le && !(t[0] === 0x4d && t[1] === 0x4d)) return res;
+    const r16 = (p) => (le ? t[p] | (t[p + 1] << 8) : (t[p] << 8) | t[p + 1]);
+    const r32 = (p) => (le ? (t[p] | (t[p + 1] << 8) | (t[p + 2] << 16) | (t[p + 3] << 24)) >>> 0 : ((t[p] << 24) | (t[p + 1] << 16) | (t[p + 2] << 8) | t[p + 3]) >>> 0);
+    const w16 = (p, v) => { if (le) { t[p] = v & 255; t[p + 1] = (v >> 8) & 255; } else { t[p] = (v >> 8) & 255; t[p + 1] = v & 255; } };
+    const w32 = (p, v) => { for (let i = 0; i < 4; i++) t[p + (le ? i : 3 - i)] = (v >>> (8 * i)) & 255; };
+    if (r16(2) !== 42) return res;
+    const mark = (c, b) => { res.present[c] = (res.present[c] || 0) + b; };
+    const zero = (a, b) => { a = Math.max(0, a); b = Math.min(L, b); if (b > a) { t.fill(0, a, b); res.zeroed += b - a; } };
+    const info = (p) => {
+      const type = r16(p + 2), count = r32(p + 4);
+      const size = (TYPE_SIZE[type] || 1) * count;
+      const out = size > 4;
+      const vp = out ? r32(p + 8) : p + 8;
+      return { size, out, vp, ok: !out || (vp >= 8 && vp + size <= L) };
+    };
+    const measure = (off) => {
+      if (off < 8 || off + 2 > L) return 0;
+      const n = Math.min(r16(off), 512);
+      let b = 2 + n * 12 + 4;
+      for (let k = 0; k < n; k++) {
+        const p = off + 2 + k * 12;
+        if (p + 12 > L) break;
+        const ei = info(p);
+        if (ei.out && ei.ok) b += ei.size;
+      }
+      return b;
+    };
+    const kill = (off) => {
+      if (off < 8 || off + 2 > L) return;
+      const n = Math.min(r16(off), 512);
+      for (let k = 0; k < n; k++) {
+        const p = off + 2 + k * 12;
+        if (p + 12 > L) break;
+        const ei = info(p);
+        if (ei.out && ei.ok) zero(ei.vp, ei.vp + ei.size);
+      }
+      zero(off, off + 2 + n * 12 + 4);
+    };
+    const walk = (off, kind, depth) => {
+      if (off < 8 || off + 2 > L || depth > 2) return null;
+      const n = Math.min(r16(off), 512);
+      const base = off + 2;
+      if (base + n * 12 > L) return null;
+      const nextPos = base + n * 12;
+      const next = nextPos + 4 <= L ? r32(nextPos) : 0;
+      const keep = [];
+      for (let k = 0; k < n; k++) {
+        const p = base + k * 12;
+        const tag = r16(p);
+        const ent = t.slice(p, p + 12);
+        if (kind === 'ifd0' && tag === 0x8769) {
+          const sub = r32(p + 8);
+          const w = walk(sub, 'exif', depth + 1);
+          if (w && w.n === 0) kill(sub); else keep.push(ent);
+          continue;
+        }
+        if (kind === 'ifd0' && tag === 0x8825) {
+          const g = r32(p + 8);
+          mark('gps', measure(g));
+          if (R.gps) { kill(g); res.zeroed += 12; } else keep.push(ent);
+          continue;
+        }
+        const cat = exifCat(kind, tag);
+        if (cat === null) {
+          if (tag === 0x0112 && !keepOrient) { res.zeroed += 12; continue; }
+          keep.push(ent); res.kept++;
+          continue;
+        }
+        const ei = info(p);
+        mark(cat, 12 + (ei.out && ei.ok ? ei.size : 0));
+        if (R[cat]) {
+          if (ei.out && ei.ok) zero(ei.vp, ei.vp + ei.size);
+          if (kind === 'exif' && tag === 0xa005) kill(r32(p + 8));
+          res.zeroed += 12;
+        } else { keep.push(ent); res.kept++; }
+      }
+      if (keep.length !== n) {
+        w16(off, keep.length);
+        let q = base;
+        for (const ent of keep) { t.set(ent, q); q += 12; }
+        t.fill(0, q, Math.min(L, nextPos + 4));
+        if (q + 4 <= L) w32(q, next);
+        return { n: keep.length, next, nextPos: q };
+      }
+      return { n: keep.length, next, nextPos };
+    };
+    const top = walk(r32(4), 'ifd0', 0);
+    if (!top) return res;
+    // IFD1: gömülü küçük resim
+    if (top.next >= 8 && top.next + 2 <= L) {
+      const n1 = Math.min(r16(top.next), 64);
+      let toff = 0, tlen = 0;
+      for (let k = 0; k < n1; k++) {
+        const p = top.next + 2 + k * 12;
+        if (p + 12 > L) break;
+        const tag = r16(p);
+        if (tag === 0x0201) toff = r32(p + 8); else if (tag === 0x0202) tlen = r32(p + 8);
+      }
+      if (toff && tlen && toff + tlen <= L) {
+        mark('thumb', tlen + 2 + n1 * 12 + 4);
+        if (R.thumb) {
+          zero(toff, toff + tlen);
+          kill(top.next);
+          if (top.nextPos + 4 <= L) w32(top.nextPos, 0);
+        }
+      }
+    }
+    res.tiff = t;
+    return res;
+  }
+  // EXIF çıktısını seçer: EXIF kategorilerinin hepsi siliniyorsa en küçük TIFF, biri bile korunuyorsa süzülmüş kopya.
+  function planExif(exif, R, opts, meta, exifBytes, rem, pres) {
+    const orientation = meta.orientation || 1;
+    const date = meta.dateOriginal || meta.dateTime || null;
+    if (exif) for (const c in exif.present) pres(c, exif.present[c]);
+    const filter = !!(exif && exif.tiff && EXIF_CATS.some((c) => !R[c]) && exif.kept > 0);
+    let tiff, zeroed = 0;
+    if (filter) {
+      tiff = exif.tiff;
+      zeroed = exif.zeroed;
+      if (zeroed > 0) rem.add('EXIF (seçilen alanlar)', zeroed);
+    } else {
+      tiff = buildTiff(opts.keepOrientation ? orientation : 1, !R.date ? date : null);
+      if (exifBytes) rem.add('EXIF', exifBytes);
+    }
+    return { tiff, zeroed, orientationKept: !!tiff && !!opts.keepOrientation && orientation > 1, dateKept: !!tiff && !R.date && !!date };
+  }
+  function buildCats(present, meta, notes) {
+    const dev = [meta.make, meta.model].filter(Boolean).join(' ');
+    const D = {
+      gps: meta.lat != null ? meta.lat.toFixed(5) + ', ' + meta.lon.toFixed(5) : '',
+      device: [dev, meta.lens, meta.bodySerial ? 'seri: ' + meta.bodySerial : ''].filter(Boolean).join(' · '),
+      owner: [meta.software, meta.artist, meta.copyright].filter(Boolean).join(' · '),
+      date: meta.dateOriginal || meta.dateTime || '',
+      text: ((notes && notes.textKeys) || []).slice(0, 5).join(', '),
+      ai: ((notes && notes.aiKeys) || []).slice(0, 5).join(', '),
+    };
+    return CAT_ORDER.filter((c) => present[c] > 0).map((c) => ({ id: c, label: CAT_LABEL[c], bytes: present[c], detail: D[c] || '', hint: CAT_HINT[c] || '', on: c !== 'icc' }));
+  }
   // Arayüzde gösterilecek, insan okuyabilir özet
   function foundList(meta, removed) {
     const f = [];
@@ -755,6 +980,9 @@ html{background:var(--bg)}
     const parts = [u8.subarray(0, 2)];
     let insertAt = 1;
     const meta = {};
+    const R = opts.R, present = {};
+    const pres = (c, b) => { present[c] = (present[c] || 0) + b; };
+    let exif = null, exifBytes = 0;
     let width = 0, height = 0, c2paKept = false;
     let i = 2;
     let sawEOI = false;
@@ -794,7 +1022,13 @@ html{background:var(--bg)}
 
       if (m === 0xe0) {
         if (starts(u8, p, 'JFIF\0')) {
-          if (len > 16) {
+          if (len > 16 && !R.thumb) {
+            pres('thumb', size - 18);
+            parts.push(u8.subarray(segStart, segEnd));
+            if (first) insertAt = parts.length;
+            keep = false;
+          } else if (len > 16) {
+            pres('thumb', size - 18);
             // küçük resim (thumbnail) içeriyor: başlığı küçük resimsiz yaz
             const fixed = new Uint8Array(18);
             fixed.set(u8.subarray(segStart, segStart + 18));
@@ -812,42 +1046,59 @@ html{background:var(--bg)}
             keep = false;
           }
         } else {
-          keep = false;
-          rem.add(starts(u8, p, 'JFXX') ? 'JFXX küçük resmi' : 'APP0 (diğer)', size);
+          const isX = starts(u8, p, 'JFXX');
+          const cat = isX ? 'thumb' : 'other';
+          pres(cat, size);
+          if (R[cat]) { keep = false; rem.add(isX ? 'JFXX küçük resmi' : 'APP0 (diğer)', size); }
         }
       } else if (m === 0xe1) {
         keep = false;
         if (starts(u8, p, 'Exif\0\0')) {
           mergeInfo(meta, readTiff(u8, p + 6, segEnd));
-          rem.add('EXIF', size);
-        } else if (starts(u8, p, 'http://ns.adobe.com/xap/1.0/')) rem.add('XMP', size);
-        else if (starts(u8, p, 'http://ns.adobe.com/xmp/extension/')) rem.add('XMP (uzantı)', size);
-        else rem.add('APP1 (diğer)', size);
+          if (!exif) exif = filterTiff(u8, p + 6, segEnd, R, opts.keepOrientation);
+          exifBytes += size;
+        } else if (starts(u8, p, 'http://ns.adobe.com/xap/1.0/') || starts(u8, p, 'http://ns.adobe.com/xmp/extension/')) {
+          pres('xmp', size);
+          if (R.xmp) rem.add(starts(u8, p, 'http://ns.adobe.com/xap/1.0/') ? 'XMP' : 'XMP (uzantı)', size); else keep = true;
+        } else {
+          pres('other', size);
+          if (R.other) rem.add('APP1 (diğer)', size); else keep = true;
+        }
       } else if (m === 0xe2) {
-        if (starts(u8, p, 'ICC_PROFILE\0') && opts.keepICC) keep = true;
-        else {
+        if (starts(u8, p, 'ICC_PROFILE\0')) {
+          pres('icc', size);
+          if (R.icc) { keep = false; rem.add('ICC profili', size); }
+        } else if (starts(u8, p, 'MPF\0')) {
+          pres('trailing', size);
           keep = false;
-          if (starts(u8, p, 'ICC_PROFILE\0')) rem.add('ICC profili', size);
-          else if (starts(u8, p, 'MPF\0')) rem.add('MPF (çoklu resim)', size);
-          else rem.add('APP2 (diğer)', size);
+          rem.add('MPF (çoklu resim)', size);
+        } else {
+          pres('other', size);
+          if (R.other) { keep = false; rem.add('APP2 (diğer)', size); }
         }
       } else if (m === 0xee) {
         // Adobe APP14: renk dönüşüm bayrağı, çözme için gerekli
         keep = starts(u8, p, 'Adobe');
         if (!keep) rem.add('APP14 (diğer)', size);
       } else if (m === 0xeb) {
-        keep = !!opts.keepC2PA;
-        if (keep) c2paKept = true;
-        if (!keep) rem.add(starts(u8, p, 'JP') ? 'C2PA / JUMBF' : 'APP11 (diğer)', size);
+        const isC = starts(u8, p, 'JP');
+        pres(isC ? 'c2pa' : 'other', size);
+        keep = !R[isC ? 'c2pa' : 'other'];
+        if (keep && isC) c2paKept = true;
+        if (!keep) rem.add(isC ? 'C2PA / JUMBF' : 'APP11 (diğer)', size);
       } else if (m === 0xed) {
-        keep = false;
-        rem.add(starts(u8, p, 'Photoshop 3.0') ? 'IPTC / Photoshop' : 'APP13 (diğer)', size);
+        const isI = starts(u8, p, 'Photoshop 3.0');
+        pres(isI ? 'iptc' : 'other', size);
+        keep = !R[isI ? 'iptc' : 'other'];
+        if (!keep) rem.add(isI ? 'IPTC / Photoshop' : 'APP13 (diğer)', size);
       } else if (m === 0xfe) {
-        keep = false;
-        rem.add('Yorum (COM)', size);
+        pres('comment', size);
+        keep = !R.comment;
+        if (!keep) rem.add('Yorum (COM)', size);
       } else if (m >= 0xe3 && m <= 0xef) {
-        keep = false;
-        rem.add('APP' + (m - 0xe0) + ' (diğer)', size);
+        pres('other', size);
+        keep = !R.other;
+        if (!keep) rem.add('APP' + (m - 0xe0) + ' (diğer)', size);
       }
 
       if (keep) parts.push(u8.subarray(segStart, segEnd));
@@ -873,24 +1124,24 @@ html{background:var(--bg)}
 
     if (!sawEOI) throw new Error('JPEG sonu (EOI) bulunamadı; dosya kesik olabilir');
     if (i < n) {
-      if (opts.dropTrailing) rem.add('Dosya sonu eki (HDR / hareketli foto)', n - i);
+      pres('trailing', n - i);
+      if (R.trailing) rem.add('Dosya sonu eki (HDR / hareketli foto)', n - i);
       else parts.push(u8.subarray(i, n));
     }
 
     const orientation = meta.orientation || 1;
-    let orientationKept = false, dateKept = false;
-    const tiff = buildTiff(opts.keepOrientation ? orientation : 1, opts.keepDate ? meta.dateOriginal || meta.dateTime : null);
+    const plan = planExif(exif, R, opts, meta, exifBytes, rem, pres);
+    const tiff = plan.tiff;
     if (tiff) {
+      const segLen = 2 + 6 + tiff.length;
       const seg = new Uint8Array(4 + 6 + tiff.length);
       seg[0] = 0xff; seg[1] = 0xe1;
-      seg[2] = 0; seg[3] = 2 + 6 + tiff.length;
+      seg[2] = (segLen >> 8) & 255; seg[3] = segLen & 255;
       seg.set([0x45, 0x78, 0x69, 0x66, 0, 0], 4);
       seg.set(tiff, 10);
       parts.splice(insertAt, 0, seg);
-      orientationKept = opts.keepOrientation && orientation > 1;
-      dateKept = !!(opts.keepDate && (meta.dateOriginal || meta.dateTime));
     }
-    return { mime: 'image/jpeg', ext: '.jpg', width, height, parts, removed: rem.list(), orientation, orientationKept, dateKept, c2paKept, found: foundList(meta, rem.list()) };
+    return { mime: 'image/jpeg', ext: '.jpg', width, height, parts, removed: rem.list(), orientation, orientationKept: !!tiff && plan.orientationKept, dateKept: !!tiff && plan.dateKept, c2paKept, zeroedBytes: plan.zeroed, cats: buildCats(present, meta, {}), found: foundList(meta, rem.list()) };
   }
 
   // ---------------- PNG ----------------
@@ -935,6 +1186,9 @@ html{background:var(--bg)}
     const parts = [u8.subarray(0, 8)];
     let i = 8;
     const meta = {};
+    const R = opts.R, present = {}, textKeys = [], aiKeys = [];
+    const pres = (c, b) => { present[c] = (present[c] || 0) + b; };
+    let exif = null, exifBytes = 0;
     let width = 0, height = 0, firstIdat = -1, sawIend = false, c2paKept = false;
 
     while (i + 12 <= n) {
@@ -953,25 +1207,30 @@ html{background:var(--bg)}
 
       if (!keep) {
         if (type === 'iCCP') {
-          if (opts.keepICC) keep = true;
-          else rem.add('ICC profili', end - i);
+          pres('icc', end - i);
+          if (!R.icc) keep = true; else rem.add('ICC profili', end - i);
         } else if (type === 'eXIf') {
           mergeInfo(meta, readTiff(u8, i + 8, i + 8 + len));
-          rem.add('EXIF', end - i);
+          if (!exif) exif = filterTiff(u8, i + 8, i + 8 + len, R, opts.keepOrientation);
+          exifBytes += end - i;
         } else if (type === 'caBX') {
-          if (opts.keepC2PA) { keep = true; c2paKept = true; }
-          else rem.add('C2PA (caBX)', end - i);
-        }
-        else if (type === 'tIME') rem.add('Değiştirilme zamanı (tIME)', end - i);
-        else if (type === 'iTXt') {
+          pres('c2pa', end - i);
+          if (!R.c2pa) { keep = true; c2paKept = true; } else rem.add('C2PA (caBX)', end - i);
+        } else if (type === 'tIME') {
+          pres('date', end - i);
+          if (!R.date) keep = true; else rem.add('Değiştirilme zamanı (tIME)', end - i);
+        } else if (type === 'iTXt' || type === 'tEXt' || type === 'zTXt') {
           const kw = pngKeyword(u8, i + 8, i + 8 + len);
-          rem.add(kw.indexOf('xmp') >= 0 ? 'XMP (iTXt)' : 'Metin (iTXt)', end - i);
-        } else if (type === 'tEXt' || type === 'zTXt') {
-          const kw = pngKeyword(u8, i + 8, i + 8 + len).toLowerCase();
-          if (kw.indexOf('exif') >= 0) rem.add('EXIF (metin)', end - i);
-          else if (kw.indexOf('xmp') >= 0) rem.add('XMP (metin)', end - i);
-          else rem.add('Metin (' + type + ')', end - i);
-        } else rem.add('Diğer parça (' + type + ')', end - i);
+          const cat = pngTextCat(kw);
+          pres(cat, end - i);
+          if (cat === 'text' && textKeys.length < 8) textKeys.push(kw);
+          if (cat === 'ai' && aiKeys.length < 8) aiKeys.push(kw);
+          if (!R[cat]) keep = true;
+          else rem.add(cat === 'xmp' ? (type === 'iTXt' ? 'XMP (iTXt)' : 'XMP (metin)') : cat === 'other' ? 'EXIF (metin)' : cat === 'ai' ? 'Yapay zekâ kaydı (' + type + ')' : cat === 'iptc' ? 'IPTC (metin)' : 'Metin (' + type + ')', end - i);
+        } else {
+          pres('other', end - i);
+          if (!R.other) keep = true; else rem.add('Diğer parça (' + type + ')', end - i);
+        }
       }
       if (keep) parts.push(u8.subarray(i, end));
       i = end;
@@ -982,19 +1241,21 @@ html{background:var(--bg)}
     }
     if (!sawIend) throw new Error('PNG sonu (IEND) bulunamadı; dosya kesik olabilir');
     if (i < n) {
-      if (opts.dropTrailing) rem.add('Dosya sonu eki', n - i);
+      pres('trailing', n - i);
+      if (R.trailing) rem.add('Dosya sonu eki', n - i);
       else parts.push(u8.subarray(i, n));
     }
 
     const orientation = meta.orientation || 1;
     let orientationKept = false, dateKept = false;
-    const tiff = buildTiff(opts.keepOrientation ? orientation : 1, opts.keepDate ? meta.dateOriginal || meta.dateTime : null);
+    const plan = planExif(exif, R, opts, meta, exifBytes, rem, pres);
+    const tiff = plan.tiff;
     if (tiff && firstIdat > 0) {
       parts.splice(firstIdat, 0, pngChunk('eXIf', tiff));
-      orientationKept = opts.keepOrientation && orientation > 1;
-      dateKept = !!(opts.keepDate && (meta.dateOriginal || meta.dateTime));
+      orientationKept = plan.orientationKept;
+      dateKept = plan.dateKept;
     }
-    return { mime: 'image/png', ext: '.png', width, height, parts, removed: rem.list(), orientation, orientationKept, dateKept, c2paKept, found: foundList(meta, rem.list()) };
+    return { mime: 'image/png', ext: '.png', width, height, parts, removed: rem.list(), orientation, orientationKept, dateKept, c2paKept, zeroedBytes: plan.zeroed, cats: buildCats(present, meta, { textKeys, aiKeys }), found: foundList(meta, rem.list()) };
   }
 
   // ---------------- WebP ----------------
@@ -1008,6 +1269,9 @@ html{background:var(--bg)}
     const kept = [];
     const meta = {};
     let width = 0, height = 0, hasVP8X = false, imgType = '', vp8lAlpha = false;
+    const R = opts.R, present = {};
+    const pres = (c, b) => { present[c] = (present[c] || 0) + b; };
+    let exif = null, exifBytes = 0, xmpKept = false;
     let iccDropped = false, c2paKept = false;
 
     while (i + 8 <= end) {
@@ -1039,26 +1303,25 @@ html{background:var(--bg)}
           height = 1 + ((b >>> 14) & 0x3fff);
         }
       } else if (type === 'ICCP') {
-        if (!opts.keepICC) {
-          keep = false;
-          iccDropped = true;
-          rem.add('ICC profili', total);
-        }
+        pres('icc', total);
+        if (R.icc) { keep = false; iccDropped = true; rem.add('ICC profili', total); }
       } else if (type === 'EXIF') {
         keep = false;
         const s = starts(u8, ds, 'Exif\0\0') ? ds + 6 : ds;
         mergeInfo(meta, readTiff(u8, s, de));
-        rem.add('EXIF', total);
+        if (!exif) exif = filterTiff(u8, s, de, R, opts.keepOrientation);
+        exifBytes += total;
       } else if (type === 'XMP ') {
-        keep = false;
-        rem.add('XMP', total);
+        pres('xmp', total);
+        if (R.xmp) { keep = false; rem.add('XMP', total); } else xmpKept = true;
       } else if (type === 'C2PA') {
-        keep = !!opts.keepC2PA;
+        pres('c2pa', total);
+        keep = !R.c2pa;
         c2paKept = keep;
         if (!keep) rem.add('C2PA', total);
       } else if (type !== 'ALPH' && type !== 'ANIM' && type !== 'ANMF') {
-        keep = false;
-        rem.add('Diğer parça (' + type.trim() + ')', total);
+        pres('other', total);
+        if (R.other) { keep = false; rem.add('Diğer parça (' + type.trim() + ')', total); }
       }
       if (keep) kept.push({ type, ds, de, size });
       i = next;
@@ -1067,7 +1330,8 @@ html{background:var(--bg)}
     if (!imgType && !kept.some((c) => c.type === 'ANMF')) throw new Error('Bozuk WebP (görüntü verisi yok)');
 
     const orientation = meta.orientation || 1;
-    const tiff = buildTiff(opts.keepOrientation ? orientation : 1, opts.keepDate ? meta.dateOriginal || meta.dateTime : null);
+    const plan = planExif(exif, R, opts, meta, exifBytes, rem, pres);
+    const tiff = plan.tiff;
     const wantExif = !!tiff;
     const out = [];
     let total = 4; // 'WEBP'
@@ -1086,9 +1350,9 @@ html{background:var(--bg)}
       }
     };
 
-    if (!hasVP8X && wantExif) {
+    if (!hasVP8X && (wantExif || xmpKept)) {
       const v = new Uint8Array(10);
-      v[0] = 0x08 | (vp8lAlpha ? 0x10 : 0);
+      v[0] = (wantExif ? 0x08 : 0) | (xmpKept ? 0x04 : 0) | (vp8lAlpha ? 0x10 : 0);
       const w = width - 1, h = height - 1;
       v[4] = w & 255; v[5] = (w >>> 8) & 255; v[6] = (w >>> 16) & 255;
       v[7] = h & 255; v[8] = (h >>> 8) & 255; v[9] = (h >>> 16) & 255;
@@ -1100,6 +1364,7 @@ html{background:var(--bg)}
         v[0] &= ~0x0c; // EXIF + XMP bayrakları
         if (iccDropped) v[0] &= ~0x20;
         if (wantExif) v[0] |= 0x08;
+        if (xmpKept) v[0] |= 0x04;
         push('VP8X', v);
       } else {
         out.push(hdr(c.type, c.size), u8.subarray(c.ds, c.de));
@@ -1117,13 +1382,16 @@ html{background:var(--bg)}
     head[4] = total & 255; head[5] = (total >>> 8) & 255; head[6] = (total >>> 16) & 255; head[7] = (total >>> 24) & 255;
     head.set([0x57, 0x45, 0x42, 0x50], 8);
     const trailing = end < n ? u8.subarray(end, n) : null;
-    if (trailing && opts.dropTrailing) rem.add('Dosya sonu eki', trailing.length);
+    if (trailing) pres('trailing', trailing.length);
+    if (trailing && R.trailing) rem.add('Dosya sonu eki', trailing.length);
     return {
       mime: 'image/webp', ext: '.webp', width, height,
-      parts: trailing && !opts.dropTrailing ? [head, ...out, trailing] : [head, ...out], removed: rem.list(), orientation,
-      orientationKept: wantExif && opts.keepOrientation && orientation > 1,
-      dateKept: wantExif && !!(opts.keepDate && (meta.dateOriginal || meta.dateTime)),
+      parts: trailing && !R.trailing ? [head, ...out, trailing] : [head, ...out], removed: rem.list(), orientation,
+      orientationKept: plan.orientationKept,
+      dateKept: plan.dateKept,
       c2paKept,
+      zeroedBytes: plan.zeroed,
+      cats: buildCats(present, meta, {}),
       found: foundList(meta, rem.list()),
     };
   }
@@ -1131,6 +1399,7 @@ html{background:var(--bg)}
   // ---------------- Giriş ----------------
   function strip(u8, o) {
     const opts = Object.assign({ keepOrientation: true, keepICC: true, dropTrailing: true, keepDate: false, keepC2PA: false }, o || {});
+    opts.R = resolveRemove(opts);
     let r;
     if (u8.length > 3 && u8[0] === 0xff && u8[1] === 0xd8 && u8[2] === 0xff) r = stripJPEG(u8, opts);
     else if (u8.length > 8 && starts(u8, 0, '\x89PNG\r\n\x1a\n')) r = stripPNG(u8, opts);
@@ -1189,7 +1458,7 @@ html{background:var(--bg)}
     return [...out, ...central, end];
   }
 
-  const api = { strip, isHeif, readTiff, tiffOrientation, buildTiff, crc32, crc32update, makeZip };
+  const api = { strip, isHeif, readTiff, tiffOrientation, buildTiff, filterTiff, resolveRemove, CAT_LABEL, CAT_ORDER, crc32, crc32update, makeZip };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.IzsizCore = api;
 })(typeof self !== 'undefined' ? self : this);
@@ -1209,7 +1478,7 @@ html{background:var(--bg)}
   var seq = 0;
 
   // ---- ayarlar ----
-  var toggles = { 'o-orient': true, 'o-icc': true, 'o-trail': true, 'o-date': false, 'o-auto': true, 'o-rename': false, 'o-c2pa': false, 'o-pixel-rewrite': false };
+  var toggles = { 'o-orient': true, 'o-auto': true, 'o-rename': false, 'o-pixel-rewrite': false };
   try {
     var saved = JSON.parse(localStorage.getItem('izsiz-opts') || '{}');
     Object.keys(toggles).forEach(function (k) { if (typeof saved[k] === 'boolean') $('#' + k).checked = saved[k]; });
@@ -1230,8 +1499,11 @@ html{background:var(--bg)}
   $('#heic-format').addEventListener('change', function () {
     try { localStorage.setItem('izsiz-heic-format', $('#heic-format').value); } catch (e) {}
   });
-  function opts() {
-    return { keepOrientation: $('#o-orient').checked, keepICC: $('#o-icc').checked, dropTrailing: $('#o-trail').checked, keepDate: $('#o-date').checked, keepC2PA: $('#o-c2pa').checked };
+  // sel: { kategori: true/false } — true = bu veri SİLİNSİN (fotoğrafın altındaki seçimler)
+  function opts(sel) {
+    var o = { keepOrientation: $('#o-orient').checked };
+    if (sel) o.remove = sel;
+    return o;
   }
 
   // ---- biçimlendirme ----
@@ -1413,6 +1685,10 @@ html{background:var(--bg)}
     if (r.orientationKept) chips.appendChild(el('li', 'chip none', 'Yön değeri korundu: ' + r.orientation));
     if (r.dateKept) chips.appendChild(el('li', 'chip none', 'Çekim tarihi korundu'));
     if (r.c2paKept) chips.appendChild(el('li', 'chip none', 'C2PA köken bilgisi korundu'));
+    if (!r.converted && !r.video) (it.kept || []).forEach(function (k) {
+      if ((k.id === 'date' && r.dateKept) || (k.id === 'c2pa' && r.c2paKept)) return;
+      chips.appendChild(el('li', 'chip none', 'Korundu: ' + k.label));
+    });
     it.li.appendChild(chips);
 
     if (r.found && r.found.length) {
@@ -1458,7 +1734,14 @@ html{background:var(--bg)}
     done.forEach(function (i) { bytes += i.removedBytes; });
     var videoCount = done.filter(function (i) { return i.result && i.result.video; }).length;
     var pixelRewriteCount = done.filter(function (i) { return i.result && i.result.pixelRewritten; }).length;
-    $('#summary').textContent = done.length + (videoCount ? ' dosya işlendi' : ' fotoğraf işlendi') + (bytes > 0 ? ' · ' + fmtSize(bytes) + ' veri kaldırıldı' : '') + (pixelRewriteCount ? ' · ' + pixelRewriteCount + ' görselde deneysel piksel işlemi uygulandı' : '') + (videoCount ? ' · video metadata temizlendi' : '') + (pending ? ' · işleniyor: ' + (batchTotal - pending + 1) + '/' + batchTotal : '');
+    var waiting = items.filter(function (i) { return i.awaiting; }).length;
+    var working = items.some(function (i) { return i.busy && !i.out && !i.failed; });
+    var text = done.length + (videoCount ? ' dosya işlendi' : ' fotoğraf işlendi') + (bytes > 0 ? ' · ' + fmtSize(bytes) + ' veri kaldırıldı' : '') + (pixelRewriteCount ? ' · ' + pixelRewriteCount + ' görselde deneysel piksel işlemi uygulandı' : '') + (videoCount ? ' · video metadata temizlendi' : '') + (pending ? ' · işleniyor: ' + (batchTotal - pending + 1) + '/' + batchTotal : '');
+    if (!done.length) text = waiting ? waiting + ' dosya hazır · henüz hiçbir şey silinmedi' : (working ? 'Temizleniyor…' : 'Dosya işlenemedi');
+    else if (waiting) text += ' · ' + waiting + ' dosya seçim bekliyor';
+    $('#summary').textContent = text;
+    $('#clean-all').hidden = waiting < 2;
+    $('#privacy-note').hidden = done.length === 0;
     $('#save-all').hidden = !IS_PWA || done.length < 2;
     $('#zip').hidden = !IS_PWA || done.length < 2;
     $('#preview-note').hidden = IS_PWA || items.length === 0;
@@ -1498,6 +1781,91 @@ html{background:var(--bg)}
       if (canvas) { canvas.width = 0; canvas.height = 0; }
     }
   }
+  // ---- seçmeli temizleme arayüzü ----
+  function wantsPixel() { return $('#o-pixel-rewrite').checked; }
+  function readSel(it) {
+    var sel = {};
+    (it.catRows || []).forEach(function (r) { sel[r.id] = r.input.checked; });
+    return sel;
+  }
+  function refreshChooser(it) {
+    if (!it.awaiting || !it.cleanBtn) return;
+    var rows = it.catRows || [];
+    var n = rows.filter(function (r) { return r.input.checked; }).length;
+    it.cleanBtn.disabled = !(it.isHeif || n > 0 || (!it.isVideo && wantsPixel()));
+    it.countEl.textContent = rows.length ? n + ' / ' + rows.length + ' seçili' : '';
+  }
+  function addCatRow(it, list, c) {
+    var lab = el('label', 'opt');
+    var txt = el('span');
+    var b = el('b', '', c.label);
+    if (c.bytes) b.appendChild(el('span', 'size', fmtSize(c.bytes)));
+    txt.appendChild(b);
+    if (c.detail) txt.appendChild(el('small', 'det' + (c.id === 'gps' || c.id === 'device' ? ' warn' : ''), c.detail));
+    if (c.hint) txt.appendChild(el('small', '', c.hint));
+    var inp = el('input');
+    inp.type = 'checkbox';
+    inp.checked = !!c.on;
+    inp.addEventListener('change', function () { refreshChooser(it); });
+    lab.appendChild(txt);
+    lab.appendChild(inp);
+    list.appendChild(lab);
+    it.catRows.push({ id: c.id, label: c.label, input: inp });
+  }
+  function showChooser(it) {
+    it.awaiting = true;
+    it.url0 = URL.createObjectURL(it.file);
+    var media = it.isVideo ? el('video') : el('img');
+    if (it.isVideo) { media.controls = true; media.preload = 'metadata'; } else media.alt = '';
+    media.addEventListener('error', function () { media.remove(); it.thumbEl.appendChild(el('span', 'noprev', 'Önizleme yok')); }, { once: true });
+    media.src = it.url0;
+    it.thumbEl.appendChild(media);
+    it.li.classList.add('choosing');
+    it.stateEl.textContent = 'Henüz temizlenmedi · neyin silineceğini seç';
+
+    var box = el('div', 'chooser');
+    it.chooser = box;
+    var head = el('div', 'chooser-head');
+    head.appendChild(el('h3', '', it.isHeif ? 'Dönüştürme ve temizlik' : 'Neleri silelim?'));
+    it.countEl = el('span', 'count', '');
+    head.appendChild(it.countEl);
+    box.appendChild(head);
+    it.catRows = [];
+
+    if (it.isHeif) {
+      box.appendChild(el('p', 'note', 'HEIC/HEIF dosyası seçtiğin biçime dönüştürülür. EXIF, konum, tarih ve diğer üstveriler yeni dosyaya taşınmaz. Çıktı biçimini Ayarlar bölümünden değiştirebilirsin.'));
+    } else if (it.isVideo) {
+      var vlist = el('div', 'opts cat-list');
+      addCatRow(it, vlist, { id: 'video', label: 'Video üstverisi', detail: 'Konum, cihaz, tarih, başlık, etiketler', hint: 'Video ve ses akışları yeniden kodlanmaz.', on: true });
+      box.appendChild(vlist);
+    } else if (it.cats && it.cats.length) {
+      var list = el('div', 'opts cat-list');
+      it.cats.forEach(function (c) { addCatRow(it, list, c); });
+      box.appendChild(list);
+      if (it.prov) box.appendChild(el('p', 'note', 'Dikkat: ' + it.prov));
+    } else {
+      box.appendChild(el('p', 'note', 'Bu dosyada silinecek bilinen bir veri bulunamadı.'));
+    }
+
+    var row = el('div', 'row');
+    if (it.catRows.length > 1) {
+      var all = el('button', 'btn', 'Tümünü seç'); all.type = 'button';
+      all.addEventListener('click', function () { it.catRows.forEach(function (r) { r.input.checked = true; }); refreshChooser(it); });
+      var none = el('button', 'btn', 'Hiçbirini seçme'); none.type = 'button';
+      none.addEventListener('click', function () { it.catRows.forEach(function (r) { r.input.checked = false; }); refreshChooser(it); });
+      row.appendChild(all); row.appendChild(none);
+      box.appendChild(row);
+    }
+    var go = el('button', 'btn primary big', 'TEMİZLE');
+    go.type = 'button';
+    go.addEventListener('click', function () { cleanItem(it); });
+    it.cleanBtn = go;
+    box.appendChild(go);
+    it.li.appendChild(box);
+    refreshChooser(it);
+  }
+
+  // 1) Dosyayı yalnızca İNCELER: hiçbir şey silinmez, çıktı üretilmez.
   async function processOne(file) {
     var it = { id: ++seq, file: file };
     items.push(it);
@@ -1506,8 +1874,43 @@ html{background:var(--bg)}
     try {
       if (file.size > MAX_FILE_BYTES) throw new Error('Dosya 100 MiB sınırını aşıyor. Daha küçük bir dosya seç.');
       var buf = new Uint8Array(await file.arrayBuffer());
-      var isVideo = /\.(mp4|mov|webm|avi)$/i.test(file.name || '') || /^(video\/mp4|video\/quicktime|video\/webm|video\/x-msvideo)/i.test(file.type || '') || IzsizVideo.isSupported(buf);
-      var isHeif = !isVideo && (IzsizCore.isHeif(buf) || /\.(heic|heif)$/i.test(file.name || '') || /^image\/(heic|heif)(-|$)/i.test(file.type || ''));
+      it.buf = buf;
+      it.isVideo = /\.(mp4|mov|webm|avi)$/i.test(file.name || '') || /^(video\/mp4|video\/quicktime|video\/webm|video\/x-msvideo)/i.test(file.type || '') || IzsizVideo.isSupported(buf);
+      it.isHeif = !it.isVideo && (IzsizCore.isHeif(buf) || /\.(heic|heif)$/i.test(file.name || '') || /^image\/(heic|heif)(-|$)/i.test(file.type || ''));
+      if (!it.isVideo && !it.isHeif) {
+        var probe = IzsizCore.strip(buf, opts()); // yalnızca okuma: neler var?
+        it.cats = probe.cats || [];
+        if (window.IzsizAudit) {
+          try {
+            it.prov = IzsizAudit.describeProvenance(IzsizAudit.readProvenance(buf))
+              .filter(function (x) { return x.level === 'warn' && x.text.indexOf('okunamadı') < 0; })
+              .map(function (x) { return x.text; }).join(' · ');
+          } catch (e) {}
+        }
+      }
+      showChooser(it);
+    } catch (err) {
+      it.failed = true;
+      it.stateEl.textContent = (err && err.message) || 'İşlenemedi';
+      it.stateEl.classList.add('err');
+    }
+    summarize();
+  }
+
+  // 2) TEMİZLE: yalnızca işaretlenen veriler silinir.
+  async function cleanItem(it) {
+    if (!it.awaiting || it.busy) return;
+    it.busy = true; it.awaiting = false;
+    var file = it.file, buf = it.buf, isVideo = it.isVideo, isHeif = it.isHeif;
+    var sel = readSel(it);
+    it.kept = (it.catRows || []).filter(function (r) { return !sel[r.id]; }).map(function (r) { return { id: r.id, label: r.label }; });
+    if (it.chooser) { it.chooser.remove(); it.chooser = null; }
+    it.li.classList.remove('choosing');
+    it.thumbEl.textContent = '';
+    if (it.url0) { URL.revokeObjectURL(it.url0); it.url0 = null; }
+    it.stateEl.textContent = 'Temizleniyor…';
+    summarize();
+    try {
       var r;
       if (isVideo) {
         if (!window.IzsizVideo) throw new Error('Video dönüştürme modülü yüklenemedi. Uygulamayı yeniden açıp tekrar dene.');
@@ -1522,7 +1925,7 @@ html{background:var(--bg)}
           converted: true, format: target, lossless: converted.lossless, found: []
         };
         it.sourceImageData = converted.imageData;
-      } else r = IzsizCore.strip(buf, opts());
+      } else r = IzsizCore.strip(buf, opts(sel));
       if (!isVideo && $('#o-pixel-rewrite').checked) {
         var baseBlob = r.converted ? r.outBlob : new Blob(r.parts, { type: r.mime });
         var rewritten = await rewriteBasicLsb(baseBlob);
@@ -1540,16 +1943,19 @@ html{background:var(--bg)}
       it.out = new File([blob], cleanName(file.name, r.ext), { type: r.mime, lastModified: Date.now() });
       it.url = URL.createObjectURL(it.out);
       it.result = r;
-      it.removedBytes = r.video ? r.metadataBytes : (r.pixelRewritten ? (r.removed || []).reduce(function (sum, item) { return sum + (Number(item.bytes) || 0); }, 0) : (r.converted ? 0 : r.inSize - r.outSize));
+      it.removedBytes = r.video ? r.metadataBytes : (r.pixelRewritten ? (r.removed || []).reduce(function (sum, item) { return sum + (Number(item.bytes) || 0); }, 0) : (r.converted ? 0 : (r.inSize - r.outSize) + (r.zeroedBytes || 0)));
       fillCard(it, r);
       summarize();
       if (!r.video) { try { await pixelAudit(it); } catch (e) {} }
       if ($('#o-auto').checked && !r.video) await verify(it);
       it.sourceImageData = null;
     } catch (err) {
+      it.failed = true;
       it.stateEl.textContent = (err && err.message) || 'İşlenemedi';
       it.stateEl.classList.add('err');
     }
+    it.buf = null;
+    it.busy = false;
     summarize();
   }
 
@@ -1822,8 +2228,13 @@ html{background:var(--bg)}
       $('#limit-note').hidden = false;
     } finally { button.disabled = false; }
   });
+  $('#clean-all').addEventListener('click', async function () {
+    var todo = items.filter(function (i) { return i.awaiting && i.cleanBtn && !i.cleanBtn.disabled; });
+    for (var k = 0; k < todo.length; k++) await cleanItem(todo[k]);
+  });
+  $('#o-pixel-rewrite').addEventListener('change', function () { items.forEach(function (i) { refreshChooser(i); }); });
   $('#clear').addEventListener('click', function () {
-    items.forEach(function (i) { if (i.url) URL.revokeObjectURL(i.url); });
+    items.forEach(function (i) { if (i.url) URL.revokeObjectURL(i.url); if (i.url0) URL.revokeObjectURL(i.url0); i.buf = null; });
     items = [];
     $('#list').textContent = '';
     $('#limit-note').textContent = '';
@@ -1832,7 +2243,7 @@ html{background:var(--bg)}
   });
 
   // ---- künye ve güncelleme ----
-  var APP = { version: '2.8.6', date: '05.11.2026', author: 'Ümit Özgüler' };
+  var APP = { version: '2.9.0', date: '06.11.2026', author: 'Ümit Özgüler' };
   $('#a-ver').textContent = APP.version;
   $('#a-date').textContent = APP.date;
   $('#a-author').textContent = APP.author;

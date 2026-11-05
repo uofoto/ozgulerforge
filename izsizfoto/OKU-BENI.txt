@@ -39,9 +39,14 @@ BİÇİMLER VE KAYIPSIZLIK
      bu dönüşüm için uygulanmaz; yön dönüşüm sırasında görüntü piksellerine uygulanır.
    - HEIC/HEIF dosyası başına üst sınır 100 MiB ve 32 MP'dir. Birden çok görüntü
      içeriyorsa ana görüntü dönüştürülür. AVIF desteklenmez.
-   - JPEG, PNG ve WebP'de yön, ICC profili ve çekim tarihi mevcut seçeneklere göre
-     korunabilir. C2PA köken bilgisini koruma seçeneği kapalıysa kayıt temizlenir;
-     imza/köken doğrulaması etkilenebilir.
+   - SEÇMELİ TEMİZLEME (2.9.0): Fotoğraf seçilince hiçbir şey otomatik silinmez.
+     Fotoğrafın altında dosyada bulunan veri türleri listelenir (konum, cihaz/lens/
+     seri no, yazılım/sahip, tarih, çekim ayarları, MakerNote, küçük resim, XMP, IPTC,
+     yorum, PNG metin/yapay zekâ kayıtları, C2PA, ICC, dosya sonu ekleri). İşaretlenenler
+     TEMİZLE'ye basılınca silinir, işaretlenmeyenler korunur. Varsayılan: ICC dışındaki
+     her şey işaretlidir. Yön bilgisi Ayarlar'daki "Yönü koru" ile belirlenir.
+     EXIF'in bir kısmı korunuyorsa dosya boyutu küçülmez; silinen alanların baytları
+     sıfırlanır (veri dosyada kalmaz). C2PA silinirse imza/köken doğrulaması bozulur.
    - iPhone'da HEIC'i JPEG'e otomatik çevirme ihtimali olduğundan HEIC'i olduğu gibi
      almak için "Dosya Seç" kullan.
     - Köken denetimi, dosyadaki açık C2PA/XMP/IPTC kayıtlarını okur ve kaba piksel
@@ -65,7 +70,7 @@ GÜNCELLEME (yapımcı: Ümit Özgüler)
    1) index.html içindeki APP.version
    2) version.json içindeki version
    3) sw.js içindeki V
-   Kontrol: node tests/test.js
+   Kontrol: node tests/test.js  (varsa)
    Hakkında > "Güncellemeleri denetle ve indir" ile yeni sürümü alabilirsin.
    Otomatik güncelleme denetimi yalnızca kendi yayın adresindeki version.json'a
    istek gönderir.
