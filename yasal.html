@@ -3,6 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f2ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121313" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="48x48" href="/icons/favicon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Özgüler Forge">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Yasal Bilgiler — Özgüler Forge</title>
 <meta name="description" content="Özgüler Forge kullanım koşulları, gizlilik politikası, KVKK aydınlatma metni, çerez bilgilendirmesi ve sorumluluk reddi.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,7 +161,7 @@ footer .wrap{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
 <div class="updated">6698 sayılı Kişisel Verilerin Korunması Kanunu m.10 kapsamında · Son güncelleme: 4 Kasım 2026</div>
 
 <h3>Veri sorumlusu</h3>
-<p>Ümit Özgüler (Özgüler Forge) — İletişim: [e-posta adresi]</p>
+<p>Ümit Özgüler (Özgüler Forge) — İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
 
 <h3>İşlenen kişisel veriler ve amaç</h3>
 <p>Hizmetlerimiz kişisel verilerin cihaz üzerinde işlenmesi esasına göre tasarlanmıştır; fotoğraf, video ve dosya içerikleriniz tarafımıza iletilmez. Siteyi ziyaretiniz sırasında barındırma altyapısı üzerinden IP adresi, tarayıcı ve cihaz bilgisi, erişim zamanı gibi işlem güvenliği verileri teknik olarak oluşabilir. Bu veriler; sitenin sunulması, güvenliğinin sağlanması ve olası kötüye kullanımın önlenmesi amacıyla işlenebilir.</p>
@@ -221,18 +231,19 @@ footer .wrap{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
 <ul>
 <li><strong>Ad:</strong> Ümit Özgüler — Özgüler Forge</li>
 <li><strong>Web:</strong> ozgulerforge.com.tr</li>
-<li><strong>E-posta:</strong> [e-posta adresi]</li>
+<li><strong>E-posta:</strong> <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></li>
 </ul>
 </section>
 
 </main>
 </div>
 
-<footer><div class="wrap"><span>© 2026 Ümit Özgüler · Özgüler Forge</span><span>ozgulerforge.com.tr</span></div></footer>
+<footer><div class="wrap"><span>© 2026 Ümit Özgüler · Özgüler Forge</span><span><a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></span><span>ozgulerforge.com.tr</span></div></footer>
 <script>
 const root=document.documentElement,toggle=document.getElementById('themeToggle');
 try{const s=localStorage.getItem('forge_theme');if(s)root.dataset.theme=s}catch(e){}
 toggle.addEventListener('click',()=>{const n=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=n;try{localStorage.setItem('forge_theme',n)}catch(e){}});
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script>
 </body>
 </html>
