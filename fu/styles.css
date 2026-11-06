@@ -512,6 +512,12 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
   .workspace.mobile-panel-ai .left-rail .key-button { margin-top: 5px; }
   .workspace.mobile-panel-adjust .right-rail,
   .workspace.mobile-panel-export .right-rail { display: flex !important; flex-direction: column; }
+  .workspace.mobile-panel-adjust .studio,
+  .workspace.mobile-panel-export .studio { flex: 0 0 43dvh; height: auto !important; min-height: 220px; }
+  .workspace.mobile-panel-adjust .right-rail,
+  .workspace.mobile-panel-export .right-rail { position: relative !important; inset: auto; flex: 1 1 auto; width: calc(100% - 16px); max-height: none; min-height: 0; margin: 0 8px 3px; overflow-y: auto; border-radius: 11px; }
+  .workspace.mobile-panel-adjust .mobile-panel-backdrop,
+  .workspace.mobile-panel-export .mobile-panel-backdrop { pointer-events: none; background: transparent; }
   .mobile-drawer-heading { align-items: center; justify-content: space-between; margin: 0 0 7px; color: #52665a; font-size: 11px; }
   .mobile-drawer-heading .icon-button { width: 28px; height: 28px; font-size: 18px; }
   .right-rail .panel-heading { flex: 0 0 auto; align-items: center; margin: 0 0 8px; }
