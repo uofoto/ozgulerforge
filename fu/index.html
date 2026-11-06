@@ -14,6 +14,7 @@
   <link rel="icon" href="icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="stylesheet" href="styles.css">
+  <script src="recipe.js" defer></script>
   <script src="filters.js" defer></script>
   <script src="effects.js" defer></script>
   <script src="app.js" defer></script>
@@ -149,6 +150,7 @@
           <button class="mobile-adjust-tab" type="button" role="tab" data-adjust-tab="atmosphere" aria-selected="false">Atmosfer</button>
           <button class="mobile-adjust-tab" type="button" role="tab" data-adjust-tab="water" aria-selected="false">Su</button>
           <button class="mobile-adjust-tab" type="button" role="tab" data-adjust-tab="lightfx" aria-selected="false">Işık fx</button>
+          <button class="mobile-adjust-tab" type="button" role="tab" data-adjust-tab="recipe" aria-selected="false">Reçete</button>
         </div>
         <fieldset class="adjust-fieldset" id="adjustFieldset" disabled>
           <div class="control-group" data-mobile-group="light">
@@ -190,6 +192,15 @@
             <label class="slider-row" for="glow"><span>Yumuşak parlama</span><output id="value-glow">0</output></label><input class="pro-slider" id="glow" data-setting="glow" type="range" min="0" max="100" value="0" step="1">
             <label class="slider-row" for="grain"><span>Film greni</span><output id="value-grain">0</output></label><input class="pro-slider" id="grain" data-setting="grain" type="range" min="0" max="100" value="0" step="1">
 
+          </div>
+          <div class="control-group recipe-group" data-mobile-group="recipe">
+            <div class="control-group-title"><span>Reçete · ince ayar</span><span class="control-index">07</span></div>
+            <p class="recipe-intro">Hazır reçeteyi uygula; ardından tüm değerleri aşağıdaki kaydırıcılarla değiştirebilirsin.</p>
+            <div class="recipe-actions">
+              <button class="water-tool-button recipe-apply" id="recipeMistyBtn" type="button">Sisli dağ – heybetli &amp; kasvetli</button>
+              <button class="water-tool-button" id="recipeResetBtn" type="button">Reçeteyi sıfırla</button>
+            </div>
+            <div id="recipeGroups"></div>
           </div>
         </fieldset>
 

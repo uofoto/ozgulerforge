@@ -24,9 +24,9 @@
     workspace: $('.workspace'), mobilePanelBackdrop: $('#mobilePanelBackdrop'), mobilePanelTitle: $('#mobilePanelTitle'),
     aboutButton: $('#aboutBtn'), aboutDialog: $('#aboutDialog'), aboutDialogClose: $('#aboutDialogClose'), appVersion: $('#appVersion'), copyrightYear: $('#copyrightYear'),
   };
-  const DEFAULTS = Object.freeze({ exposure: 0, contrast: 0, highlights: 0, shadows: 0, temperature: 0, saturation: 0, vibrance: 0, sharpness: 0, denoise: 0, fog: 0, vignette: 0, fade: 0, water: 0, waterDirection: 90, effectStrength: 100, sunGlow: 0, glow: 0, grain: 0 });
+  const DEFAULTS = Object.freeze({ ...(window.ForgeRecipe ? window.ForgeRecipe.DEFAULTS : {}), exposure: 0, contrast: 0, highlights: 0, shadows: 0, temperature: 0, saturation: 0, vibrance: 0, sharpness: 0, denoise: 0, fog: 0, vignette: 0, fade: 0, water: 0, waterDirection: 90, effectStrength: 100, sunGlow: 0, glow: 0, grain: 0 });
   const SETTING_NAMES = Object.keys(DEFAULTS);
-  const APP_VERSION = '1.0.0';
+  const APP_VERSION = '1.1.0';
   const mobileLayoutQuery = window.matchMedia?.('(max-width: 700px), (max-height: 560px)');
   const MAX_HISTORY = 40;
   let originalBitmap = null;
@@ -417,6 +417,7 @@
       outputCtx.drawImage(source, 0, 0, width, height);
       outputCtx.filter = 'none';
       applyLooks(outputCtx, width, height, values);
+      if (window.ForgeRecipe?.isActive(values) && !(await window.ForgeRecipe.apply(output, width, height, values, { isCancelled }))) return null;
       if (onProgress) onProgress(100);
       return output;
     }
@@ -534,6 +535,7 @@
     }
     tile.width = 1; tile.height = 1;
     applyLooks(outputCtx, width, height, values);
+    if (window.ForgeRecipe?.isActive(values) && !(await window.ForgeRecipe.apply(output, width, height, values, { isCancelled }))) return null;
     return output;
   }
 
@@ -723,7 +725,7 @@
 
   function applyPreset(preset) {
     if (!originalBitmap || isBusy || !preset) return;
-    state = { values: { ...DEFAULTS, ...preset.values, effectStrength: 150 }, generatedBitmap: state.generatedBitmap, waterMaskStrokes: state.waterMaskStrokes || [] };
+    state = { values: { ...DEFAULTS, ...preset.values, effectStrength: preset.values.effectStrength ?? 150 }, generatedBitmap: state.generatedBitmap, waterMaskStrokes: state.waterMaskStrokes || [] };
     pushHistory();
     schedulePreview();
     if (els.filterDialog.open) els.filterDialog.close();
@@ -790,6 +792,10 @@
     const text = normalizeSearchText(els.aiPrompt.value.trim());
     if (!text) { setMessage('Önce çevrimdışı uygulamak istediğin komutu yaz.', 'error'); els.aiPrompt.focus(); return; }
     const has = (...words) => words.some((word) => text.includes(normalizeSearchText(word)));
+    if (has('sisli dağ', 'sisli dag', 'heybetli', 'kasvetli')) {
+      const misty = window.PhotoFilterLibrary.filters.find((item) => item.id === 'misty-mountain');
+      if (misty) { applyPreset(misty); els.aiPrompt.value = ''; return; }
+    }
     const patch = {};
     let matched = false;
     if (has('harika', 'nefis', 'profesyonel', 'iyileştir', 'düzelt', 'muhteşem')) {
@@ -1204,6 +1210,17 @@
       setMessage('Gemini anahtarı bu cihazdan silindi.');
     });
 
+    window.ForgeRecipe?.buildPanel($('#recipeGroups'));
+    $('#recipeMistyBtn').addEventListener('click', () => {
+      const misty = window.PhotoFilterLibrary?.filters.find((item) => item.id === 'misty-mountain');
+      if (!originalBitmap) { setMessage('Reçeteyi uygulamak için önce bir fotoğraf aç.', 'error'); return; }
+      if (misty) applyPreset(misty);
+    });
+    $('#recipeResetBtn').addEventListener('click', () => {
+      if (!originalBitmap || isBusy) return;
+      const patch = {}; for (const key of Object.keys(window.ForgeRecipe.DEFAULTS)) patch[key] = window.ForgeRecipe.DEFAULTS[key];
+      commitAdjustment(patch, 'Reçete ayarları sıfırlandı.');
+    });
     for (const input of document.querySelectorAll('[data-setting]')) {
       input.addEventListener('pointerdown', () => { lastSliderState = JSON.stringify(state.values); });
       input.addEventListener('focus', () => { lastSliderState = JSON.stringify(state.values); });

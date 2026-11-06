@@ -4,6 +4,7 @@
   window.PhotoFilterLibrary = Object.freeze({
     categories: [
       { id: 'all', label: 'Tümü' },
+      { id: 'recipe', label: 'Reçeteler' },
       { id: 'nature', label: 'Doğa' },
       { id: 'light', label: 'Işık & renk' },
       { id: 'cinema', label: 'Sinematik' },
@@ -11,6 +12,8 @@
       { id: 'portrait', label: 'Portre' },
     ],
     filters: [
+      { id: 'misty-mountain', title: 'Sisli dağ – heybetli & kasvetli', category: 'recipe', description: 'Lightroom reçetesi: koyu bulutlar, sis içinde dramatik kayalar. Tüm değerler kaydırıcılarla değişir.', swatch: 'linear-gradient(150deg,#d9dcdc,#6f7679 40%,#20262a)', values: window.ForgeRecipe ? { ...window.ForgeRecipe.PRESETS.mistyMountain } : {} },
+
       { id: 'water-veil', title: 'Suya tül', category: 'nature', description: 'Akış hissi veren, su renklerine duyarlı yumuşatma.', swatch: 'linear-gradient(150deg,#cde6e3,#5d9b9a 48%,#173f48)', values: { water: 88, contrast: -4, vibrance: 7 } },
       { id: 'forest-mist', title: 'Orman sisi', category: 'nature', description: 'Yeşil gölgelerde yumuşak, katmanlı sis.', swatch: 'linear-gradient(140deg,#d6ddd1,#718a74 55%,#283f35)', values: { fog: 58, fade: 8, shadows: 10, contrast: -5, temperature: -2 } },
       { id: 'deep-forest', title: 'Derin orman', category: 'nature', description: 'Zengin yeşiller, derin gölgeler ve sakin kontrast.', swatch: 'linear-gradient(145deg,#87a17c,#42644b 50%,#203c35)', values: { temperature: -7, vibrance: 24, contrast: 8, vignette: 11, shadows: -5 } },
