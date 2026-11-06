@@ -298,8 +298,10 @@
 
   function getPreviewSize() {
     const bounds = els.stage.getBoundingClientRect();
-    const maxWidth = Math.max(80, bounds.width - 44);
-    const maxHeight = Math.max(80, bounds.height - 44);
+    const availableWidth = bounds.width || Math.max(320, window.innerWidth - 640);
+    const availableHeight = bounds.height || Math.max(240, window.innerHeight - 180);
+    const maxWidth = Math.max(160, availableWidth - 44);
+    const maxHeight = Math.max(160, availableHeight - 44);
     const naturalW = originalBitmap.width;
     const naturalH = originalBitmap.height;
     const fitScale = Math.min(maxWidth / naturalW, maxHeight / naturalH, 1);
