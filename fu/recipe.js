@@ -37,9 +37,11 @@
       S('lrCalGreenHue', 'Yeşil birincil · Ton', -100, 100), S('lrCalGreenSat', 'Yeşil birincil · Doygunluk', -100, 100),
       S('lrCalBlueHue', 'Mavi birincil · Ton', -100, 100), S('lrCalBlueSat', 'Mavi birincil · Doygunluk', -100, 100)] },
     { id: 'masks', title: 'Bölgesel maskeler (otomatik)', items: [
-      S('lrM1Exp', '1 · Merkez dağ (radyal) · Pozlama', -2, 2, 0, .05), S('lrM1Clarity', '1 · Merkez dağ · Netlik', -100, 100),
+      S('lrM1Exp', '1 · Merkez dağ / su yüzeyi (radyal) · Pozlama', -2, 2, 0, .05), S('lrM1Clarity', '1 · Merkez dağ / su yüzeyi · Netlik', -100, 100),
+      S('lrM1Texture', '1 · Merkez dağ / su yüzeyi · Doku', -100, 100),
       S('lrM2Exp', '2 · Kayalıkların koyu bölgeleri · Pozlama', -2, 2, 0, .05), S('lrM2Shadows', '2 · Kayalıkların koyu bölgeleri · Gölgeler', -100, 100),
       S('lrM3Exp', '3 · Üst gökyüzü (gradyan) · Pozlama', -2, 2, 0, .05), S('lrM3Dehaze', '3 · Üst gökyüzü · Duman giderme', -100, 100),
+      S('lrM3Clarity', '3 · Üst gökyüzü · Netlik', -100, 100),
       S('lrM4Exp', '4 · Sis bölgeleri · Pozlama', -2, 2, 0, .05), S('lrM4Clarity', '4 · Sis bölgeleri · Netlik', -100, 100),
       S('lrM5Exp', '5 · Alt ön plan (gradyan) · Pozlama', -2, 2, 0, .05), S('lrM5Clarity', '5 · Alt ön plan · Netlik', -100, 100)] },
   ];
@@ -68,6 +70,22 @@
       lrGrainAmount: 8, lrGrainSize: 20, lrGrainRough: 30,
       lrCalShadowTint: 0, lrCalRedHue: 5, lrCalRedSat: -5, lrCalGreenHue: -10, lrCalGreenSat: -5, lrCalBlueHue: -10, lrCalBlueSat: -10,
       lrM1Exp: .15, lrM1Clarity: 10, lrM2Exp: -.20, lrM2Shadows: -20, lrM3Exp: -.35, lrM3Dehaze: 10, lrM4Exp: .10, lrM4Clarity: -5, lrM5Exp: -.15, lrM5Clarity: 5,
+      lrStrength: 100, effectStrength: 100,
+    }),
+    // Şelale ve akarsu için ipeksi tül etkisi (Lightroom Mobile tam reçetesi)
+    silkyWaterVeil: Object.freeze({
+      lrExposure: -.35, lrContrast: 15, lrHighlights: -55, lrShadows: -15, lrWhites: -18, lrBlacks: -25,
+      lrTemp: -6, lrTint: 2, lrVibrance: -5, lrSaturation: -8,
+      lrTexture: -35, lrClarity: -25, lrDehaze: 12,
+      lrSharpAmount: 40, lrSharpRadius: .9, lrSharpDetail: 25, lrSharpMasking: 60,
+      lrGreenHue: 0, lrGreenSat: -10, lrGreenLum: -12, lrBlueHue: 0, lrBlueSat: -15, lrBlueLum: -18, lrAquaHue: 0, lrAquaSat: -10, lrAquaLum: -8,
+      lrCurveBlack: -8, lrCurveDarks: -10, lrCurveMids: -3, lrCurveLights: 5, lrCurveWhite: -8,
+      lrVigAmount: -15, lrVigMid: 35, lrVigRound: 0, lrVigFeather: 75, lrVigHighlights: 0,
+      lrGrainAmount: 8, lrGrainSize: 20, lrGrainRough: 30,
+      lrCalShadowTint: 0, lrCalRedHue: 5, lrCalRedSat: -5, lrCalGreenHue: -10, lrCalGreenSat: -5, lrCalBlueHue: -10, lrCalBlueSat: -10,
+      // Maskeler: 1 su yüzeyi, 2 kayalıkların koyu bölgeleri, 3 üst gökyüzü, 4 sis bölgeleri, 5 alt ön plan
+      lrM1Exp: .10, lrM1Texture: -40, lrM2Exp: -.20, lrM2Shadows: -20, lrM3Exp: -.25, lrM3Clarity: 5,
+      lrM4Exp: .10, lrM4Clarity: -5, lrM5Exp: -.15, lrM5Clarity: 5,
       lrStrength: 100, effectStrength: 100,
     }),
   };
@@ -152,10 +170,10 @@
     const minSide = Math.min(w, h); const unit = Math.max(1, minSide / 1000);
 
     const has = (...keys) => keys.some((k) => Number(v[k]) !== 0);
-    const hasMask = [has('lrM1Exp', 'lrM1Clarity'), has('lrM2Exp', 'lrM2Shadows'), has('lrM3Exp', 'lrM3Dehaze'), has('lrM4Exp', 'lrM4Clarity'), has('lrM5Exp', 'lrM5Clarity')];
-    const useClarity = has('lrClarity', 'lrM1Clarity', 'lrM4Clarity', 'lrM5Clarity');
+    const hasMask = [has('lrM1Exp', 'lrM1Clarity', 'lrM1Texture'), has('lrM2Exp', 'lrM2Shadows'), has('lrM3Exp', 'lrM3Dehaze', 'lrM3Clarity'), has('lrM4Exp', 'lrM4Clarity'), has('lrM5Exp', 'lrM5Clarity')];
+    const useClarity = has('lrClarity', 'lrM1Clarity', 'lrM3Clarity', 'lrM4Clarity', 'lrM5Clarity');
     const useDehaze = has('lrDehaze', 'lrM3Dehaze');
-    const useTexture = has('lrTexture');
+    const useTexture = has('lrTexture', 'lrM1Texture');
     const useSharp = v.lrSharpAmount > 0;
     const useHSL = has('lrGreenHue', 'lrGreenSat', 'lrGreenLum', 'lrBlueHue', 'lrBlueSat', 'lrBlueLum', 'lrAquaHue', 'lrAquaSat', 'lrAquaLum');
     const useCal = has('lrCalRedHue', 'lrCalRedSat', 'lrCalGreenHue', 'lrCalGreenSat', 'lrCalBlueHue', 'lrCalBlueSat');
@@ -199,8 +217,7 @@
     const toneLUT = buildToneLUT(v);
     const rt = Math.max(1, Math.round(unit * 2.2));
     const rs = Math.max(1, Math.round(unit * v.lrSharpRadius));
-    const texK = v.lrTexture / 100 * .9;
-    const sharpK = v.lrSharpAmount / 100 * .9; const detailFrac = v.lrSharpDetail / 100; const maskAmt = v.lrSharpMasking / 100;
+        const sharpK = v.lrSharpAmount / 100 * .9; const detailFrac = v.lrSharpDetail / 100; const maskAmt = v.lrSharpMasking / 100;
     const tr = v.lrTemp * .0022; const tint = v.lrTint * .0016;
     const vibr = v.lrVibrance / 100; const satG = 1 + v.lrSaturation / 100;
     const shadowTint = v.lrCalShadowTint / 100 * .05;
@@ -249,10 +266,10 @@
         const nx = (x + .5) / w;
 
         // Bölgesel maskeler
-        let ev = baseEV; let clarity = v.lrClarity; let dehaze = v.lrDehaze; let localShadow = 0;
-        if (hasMask[0]) { const dx = (nx - .5) / .36; const dy = (ny - .56) / .34; const wm = 1 - sstep(.35, 1.1, dx * dx + dy * dy); ev += wm * m1e; clarity += wm * v.lrM1Clarity; }
+        let ev = baseEV; let clarity = v.lrClarity; let dehaze = v.lrDehaze; let texture = v.lrTexture; let localShadow = 0;
+        if (hasMask[0]) { const dx = (nx - .5) / .36; const dy = (ny - .56) / .34; const wm = 1 - sstep(.35, 1.1, dx * dx + dy * dy); ev += wm * m1e; clarity += wm * v.lrM1Clarity; texture += wm * v.lrM1Texture; }
         if (hasMask[1]) { const wm = 1 - sstep(.16, .40, Y0); ev += wm * m2e; localShadow = wm * v.lrM2Shadows / 100; }
-        if (hasMask[2]) { ev += w3 * m3e; dehaze += w3 * v.lrM3Dehaze; }
+        if (hasMask[2]) { ev += w3 * m3e; dehaze += w3 * v.lrM3Dehaze; clarity += w3 * v.lrM3Clarity; }
         if (hasMask[3]) {
           const mx = Math.max(r0, g0, b0); const sat = mx > 0 ? (mx - Math.min(r0, g0, b0)) / mx : 0;
           const wm = sstep(.5, .78, Y0) * (1 - sstep(.10, .30, sat)); ev += wm * m4e; clarity += wm * v.lrM4Clarity;
@@ -324,7 +341,8 @@
         }
         const xT1 = Math.max(0, x - rt); const xT2 = Math.min(w - 1, x + rt);
         const xS1 = Math.max(0, x - rs); const xS2 = Math.min(w - 1, x + rs);
-        if (useTexture) {
+        if (useTexture && texture !== 0) {
+          const texK = texture / 100 * .9;
           const mean = (L0[yT1 + xT1] + L0[yT1 + x] + L0[yT1 + xT2] + L0[p - x + xT1] + L0[p - x + xT2] + L0[yT2 + xT1] + L0[yT2 + x] + L0[yT2 + xT2]) / 8;
           const df = Y0 - mean; detail += df * texK * (1 - .6 * sstep(.08, .3, Math.abs(df)));
         }

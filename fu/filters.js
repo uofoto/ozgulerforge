@@ -13,6 +13,7 @@
     ],
     filters: [
       { id: 'misty-mountain', title: 'Sisli dağ – heybetli & kasvetli', category: 'recipe', description: 'Lightroom reçetesi: koyu bulutlar, sis içinde dramatik kayalar. Tüm değerler kaydırıcılarla değişir.', swatch: 'linear-gradient(150deg,#d9dcdc,#6f7679 40%,#20262a)', values: window.ForgeRecipe ? { ...window.ForgeRecipe.PRESETS.mistyMountain } : {} },
+      { id: 'silky-water-veil', title: 'Şelale & akarsu – ipeksi tül', category: 'recipe', description: 'Lightroom reçetesi: akan suyu pürüzsüz bir tüle çevirir, kaya ve bitki dokusunu korur. Tüm değerler kaydırıcılarla değişir.', swatch: 'linear-gradient(150deg,#e3eceb,#8fb3b0 42%,#2c4a4d)', values: window.ForgeRecipe ? { ...window.ForgeRecipe.PRESETS.silkyWaterVeil } : {} },
 
       { id: 'water-veil', title: 'Suya tül', category: 'nature', description: 'Akış hissi veren, su renklerine duyarlı yumuşatma.', swatch: 'linear-gradient(150deg,#cde6e3,#5d9b9a 48%,#173f48)', values: { water: 88, contrast: -4, vibrance: 7 } },
       { id: 'forest-mist', title: 'Orman sisi', category: 'nature', description: 'Yeşil gölgelerde yumuşak, katmanlı sis.', swatch: 'linear-gradient(140deg,#d6ddd1,#718a74 55%,#283f35)', values: { fog: 58, fade: 8, shadows: 10, contrast: -5, temperature: -2 } },

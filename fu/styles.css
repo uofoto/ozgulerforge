@@ -543,9 +543,9 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
 
 /* Reçete paneli */
 .recipe-intro { margin: 0 0 8px; color: #6c746f; font-size: 9px; line-height: 1.45; }
-.recipe-actions { display: flex; gap: 6px; margin-bottom: 10px; }
+.recipe-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .recipe-actions .water-tool-button { min-height: 34px; }
-.recipe-actions .recipe-apply { flex: 2 1 0; color: #fff; border-color: #638879; background: #638879; }
+.recipe-actions .recipe-apply { flex: 1 1 100%; color: #fff; border-color: #638879; background: #638879; }
 .recipe-actions .recipe-apply:hover:not(:disabled) { background: #4f7263; }
 .recipe-master { margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1px dashed var(--line); }
 .recipe-section { border-bottom: 1px solid var(--line); padding: 2px 0 8px; }

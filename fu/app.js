@@ -1216,6 +1216,11 @@
       if (!originalBitmap) { setMessage('Reçeteyi uygulamak için önce bir fotoğraf aç.', 'error'); return; }
       if (misty) applyPreset(misty);
     });
+    $('#recipeWaterBtn').addEventListener('click', () => {
+      const veil = window.PhotoFilterLibrary?.filters.find((item) => item.id === 'silky-water-veil');
+      if (!originalBitmap) { setMessage('Reçeteyi uygulamak için önce bir fotoğraf aç.', 'error'); return; }
+      if (veil) applyPreset(veil);
+    });
     $('#recipeResetBtn').addEventListener('click', () => {
       if (!originalBitmap || isBusy) return;
       const patch = {}; for (const key of Object.keys(window.ForgeRecipe.DEFAULTS)) patch[key] = window.ForgeRecipe.DEFAULTS[key];
