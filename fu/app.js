@@ -1277,6 +1277,7 @@
     };
     els.regionMaskCanvas.addEventListener('pointerup', finishRegionStroke);
     els.regionMaskCanvas.addEventListener('pointercancel', finishRegionStroke);
+    els.regionMaskCanvas.addEventListener('lostpointercapture', finishRegionStroke);
     els.regionBrushSize.addEventListener('input', () => {
       regionBrushSize = Number(els.regionBrushSize.value);
       $('#value-regionBrushSize').textContent = `${regionBrushSize} px`;
