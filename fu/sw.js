@@ -1,4 +1,4 @@
-const CACHE = 'foto-ustasi-v21';
+const CACHE = 'foto-ustasi-v25';
 const SHELL = ['./', './index.html', './styles.css', './recipe.js', './filters.js', './effects.js', './app.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './manus-routes.json'];
 
 self.addEventListener('install', (event) => {
@@ -33,6 +33,6 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (SHELL.some((path) => new URL(path, self.location.href).pathname === url.pathname)) {
-    event.respondWith(caches.match(request).then((cached) => cached || fetch(request)));
+    event.respondWith(caches.match(request, { ignoreSearch: true }).then((cached) => cached || fetch(request)));
   }
 });

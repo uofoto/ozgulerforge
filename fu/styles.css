@@ -126,8 +126,8 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
 .preview-wrap { position: relative; z-index: 1; flex: none; max-width: 100%; max-height: 100%; overflow: hidden; background: #fff; box-shadow: 0 8px 30px #1e2c2522; }
 .preview-wrap[hidden] { display: none; }
 .preview-wrap canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
-#originalCanvas { visibility: hidden; }
-#editedCanvas { z-index: 1; }
+#originalCanvas { z-index: 0; visibility: visible; }
+#editedCanvas { z-index: 1; background: transparent; }
 .preview-wrap.split #originalCanvas { visibility: visible; }
 .preview-wrap.split #editedCanvas { clip-path: inset(0 0 0 50%); }
 .preview-wrap.compare-original #originalCanvas { visibility: visible; z-index: 2; }
@@ -367,6 +367,14 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
 .preview-wrap.water-brush-active .water-mask-canvas { opacity: 1; pointer-events: auto; cursor: crosshair; }
 .preview-wrap.water-brush-active { cursor: crosshair; }
 .filter-card-copy small { line-clamp: 3; -webkit-line-clamp: 3; }
+@media (min-width: 921px) and (min-height: 561px) {
+  .app-shell { height: 100vh; min-height: 100vh; overflow: hidden; }
+  .workspace { height: auto; min-height: 0; overflow: hidden; }
+  .left-rail, .studio, .right-rail { height: 100%; min-height: 0; }
+  .left-rail, .right-rail { overflow-y: auto; }
+  .studio { overflow: hidden; }
+  .stage { min-height: 0; }
+}
 @media (max-width: 760px) {
   .water-mask-tools { padding: 9px 8px 7px; }
   .water-tool-button { min-height: 34px; font-size: 8px; }
