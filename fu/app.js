@@ -20,7 +20,7 @@
     waterMaskClear: $('#waterMaskClear'), waterMaskHint: $('#waterMaskHint'), waterBrushSize: $('#waterBrushSize'),
     installButton: $('#installAppBtn'), installButtonLabel: $('#installButtonLabel'),
     installDialog: $('#installDialog'), installDialogClose: $('#installDialogClose'), installSecurityNote: $('#installSecurityNote'),
-    toggleAdjustBtn: $('#toggleAdjustBtn'), toggleAdjustFromCanvas: $('#toggleAdjustFromCanvas'), regionSelectBtn: $('#regionSelectBtn'), regionClearBtn: $('#regionClearBtn'), regionHint: $('#regionHint'),
+    toggleAdjustBtn: $('#toggleAdjustBtn'), toggleAdjustFromCanvas: $('#toggleAdjustFromCanvas'), regionSelectBtn: $('#regionSelectBtn'), regionInvertBtn: $('#regionInvertBtn'), regionClearBtn: $('#regionClearBtn'), regionHint: $('#regionHint'), regionBrushSize: $('#regionBrushSize'), regionBrushHardness: $('#regionBrushHardness'),
     installIOSGuide: $('#installIOSGuide'), installAndroidGuide: $('#installAndroidGuide'), installDesktopGuide: $('#installDesktopGuide'),
     workspace: $('.workspace'), mobilePanelBackdrop: $('#mobilePanelBackdrop'), mobilePanelTitle: $('#mobilePanelTitle'),
     aboutButton: $('#aboutBtn'), aboutDialog: $('#aboutDialog'), aboutDialogClose: $('#aboutDialogClose'), appVersion: $('#appVersion'), copyrightYear: $('#copyrightYear'),
@@ -33,7 +33,7 @@
   let originalBitmap = null;
   let originalFile = null;
   let sceneStats = null;
-  let state = { values: { ...DEFAULTS }, generatedBitmap: null, regionStrokes: [] };
+  let state = { values: { ...DEFAULTS }, generatedBitmap: null, regionStrokes: [], regionInverted: false };
   let history = [];
   let historyIndex = -1;
   let isBusy = false;
@@ -50,6 +50,8 @@
   let waterMaskPreviewCache = null;
   let regionSelectionActive = false;
   let activeRegionStroke = null;
+  let regionBrushSize = 24;
+  let regionBrushHardness = 70;
   let deferredInstallPrompt = null;
   let resolveInstallPrompt;
   const installPromptAvailable = new Promise((resolve) => { resolveInstallPrompt = resolve; });
@@ -207,6 +209,7 @@
     generatedBitmap: item.generatedBitmap || null,
     waterMaskStrokes: (item.waterMaskStrokes || []).map((stroke) => ({ ...stroke, points: stroke.points.map((point) => [...point]) })),
     regionStrokes: (item.regionStrokes || []).map((stroke) => ({ ...stroke, points: stroke.points.map((point) => [...point]) })),
+    regionInverted: !!item.regionInverted,
   });
   const getSource = () => state.generatedBitmap || originalBitmap;
   const isNeutral = (values) => SETTING_NAMES.every((key) => Number(values[key]) === DEFAULTS[key]);
@@ -235,7 +238,10 @@
     els.waterEraserBtn.disabled = !enabled;
     els.waterMaskClear.disabled = !enabled || !(state.waterMaskStrokes || []).length;
     els.regionSelectBtn.disabled = !enabled;
+    els.regionInvertBtn.disabled = !hasPhoto || isBusy || !(state.regionStrokes || []).length;
     els.regionClearBtn.disabled = !hasPhoto || isBusy || !(state.regionStrokes || []).length;
+    els.regionBrushSize.disabled = !hasPhoto || isBusy;
+    els.regionBrushHardness.disabled = !hasPhoto || isBusy;
     els.waterBrushBtn.setAttribute('aria-pressed', String(waterBrushActive && !waterBrushErase));
     els.waterEraserBtn.setAttribute('aria-pressed', String(waterBrushActive && waterBrushErase));
     for (const card of els.filterGrid.querySelectorAll('button')) card.disabled = !enabled;
@@ -683,7 +689,7 @@
       for (const retired of retiredBitmaps) if (retired !== bitmap) retired.close?.();
       originalBitmap = bitmap;
       originalFile = file;
-      state = { values: { ...DEFAULTS }, generatedBitmap: null, waterMaskStrokes: [], regionStrokes: [] };
+      state = { values: { ...DEFAULTS }, generatedBitmap: null, waterMaskStrokes: [], regionStrokes: [], regionInverted: false };
       history = [cloneState()]; historyIndex = 0; zoom = 1; splitVisible = false; comparePressed = false;
       setWaterBrushMode(false, false);
       els.fileCard.hidden = false;
@@ -711,14 +717,14 @@
 
   async function analyzeAndImprove() {
     if (!originalBitmap || !sceneStats || isBusy) return;
-    state = { values: { ...DEFAULTS, ...recommendation(sceneStats) }, generatedBitmap: null, waterMaskStrokes: state.waterMaskStrokes || [], regionStrokes: state.regionStrokes || [] };
+    state = { values: { ...DEFAULTS, ...recommendation(sceneStats) }, generatedBitmap: null, waterMaskStrokes: state.waterMaskStrokes || [], regionStrokes: state.regionStrokes || [], regionInverted: !!state.regionInverted };
     pushHistory();
     setMessage(`${sceneStats.scene} için doğal iyileştirme hazırlandı. Kaydetmeden önce ayarlayabilirsin.`);
     await drawPreview();
   }
 
   function commitAdjustment(patch, message) {
-    state = { values: { ...state.values, ...patch }, generatedBitmap: state.generatedBitmap, waterMaskStrokes: state.waterMaskStrokes || [], regionStrokes: state.regionStrokes || [] };
+    state = { values: { ...state.values, ...patch }, generatedBitmap: state.generatedBitmap, waterMaskStrokes: state.waterMaskStrokes || [], regionStrokes: state.regionStrokes || [], regionInverted: !!state.regionInverted };
     pushHistory();
     schedulePreview();
     setMessage(message);
@@ -740,7 +746,7 @@
 
   function applyPreset(preset) {
     if (!originalBitmap || isBusy || !preset) return;
-    state = { values: { ...DEFAULTS, ...preset.values, effectStrength: preset.values.effectStrength ?? 150 }, generatedBitmap: state.generatedBitmap, waterMaskStrokes: state.waterMaskStrokes || [], regionStrokes: state.regionStrokes || [] };
+    state = { values: { ...DEFAULTS, ...preset.values, effectStrength: preset.values.effectStrength ?? 150 }, generatedBitmap: state.generatedBitmap, waterMaskStrokes: state.waterMaskStrokes || [], regionStrokes: state.regionStrokes || [], regionInverted: !!state.regionInverted };
     pushHistory();
     schedulePreview();
     if (els.filterDialog.open) els.filterDialog.close();
@@ -851,7 +857,7 @@
   function resetAll() {
     const hasMaskEdits = (state.waterMaskStrokes || []).length > 0;
     if (!originalBitmap || isBusy || (isNeutral(state.values) && !state.generatedBitmap && !hasMaskEdits)) return;
-    state = { values: { ...DEFAULTS }, generatedBitmap: null, waterMaskStrokes: [], regionStrokes: [] };
+    state = { values: { ...DEFAULTS }, generatedBitmap: null, waterMaskStrokes: [], regionStrokes: [], regionInverted: false };
     setWaterBrushMode(false, false);
     setRegionSelectionMode(false);
     pushHistory();
@@ -1050,7 +1056,7 @@
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
       const bitmap = await createImageBitmap(new Blob([bytes], { type: mime }));
-      state = { values: { ...DEFAULTS }, generatedBitmap: bitmap, waterMaskStrokes: state.waterMaskStrokes || [], regionStrokes: state.regionStrokes || [] };
+      state = { values: { ...DEFAULTS }, generatedBitmap: bitmap, waterMaskStrokes: state.waterMaskStrokes || [], regionStrokes: state.regionStrokes || [], regionInverted: !!state.regionInverted };
       pushHistory();
       els.aiPrompt.value = '';
       await drawPreview();
@@ -1066,13 +1072,21 @@
     const mask = document.createElement('canvas');
     mask.width = width; mask.height = height;
     const ctx = mask.getContext('2d');
-    ctx.strokeStyle = '#fff'; ctx.fillStyle = '#fff'; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     for (const stroke of state.regionStrokes || []) {
       if (!stroke.points?.length) continue;
-      ctx.lineWidth = Math.max(8, (stroke.radius || .04) * Math.max(width, height));
-      ctx.beginPath();
-      stroke.points.forEach((point, index) => { const x = point[0] * width; const y = point[1] * height; index ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-      ctx.stroke();
+      const radius = Math.max(3, (stroke.radius || .024) * Math.max(width, height));
+      const inner = radius * clamp(Number(stroke.hardness ?? .7), 0, 1);
+      for (const point of stroke.points) {
+        const x = point[0] * width; const y = point[1] * height;
+        const gradient = ctx.createRadialGradient(x, y, inner, x, y, radius);
+        gradient.addColorStop(0, '#fff'); gradient.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = gradient; ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+    if (state.regionInverted) {
+      const image = ctx.getImageData(0, 0, width, height);
+      for (let i = 3; i < image.data.length; i += 4) image.data[i] = 255 - image.data[i];
+      ctx.putImageData(image, 0, 0);
     }
     return mask;
   }
@@ -1099,15 +1113,10 @@
     if (canvas.width !== width) canvas.width = width;
     if (canvas.height !== height) canvas.height = height;
     const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, width, height);
-    ctx.strokeStyle = '#29d9c4'; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.globalAlpha = .30;
-    for (const stroke of state.regionStrokes || []) {
-      if (!stroke.points?.length) continue;
-      ctx.lineWidth = Math.max(8, (stroke.radius || .04) * Math.max(width, height));
-      ctx.beginPath();
-      stroke.points.forEach((point, index) => { const x = point[0] * width; const y = point[1] * height; index ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
+    const tint = document.createElement('canvas'); tint.width = width; tint.height = height;
+    const tintCtx = tint.getContext('2d'); tintCtx.fillStyle = '#29d9c4'; tintCtx.fillRect(0, 0, width, height);
+    tintCtx.globalCompositeOperation = 'destination-in'; tintCtx.drawImage(buildRegionMask(width, height), 0, 0);
+    ctx.globalAlpha = .30; ctx.drawImage(tint, 0, 0); ctx.globalAlpha = 1;
     canvas.classList.toggle('has-region-strokes', (state.regionStrokes || []).length > 0);
     els.previewWrap.classList.toggle('region-select-active', regionSelectionActive);
     canvas.setAttribute('aria-hidden', String(!regionSelectionActive && !(state.regionStrokes || []).length));
@@ -1120,9 +1129,10 @@
       els.regionSelectBtn.textContent = regionSelectionActive ? 'Seçimi bitir' : 'Alan seç';
       els.regionSelectBtn.setAttribute('aria-pressed', String(regionSelectionActive));
     }
+    if (els.regionInvertBtn) els.regionInvertBtn.textContent = state.regionInverted ? 'İçini düzenle' : 'Dışını düzenle';
     if (els.regionHint) els.regionHint.textContent = regionSelectionActive
       ? 'Fotoğrafın üzerinde düzenlemek istediğin bölgeyi fırçayla boya; bitince düğmeye yeniden bas.'
-      : (state.regionStrokes || []).length ? 'Seçili alan hazır. Sağdaki ayarlar yalnızca bu alana uygulanır.' : 'Alan seç düğmesine basıp fotoğraf üzerinde sürükleyerek seçim yap.';
+      : (state.regionStrokes || []).length ? (state.regionInverted ? 'Seçimin dışı düzenleme alanı. Sağdaki ayarlar dış bölgeye uygulanır.' : 'Seçili alan hazır. Sağdaki ayarlar yalnızca bu alana uygulanır.') : 'Alan seç düğmesine basıp fotoğraf üzerinde sürükleyerek seçim yap.';
     drawRegionOverlay(); syncControls();
   }
 
@@ -1238,15 +1248,20 @@
       setZoom(zoom * (event.deltaY < 0 ? 1.12 : .89));
     }, { passive: false });
     els.regionSelectBtn.addEventListener('click', () => setRegionSelectionMode(!regionSelectionActive));
+    els.regionInvertBtn.addEventListener('click', () => {
+      if (!(state.regionStrokes || []).length || isBusy) return;
+      state = { ...state, regionInverted: !state.regionInverted }; pushHistory(); drawRegionOverlay(); schedulePreview(); setRegionSelectionMode(false);
+      setMessage(state.regionInverted ? 'Seçimin dışı düzenleme alanı oldu.' : 'Yalnızca seçilen alan düzenleme alanı oldu.');
+    });
     els.regionClearBtn.addEventListener('click', () => {
       if (!(state.regionStrokes || []).length || isBusy) return;
-      state = { ...state, regionStrokes: [] }; setRegionSelectionMode(false); pushHistory(); drawRegionOverlay(); schedulePreview();
-      setMessage('Bölgesel seçim temizlendi; ayarlar artık tüm fotoğrafa uygulanır.');
+      state = { ...state, regionStrokes: [], regionInverted: false }; setRegionSelectionMode(false); pushHistory(); drawRegionOverlay(); schedulePreview();
+      setMessage('Maske sıfırlandı; ayarlar artık tüm fotoğrafa uygulanır.');
     });
     els.regionMaskCanvas.addEventListener('pointerdown', (event) => {
       if (!regionSelectionActive || isBusy || !originalBitmap) return;
       event.preventDefault(); els.regionMaskCanvas.setPointerCapture?.(event.pointerId);
-      activeRegionStroke = { points: [regionPointFromEvent(event)], radius: .045 };
+      activeRegionStroke = { points: [regionPointFromEvent(event)], radius: regionBrushSize / 1000, hardness: regionBrushHardness / 100 };
       state.regionStrokes = [...(state.regionStrokes || []), activeRegionStroke]; drawRegionOverlay();
     });
     els.regionMaskCanvas.addEventListener('pointermove', (event) => {
@@ -1262,6 +1277,14 @@
     };
     els.regionMaskCanvas.addEventListener('pointerup', finishRegionStroke);
     els.regionMaskCanvas.addEventListener('pointercancel', finishRegionStroke);
+    els.regionBrushSize.addEventListener('input', () => {
+      regionBrushSize = Number(els.regionBrushSize.value);
+      $('#value-regionBrushSize').textContent = `${regionBrushSize} px`;
+    });
+    els.regionBrushHardness.addEventListener('input', () => {
+      regionBrushHardness = Number(els.regionBrushHardness.value);
+      $('#value-regionBrushHardness').textContent = `${regionBrushHardness}%`;
+    });
     const setPanelOpen = (open) => {
       els.workspace.classList.toggle('adjust-collapsed', !open);
       for (const button of [els.toggleAdjustBtn, els.toggleAdjustFromCanvas]) {

@@ -14,11 +14,11 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=27">
-  <script src="recipe.js?v=27" defer></script>
-  <script src="filters.js?v=27" defer></script>
-  <script src="effects.js?v=27" defer></script>
-  <script src="app.js?v=27" defer></script>
+  <link rel="stylesheet" href="styles.css?v=31">
+  <script src="recipe.js?v=31" defer></script>
+  <script src="filters.js?v=31" defer></script>
+  <script src="effects.js?v=31" defer></script>
+  <script src="app.js?v=31" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -130,7 +130,11 @@
         <div class="panel-heading"><div><span class="eyebrow">İNCE AYAR</span><h2>Işık ve renk</h2></div><div class="panel-heading-actions"><button class="text-button panel-toggle-button" id="toggleAdjustBtn" type="button" aria-expanded="true" aria-controls="adjustPanel">Kapat</button><button class="text-button reset-button" id="resetBtn" type="button" disabled>Sıfırla</button></div></div>
         <div class="region-tools" id="regionTools">
           <div><strong>Bölgesel düzenleme</strong><small>Fotoğrafın üzerinde bir alan çiz; ayarlar yalnızca bu alana uygulansın.</small></div>
-          <div class="region-actions"><button class="water-tool-button" id="regionSelectBtn" type="button" disabled>Alan seç</button><button class="text-button" id="regionClearBtn" type="button" disabled>Temizle</button></div>
+          <div class="region-actions"><button class="water-tool-button" id="regionSelectBtn" type="button" disabled>Alan seç</button><button class="text-button" id="regionInvertBtn" type="button" disabled>Dışını düzenle</button><button class="text-button" id="regionClearBtn" type="button" disabled>Maskeyi sıfırla</button></div>
+          <label class="slider-row region-slider-row" for="regionBrushSize"><span>Fırça boyutu</span><output id="value-regionBrushSize">24 px</output></label>
+          <input class="pro-slider" id="regionBrushSize" type="range" min="6" max="64" value="24" step="1" aria-label="Bölgesel fırça boyutu">
+          <label class="slider-row region-slider-row" for="regionBrushHardness"><span>Kenar sertliği</span><output id="value-regionBrushHardness">70%</output></label>
+          <input class="pro-slider" id="regionBrushHardness" type="range" min="0" max="100" value="70" step="1" aria-label="Bölgesel fırça kenar sertliği">
           <p class="region-hint" id="regionHint">Alan seç düğmesine basıp fotoğraf üzerinde sürükleyerek seçim yap.</p>
         </div>
         <div class="mobile-adjust-tabs" id="mobileAdjustTabs" role="tablist" aria-label="Düzenleme ayar grubu">

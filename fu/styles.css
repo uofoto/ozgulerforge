@@ -131,6 +131,7 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
 #editedCanvas { z-index: 1; background: transparent; }
 .region-mask-canvas { z-index: 4; opacity: 0; pointer-events: none; touch-action: none; }
 .region-mask-canvas.has-region-strokes, .preview-wrap.region-select-active .region-mask-canvas { opacity: 1; }
+.preview-wrap.region-select-active .region-mask-canvas { pointer-events: auto; }
 .preview-wrap.region-select-active { cursor: crosshair; }
 .preview-wrap.split #originalCanvas { visibility: visible; }
 .preview-wrap.split #editedCanvas { clip-path: inset(0 0 0 50%); }
@@ -173,6 +174,8 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
 .region-tools small { display: block; margin-top: 3px; color: #78837b; font-size: 8px; line-height: 1.45; }
 .region-actions { display: flex; align-items: center; gap: 7px; margin-top: 7px; }
 .region-actions .water-tool-button { flex: 1; }
+.region-slider-row { margin: 7px 0 1px; font-size: 8px; }
+.region-slider-row output { color: #4e675a; font-size: 8px; }
 .region-hint { margin: 6px 0 0; color: #7a837a; font-size: 7px; line-height: 1.5; }
 .panel-heading { display: flex; justify-content: space-between; align-items: flex-end; margin: 0 0 15px; }
 .panel-heading h2 { margin: 4px 0 0; font-family: Georgia, "Times New Roman", serif; font-size: 19px; font-weight: 500; letter-spacing: -.02em; }
