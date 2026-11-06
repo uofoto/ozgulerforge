@@ -14,11 +14,11 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon-192.png" type="image/png">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=26">
-  <script src="recipe.js?v=26" defer></script>
-  <script src="filters.js?v=26" defer></script>
-  <script src="effects.js?v=26" defer></script>
-  <script src="app.js?v=26" defer></script>
+  <link rel="stylesheet" href="styles.css?v=27">
+  <script src="recipe.js?v=27" defer></script>
+  <script src="filters.js?v=27" defer></script>
+  <script src="effects.js?v=27" defer></script>
+  <script src="app.js?v=27" defer></script>
 </head>
 <body>
   <div class="app-shell">
@@ -61,7 +61,7 @@
         </section>
 
         <section class="rail-section smart-section">
-          <div class="section-heading"><span class="eyebrow">PDF REÇETELERİ</span><span class="step-number">02</span></div>
+          <div class="section-heading"><span class="eyebrow">LIGHTROOM BAŞLANGIÇ REÇETELERİ</span><span class="step-number">02</span></div>
           <div class="smart-card recipe-card">
             <div class="smart-card-heading"><span class="smart-spark">✦</span><div><strong>Lightroom başlangıç reçeteleri</strong><small>PDF’deki 8 fotoğraf türü için eksiksiz ayar setleri</small></div></div>
             <button class="button button-accent button-wide" id="filterLibraryBtn" type="button" disabled><span>PDF reçetelerini aç</span><b>08</b></button>
@@ -79,8 +79,9 @@
         <div class="studio-toolbar">
           <div class="studio-title"><span class="eyebrow">ÇALIŞMA ALANI</span><strong id="workspaceTitle">Yeni çalışma</strong></div>
           <div class="view-tools">
+            <button class="button button-quiet adjust-panel-toggle" id="toggleAdjustFromCanvas" type="button" aria-expanded="true" aria-controls="adjustPanel">Ayarlar</button>
             <button class="icon-button" id="zoomOut" type="button" aria-label="Uzaklaştır" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12"/></svg></button>
-            <span class="zoom-label" id="zoomLabel">Sığdır</span>
+            <span class="zoom-label" id="zoomLabel" title="Fotoğrafın üzerinde fare tekerleğiyle büyüt veya küçült">Sığdır</span>
             <button class="icon-button" id="zoomIn" type="button" aria-label="Yakınlaştır" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 4v12M4 10h12"/></svg></button>
             <span class="tool-divider"></span>
             <button class="icon-button fit-button" id="fitBtn" type="button" aria-label="Çalışma alanına sığdır" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3H3v4m10-4h4v4M3 13v4h4m10-4v4h-4"/><path d="M7 7h6v6H7z"/></svg></button>
@@ -99,6 +100,7 @@
           <div class="preview-wrap" id="previewWrap" hidden>
             <canvas id="originalCanvas" aria-label="Orijinal fotoğraf"></canvas>
             <canvas id="editedCanvas" aria-label="Düzenlenmiş fotoğraf"></canvas>
+            <canvas id="regionMaskCanvas" class="region-mask-canvas" aria-label="Bölgesel düzenleme seçimi" aria-hidden="true"></canvas>
             <canvas id="waterMaskCanvas" class="water-mask-canvas" aria-label="Su efekti için seçilen bölge" aria-hidden="true"></canvas>
             <div class="compare-divider" id="compareDivider" aria-hidden="true"><span class="compare-handle"><svg viewBox="0 0 20 20"><path d="m7 5-4 5 4 5m6-10 4 5-4 5"/></svg></span></div>
             <span class="image-tag tag-before">ORİJİNAL</span><span class="image-tag tag-after">DÜZENLENMİŞ</span>
@@ -123,9 +125,14 @@
         </div>
       </section>
 
-      <aside class="right-rail" aria-label="Düzenleme ve dışa aktarma kontrolleri">
+      <aside class="right-rail" id="adjustPanel" aria-label="Düzenleme ve dışa aktarma kontrolleri">
         <div class="mobile-drawer-heading"><strong id="mobilePanelTitle">Düzenleme araçları</strong><button class="icon-button" type="button" data-mobile-close aria-label="Paneli kapat">×</button></div>
-        <div class="panel-heading"><div><span class="eyebrow">İNCE AYAR</span><h2>Işık ve renk</h2></div><button class="text-button reset-button" id="resetBtn" type="button" disabled>Sıfırla</button></div>
+        <div class="panel-heading"><div><span class="eyebrow">İNCE AYAR</span><h2>Işık ve renk</h2></div><div class="panel-heading-actions"><button class="text-button panel-toggle-button" id="toggleAdjustBtn" type="button" aria-expanded="true" aria-controls="adjustPanel">Kapat</button><button class="text-button reset-button" id="resetBtn" type="button" disabled>Sıfırla</button></div></div>
+        <div class="region-tools" id="regionTools">
+          <div><strong>Bölgesel düzenleme</strong><small>Fotoğrafın üzerinde bir alan çiz; ayarlar yalnızca bu alana uygulansın.</small></div>
+          <div class="region-actions"><button class="water-tool-button" id="regionSelectBtn" type="button" disabled>Alan seç</button><button class="text-button" id="regionClearBtn" type="button" disabled>Temizle</button></div>
+          <p class="region-hint" id="regionHint">Alan seç düğmesine basıp fotoğraf üzerinde sürükleyerek seçim yap.</p>
+        </div>
         <div class="mobile-adjust-tabs" id="mobileAdjustTabs" role="tablist" aria-label="Düzenleme ayar grubu">
           <button class="mobile-adjust-tab" type="button" role="tab" data-adjust-tab="light" aria-selected="true">Işık</button>
           <button class="mobile-adjust-tab" type="button" role="tab" data-adjust-tab="color" aria-selected="false">Renk</button>
@@ -180,14 +187,14 @@
             <div class="control-group-title"><span>Reçete · ince ayar</span><span class="control-index">07</span></div>
             <p class="recipe-intro">Hazır reçeteyi uygula; ardından tüm değerleri aşağıdaki kaydırıcılarla değiştirebilirsin.</p>
             <div class="recipe-actions recipe-actions-grid" aria-label="PDF reçeteleri">
-              <button class="water-tool-button recipe-apply" data-recipe-id="recipe1" type="button"><strong>01</strong><span>Misty Mountain</span><small>Sisli dağ</small></button>
-              <button class="water-tool-button recipe-apply" data-recipe-id="recipe2" type="button"><strong>02</strong><span>Autumn Cinema</span><small>Sonbahar</small></button>
-              <button class="water-tool-button recipe-apply" data-recipe-id="recipe3" type="button"><strong>03</strong><span>Golden Hour</span><small>Gün batımı</small></button>
-              <button class="water-tool-button recipe-apply" data-recipe-id="recipe4" type="button"><strong>04</strong><span>Documentary B&amp;W</span><small>Siyah beyaz</small></button>
-              <button class="water-tool-button recipe-apply" data-recipe-id="recipe5" type="button"><strong>05</strong><span>Cinematic Portrait</span><small>Portre</small></button>
-              <button class="water-tool-button recipe-apply" data-recipe-id="recipe6" type="button"><strong>06</strong><span>Winter Silence</span><small>Kış</small></button>
-              <button class="water-tool-button recipe-apply" data-recipe-id="recipe7" type="button"><strong>07</strong><span>Deep Forest</span><small>Orman</small></button>
-              <button class="water-tool-button recipe-apply" data-recipe-id="recipe8" type="button"><strong>08</strong><span>Minimal Fine Art</span><small>Minimalist</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe1" type="button"><strong>01</strong><span>Sisli Dağ</span><small>Misty Mountain</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe2" type="button"><strong>02</strong><span>Sonbahar Sineması</span><small>Autumn Cinema</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe3" type="button"><strong>03</strong><span>Altın Saat</span><small>Golden Hour</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe4" type="button"><strong>04</strong><span>Belgesel S&amp;B</span><small>Documentary B&amp;W</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe5" type="button"><strong>05</strong><span>Sinematik Portre</span><small>Cinematic Portrait</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe6" type="button"><strong>06</strong><span>Kış Sessizliği</span><small>Winter Silence</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe7" type="button"><strong>07</strong><span>Derin Orman</span><small>Deep Forest</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe8" type="button"><strong>08</strong><span>Minimalist Güzel Sanat</span><small>Minimal Fine Art</small></button>
               <button class="water-tool-button recipe-reset" id="recipeResetBtn" type="button">Reçeteyi sıfırla</button>
             </div>
             <div id="recipeGroups"></div>
