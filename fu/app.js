@@ -48,6 +48,8 @@
   let activeWaterStroke = null;
   let waterMaskPreviewCache = null;
   let deferredInstallPrompt = null;
+  let resolveInstallPrompt;
+  const installPromptAvailable = new Promise((resolve) => { resolveInstallPrompt = resolve; });
   let appWasInstalled = false;
 
   const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -156,6 +158,7 @@
     window.addEventListener('beforeinstallprompt', (event) => {
       event.preventDefault();
       deferredInstallPrompt = event;
+      resolveInstallPrompt?.(event);
       updateInstallButton();
     });
     window.addEventListener('appinstalled', () => {
@@ -165,6 +168,9 @@
       setMessage('Fotoğraf Ustası telefona kuruldu. Uygulamayı ana ekrandan açabilirsin.');
     });
     els.installButton.addEventListener('click', async () => {
+      if (!deferredInstallPrompt && isAndroidMobile()) {
+        await Promise.race([installPromptAvailable, new Promise((resolve) => setTimeout(resolve, 1800))]);
+      }
       if (!deferredInstallPrompt) { showInstallInstructions(); return; }
       const prompt = deferredInstallPrompt;
       deferredInstallPrompt = null;

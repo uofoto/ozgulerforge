@@ -1,16 +1,16 @@
-const CACHE = 'foto-ustasi-v25';
+const CACHE = 'foto-ustasi-v26';
 const SHELL = ['./', './index.html', './styles.css', './recipe.js', './filters.js', './effects.js', './app.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './manus-routes.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    for (const path of SHELL) {
+    await Promise.all(SHELL.map(async (path) => {
       const url = new URL(path, self.location.href);
       url.searchParams.set('__shell_version', CACHE);
       const response = await fetch(url.href, { cache: 'reload' });
       if (!response.ok) throw new Error(`PWA shell asset failed: ${path} (${response.status})`);
       await cache.put(path, response);
-    }
+    }));
     await self.skipWaiting();
   })());
 });
