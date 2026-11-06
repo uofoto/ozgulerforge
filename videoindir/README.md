@@ -4,7 +4,7 @@ X (Twitter) gönderi bağlantısını yapıştırıp videoyu veya GIF'i cihaza i
 
 ## Yayınlamadan önce (önemli)
 
-1. `config.js` içindeki **`contactEmail`** alanına iletişim e-postanı yaz. Yasal sayfalar (KVKK, telif bildirimi) bu adresi kullanır; boşsa sayfada sarı bir uyarı görünür.
+1. `config.js` içindeki **`contactEmail`** alanına iletişim e-postası (şu an `iletisim@ozgulerforge.com.tr`) burada tutulur. Yasal sayfalar (KVKK, telif bildirimi) bu adresi kullanır; boşsa sayfada sarı bir uyarı görünür.
 2. `legal.html` metinleri genel bir şablondur, hukuki danışmanlık değildir. Yayına almadan önce bir avukata gözden geçirtmeni öneririz.
 3. Metinleri değiştirirsen `config.js` içindeki `legalVersion` ve `legalDate` değerlerini güncelle; kullanıcılardan yeniden onay istenir.
 4. Yeni sürüm yayınlarken yalnızca `config.js` içindeki `version` değerini artır (önbellek adı ve ekrandaki sürüm buradan gelir).
