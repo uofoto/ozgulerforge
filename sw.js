@@ -1,6 +1,6 @@
 // Özgüler Forge ana site service worker.
 // Alt uygulamalara (/filigran/, /izsizfoto/ vb.) dokunmaz; yalnızca ana sitenin dosyalarını yönetir.
-const V = 'ozgulerforge-site-v2';
+const V = 'ozgulerforge-site-v3';
 const CORE = ['/', '/index.html', '/yasal.html', '/manifest.webmanifest', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-48.png'];
 
 self.addEventListener('install', e => {
