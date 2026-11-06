@@ -42,6 +42,7 @@
   let zoom = 1;
   let previewToken = 0;
   let scheduledPreview = 0;
+  let previewDraft = false;
   let lastSliderState = '';
   let activeFilterCategory = 'all';
   let waterBrushActive = false;
@@ -323,7 +324,9 @@
     const naturalW = originalBitmap.width;
     const naturalH = originalBitmap.height;
     const fitScale = Math.min(maxWidth / naturalW, maxHeight / naturalH, 1);
-    const scale = fitScale * zoom;
+    const desktop = window.matchMedia?.('(min-width: 921px) and (min-height: 561px)').matches;
+    const draftScale = previewDraft && desktop ? .62 : 1;
+    const scale = fitScale * zoom * draftScale;
     return { width: Math.max(1, Math.round(naturalW * scale)), height: Math.max(1, Math.round(naturalH * scale)) };
   }
 
@@ -1372,9 +1375,10 @@
       commitAdjustment(patch, 'Reçete ayarları sıfırlandı.');
     });
     for (const input of document.querySelectorAll('[data-setting]')) {
-      input.addEventListener('pointerdown', () => { lastSliderState = JSON.stringify(state.values); });
-      input.addEventListener('focus', () => { lastSliderState = JSON.stringify(state.values); });
+      input.addEventListener('pointerdown', () => { lastSliderState = JSON.stringify(state.values); previewDraft = true; });
+      input.addEventListener('focus', () => { lastSliderState = JSON.stringify(state.values); previewDraft = true; });
       input.addEventListener('input', () => {
+        previewDraft = true;
         const key = input.dataset.setting;
         state.values[key] = Number(input.value);
         const output = $(`#value-${key}`);
@@ -1383,11 +1387,13 @@
         els.resetBtn.disabled = isNeutral(state.values) && !state.generatedBitmap && !(state.waterMaskStrokes || []).length;
       });
       input.addEventListener('change', () => {
+        previewDraft = false;
         if (JSON.stringify(state.values) !== lastSliderState) {
           pushHistory();
           setMessage('Ayar güncellendi. Orijinali karşılaştırabilir veya değişikliği geri alabilirsin.');
         }
         lastSliderState = JSON.stringify(state.values);
+        schedulePreview();
       });
     }
 
