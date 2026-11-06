@@ -553,3 +553,6 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
 .recipe-section > summary::-webkit-details-marker { display: none; }
 .recipe-section > summary::before { content: "▸"; display: inline-block; width: 12px; transition: transform .15s; }
 .recipe-section[open] > summary::before { transform: rotate(90deg); }
+.recipe-card .smart-card-heading strong { font-size: 12px; }
+.recipe-card .button b { margin-left: auto; font-size: 10px; opacity: .8; }
+.recipe-section summary { color: var(--accent-strong); font-weight: 750; }

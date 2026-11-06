@@ -60,35 +60,17 @@
         </section>
 
         <section class="rail-section smart-section">
-          <div class="section-heading"><span class="eyebrow">AKILLI ARAÇLAR</span><span class="step-number">02</span></div>
-          <div class="smart-card">
-            <div class="smart-card-heading"><span class="smart-spark">✳</span><div><strong>Akıllı iyileştirme</strong><small>Fotoğrafına göre dengeli dokunuşlar</small></div></div>
-            <button class="button button-accent button-wide" id="autoBtn" type="button" disabled><span>Doğal görünümü iyileştir</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 2 1.7 5.3L17 9l-5.3 1.7L10 16l-1.7-5.3L3 9l5.3-1.7L10 2Z"/><path d="m16 13 .8 2.2L19 16l-2.2.8L16 19l-.8-2.2L13 16l2.2-.8L16 13Z"/></svg></button>
-            <p class="microcopy">Orijinale dokunmaz. İstediğin an geri alabilirsin.</p>
-          </div>
-          <div class="looks-block" aria-label="Hızlı görünümler">
-            <span class="looks-title">ÇEVRİMDIŞI HIZLI GÖRÜNÜMLER</span>
-            <div class="looks-grid">
-              <button class="look-chip" data-look="warm" type="button" disabled>Sıcak ışık</button>
-              <button class="look-chip" data-look="fog" type="button" disabled>Hafif sis</button>
-              <button class="look-chip" data-look="vintage" type="button" disabled>Nostalji</button>
-              <button class="look-chip" data-look="mono" type="button" disabled>Siyah-beyaz</button>
-              <button class="look-chip" data-look="vivid" type="button" disabled>Canlı renk</button>
-            </div>
-            <button class="filter-library-trigger" id="filterLibraryBtn" type="button" disabled><span>Hazır filtre kütüphanesi</span><b>40</b></button>
+          <div class="section-heading"><span class="eyebrow">PDF REÇETELERİ</span><span class="step-number">02</span></div>
+          <div class="smart-card recipe-card">
+            <div class="smart-card-heading"><span class="smart-spark">✦</span><div><strong>Lightroom başlangıç reçeteleri</strong><small>PDF’deki 8 fotoğraf türü için eksiksiz ayar setleri</small></div></div>
+            <button class="button button-accent button-wide" id="filterLibraryBtn" type="button" disabled><span>PDF reçetelerini aç</span><b>08</b></button>
+            <p class="microcopy">Her reçete 10 ana bölümdeki tüm değerleri yükler. Uyguladıktan sonra sağ panelden tek tek ince ayar yapabilirsin.</p>
           </div>
         </section>
 
-        <section class="rail-section prompt-section">
-          <div class="section-heading"><span class="eyebrow">YAPAY ZEKÂ DÜZENLEME</span><span class="ai-badge">GEMINI</span></div>
-          <label class="prompt-label" for="aiPrompt">Nasıl bir değişiklik istiyorsun?</label>
-          <textarea id="aiPrompt" rows="3" placeholder="Örn. arka planı sıcak gün batımı tonlarına getir…" disabled></textarea>
-          <button class="button button-outline button-wide" id="aiApply" type="button" disabled><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m10 2 1.7 5.3L17 9l-5.3 1.7L10 16l-1.7-5.3L3 9l5.3-1.7L10 2Z"/></svg> Yapay zekâyla güçlü düzenle</button>
-          <button class="button button-quiet button-wide local-command-button" id="localApply" type="button" disabled>Basit komutu cihazda uygula</button>
-          <button class="text-button key-button" id="keyBtn" type="button">Yapay zekâ bağlantı ayarları</button>
-          <p class="privacy-note">AI düzenleme için kendi Gemini anahtarın gerekir. Yalnızca “Yapay zekâyla güçlü düzenle”ye bastığında çalışma kopyası Google'a gider; orijinal fotoğrafın değişmez. Cihazda komut sınırlı ve çevrimdışı çalışır.</p>
+        <section class="rail-section prompt-section" hidden aria-hidden="true">
+          <button id="autoBtn" type="button"></button><textarea id="aiPrompt"></textarea><button id="aiApply" type="button"></button><button id="localApply" type="button"></button><button id="keyBtn" type="button"></button>
         </section>
-
         <div class="rail-bottom"><span class="local-indicator"></span><span>Yerel düzenleme · İnternet gerekmez</span></div>
       </aside>
 
@@ -238,13 +220,13 @@
         <div><span class="eyebrow">FOTOĞRAFINA GÖRE SEÇ</span><h2 id="filterDialogTitle">Hazır görünüm kütüphanesi</h2></div>
         <button class="icon-button dialog-close" id="filterDialogClose" type="button" aria-label="Filtre kütüphanesini kapat">×</button>
       </header>
-      <p class="filter-dialog-intro">40 görünümden birini seç; ayarlar fotoğrafının özgün kopyası üzerinde yeniden oluşturulur. Sonucu kaydırıcılardan ince ayarlayabilirsin.</p>
+      <p class="filter-dialog-intro">PDF’deki 8 reçeteden birini seç. Ayarlar fotoğrafının özgün kopyası üzerinde yeniden oluşturulur; tüm değerleri sağ panelde inceleyebilirsin.</p>
       <div class="filter-categories" id="filterCategories" role="tablist" aria-label="Filtre kategorileri"></div>
       <label class="filter-search-label" for="filterSearch">Filtre ara</label>
       <input class="filter-search" id="filterSearch" type="search" placeholder="Gün batımı, sis, film…" autocomplete="off">
       <div class="filter-results-count" id="filterResultsCount" aria-live="polite">40 / 40 filtre</div>
       <div class="filter-grid" id="filterGrid" aria-label="Hazır fotoğraf filtreleri"></div>
-      <p class="filter-footnote">Yerel su seçimi yaklaşık algılanır; istersen fırçayla maskeleyip Gemini AI ile daha güçlü, uzun pozlamalı sonuç isteyebilirsin.</p>
+      <p class="filter-footnote">Reçeteler PDF’deki değerlerle cihazında, çevrimdışı uygulanır. Her reçete başlangıç noktasıdır; pozlama ve maskeleme çekim koşullarına göre ince ayar isteyebilir.</p>
     </div>
   </dialog>
   <dialog class="settings-dialog" id="settingsDialog">

@@ -1212,14 +1212,12 @@
 
     window.ForgeRecipe?.buildPanel($('#recipeGroups'));
     $('#recipeMistyBtn').addEventListener('click', () => {
-      const misty = window.PhotoFilterLibrary?.filters.find((item) => item.id === 'misty-mountain');
       if (!originalBitmap) { setMessage('Reçeteyi uygulamak için önce bir fotoğraf aç.', 'error'); return; }
-      if (misty) applyPreset(misty);
+      applyPreset({ title: window.ForgeRecipe.names[0], values: window.ForgeRecipe.PRESETS.recipe1 });
     });
     $('#recipeWaterBtn').addEventListener('click', () => {
-      const veil = window.PhotoFilterLibrary?.filters.find((item) => item.id === 'silky-water-veil');
       if (!originalBitmap) { setMessage('Reçeteyi uygulamak için önce bir fotoğraf aç.', 'error'); return; }
-      if (veil) applyPreset(veil);
+      applyPreset({ title: window.ForgeRecipe.names[1], values: window.ForgeRecipe.PRESETS.recipe2 });
     });
     $('#recipeResetBtn').addEventListener('click', () => {
       if (!originalBitmap || isBusy) return;
