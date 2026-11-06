@@ -393,8 +393,10 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
   .brand-copy small { display: none; }
   .topbar-right { gap: 5px; }
   .topbar .button { padding-inline: 8px; }
-  .install-button-label, .top-open span, .top-export-label { display: none; }
-  #installAppBtn, .top-open, .top-export { width: 34px; min-width: 34px; padding: 0; }
+  .top-open span, .top-export-label { display: none; }
+  #installAppBtn { width: auto; min-width: 74px; padding: 0 9px; }
+  .install-button-label { display: inline; font-size: 9px; }
+  .top-open, .top-export { width: 34px; min-width: 34px; padding: 0; }
   .topbar .button svg { width: 15px; height: 15px; }
   .install-dialog-shell { padding: 16px 14px 14px; }
   .install-dialog-header h2 { font-size: 19px; }
@@ -556,3 +558,17 @@ textarea::placeholder, input::placeholder { color: #aaa99f; }
 .recipe-card .smart-card-heading strong { font-size: 12px; }
 .recipe-card .button b { margin-left: auto; font-size: 10px; opacity: .8; }
 .recipe-section summary { color: var(--accent-strong); font-weight: 750; }
+.recipe-actions-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.recipe-actions-grid .recipe-apply { min-height: 58px; display: grid; grid-template-columns: 25px 1fr; grid-template-rows: auto auto; align-items: center; text-align: left; padding: 7px 8px; }
+.recipe-actions-grid .recipe-apply strong { grid-row: 1 / span 2; color: var(--warm); font-size: 11px; }
+.recipe-actions-grid .recipe-apply span { color: var(--ink); font-size: 9px; font-weight: 750; line-height: 1.1; }
+.recipe-actions-grid .recipe-apply small { color: var(--muted); font-size: 8px; line-height: 1.1; }
+.recipe-actions-grid .recipe-reset { grid-column: 1 / -1; }
+@media (max-width: 700px) { .recipe-actions-grid { grid-template-columns: 1fr 1fr; } }
+.recipe-actions-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.recipe-actions-grid .recipe-apply { min-height: 58px; display: grid; grid-template-columns: 25px 1fr; grid-template-rows: auto auto; align-items: center; text-align: left; padding: 7px 8px; }
+.recipe-actions-grid .recipe-apply strong { grid-row: 1 / span 2; color: var(--warm); font-size: 11px; }
+.recipe-actions-grid .recipe-apply span { color: var(--ink); font-size: 9px; font-weight: 750; line-height: 1.1; }
+.recipe-actions-grid .recipe-apply small { color: var(--muted); font-size: 8px; line-height: 1.1; }
+.recipe-actions-grid .recipe-reset { grid-column: 1 / -1; }
+@media (max-width: 700px) { .recipe-actions-grid { grid-template-columns: 1fr 1fr; } }

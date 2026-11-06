@@ -7,6 +7,7 @@
   <meta name="description" content="Fotoğraf Ustası ile fotoğraflarını özgün boyutunda, tahribatsız biçimde iyileştir ve düzenle.">
   <meta name="color-scheme" content="light">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Foto Ustası">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Fotoğraf Ustası — Görsel düzenleme stüdyosu</title>
@@ -178,10 +179,16 @@
           <div class="control-group recipe-group" data-mobile-group="recipe">
             <div class="control-group-title"><span>Reçete · ince ayar</span><span class="control-index">07</span></div>
             <p class="recipe-intro">Hazır reçeteyi uygula; ardından tüm değerleri aşağıdaki kaydırıcılarla değiştirebilirsin.</p>
-            <div class="recipe-actions">
-              <button class="water-tool-button recipe-apply" id="recipeMistyBtn" type="button">Sisli dağ – heybetli &amp; kasvetli</button>
-              <button class="water-tool-button recipe-apply" id="recipeWaterBtn" type="button">Şelale &amp; akarsu – ipeksi tül</button>
-              <button class="water-tool-button" id="recipeResetBtn" type="button">Reçeteyi sıfırla</button>
+            <div class="recipe-actions recipe-actions-grid" aria-label="PDF reçeteleri">
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe1" type="button"><strong>01</strong><span>Misty Mountain</span><small>Sisli dağ</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe2" type="button"><strong>02</strong><span>Autumn Cinema</span><small>Sonbahar</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe3" type="button"><strong>03</strong><span>Golden Hour</span><small>Gün batımı</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe4" type="button"><strong>04</strong><span>Documentary B&amp;W</span><small>Siyah beyaz</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe5" type="button"><strong>05</strong><span>Cinematic Portrait</span><small>Portre</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe6" type="button"><strong>06</strong><span>Winter Silence</span><small>Kış</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe7" type="button"><strong>07</strong><span>Deep Forest</span><small>Orman</small></button>
+              <button class="water-tool-button recipe-apply" data-recipe-id="recipe8" type="button"><strong>08</strong><span>Minimal Fine Art</span><small>Minimalist</small></button>
+              <button class="water-tool-button recipe-reset" id="recipeResetBtn" type="button">Reçeteyi sıfırla</button>
             </div>
             <div id="recipeGroups"></div>
           </div>
@@ -222,9 +229,9 @@
       </header>
       <p class="filter-dialog-intro">PDF’deki 8 reçeteden birini seç. Ayarlar fotoğrafının özgün kopyası üzerinde yeniden oluşturulur; tüm değerleri sağ panelde inceleyebilirsin.</p>
       <div class="filter-categories" id="filterCategories" role="tablist" aria-label="Filtre kategorileri"></div>
-      <label class="filter-search-label" for="filterSearch">Filtre ara</label>
-      <input class="filter-search" id="filterSearch" type="search" placeholder="Gün batımı, sis, film…" autocomplete="off">
-      <div class="filter-results-count" id="filterResultsCount" aria-live="polite">40 / 40 filtre</div>
+      <label class="filter-search-label" for="filterSearch">Reçete ara</label>
+      <input class="filter-search" id="filterSearch" type="search" placeholder="Misty Mountain, Autumn Cinema…" autocomplete="off">
+      <div class="filter-results-count" id="filterResultsCount" aria-live="polite">8 / 8 reçete</div>
       <div class="filter-grid" id="filterGrid" aria-label="Hazır fotoğraf filtreleri"></div>
       <p class="filter-footnote">Reçeteler PDF’deki değerlerle cihazında, çevrimdışı uygulanır. Her reçete başlangıç noktasıdır; pozlama ve maskeleme çekim koşullarına göre ince ayar isteyebilir.</p>
     </div>

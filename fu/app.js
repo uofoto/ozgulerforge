@@ -128,7 +128,7 @@
   function updateInstallButton() {
     const standalone = appWasInstalled || navigator.standalone === true || !!window.matchMedia?.('(display-mode: standalone)').matches;
     els.installButton.hidden = standalone;
-    const label = isAppleMobile() ? 'Ana ekrana ekle' : isAndroidMobile() ? 'Uygulamayı yükle' : 'Telefona kur';
+    const label = deferredInstallPrompt ? (isAndroidMobile() ? 'Uygulamayı yükle' : 'Kur') : isAppleMobile() ? 'Ana ekrana ekle' : isAndroidMobile() ? 'Uygulamayı yükle' : 'Telefona kur';
     els.installButtonLabel.textContent = label;
     els.installButton.setAttribute('aria-label', label);
     els.installButton.title = label;
@@ -219,7 +219,7 @@
     els.aiPrompt.disabled = !enabled;
     els.aiApply.disabled = !enabled;
     els.localApply.disabled = !enabled;
-    for (const button of document.querySelectorAll('[data-look]')) button.disabled = !enabled;
+    for (const button of document.querySelectorAll('[data-look], [data-recipe-id]')) button.disabled = !enabled;
     els.filterLibraryBtn.disabled = !enabled;
     els.waterBrushBtn.disabled = !enabled;
     els.waterEraserBtn.disabled = !enabled;
@@ -1211,13 +1211,11 @@
     });
 
     window.ForgeRecipe?.buildPanel($('#recipeGroups'));
-    $('#recipeMistyBtn').addEventListener('click', () => {
+    for (const button of document.querySelectorAll('[data-recipe-id]')) button.addEventListener('click', () => {
       if (!originalBitmap) { setMessage('Reçeteyi uygulamak için önce bir fotoğraf aç.', 'error'); return; }
-      applyPreset({ title: window.ForgeRecipe.names[0], values: window.ForgeRecipe.PRESETS.recipe1 });
-    });
-    $('#recipeWaterBtn').addEventListener('click', () => {
-      if (!originalBitmap) { setMessage('Reçeteyi uygulamak için önce bir fotoğraf aç.', 'error'); return; }
-      applyPreset({ title: window.ForgeRecipe.names[1], values: window.ForgeRecipe.PRESETS.recipe2 });
+      const id = button.dataset.recipeId;
+      const index = Number(id.replace('recipe', '')) - 1;
+      applyPreset({ title: window.ForgeRecipe.names[index], values: window.ForgeRecipe.PRESETS[id] });
     });
     $('#recipeResetBtn').addEventListener('click', () => {
       if (!originalBitmap || isBusy) return;
@@ -1277,5 +1275,7 @@
   setupEvents();
   setupInstallSupport();
   syncControls();
-  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js', { scope: './' }).then(() => navigator.serviceWorker.ready).catch(() => {}));
+  }
 })();
