@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Reel Ses">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Reel Ses</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: #111827; color: #f3f4f6;
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  }
+  main { width: 100%; max-width: 420px; padding: 24px 0; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  p.sub { margin: 0 0 20px; color: #9ca3af; font-size: .9rem; }
+  input, button {
+    width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #374151;
+    font-size: 1rem; margin-bottom: 12px; font-family: inherit;
+  }
+  input { background: #1f2937; color: inherit; }
+  button { background: #ec4899; border: 0; color: #fff; font-weight: 600; cursor: pointer; }
+  button.sec { background: #374151; font-weight: 500; }
+  button:disabled { opacity: .6; }
+  .row { display: flex; gap: 8px; }
+  .row input { margin-bottom: 12px; }
+  .row button { width: auto; white-space: nowrap; margin-bottom: 12px; }
+  #status, #keyMsg { min-height: 1.5em; font-size: .9rem; margin-bottom: 8px; word-break: break-word; }
+  .err { color: #f87171; } .ok { color: #34d399; }
+  audio { width: 100%; margin: 4px 0 12px; }
+  a.link { color: #9ca3af; font-size: .85rem; }
+  #fname { font-size: .85rem; color: #9ca3af; margin: 0 0 4px; word-break: break-word; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🎵 Reel Ses</h1>
+  <p class="sub">Instagram Reel linkini yapıştır, sesi MP3 olarak indir.</p>
+
+  <section id="setup" hidden>
+    <p class="sub">Bilgisayardaki sunucu penceresinde yazan <b>anahtarı</b> bir kere gir.</p>
+    <input id="key" type="text" placeholder="Anahtar" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button id="keyBtn">Kaydet</button>
+    <div id="keyMsg"></div>
+  </section>
+
+  <section id="app" hidden>
+    <div class="row">
+      <input id="url" type="url" placeholder="https://www.instagram.com/reel/..." autocomplete="off">
+      <button id="pasteBtn" class="sec" type="button">Yapıştır</button>
+    </div>
+    <button id="btn">İndir</button>
+  </section>
+
+  <div id="status"></div>
+
+  <section id="result" hidden>
+    <p id="fname"></p>
+    <audio id="player" controls></audio>
+    <button id="shareBtn" class="sec" hidden>Paylaş / Dosyalara kaydet</button>
+    <a id="saveLink" class="link">İndirme başlamadıysa buraya dokun</a>
+  </section>
+
+  <p><a id="resetKey" class="link" href="#" hidden>Anahtarı değiştir</a></p>
+</main>
+
+<script>
+const RX = /https?:\/\/(?:www\.)?instagram\.com\/\S+/i;
+const KEY_NAME = 'reelses_key';
+const $ = id => document.getElementById(id);
+const S = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+
+let key = S.get(KEY_NAME) || '';
+let lastFile = null, lastUrl = null, busy = false;
+
+function say(msg, cls) { const s = $('status'); s.className = cls || ''; s.textContent = msg || ''; }
+function render() {
+  $('setup').hidden = !!key;
+  $('app').hidden = !key;
+  $('resetKey').hidden = !key;
+}
+
+// Paylaş menüsünden gelen link (?url=...&text=...)
+const q = new URLSearchParams(location.search);
+const shared = [q.get('url'), q.get('text'), q.get('title')].filter(Boolean).join(' ');
+const sm = shared.match(RX);
+if (sm) { $('url').value = sm[0]; history.replaceState(null, '', '/'); }
+
+async function saveKey() {
+  const k = $('key').value.trim();
+  if (!k) return;
+  $('keyMsg').className = ''; $('keyMsg').textContent = 'Kontrol ediliyor…';
+  try {
+    const r = await fetch('/api/ping', { headers: { 'X-Key': k } });
+    if (r.status === 401) throw new Error('Anahtar yanlış.');
+    if (!r.ok) throw new Error('Sunucu hatası (' + r.status + ').');
+    key = k; S.set(KEY_NAME, k);
+    $('keyMsg').textContent = '';
+    render();
+    if ($('url').value) go();
+  } catch (e) {
+    $('keyMsg').className = 'err';
+    $('keyMsg').textContent = e instanceof TypeError ? 'Sunucuya ulaşılamıyor.' : e.message;
+  }
+}
+
+function fileName(cd) {
+  cd = cd || '';
+  let m = /filename\*=UTF-8''([^;]+)/i.exec(cd);
+  if (m) { try { return decodeURIComponent(m[1]); } catch (e) {} }
+  m = /filename="?([^";]+)/i.exec(cd);
+  return m ? m[1] : 'reel.mp3';
+}
+
+async function go() {
+  if (busy) return;
+  const m = $('url').value.match(RX);
+  if (!m) return say('Geçerli bir Instagram linki yapıştır.', 'err');
+  busy = true; $('btn').disabled = true; $('result').hidden = true;
+  say('İndiriliyor, biraz sürebilir…');
+  try {
+    let r;
+    try {
+      r = await fetch('/api/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Key': key },
+        body: JSON.stringify({ url: m[0] })
+      });
+    } catch (e) {
+      throw new Error('Sunucuya ulaşılamıyor. Bilgisayarda Telefon-Sunucu açık mı, aynı ağda mısın?');
+    }
+    if (r.status === 401) {
+      key = ''; S.del(KEY_NAME); render();
+      $('keyMsg').className = 'err'; $('keyMsg').textContent = 'Anahtar geçersiz, tekrar gir.';
+      say('');
+      return;
+    }
+    if (!r.ok) {
+      let d = '';
+      try { d = (await r.json()).detail; } catch (e) {}
+      throw new Error(d || ('Hata (' + r.status + ').'));
+    }
+    const name = fileName(r.headers.get('Content-Disposition'));
+    const blob = await r.blob();
+    lastFile = new File([blob], name, { type: 'audio/mpeg' });
+    if (lastUrl) URL.revokeObjectURL(lastUrl);
+    lastUrl = URL.createObjectURL(blob);
+
+    $('fname').textContent = name;
+    $('player').src = lastUrl;
+    $('saveLink').href = lastUrl; $('saveLink').download = name;
+    $('shareBtn').hidden = !(navigator.canShare && navigator.canShare({ files: [lastFile] }));
+    $('result').hidden = false;
+
+    const a = document.createElement('a');
+    a.href = lastUrl; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    say('Hazır ✓', 'ok');
+  } catch (e) {
+    say(e.message, 'err');
+  } finally {
+    busy = false; $('btn').disabled = false;
+  }
+}
+
+$('keyBtn').addEventListener('click', saveKey);
+$('key').addEventListener('keydown', e => e.key === 'Enter' && saveKey());
+$('btn').addEventListener('click', go);
+$('url').addEventListener('keydown', e => e.key === 'Enter' && go());
+$('pasteBtn').addEventListener('click', async () => {
+  try {
+    const t = await navigator.clipboard.readText();
+    const mm = t.match(RX);
+    $('url').value = mm ? mm[0] : t.trim();
+  } catch (e) { say('Panoya erişilemedi, linki elle yapıştır.', 'err'); }
+});
+$('shareBtn').addEventListener('click', async () => {
+  try { await navigator.share({ files: [lastFile], title: lastFile.name }); } catch (e) {}
+});
+$('resetKey').addEventListener('click', e => {
+  e.preventDefault(); key = ''; S.del(KEY_NAME); $('key').value = ''; render();
+});
+
+render();
+if (sm && key) go();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+</script>
+</body>
+</html>
