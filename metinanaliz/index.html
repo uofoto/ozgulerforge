@@ -98,6 +98,15 @@ mark.h1{background:color-mix(in srgb,var(--mid) 30%,transparent)}mark.h2{backgro
 :root[data-theme="dark"]{color-scheme:dark;--bg:#0b0a1a;--panel:rgba(30,26,58,.62);--solid:#1a1634;--ink:#f1eefe;--mute:#9d98c4;--line:rgba(160,140,255,.16);--accent:#8b7bff;--accent2:#e879f9;--accent3:#22d3ee;--hit:#6b5316;--lo:#34d399;--mid:#fbbf24;--hi:#fb7185;--sh:0 1px 0 rgba(255,255,255,.05) inset,0 12px 34px rgba(0,0,0,.4);--g:linear-gradient(135deg,#7c5cff 0%,#e879f9 60%,#fb923c 120%)}:root[data-theme="light"]{color-scheme:light}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}body::before,body::after{display:none}}
 nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:13px}.pm i{display:block;height:10px;border-radius:5px;min-width:3px}.pm span{flex:none;width:92px;color:var(--mute)}.pm b{flex:none;width:30px;text-align:right}
+
+.fld{width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--solid);color:var(--ink);font:inherit}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0 0}
+.tb{overflow-x:auto;margin:8px 0}.tb table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}.tb.kv table{min-width:0}.tb th,.tb td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}.tb th{color:var(--mute);font-weight:700;font-size:12.5px}
+.xb{all:unset;cursor:pointer;color:var(--mute);padding:2px 8px;border-radius:8px}.xb:hover,.xb:focus-visible{color:var(--hi)}
+.pst{background:color-mix(in srgb,var(--hi) 35%,transparent);border-radius:4px;padding:0 1px}.cur{color:var(--accent);animation:blink 1s steps(2) infinite}@keyframes blink{50%{opacity:0}}
+nav a{font-size:10px;padding:9px 1px}nav div{gap:2px}
+.chk{display:flex;gap:8px;align-items:center;margin:10px 0 0;font-weight:600;font-size:14px}.chk input{width:18px;height:18px;accent-color:var(--accent)}
+.sdf h1{font-size:22px;margin:0 0 2px;letter-spacing:-.01em}.sdf h2{font-size:15px;margin:18px 0 6px;color:#111;letter-spacing:0;text-transform:none;border-bottom:1px solid #ccc;padding-bottom:3px;break-after:avoid}.sdf p,.sdf li{font-size:13px;margin:5px 0;color:#222}.sdf table{border-collapse:collapse;width:100%;font-size:12.5px;break-inside:avoid}.sdf td,.sdf th{border-bottom:1px solid #ddd;padding:5px 6px;text-align:left;vertical-align:top;color:#111}.sdf .m{font:11px/1.4 ui-monospace,Menlo,monospace;word-break:break-all}.sdf .sg{margin-top:34px;display:flex;gap:40px}.sdf .sg div{flex:1;border-top:1px solid #111;padding-top:4px;font-size:12px}.sdf svg{display:block}
 </style>
 </head>
 <body>
@@ -116,6 +125,7 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
     <div class="row"><button class="btn ghost" id="paste" type="button">Panodan yapıştır</button><button class="btn ghost" id="clr" type="button">Temizle</button><button class="btn ghost" id="fbtn" type="button">Dosya yükle</button><button class="btn ghost" id="refb" type="button">Referans yap</button><input type="file" id="fin" accept=".txt,.md,.docx,.pdf" multiple hidden><span class="counter" id="cnt">0 kelime</span></div>
     <p class="warn" id="fmsg" role="status">txt, md ve docx dosyaları yüklenebilir. Birden fazla dosya seçersen toplu analiz yapılır.</p>
   </div>
+  <div class="card" id="gcard"><label for="gsel">Metin türü</label><select id="gsel" class="fld"></select><p class="warn" id="ginfo"></p></div>
   <div class="card" id="batch" hidden></div>
   <div class="card gauge" aria-live="polite">
     <div class="ring"><svg viewBox="0 0 108 108"><circle class="bg" cx="54" cy="54" r="46"/><circle class="fg" id="fill" cx="54" cy="54" r="46"/></svg><b id="score">–</b></div>
@@ -130,7 +140,7 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
     <p class="warn">Sonuç yanlışsa metni doğru etiketle doğrulama setine ekle, ölçüm gerçek hatalarından öğrensin. DOI kontrolü yalnızca DOI’leri api.crossref.org’a gönderir, metni göndermez.</p>
     <div id="xOut" class="deep"></div></div>
   <h2>Ayrıntılı değerlendirme</h2>
-  <div class="row tools"><button class="btn ghost" id="pdfb" type="button">Raporu PDF kaydet</button><button class="btn ghost" id="cpyb" type="button">Raporu kopyala</button></div>
+  <div class="row tools"><button class="btn ghost" id="pdfb" type="button">Raporu PDF kaydet</button><button class="btn ghost" id="cpyb" type="button">Raporu kopyala</button><button class="btn ghost" id="sdGo2" type="button">Savunma dosyası (PDF)</button></div>
   <div class="card deep" id="deep"><p class="warn">Metin girince ayrıntılı değerlendirme burada görünür.</p></div>
   <h2>Model destekli ölçüm (deneysel)</h2>
   <div class="card" id="mcard">
@@ -145,7 +155,7 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
   <h2>Ölçülen işaretler (istatistik)</h2>
   <div class="card" id="rows"></div>
   <h2>İşaretlenen cümleler ve öneriler</h2>
-  <div class="card"><div class="view" id="view">Henüz metin yok.</div><p class="leg">Vurgu yoğunluğu: <i style="background:color-mix(in srgb,var(--mid) 30%,transparent)"></i>hafif<i style="background:color-mix(in srgb,var(--mid) 60%,var(--hi) 20%)"></i>orta<i style="background:color-mix(in srgb,var(--hi) 48%,transparent)"></i>güçlü</p><ul class="why" id="why"></ul></div>
+  <div class="card"><div class="view" id="view">Henüz metin yok.</div><p class="leg">Vurgu yoğunluğu: <i style="background:color-mix(in srgb,var(--mid) 30%,transparent)"></i>hafif<i style="background:color-mix(in srgb,var(--mid) 60%,var(--hi) 20%)"></i>orta<i style="background:color-mix(in srgb,var(--hi) 48%,transparent)"></i>güçlü</p><div class="row"><button class="btn ghost" id="loo" type="button">Bu cümle olmasa: puan katkısını hesapla</button></div><p class="warn" id="looSt" role="status">İşaretli her cümle için, çıkarılırsa puanın nasıl değişeceğini gösterir. Puanın nereden geldiğini görmek içindir. Kural tabanlı puan üzerinden (model dışı) hesaplanır.</p><ul class="why" id="why"></ul></div>
   <h2>Geçmiş (isteğe bağlı)</h2>
   <div class="card"><p class="warn" style="margin-top:0">Metin saklanmaz. “Bu sonucu kaydet”e basarsan yalnızca tarih, kelime sayısı, puan (ve dosya adı) bu cihazda saklanır.</p><div class="row"><button class="btn ghost" id="hsave" type="button">Bu sonucu kaydet</button><button class="btn ghost" id="hclr" type="button">Geçmişi sil</button><button class="btn ghost" id="hcsv" type="button">CSV indir</button></div><p class="warn" id="hmsg" role="status"></p><ul class="why" id="hlist"></ul></div>
 </section>
@@ -157,6 +167,62 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
     <div class="row"><button class="btn ghost" id="wrSend" type="button">Analize gönder</button><button class="btn ghost" id="wrCopy" type="button">Süreç raporunu kopyala</button><button class="btn ghost" id="wrNew" type="button">Sıfırla</button></div>
     <div id="wrOut" class="deep" style="margin-top:12px"></div>
     <p class="warn">Bu kayıt tarayıcında tutulur ve değiştirilebilir, bağımsız bir kanıt değildir. Sayfayı kapatırsan kayıt silinir.</p>
+  </div>
+
+  <h2>Yazım sürecini oynat</h2>
+  <div class="card">
+    <p class="warn" style="margin-top:0" id="rpInfo"></p>
+    <div id="rpStrip"></div>
+    <div class="row"><button class="btn" id="rpPlay" type="button">▶ Oynat</button><select id="rpSpeed" class="fld" style="width:auto;margin-top:12px" aria-label="Oynatma hızı"><option value="1">1×</option><option value="5" selected>5×</option><option value="20">20×</option><option value="60">60×</option></select><span class="counter" id="rpTime">0:00 / 0:00</span></div>
+    <input type="range" id="rpSlide" min="0" max="0" value="0" style="width:100%;margin-top:10px;accent-color:var(--accent)" aria-label="Yazım süreci konumu">
+    <div class="view" id="rpView" style="margin-top:10px">Henüz kayıt yok. Yazım defterinde yazmaya başla.</div>
+    <p class="leg">Kırmızı vurgulu bölümler yapıştırılmış ya da sürüklenip bırakılmış metindir. Oynatmada 2 saniyeden uzun beklemeler kısaltılır.</p>
+  </div>
+
+  <h2>Olay zinciri (mühür)</h2>
+  <div class="card">
+    <p class="warn" style="margin-top:0">Her yazma ve silme olayı zaman damgasıyla kaydedilir ve bir öncekinin SHA-256 özetine bağlanır. Kayıt sonradan değiştirilirse zincir bozulur. Bunun anlamlı olması için mührü (zincir sonunu) teslimden önce hocana, editörüne ya da kendine e-postayla gönder. Mühür önceden paylaşılmadıysa zincir tek başına kanıt değildir.</p>
+    <div id="chOut" class="tb kv"></div>
+    <div class="row"><button class="btn ghost" id="chVer" type="button">Zinciri doğrula</button><button class="btn ghost" id="chCopy" type="button">Mührü kopyala</button><button class="btn ghost" id="chExp" type="button">Kaydı indir (JSON)</button><button class="btn ghost" id="chLoad" type="button">Kayıt dosyasını aç ve doğrula</button><button class="btn ghost" id="rpBack" type="button" hidden>Kendi kaydıma dön</button></div>
+    <input type="file" id="chFile" accept=".json,application/json" hidden>
+    <p class="warn" id="chSt" role="status"></p>
+    <p class="warn">İndirilen JSON dosyası metnin kendisini de içerir, yalnızca güvendiğin kişilerle paylaş. Kayıt, bir öğretmenin ya da editörün yazım sürecini baştan oynatıp doğrulaması için kullanılabilir.</p>
+  </div>
+
+  <h2>Savunma dosyası</h2>
+  <div class="card">
+    <p class="warn" style="margin-top:0">Yazım defterindeki metin için yazım süreci, olay zinciri, SHA-256 mühür, üslup uyumu, paragraf haritası, sınırlılıklar ve tarihi tek bir düzenli raporda toplar. Yanlış alarm aldığında hocana, editörüne ya da müşterine sürecini gösterebilmen içindir.</p>
+    <label for="sdName">Yazar adı (isteğe bağlı)</label><input id="sdName" class="fld" maxlength="80" autocomplete="name">
+    <label class="chk"><input type="checkbox" id="sdPara" checked> Paragraf haritasını ekle</label>
+    <label class="chk"><input type="checkbox" id="sdScore" checked> Aracın AI iz puanını da ekle</label>
+    <div class="row"><button class="btn" id="sdGo" type="button">Savunma dosyasını oluştur (PDF)</button></div>
+    <p class="warn" id="sdSt" role="status">Yazdır penceresinde “PDF olarak kaydet” seç. Üslup uyumu bölümü için Kalibrasyon sekmesinde profil çıkarılmış olmalı.</p>
+  </div>
+</section>
+
+<section id="takip">
+  <p class="sub">Tek bir metne bakmak yerine bir kişinin yazılarını zaman içinde izle. Kişinin kendi geçmişiyle karşılaştırıldığı için tek seferlik bir puandan daha anlamlı bir sinyaldir. Yalnızca sayısal özetler bu cihazda saklanır, metin saklanmaz.</p>
+  <div class="card">
+    <b>Üslup günlüğü</b>
+    <div class="g2">
+      <div><label for="jName">Kişi / hesap</label><input id="jName" class="fld" value="Ben" maxlength="60"></div>
+      <div><label for="jLabel">Etiket</label><input id="jLabel" class="fld" maxlength="60" placeholder="Ödev 3, Mart…"></div>
+      <div><label for="jDate">Tarih</label><input id="jDate" class="fld" type="date"></div>
+    </div>
+    <div class="row"><button class="btn" id="jAdd" type="button">Analizdeki metni ekle</button><button class="btn ghost" id="jFileB" type="button">Dosya(lar) ekle</button><input type="file" id="jFile" accept=".txt,.md,.docx" multiple hidden></div>
+    <p class="warn" id="jSt" role="status">Her metin en az 100 kelime olmalı. Dosya eklersen tarih olarak dosyanın son değişiklik tarihi kullanılır. Üslup sapması için aynı kişiden en az 4 metin gerekir.</p>
+    <label for="jSel" style="margin-top:14px">Görüntülenen kişi</label><select id="jSel" class="fld"></select>
+    <div id="jOut"></div>
+    <div class="row"><button class="btn ghost" id="jCsv" type="button">CSV indir</button><button class="btn ghost" id="jDelP" type="button">Bu kişiyi sil</button><button class="btn ghost" id="jDelAll" type="button">Tüm günlüğü sil</button></div>
+  </div>
+
+  <h2>Sınıf (öğretmen) modu</h2>
+  <div class="card">
+    <p class="warn" style="margin-top:0">Bir sınıfın ödevlerini toplu yükle, her öğrenciyi kendi önceki ödevleriyle kıyasla, benzerlik ve sapmaları tek tabloda gör. Dosyalar cihazından çıkmaz ve sonuçlar saklanmaz. Dosyaları <b>Ad Soyad - ödev adı.docx</b> biçiminde adlandır: “ - ” öncesi öğrenciyi belirler. Önceki ödev yüklenmediyse, adı eşleşen Üslup günlüğü kayıtları kullanılır.</p>
+    <div class="row"><button class="btn ghost" id="tcPrevB" type="button">Önceki ödevleri yükle</button><button class="btn ghost" id="tcCurB" type="button">Bu ödevleri yükle</button><button class="btn ghost" id="tcClr" type="button">Temizle</button><input type="file" id="tcPrevF" accept=".txt,.md,.docx" multiple hidden><input type="file" id="tcCurF" accept=".txt,.md,.docx" multiple hidden></div>
+    <div class="row"><button class="btn" id="tcGo" type="button">Karşılaştır</button><button class="btn ghost" id="tcCsv" type="button">CSV indir</button></div>
+    <p class="warn" id="tcSt" role="status">txt, md ve docx desteklenir. En fazla 60 güncel ve 300 önceki ödev.</p>
+    <div id="tcOut"></div>
   </div>
 </section>
 
@@ -176,7 +242,7 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
 </section>
 
 <section id="dogrulama">
-  <p class="sub">Aracın ne kadar isabetli olduğunu kendi etiketli metinlerinle ölç. Kalibrasyonda kullanmadığın, ayrı metinler kullan.</p>
+  <p class="sub">Aracın ne kadar isabetli olduğunu kendi etiketli metinlerinle ölç. Kalibrasyonda kullanmadığın, ayrı metinler kullan. Analiz sekmesindeki metin türü ayarı doğrulamada da geçerlidir.</p>
   <div class="card">
     <p class="warn" style="margin-top:0">Metinleri ayrı bir satırda === yazarak ayır. Her metin en az 40 kelime olmalı. En az 30 insan ve 30 AI metni önerilir, az örnekte sonuç güvenilmez. Metinler cihazından çıkmaz.</p>
     <label for="vH">İnsan yazımı metinler</label><textarea id="vH" style="min-height:120px"></textarea>
@@ -191,7 +257,7 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
 <section id="bilgi">
   <div class="card"><b>Nasıl çalışır?</b><p class="sub" style="margin-bottom:0">Cümle uzunluğu değişkenliği, kelime çeşitliliği, tekrar eden kalıplar, geçiş ifadeleri ve biçim artıkları ölçülür. Hiçbir sunucuya veri gönderilmez, analiz tamamen tarayıcında çalışır. Sonuç olasılık ipucudur, kanıt değildir.</p></div>
   <h2>Güvenilirlik kartı</h2><div class="card" id="relcard"></div>
-  <h2>Sık sorulanlar</h2><div class="faq"><details><summary>Metnim nereye gidiyor?</summary><p>Hiçbir yere. Analiz tamamen cihazındaki tarayıcıda yapılır. Metin sunucuya gönderilmez ve kaydedilmez.</p></details><details><summary>Sonuç ne kadar güvenilir?</summary><p>Sonuç bir olasılık ipucudur, kanıt değildir. Güvenilir bir okuma için en az 1000 kelimelik metin önerilir. Kısa metinlerde sonuç dalgalanır.</p></details><details><summary>Kendi yazdığım metin neden yüksek çıkabilir?</summary><p>Düzenli yazan, resmî dil kullanan veya Türkçeyi ikinci dil olarak yazan kişilerin metinleri de AI’a benzer çıkabilir. Bu yüzden sonuçla kimseyi suçlama veya not verme.</p></details><details><summary>Kalibrasyon ne işe yarar?</summary><p>Kendi yazdığın birkaç metinle eşikleri senin tarzına göre ayarlar. Böylece kendi metinlerin gereksiz yere işaretlenmez. Ayar sayfa yenilenince sıfırlanır.</p></details><details><summary>Çevrimdışı çalışır mı?</summary><p>Evet. İlk açılıştan sonra uygulama dosyaları cihazda saklanır, internet olmadan da kullanabilirsin.</p></details><details><summary>Telefona nasıl kurarım?</summary><p>Android’de Chrome’da “Yükle” düğmesine dokun. iPhone’da Safari’de Paylaş simgesinden “Ana Ekrana Ekle” seç.</p></details><details><summary>Hangi dillerde çalışır?</summary><p>Kalıp ifade listesi Türkçe ve İngilizce için hazırlanmıştır. Diğer ölçümler dilden bağımsız çalışır ama en iyi sonucu Türkçe metinlerde verir.</p></details><details><summary>Yöntem nasıl çalışıyor?</summary><p>İki katman var. İstatistik katmanı cümle uzunluğu değişkenliğini, kelime çeşitliliğini, tekrarları ve kalıp ifadeleri ölçer. Niteliksel katman benzetmeleri, kişileştirmeleri, kalıplaşmış ifadeleri, soyut duygu sözcüklerini ve özdeyiş kapanışını arar. Genel puan ikisinin ağırlıklı ortalamasıdır (%40 istatistik, %60 niteliksel).</p></details><details><summary>Doğruluk oranı nedir?</summary><p>Bu sürüm kurallara ve sözcük listelerine dayanır, bir dil modeli değildir. Ölçülmüş bir doğruluk oranı yayımlanmadı. Yanlış pozitif ve yanlış negatif sonuçlar çıkabilir, bu yüzden sonuç tek başına karar için kullanılmamalıdır.</p></details><details><summary>Model destekli ölçüm nedir?</summary><p>İsteğe bağlı, deneysel bir moddur. Qwen2.5-0.5B-Instruct adlı küçük bir dil modeli (Alibaba, Apache-2.0 lisanslı) tarayıcında çalışır ve metnin “şaşkınlığını” (perplexity) ve değişkenliğini ölçer. İlk kullanımda yaklaşık 0,5 GB indirilir. Değerler, Kalibrasyon sekmesinde kendi ve AI metinlerinle kalibre edilene kadar genel puana katılmaz. Metnin cihazından çıkmaz.</p></details><details><summary>Dosya yükleyebilir miyim?</summary><p>txt, md ve docx dosyaları yüklenebilir, birden fazla dosya seçersen toplu analiz yapılır. Dosya yalnızca cihazında okunur, sunucuya gönderilmez. PDF henüz desteklenmiyor.</p></details><details><summary>Sürüm notları (1.3)</summary><p>Ayrıntılı değerlendirme, cümle ısı haritası, güvenilirlik bölümü, dosya yükleme ve toplu analiz, referansla karşılaştırma, PDF rapor, isteğe bağlı yerel geçmiş. 1.3: isteğe bağlı model destekli ölçüm (perplexity, değişkenlik).</p></details></div>
+  <h2>Sık sorulanlar</h2><div class="faq"><details><summary>Savunma dosyası ne işe yarar?</summary><p>Yanlış alarm aldığında “bu metni ben yazdım” demek için elinde bir şey olsun diye var. Yazım defterindeki süreç kaydını (zaman damgalı olaylar, yapıştırma oranı, duraklamalar), SHA-256 mührünü, üslup uyumunu ve sınırlılıkları tek bir PDF’te toplar. Kayıt senin tarayıcında üretildiği için tek başına kanıt değildir. Mührü teslimden önce başkasına göndermek kaydın değerini artırır.</p></details><details><summary>Metnim nereye gidiyor?</summary><p>Hiçbir yere. Analiz tamamen cihazındaki tarayıcıda yapılır. Metin sunucuya gönderilmez ve kaydedilmez.</p></details><details><summary>Sonuç ne kadar güvenilir?</summary><p>Sonuç bir olasılık ipucudur, kanıt değildir. Güvenilir bir okuma için en az 1000 kelimelik metin önerilir. Kısa metinlerde sonuç dalgalanır.</p></details><details><summary>Kendi yazdığım metin neden yüksek çıkabilir?</summary><p>Düzenli yazan, resmî dil kullanan veya Türkçeyi ikinci dil olarak yazan kişilerin metinleri de AI’a benzer çıkabilir. Bu yüzden sonuçla kimseyi suçlama veya not verme.</p></details><details><summary>Kalibrasyon ne işe yarar?</summary><p>Kendi yazdığın birkaç metinle eşikleri senin tarzına göre ayarlar. Böylece kendi metinlerin gereksiz yere işaretlenmez. Ayar sayfa yenilenince sıfırlanır.</p></details><details><summary>Çevrimdışı çalışır mı?</summary><p>Evet. İlk açılıştan sonra uygulama dosyaları cihazda saklanır, internet olmadan da kullanabilirsin.</p></details><details><summary>Telefona nasıl kurarım?</summary><p>Android’de Chrome’da “Yükle” düğmesine dokun. iPhone’da Safari’de Paylaş simgesinden “Ana Ekrana Ekle” seç.</p></details><details><summary>Hangi dillerde çalışır?</summary><p>Kalıp ifade listesi Türkçe ve İngilizce için hazırlanmıştır. Diğer ölçümler dilden bağımsız çalışır ama en iyi sonucu Türkçe metinlerde verir.</p></details><details><summary>Yöntem nasıl çalışıyor?</summary><p>İki katman var. İstatistik katmanı cümle uzunluğu değişkenliğini, kelime çeşitliliğini, tekrarları ve kalıp ifadeleri ölçer. Niteliksel katman benzetmeleri, kişileştirmeleri, kalıplaşmış ifadeleri, soyut duygu sözcüklerini ve özdeyiş kapanışını arar. Genel puan ikisinin ağırlıklı ortalamasıdır (%40 istatistik, %60 niteliksel).</p></details><details><summary>Doğruluk oranı nedir?</summary><p>Bu sürüm kurallara ve sözcük listelerine dayanır, bir dil modeli değildir. Ölçülmüş bir doğruluk oranı yayımlanmadı. Yanlış pozitif ve yanlış negatif sonuçlar çıkabilir, bu yüzden sonuç tek başına karar için kullanılmamalıdır.</p></details><details><summary>Model destekli ölçüm nedir?</summary><p>İsteğe bağlı, deneysel bir moddur. Qwen2.5-0.5B-Instruct adlı küçük bir dil modeli (Alibaba, Apache-2.0 lisanslı) tarayıcında çalışır ve metnin “şaşkınlığını” (perplexity) ve değişkenliğini ölçer. İlk kullanımda yaklaşık 0,5 GB indirilir. Değerler, Kalibrasyon sekmesinde kendi ve AI metinlerinle kalibre edilene kadar genel puana katılmaz. Metnin cihazından çıkmaz.</p></details><details><summary>Dosya yükleyebilir miyim?</summary><p>txt, md ve docx dosyaları yüklenebilir, birden fazla dosya seçersen toplu analiz yapılır. Dosya yalnızca cihazında okunur, sunucuya gönderilmez. PDF henüz desteklenmiyor.</p></details><details><summary>Sürüm notları (1.3)</summary><p>Ayrıntılı değerlendirme, cümle ısı haritası, güvenilirlik bölümü, dosya yükleme ve toplu analiz, referansla karşılaştırma, PDF rapor, isteğe bağlı yerel geçmiş. 1.3: isteğe bağlı model destekli ölçüm (perplexity, değişkenlik).</p></details></div>
   <h2>İletişim</h2>
   <div class="links">
     <a href="mailto:iletisim@ozguler.com.tr">iletisim@ozguler.com.tr<span>E-posta</span></a>
@@ -202,13 +268,14 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
 <footer>
   <div class="fl"><button type="button" data-leg="kullanim">Kullanım Koşulları</button><button type="button" data-leg="gizlilik">Gizlilik</button><button type="button" data-leg="kvkk">KVKK Aydınlatma</button><button type="button" data-leg="kabul">Kabul Edilebilir Kullanım</button><button type="button" data-leg="ihlal">İçerik / İhlal Bildirimi</button><button type="button" data-leg="sorumluluk">Sorumluluk Reddi</button></div>
   <p>AI İz Analizi, Özgüler Forge’a ait bir araçtır. Sonuçlar olasılık ipucudur, kesin kanıt değildir. Metnin cihazında kalır.</p>
-  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 2.4 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
+  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 2.5 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
 </footer>
 
 <nav aria-label="Ana menü"><div>
   <a href="#analiz" class="on" data-t="analiz"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Analiz</a>
   <a href="#yazim" data-t="yazim"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>Yazım</a>
-  <a href="#kalibrasyon" data-t="kalibrasyon"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Kalibrasyon</a>
+  <a href="#takip" data-t="takip"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-9"/><path d="M15 7h5v5"/></svg>Takip</a>
+  <a href="#kalibrasyon" data-t="kalibrasyon"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Kalibre</a>
   <a href="#dogrulama" data-t="dogrulama"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/><path d="M4 20h16"/></svg>Doğrulama</a>
   <a href="#bilgi" data-t="bilgi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>Bilgi</a>
 </div></nav>
@@ -307,7 +374,7 @@ function deep(text, W, S){
   var noPers = n >= 40 && !hasPers && !hasDig && !hasProper;
   var tri = (text.match(/[\p{L}]+, [\p{L}]+ ve [\p{L}]+/gu) || []).length;
   var aphN = F.some(function(f){ return f.aph; }) ? 1 : 0;
-  var score = Math.min(100, Math.round(figShare*35 + Math.min(20, absDens*5) + Math.min(15, totExp*7) + Math.min(15, totCli*5) + aphN*10 + (noPers ? 5 : 0) + Math.min(10, totPh*4) + Math.min(5, tri*2)));
+  var score = Math.min(100, Math.round((window.GQ || 1) * (figShare*35 + Math.min(20, absDens*5) + Math.min(15, totExp*7) + Math.min(15, totCli*5) + aphN*10 + (noPers ? 5 : 0) + Math.min(10, totPh*4) + Math.min(5, tri*2))));
   var level = score >= 55 ? "Belirgin" : score >= 30 ? "Orta" : "Zayıf";
   var h = "";
   h += '<p class="lead">Metni, yapay zekâ metinlerinde sık görülen anlatım kalıpları, sözcük seçimleri, benzetmeler, duygusal yoğunluk ve cümle kuruluşu açısından inceledim. Bu değerlendirme cihazında, kurallara dayalı olarak yapılır ve yazarlık kanıtı değildir.</p>';
@@ -750,7 +817,7 @@ if(/android|iphone|ipad|mobile/i.test(navigator.userAgent)) $("mmob").hidden = f
 /* Sekmeler (hash) */
 function route(){
   var h = (location.hash || "#analiz").slice(1); if(!$(h)) h = "analiz";
-  ["analiz","yazim","kalibrasyon","dogrulama","bilgi"].forEach(function(t){ $(t).classList.toggle("on", t === h); });
+  ["analiz","yazim","takip","kalibrasyon","dogrulama","bilgi"].forEach(function(t){ $(t).classList.toggle("on", t === h); });
   document.querySelectorAll("nav a").forEach(function(a){ var on = a.dataset.t === h; a.classList.toggle("on", on); if(on) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   window.scrollTo(0,0);
 }
@@ -769,7 +836,7 @@ kullanim: '<h3>Kullanım Koşulları</h3><p>Son güncelleme: 10 Kasım 2026</p>'
 gizlilik: '<h3>Gizlilik Politikası</h3><p>Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Metniniz</h4><p>Yapıştırdığınız metin yalnızca cihazınızdaki tarayıcıda analiz edilir. Sunucularımıza gönderilmez, kaydedilmez ve üçüncü kişilerle paylaşılmaz.</p>'
 + '<h4>İsteğe bağlı model modu</h4><p>“Model destekli ölçüm”ü etkinleştirirseniz tarayıcınız bir yazılım kütüphanesini cdn.jsdelivr.net üzerinden, model dosyalarını ise Hugging Face üzerinden indirir; bu sağlayıcılar IP adresinizi görebilir. Metniniz bu sağlayıcılara gönderilmez, ölçüm cihazınızda yapılır. Model dosyaları tarayıcı önbelleğinde saklanır ve “Modeli kaldır” ile silinir.</p><h4>Hesap, çerez ve izleme</h4><p>Uygulama hesap gerektirmez. Çerez, reklam veya izleme aracı kullanmaz.</p>'
-+ '<h4>Cihazda saklanan veriler</h4><p>Çevrimdışı çalışabilmesi için yalnızca uygulama dosyaları cihazınızda önbelleğe alınır. Metniniz saklanmaz. Kalibrasyon ayarları varsayılan olarak yalnızca açık oturumda bellekte tutulur; “Bu cihazda sakla”ya basarsanız eşik değerleri tarayıcınızın yerel deposuna yazılır, metinleriniz yine saklanmaz. Tema tercihiniz de yerel depoda tutulur. Geçmiş özelliğinde “Bu sonucu kaydet”e basarsanız tarih, kelime sayısı, puan ve (dosya yüklediyseniz) dosya adı yalnızca tarayıcınızın yerel deposunda saklanır, bu bilgiler bize gönderilmez. “Geçmişi sil” ile silebilirsiniz.</p>'
++ '<h4>Cihazda saklanan veriler</h4><p>Çevrimdışı çalışabilmesi için yalnızca uygulama dosyaları cihazınızda önbelleğe alınır. Metniniz saklanmaz. Kalibrasyon ayarları varsayılan olarak yalnızca açık oturumda bellekte tutulur; “Bu cihazda sakla”ya basarsanız eşik değerleri tarayıcınızın yerel deposuna yazılır, metinleriniz yine saklanmaz. Tema tercihiniz de yerel depoda tutulur. Geçmiş özelliğinde “Bu sonucu kaydet”e basarsanız tarih, kelime sayısı, puan ve (dosya yüklediyseniz) dosya adı yalnızca tarayıcınızın yerel deposunda saklanır, bu bilgiler bize gönderilmez. “Geçmişi sil” ile silebilirsiniz. Takip sekmesindeki üslup günlüğüne metin eklerseniz kişi adı, etiket, tarih, kelime sayısı, puan ve beş sayısal üslup özelliği yalnızca tarayıcınızın yerel deposunda saklanır, metin saklanmaz ve bu bilgiler bize gönderilmez; “Bu kişiyi sil” ya da “Tüm günlüğü sil” ile silebilirsiniz. Yazım sürecinin olay kaydı yalnızca bellekte tutulur, “Kaydı indir” demedikçe cihazınızdan çıkmaz. Sınıf modunda yüklenen dosyalar ve sonuç tablosu saklanmaz.</p>'
 + '<h4>İletişim</h4><p>' + MAIL + '</p>',
 kvkk: '<h3>KVKK Aydınlatma Metni</h3><p>6698 sayılı Kişisel Verilerin Korunması Kanunu’nun (KVKK) 10. maddesi kapsamında hazırlanmıştır. Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Veri sorumlusu</h4><p>Özgüler Forge (ozgulerforge.com.tr). İletişim: ' + MAIL + '</p>'
@@ -865,7 +932,7 @@ $("dlg").addEventListener("click", function(e){ if(e.target === $("dlg")) $("dlg
 })();
 
 /* v2.3: yazım defteri, paragraf haritası, mühür, benzerlik, güvenilirlik kartı */
-var APPV = "2.4";
+var APPV = "2.5";
 function sha(t){ try{ return crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)).then(function(b){ return Array.from(new Uint8Array(b)).map(function(x){ return ("0" + x.toString(16)).slice(-2); }).join(""); }); }catch(e){ return Promise.resolve(""); } }
 (function(){
   var Wr = {st: 0, act: 0, last: 0, keys: 0, del: 0, pn: 0, pc: 0}, wr = $("wr");
@@ -893,6 +960,7 @@ function sha(t){ try{ return crypto.subtle.digest("SHA-256", new TextEncoder().e
     }).then(function(){ $("wrOut").insertAdjacentHTML("beforeend", "<p class='warn'>Rapor kopyalandı.</p>"); }).catch(function(){ $("wrOut").insertAdjacentHTML("beforeend", "<p class='warn'>Kopyalanamadı.</p>"); });
   });
   render();
+  window.WRX = {lines: lines, stat: stat};
 })();
 
 var pmT, an1 = analyze;
@@ -1106,6 +1174,509 @@ $("upd").addEventListener("click", function(){
   navigator.serviceWorker.getRegistration().then(function(r){ return r ? r.update() : null; }).then(function(){ b.textContent = "Güncel, yeni sürüm varsa yenilenecek"; }).catch(function(){ b.textContent = "Kontrol edilemedi"; });
 });
 analyze();
+</script>
+<script>
+/* v2.5: metin türü, cümle katkısı, yazım oynatma + olay zinciri, üslup takibi, sınıf modu, savunma dosyası */
+(function(){
+var BUSY = false;
+function nap(){ return new Promise(function(r){ setTimeout(r, 0); }); }
+function pad(n){ return ("0" + n).slice(-2); }
+function clock(ms){ var s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return (h ? h + ":" + pad(m) : m) + ":" + pad(s % 60); }
+function dstr(t){ return new Date(t).toLocaleDateString("tr-TR"); }
+function wc(t){ return words(t).length; }
+function cell(v){ v = String(v == null ? "" : v); if(/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }
+function saveFile(name, mime, data){ var u = URL.createObjectURL(new Blob([data], {type: mime})), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 4000); }
+function todayStr(){ var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+function hexc(c){ return c === "hi" ? "#e11d48" : c === "mid" ? "#d97706" : c === "lo" ? "#059669" : "#6b7280"; }
+
+/* Kural tabanlı puanı DOM'a dokunmadan toplu ölç (tek seferde geri yükler) */
+async function scoreBatch(texts, prog){
+  var out = [], keep = {m: M.state, v: inp.value}; M.state = "eval"; inp.readOnly = true;
+  try{
+    for(var i = 0; i < texts.length; i++){
+      inp.value = texts[i]; an1(); out.push(cur);
+      if(prog) prog(i + 1, texts.length);
+      await nap();
+    }
+  } finally { M.state = keep.m; inp.value = keep.v; inp.readOnly = false; an1(); }
+  return out;
+}
+
+/* ---------- Üslup özellikleri (profil, takip, sınıf modu ortak) ---------- */
+var SN2 = {sl: "Ort. cümle uzunluğu", cv: "Cümle değişkenliği", wl: "Ort. kelime uzunluğu", cm: "Cümle başı virgül", ttr: "Kelime çeşitliliği"}, KEYS = Object.keys(SN2);
+function sf2(t){ var W = words(t), S = sentences(t), L = S.map(function(x){ return words(x).length; }); return {sl: mean(L), cv: sd(L) / mean(L), wl: mean(W.map(function(w){ return w.length; })), cm: (t.match(/,/g) || []).length / S.length, ttr: feats(t).ttr}; }
+function dev(base, x){
+  var z = {}, tot = 0;
+  KEYS.forEach(function(k){ var v = base.map(function(b){ return b[k]; }), m = mean(v), s = Math.max(sd(v), Math.abs(m) * 0.15, 1e-6); z[k] = (x[k] - m) / s; tot += Math.abs(z[k]); });
+  return {z: z, a: tot / KEYS.length};
+}
+
+/* ================= 4. Metin türüne göre eşik ================= */
+var GENRES = {
+  genel: {n: "Genel", o: {}, q: 1, note: ""},
+  resmi: {n: "Resmî yazı (dilekçe, resmî yazışma)", q: 0.85, o: {cvHi: -0.10, cvLo: -0.10, rrHi: 0.04, rrLo: 0.03, dHi: 1.0, dLo: 0.7, ttrHi: -0.06, ttrLo: -0.06},
+    note: "Resmî yazıda sabit kalıplar, düzenli cümle uzunluğu ve tekrar eden ifadeler beklenir. Bu işaretlerin eşikleri gevşetildi, niteliksel puan %85 ağırlıkla hesaplanır."},
+  akademik: {n: "Akademik metin", q: 0.9, o: {cvHi: -0.05, cvLo: -0.05, rrHi: 0.03, rrLo: 0.02, dHi: 0.7, dLo: 0.5, ttrHi: -0.04, ttrLo: -0.04},
+    note: "Akademik metinde “bu bağlamda”, “bununla birlikte” gibi geçişler ve tekrar eden terimler olağandır. Kalıp ifade ve tekrar eşikleri gevşetildi."},
+  eposta: {n: "E-posta", q: 0.9, o: {cvHi: -0.05, cvLo: -0.05, rrHi: 0.04, rrLo: 0.03, dHi: 0.6, dLo: 0.5, ttrHi: -0.08, ttrLo: -0.08},
+    note: "E-postada selamlama, kapanış kalıpları ve kısa düzenli cümleler olağandır. Kısa e-postalarda sonuç zaten güvenilir değildir."},
+  siir: {n: "Şiir / edebî metin", q: 0.6, o: {cvHi: -0.20, cvLo: -0.20, rrHi: 0.06, rrLo: 0.05, dHi: 0.5, dLo: 0.4, ttrHi: -0.08, ttrLo: -0.08},
+    note: "Şiirde nakarat, dize tekrarı, benzetme ve kişileştirme türün doğasıdır. Niteliksel puan %60 ağırlıkla hesaplanır. Dizelerde cümle bölme düzgün çalışmayabilir."}
+};
+var GEN = {id: "genel"};
+Object.defineProperty(window, "GQ", {get: function(){ return GENRES[GEN.id].q; }, configurable: true});
+function thFor(base){
+  var o = GENRES[GEN.id].o, t = Object.assign({}, base);
+  Object.keys(o).forEach(function(k){ t[k] = (base[k] || 0) + o[k]; });
+  t.cvHi = Math.max(0.05, t.cvHi); t.cvLo = Math.max(0.05, t.cvLo); t.ttrHi = Math.max(0.3, t.ttrHi); t.ttrLo = Math.max(0.3, t.ttrLo);
+  return t;
+}
+var an1o = an1;
+an1 = function(){
+  if(GEN.id === "genel"){ an1o(); return; }
+  var b = TH; TH = thFor(b);
+  try{ an1o(); } finally { TH = b; }
+  var m = $("meta"); if(m.textContent) m.textContent += " · Tür: " + GENRES[GEN.id].n;
+};
+function gInfo(){
+  var el = $("ginfo"), g = GENRES[GEN.id];
+  if(GEN.id === "genel"){ el.textContent = "Varsayılan (ya da kalibre ettiğin) eşikler kullanılıyor."; return; }
+  var t = thFor(TH), f = function(x){ return x.toFixed(2); };
+  el.innerHTML = esc(g.note) + "<br>Etkin eşikler (zayıf / güçlü): cümle değişkenliği &lt;" + f(t.cvLo) + " / &lt;" + f(t.cvHi) + " · kelime çeşitliliği &lt;" + f(t.ttrLo) + " / &lt;" + f(t.ttrHi) + " · tekrar &gt;%" + Math.round(t.rrLo * 100) + " / &gt;%" + Math.round(t.rrHi * 100) + " · kalıp yoğunluğu ≥" + f(t.dLo) + " / ≥" + f(t.dHi) + "<br><em>Bu kaydırmalar tahminidir. Kendi metin türünle Doğrulama sekmesinde ölçmeden kesin saymayın.</em>";
+}
+(function(){
+  var gs = $("gsel");
+  Object.keys(GENRES).forEach(function(k){ var o = document.createElement("option"); o.value = k; o.textContent = GENRES[k].n; gs.appendChild(o); });
+  gs.addEventListener("change", function(){ GEN.id = gs.value; gInfo(); analyze(); });
+  var a3 = analyze; analyze = function(){ a3(); gInfo(); };
+  gInfo();
+  /* Dayanıklılık testi de aynı türle çalışır: an1 zaten türü uygular */
+})();
+
+/* ================= 5. "Bu cümle olmasa" ================= */
+$("loo").addEventListener("click", async function(){
+  if(BUSY) return;
+  var st = $("looSt"), text = inp.value, marks = [].slice.call($("view").querySelectorAll("mark"));
+  if(cur === null || !marks.length){ st.textContent = "Önce işaretli cümle içeren bir metin analiz et."; return; }
+  var items = marks.slice(0, 60).map(function(m){ return m.textContent; }), extra = marks.length - items.length;
+  BUSY = true; $("loo").disabled = true;
+  var res = [], base = null, keep = {m: M.state, v: inp.value}; M.state = "eval"; inp.readOnly = true;
+  try{
+    inp.value = text; an1(); base = cur;
+    var pos = 0;
+    for(var i = 0; i < items.length; i++){
+      var s = items[i], at = text.indexOf(s, pos); if(at < 0) at = text.indexOf(s);
+      if(at < 0){ res.push(undefined); continue; }
+      pos = at + s.length;
+      inp.value = text.slice(0, at) + text.slice(at + s.length); an1(); res.push(cur);
+      st.textContent = "Hesaplanıyor… " + (i + 1) + " / " + items.length; await nap();
+    }
+  } finally { M.state = keep.m; inp.value = keep.v; inp.readOnly = false; an1(); BUSY = false; $("loo").disabled = false; }
+  if(base === null){ st.textContent = "Puan hesaplanamadı."; return; }
+  var lis = $("why").children, ds = [];
+  items.forEach(function(s, i){
+    var r = res[i], li = lis[i]; if(!li || r === undefined) return;
+    var d = r === null ? null : base - r; ds.push({i: i, d: d, s: s});
+    li.insertAdjacentHTML("beforeend", "<br><b>Bu cümle olmasa:</b> " + (r === null ? "metin ölçülemeyecek kadar kısalır." : base + " → " + r + " (" + (d > 0 ? "−" + d : d < 0 ? "+" + (-d) : "değişmez") + ")"));
+  });
+  var top = ds.filter(function(x){ return x.d !== null && x.d > 0; }).sort(function(a, b){ return b.d - a.d; }).slice(0, 3);
+  st.innerHTML = "Tamamlandı. Başlangıç puanı " + base + " (kural tabanlı, model dışı)." + (extra > 0 ? " İlk 60 işaretli cümle hesaplandı." : "") + (top.length ? "<br>En çok katkı veren: " + top.map(function(x){ return "“" + esc(short(x.s, 50)) + "” (−" + x.d + ")"; }).join(" · ") : "<br>Tek bir cümle puanı belirgin biçimde etkilemiyor.") + "<br>Puan birçok işaretin toplamıdır. Çıkarınca değişmeyen cümle, tek başına belirleyici değildir.";
+});
+
+/* ================= 2. Tekrar oynatılabilir yazım süreci + hash zinciri ================= */
+var wr = $("wr"), CAP = 60000, PFX = "AIIZ-YAZIM|2.5|";
+function newRec(){ return {st: 0, g: "", head: "", th: "", ev: [], cp: {}, over: false}; }
+var LIVE = newRec(), prevVal = "", chainP = Promise.resolve(), V = {src: "live", rec: LIVE, vmsg: ""};
+var RP = {s: null, playing: false, speed: 5, vt: 0, last: 0, ct: [], lastN: 0};
+
+function evHash(p, i, e){ return sha((p || "") + "|" + i + "|" + e[0] + "|" + e[1] + "|" + e[2] + "|" + e[3] + "|" + e[4]); }
+function push(R, e){
+  var i = R.ev.length; R.ev.push(e);
+  chainP = chainP.then(function(){ return evHash(i ? R.ev[i - 1][5] : R.g, i, e).then(function(h){ e[5] = h; R.head = h; }); }).catch(function(){});
+}
+function kindOf(ev, dl, ins){
+  var it = (ev && ev.inputType) || "";
+  if(!it) return ins.length >= 40 ? "y" : (dl && !ins ? "d" : "t");
+  if(it.indexOf("insertFromPaste") === 0 || it === "insertFromYank") return "y";
+  if(it === "insertFromDrop") return "b";
+  if(it.indexOf("delete") === 0) return "d";
+  if(/^insert(Text|LineBreak|Paragraph|CompositionText)$/.test(it)) return "t";
+  return "o";
+}
+wr.addEventListener("input", function(e){
+  var now = Date.now(), cv = wr.value, n1 = prevVal.length, n2 = cv.length, m = Math.min(n1, n2), a = 0, b = 0;
+  while(a < m && prevVal.charCodeAt(a) === cv.charCodeAt(a)) a++;
+  while(b < m - a && prevVal.charCodeAt(n1 - 1 - b) === cv.charCodeAt(n2 - 1 - b)) b++;
+  var dl = n1 - a - b, ins = cv.slice(a, n2 - b); prevVal = cv;
+  if(!dl && !ins) return;
+  if(LIVE.ev.length >= CAP){ LIVE.over = true; dirty(); return; }
+  if(!LIVE.st){ LIVE.st = now; var R = LIVE; chainP = chainP.then(function(){ return sha(PFX + R.st); }).then(function(g){ R.g = g; R.head = g; }).catch(function(){}); }
+  push(LIVE, [now - LIVE.st, kindOf(e, dl, ins), a, dl, ins]);
+  dirty();
+});
+$("wrNew").addEventListener("click", function(){
+  if(wr.value) return; /* varolan kayıt iptal edildiyse dokunma */
+  LIVE = newRec(); prevVal = ""; chainP = Promise.resolve();
+  if(V.src === "live"){ V.rec = LIVE; resetRP(); } refresh();
+});
+
+function applyEv(s, e){
+  var m = (e[1] === "y" || e[1] === "b") ? "1" : "0", p = e[2], q = p + e[3];
+  s.text = s.text.slice(0, p) + e[4] + s.text.slice(q);
+  s.mask = s.mask.slice(0, p) + m.repeat(e[4].length) + s.mask.slice(q);
+}
+function stateTo(rec, s, idx){
+  var ev = rec.ev, cp = rec.cp; idx = Math.min(idx, ev.length);
+  if(!s || idx < s.idx){ var c = Math.floor(idx / 500) * 500; while(c > 0 && !cp[c]) c -= 500; s = c ? {idx: c, text: cp[c].text, mask: cp[c].mask} : {idx: 0, text: "", mask: ""}; }
+  while(s.idx < idx){ applyEv(s, ev[s.idx]); s.idx++; if(s.idx % 500 === 0 && !cp[s.idx]) cp[s.idx] = {text: s.text, mask: s.mask}; }
+  return s;
+}
+function evStats(rec){
+  var ev = rec.ev, n = ev.length, o = {n: n, typed: 0, del: 0, pasted: 0, blocks: [], pauses: 0, longest: 0, dur: n ? ev[n - 1][0] : 0};
+  for(var i = 0; i < n; i++){
+    var e = ev[i], k = e[1];
+    if(k === "y" || k === "b"){ o.pasted += e[4].length; if(e[4].length >= 20) o.blocks.push({t: e[0], len: e[4].length}); o.del += e[3]; }
+    else { o.typed += e[4].length; o.del += e[3]; }
+    if(i){ var g = e[0] - ev[i - 1][0]; if(g > 60000) o.pauses++; if(g > o.longest) o.longest = g; }
+  }
+  o.blocks.sort(function(a, b){ return b.len - a.len; });
+  return o;
+}
+function strip(rec, print){
+  var ev = rec.ev, N = ev.length; if(N < 2) return "<p class='warn'>Zaman çizelgesi için daha fazla olay gerekir.</p>";
+  var T = ev[N - 1][0] || 1, B = 60, a = [], p = [], i;
+  for(i = 0; i < B; i++){ a.push(0); p.push(0); }
+  ev.forEach(function(e){ var b = Math.min(B - 1, Math.floor(e[0] / T * B)); if(e[1] === "y" || e[1] === "b") p[b] += Math.max(1, Math.min(30, e[4].length / 40)); else a[b]++; });
+  var mx = Math.max.apply(null, a.concat([1])), mp = Math.max.apply(null, p.concat([1])), svg = "";
+  for(i = 0; i < B; i++){
+    var ha = a[i] ? Math.max(2, 44 * a[i] / mx) : 0, hp = p[i] ? Math.max(6, 44 * Math.min(1, p[i] / mp)) : 0;
+    if(ha) svg += '<rect x="' + (i * 10 + 1) + '" y="' + (48 - ha) + '" width="8" height="' + ha + '" rx="2" ' + (print ? 'fill="#5b3df5"' : 'style="fill:var(--accent)"') + '/>';
+    if(hp) svg += '<rect x="' + (i * 10 + 1) + '" y="' + (48 - hp) + '" width="8" height="' + hp + '" rx="2" ' + (print ? 'fill="#e11d48"' : 'style="fill:var(--hi)"') + '/>';
+  }
+  return '<svg viewBox="0 0 600 52" width="100%" height="' + (print ? 56 : 64) + '" role="img" aria-label="Yazım yoğunluğu zaman çizelgesi" preserveAspectRatio="none"><line x1="0" y1="49" x2="600" y2="49" ' + (print ? 'stroke="#bbb"' : 'style="stroke:var(--line)"') + '/>' + svg + '</svg><p class="leg" style="margin:2px 0 0">' + (print ? "Mor" : "Mavi") + ": yazma ve silme yoğunluğu · Kırmızı: yapıştırma · Süre " + clock(T) + "</p>";
+}
+function ctUpdate(){ var ev = V.rec.ev, ct = RP.ct; for(var i = ct.length; i < ev.length; i++) ct[i] = i ? ct[i - 1] + Math.min(ev[i][0] - ev[i - 1][0], 2000) : 0; }
+function resetRP(){ RP.playing = false; RP.s = null; RP.vt = 0; RP.ct = []; RP.lastN = 0; $("rpPlay").textContent = "▶ Oynat"; }
+function paint(){
+  var s = RP.s, v = $("rpView"); if(!s || !s.text){ v.textContent = s && V.rec.ev.length ? "(boş metin)" : "Henüz kayıt yok. Yazım defterinde yazmaya başla."; return; }
+  var t = s.text, m = s.mask, pre = "";
+  if(t.length > 30000){ pre = "… (başı gösterilmiyor) "; t = t.slice(-30000); m = m.slice(-30000); }
+  var h = "", pos = 0, re = /0+|1+/g, x;
+  while((x = re.exec(m))){ var seg = t.slice(pos, pos + x[0].length); pos += x[0].length; h += x[0].charAt(0) === "1" ? '<span class="pst">' + esc(seg) + "</span>" : esc(seg); }
+  v.innerHTML = esc(pre) + h + '<span class="cur">▏</span>'; v.scrollTop = v.scrollHeight;
+}
+function upper(ct, vt){ var lo = 0, hi = ct.length; while(lo < hi){ var mid = (lo + hi) >> 1; if(ct[mid] <= vt) lo = mid + 1; else hi = mid; } return lo; }
+function setIdx(n){
+  var R = V.rec; n = Math.max(0, Math.min(n, R.ev.length));
+  RP.s = stateTo(R, RP.s, n); $("rpSlide").value = n;
+  var ev = R.ev, N = ev.length;
+  $("rpTime").textContent = clock(n ? ev[n - 1][0] : 0) + " / " + clock(N ? ev[N - 1][0] : 0); RP.lastN = N;
+  paint();
+}
+function loop(ts){
+  if(!RP.playing) return;
+  RP.vt += (ts - RP.last) * RP.speed; RP.last = ts;
+  ctUpdate(); var n = upper(RP.ct, RP.vt), N = V.rec.ev.length;
+  if(!RP.s || n !== RP.s.idx) setIdx(n);
+  if(n >= N){ RP.playing = false; $("rpPlay").textContent = "▶ Baştan oynat"; return; }
+  requestAnimationFrame(loop);
+}
+$("rpPlay").addEventListener("click", function(){
+  var N = V.rec.ev.length; if(!N) return;
+  if(RP.playing){ RP.playing = false; $("rpPlay").textContent = "▶ Devam"; return; }
+  ctUpdate(); if(!RP.s || RP.s.idx >= N){ RP.vt = 0; setIdx(0); } else RP.vt = RP.ct[RP.s.idx - 1] || 0;
+  RP.playing = true; $("rpPlay").textContent = "⏸ Duraklat"; RP.last = performance.now(); requestAnimationFrame(loop);
+});
+$("rpSpeed").addEventListener("change", function(){ RP.speed = +$("rpSpeed").value; });
+$("rpSlide").addEventListener("input", function(){ RP.playing = false; $("rpPlay").textContent = "▶ Devam"; ctUpdate(); var n = +$("rpSlide").value; RP.vt = RP.ct[n - 1] || 0; setIdx(n); });
+
+var dT;
+function dirty(){ clearTimeout(dT); dT = setTimeout(refresh, 250); }
+function refresh(){
+  var R = V.rec, ev = R.ev, N = ev.length, slide = $("rpSlide"); ctUpdate(); slide.max = N;
+  $("rpInfo").textContent = (V.src === "live" ? "Bu oturumdaki yazım kaydı: " : "Yüklenen kayıt (salt okunur): ") + N + " olay." + (R.over ? " Olay sınırı (" + CAP + ") doldu, sonrası kaydedilmedi." : "") + " Kayıt yalnızca bellekte tutulur.";
+  $("rpBack").hidden = V.src === "live";
+  if(!N){ RP.s = null; $("rpStrip").innerHTML = ""; $("rpTime").textContent = "0:00 / 0:00"; paint(); $("chOut").innerHTML = "<p class='warn'>Henüz olay yok.</p>"; return; }
+  if(!RP.playing && (!RP.s || RP.s.idx >= RP.lastN)) setIdx(N);
+  $("rpStrip").innerHTML = strip(R);
+  var o = evStats(R), tot = o.typed + o.pasted;
+  $("chOut").innerHTML = "<table><tbody>"
+    + "<tr><td>Olay sayısı</td><td>" + N + "</td></tr>"
+    + "<tr><td>Yazılan / silinen / yapıştırılan karakter</td><td>" + o.typed + " / " + o.del + " / " + o.pasted + (tot ? " (yapıştırma %" + Math.round(o.pasted / tot * 100) + ")" : "") + "</td></tr>"
+    + "<tr><td>Yapıştırılan büyük blok (20+ karakter)</td><td>" + o.blocks.length + (o.blocks.length ? ", en büyüğü " + o.blocks[0].len + " karakter (yazımın " + clock(o.blocks[0].t) + " noktasında)" : "") + "</td></tr>"
+    + "<tr><td>60 sn üzeri duraksama</td><td>" + o.pauses + (o.longest ? ", en uzunu " + clock(o.longest) : "") + "</td></tr>"
+    + "<tr><td>Başlangıç</td><td>" + esc(new Date(R.st).toLocaleString("tr-TR")) + "</td></tr>"
+    + "<tr><td>Mühür (zincir sonu)</td><td style='word-break:break-all;font-size:12px'>" + esc(R.head ? R.head : "hesaplanıyor…") + "</td></tr>"
+    + "<tr><td>Doğrulama</td><td>" + esc(V.vmsg || "Henüz doğrulanmadı.") + "</td></tr></tbody></table>";
+}
+
+async function verify(rec){
+  var out = {ok: false, msg: "", fin: null};
+  if(!rec.ev.length){ out.msg = "Kayıt boş."; return out; }
+  var g = await sha(PFX + rec.st);
+  if(!g){ out.msg = "Bu bağlamda SHA-256 kullanılamıyor (güvenli bağlantı gerekir)."; return out; }
+  if(rec.g !== g){ out.msg = "Başlangıç özeti uyuşmuyor."; return out; }
+  var p = g;
+  for(var i = 0; i < rec.ev.length; i++){
+    var h = await evHash(p, i, rec.ev[i]);
+    if(h !== rec.ev[i][5]){ out.msg = "Zincir " + (i + 1) + ". olayda bozuk: kayıt sonradan değiştirilmiş olabilir."; return out; }
+    p = h; if(i % 400 === 399) await nap();
+  }
+  if(rec.head !== p){ out.msg = "Zincir sonu (mühür) uyuşmuyor."; return out; }
+  var fs = stateTo({ev: rec.ev, cp: {}}, null, rec.ev.length); out.fin = fs;
+  if(rec.th){ var th = await sha(fs.text); if(th !== rec.th){ out.msg = "Olaylardan üretilen metnin SHA-256 özeti kayıttakiyle uyuşmuyor."; return out; } }
+  out.ok = true; out.msg = "Zincir sağlam: " + rec.ev.length + " olay, yeniden üretilen metin " + wc(fs.text) + " kelime.";
+  return out;
+}
+$("chVer").addEventListener("click", async function(){
+  $("chSt").textContent = "Doğrulanıyor…"; await chainP;
+  var R = V.rec, v = await verify(R);
+  if(v.ok && V.src === "live" && v.fin.text !== wr.value) { v.ok = false; v.msg = "Zincir sağlam ama olaylardan üretilen metin, kutudaki metinle aynı değil" + (R.over ? " (olay sınırı doldu)." : "."); }
+  else if(v.ok && V.src === "live") v.msg += " Kutudaki metinle birebir tutarlı.";
+  V.vmsg = v.msg; $("chSt").textContent = v.msg; refresh();
+});
+$("chCopy").addEventListener("click", async function(){
+  await chainP; var R = V.rec; if(!R.head){ $("chSt").textContent = "Henüz mühür yok."; return; }
+  var t = "AI İz Analizi " + APPV + " yazım kaydı mührü\nBaşlangıç: " + new Date(R.st).toLocaleString("tr-TR") + "\nOlay: " + R.ev.length + "\nMühür (SHA-256 zincir sonu): " + R.head;
+  try{ await navigator.clipboard.writeText(t); $("chSt").textContent = "Mühür kopyalandı. Teslimden önce hocana, editörüne ya da kendine e-postayla gönder."; }catch(e){ $("chSt").textContent = "Kopyalanamadı."; }
+});
+$("chExp").addEventListener("click", async function(){
+  await chainP; var R = V.rec; if(!R.ev.length){ $("chSt").textContent = "Dışa aktarılacak kayıt yok."; return; }
+  var fs = stateTo({ev: R.ev, cp: {}}, null, R.ev.length), th = await sha(fs.text);
+  saveFile("yazim-kaydi-" + todayStr() + ".json", "application/json", JSON.stringify({format: "aiiz-yazim-kaydi", v: APPV, st: R.st, g: R.g, head: R.head, th: th, n: R.ev.length, e: R.ev}));
+  $("chSt").textContent = "Kayıt indirildi. Dosya metnin tamamını da içerir, kime verirsen o okuyabilir.";
+});
+$("chLoad").addEventListener("click", function(){ $("chFile").click(); });
+$("chFile").addEventListener("change", async function(){
+  var f = $("chFile").files[0]; $("chFile").value = ""; if(!f) return;
+  var o; try{ o = JSON.parse(await f.text()); }catch(e){ $("chSt").textContent = "Dosya okunamadı (JSON değil)."; return; }
+  var okk = o && o.format === "aiiz-yazim-kaydi" && Array.isArray(o.e) && o.e.length > 0 && o.e.length <= 100000 && o.e.every(function(e){ return Array.isArray(e) && e.length >= 6 && typeof e[0] === "number" && /^[tybdo]$/.test(e[1]) && typeof e[2] === "number" && e[2] >= 0 && typeof e[3] === "number" && e[3] >= 0 && typeof e[4] === "string" && typeof e[5] === "string"; });
+  if(!okk){ $("chSt").textContent = "Bu bir AI İz yazım kaydı dosyası değil ya da biçimi bozuk."; return; }
+  var rec = {st: +o.st, g: String(o.g || ""), head: String(o.head || ""), th: String(o.th || ""), ev: o.e.map(function(e){ return [e[0], e[1], e[2], e[3], e[4], e[5]]; }), cp: {}, over: false};
+  $("chSt").textContent = "Doğrulanıyor…"; var v = await verify(rec);
+  V = {src: "file", rec: rec, vmsg: v.msg}; resetRP(); $("chSt").textContent = (v.ok ? "Yüklendi. " : "Uyarı: ") + v.msg + " Not: Mührü teslimden önce aldıysan, burada görünen mührün onunla aynı olduğunu da karşılaştır."; refresh();
+});
+$("rpBack").addEventListener("click", function(){ V = {src: "live", rec: LIVE, vmsg: ""}; resetRP(); $("chSt").textContent = ""; refresh(); });
+refresh();
+
+/* ================= 3. Zaman içinde üslup takibi ================= */
+var JK = "aiiz_trk";
+function jget(){ try{ var a = JSON.parse(localStorage.getItem(JK) || "[]"); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+function jset(a){ try{ localStorage.setItem(JK, JSON.stringify(a.slice(-400))); return true; }catch(e){ return false; } }
+function trk(P){
+  var a = jget(), E = [];
+  a.forEach(function(e, i){ if(e.p === P) E.push({e: e, i: i}); });
+  E.sort(function(x, y){ return x.e.t - y.e.t; });
+  E.forEach(function(x, k){
+    x.a = null; x.ds = null; x.st = "Baz oluşuyor"; x.c = "n";
+    if(k < 3) return;
+    var prev = E.slice(0, k), ps = prev.map(function(y){ return y.e.s; }).filter(function(v){ return typeof v === "number"; });
+    x.a = dev(prev.map(function(y){ return y.e.f; }), x.e.f).a;
+    if(ps.length && typeof x.e.s === "number") x.ds = x.e.s - mean(ps);
+    if(x.a >= 2){ x.st = "Keskin üslup değişimi"; x.c = "hi"; } else if(x.a >= 1){ x.st = "Hafif sapma"; x.c = "mid"; } else { x.st = "Tutarlı"; x.c = "lo"; }
+    if(x.ds !== null && x.ds >= 25){ x.st += " · puan sıçraması"; if(x.c === "lo") x.c = "mid"; }
+  });
+  return E;
+}
+function jChart(E){
+  var pts = E.filter(function(x){ return x.a !== null; }); if(pts.length < 2) return "";
+  var W = 600, H = 150, L = 30, B = 24, T = 10, mx = Math.max(3, Math.max.apply(null, pts.map(function(x){ return x.a; }))), n = E.length;
+  function X(i){ return L + (n > 1 ? i * (W - L - 10) / (n - 1) : 0); } function Y(v){ return T + (H - T - B) * (1 - v / mx); }
+  var line = pts.map(function(x){ return X(E.indexOf(x)).toFixed(1) + "," + Y(x.a).toFixed(1); }).join(" ");
+  var s = '<svg viewBox="0 0 ' + W + " " + H + '" width="100%" role="img" aria-label="Zaman içinde üslup sapması">';
+  [1, 2].forEach(function(v){ s += '<line x1="' + L + '" x2="' + (W - 10) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" style="stroke:var(--line)" stroke-dasharray="' + (v === 2 ? "5 4" : "2 4") + '"/><text x="' + (L - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end" font-size="11" style="fill:var(--mute)">' + v + "</text>"; });
+  s += '<polyline points="' + line + '" fill="none" style="stroke:var(--accent)" stroke-width="2"/>';
+  pts.forEach(function(x){ s += '<circle cx="' + X(E.indexOf(x)).toFixed(1) + '" cy="' + Y(x.a).toFixed(1) + '" r="4.5" style="fill:var(--' + (x.c === "n" ? "mute" : x.c) + ')"/>'; });
+  s += '<text x="' + L + '" y="' + (H - 6) + '" font-size="11" style="fill:var(--mute)">' + esc(dstr(E[0].e.t)) + '</text><text x="' + (W - 10) + '" y="' + (H - 6) + '" text-anchor="end" font-size="11" style="fill:var(--mute)">' + esc(dstr(E[n - 1].e.t)) + "</text></svg>";
+  return s + "<p class='leg' style='margin:0'>Çizgi: önceki tüm yazılara göre ortalama üslup sapması (standart sapma cinsinden). 1 üstü hafif, 2 üstü belirgin.</p>";
+}
+function jRender(want){
+  var a = jget(), sel = $("jSel"), cu = want || sel.value, ps = [], seen = {};
+  a.forEach(function(e){ if(!seen[e.p]){ seen[e.p] = 1; ps.push(e.p); } });
+  sel.innerHTML = ps.length ? ps.map(function(p){ return "<option>" + esc(p) + "</option>"; }).join("") : "<option value=''>(kayıt yok)</option>";
+  if(ps.indexOf(cu) >= 0) sel.value = cu;
+  var P = sel.value, out = $("jOut");
+  if(!P){ out.innerHTML = "<p class='warn'>Henüz kayıt yok. Aynı kişinin en az 4 metnini ekleyince ilk karşılaştırma yapılır.</p>"; return; }
+  var E = trk(P), last = E[E.length - 1], msg;
+  if(E.length < 4) msg = "Karşılaştırma için en az 4 metin gerekir (şu an " + E.length + "). İlk 3 metin kişinin kendi tabanını oluşturur.";
+  else msg = "<b>Son metin: " + esc(last.st) + "</b> (sapma " + last.a.toFixed(1) + (last.ds !== null ? ", puan farkı " + (last.ds > 0 ? "+" : "") + Math.round(last.ds) : "") + "). " + (last.c === "hi" ? "Üslup, kişinin önceki yazılarından belirgin biçimde ayrışıyor. Bu başkasının yazdığını kanıtlamaz: konu, tür, zaman baskısı ve ruh hâli de üslubu değiştirir. Önce kişiyle konuşmak ve yazım sürecine bakmak daha doğrudur." : last.c === "mid" ? "Küçük bir kayma var, tek başına anlamlı değil." : "Üslup önceki yazılarla tutarlı.");
+  out.innerHTML = "<p style='margin:10px 0 4px'>" + msg + "</p>" + jChart(E) + "<div class='tb'><table><thead><tr><th>Tarih</th><th>Etiket</th><th>Kelime</th><th>Puan</th><th>Sapma</th><th>Durum</th><th></th></tr></thead><tbody>"
+    + E.slice().reverse().map(function(x){ return "<tr><td>" + esc(dstr(x.e.t)) + "</td><td>" + esc(x.e.l) + "</td><td>" + x.e.w + "</td><td>" + (typeof x.e.s === "number" ? x.e.s : "–") + "</td><td>" + (x.a === null ? "–" : x.a.toFixed(1)) + "</td><td style='color:" + hexc(x.c) + ";font-weight:700'>" + esc(x.st) + "</td><td><button type='button' class='xb' data-jdel='" + x.i + "' aria-label='Kaydı sil'>✕</button></td></tr>"; }).join("") + "</tbody></table></div>";
+}
+async function jAdd(items){ /* items: [{p,l,t,text}] */
+  var ok = [], bad = 0; items.forEach(function(it){ if(wc(it.text) >= 100) ok.push(it); else bad++; });
+  if(!ok.length){ $("jSt").textContent = "Her metin en az 100 kelime olmalı."; return; }
+  if(BUSY) return; BUSY = true;
+  try{
+    var sc = await scoreBatch(ok.map(function(x){ return x.text; }), function(i, n){ $("jSt").textContent = "Ölçülüyor… " + i + " / " + n; }), a = jget();
+    ok.forEach(function(it, i){ a.push({p: it.p, t: it.t, l: it.l, w: wc(it.text), s: sc[i], f: sf2(it.text)}); });
+    $("jSt").textContent = (jset(a) ? ok.length + " kayıt eklendi (metin saklanmadı, yalnızca sayısal özet)." : "Bu tarayıcı yerel depolamaya izin vermiyor.") + (bad ? " " + bad + " metin 100 kelimenin altında olduğu için atlandı." : "");
+  } finally { BUSY = false; }
+  jRender(ok[0].p);
+}
+function person(){ return $("jName").value.trim().slice(0, 60) || "Ben"; }
+$("jDate").value = todayStr();
+$("jAdd").addEventListener("click", function(){
+  var d = $("jDate").value ? new Date($("jDate").value + "T12:00:00").getTime() : Date.now();
+  jAdd([{p: person(), l: $("jLabel").value.trim().slice(0, 60) || lastFile || "Metin", t: d, text: inp.value}]);
+});
+$("jFileB").addEventListener("click", function(){ $("jFile").click(); });
+$("jFile").addEventListener("change", async function(){
+  var files = [].slice.call($("jFile").files); $("jFile").value = ""; if(!files.length) return;
+  $("jSt").textContent = "Okunuyor…"; var items = [], P = person(), fails = 0;
+  for(var i = 0; i < files.length; i++){ try{ var t = await readFile(files[i]); items.push({p: P, l: files[i].name.replace(/\.[^.]+$/, "").slice(0, 60), t: files[i].lastModified || Date.now(), text: t}); }catch(e){ fails++; } }
+  if(fails) $("jSt").textContent = fails + " dosya okunamadı (txt, md, docx desteklenir).";
+  if(items.length) await jAdd(items);
+});
+$("jOut").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest("button[data-jdel]") : null; if(!b) return;
+  var a = jget(); a.splice(+b.dataset.jdel, 1); jset(a); jRender();
+});
+$("jSel").addEventListener("change", function(){ jRender(); });
+$("jDelP").addEventListener("click", function(){
+  var P = $("jSel").value; if(!P || !confirm("“" + P + "” kişisinin tüm kayıtları silinecek. Devam edilsin mi?")) return;
+  jset(jget().filter(function(e){ return e.p !== P; })); jRender();
+});
+$("jDelAll").addEventListener("click", function(){ if(!jget().length || !confirm("Tüm üslup günlüğü silinecek. Devam edilsin mi?")) return; try{ localStorage.removeItem(JK); }catch(e){} $("jSt").textContent = "Günlük silindi."; jRender(); });
+$("jCsv").addEventListener("click", function(){
+  var P = $("jSel").value; if(!P){ $("jSt").textContent = "Dışa aktarılacak kayıt yok."; return; }
+  var rows = ["kisi,tarih,etiket,kelime,puan,sapma,durum"].concat(trk(P).map(function(x){ return [x.e.p, new Date(x.e.t).toISOString().slice(0, 10), x.e.l, x.e.w, x.e.s == null ? "" : x.e.s, x.a === null ? "" : x.a.toFixed(2), x.st].map(cell).join(","); }));
+  saveFile("ai-iz-uslup-gunlugu.csv", "text/csv;charset=utf-8", "\ufeff" + rows.join("\r\n"));
+});
+jRender();
+
+/* ================= 6. Öğretmen modu ================= */
+var TC = {prev: [], cur: [], rows: []};
+function sdisp(n){ var b = n.replace(/\.[^.]+$/, ""), m = b.split(/\s+[-–—]\s+/)[0]; if(m === b) m = b.replace(/[\s_]*(ödev|odev|hw|assignment)?[\s_]*\d+$/i, ""); return m.trim() || b.trim(); }
+function skey(n){ return tl(sdisp(n)).replace(/\s+/g, " "); }
+async function tcLoad(files, which){
+  files = [].slice.call(files); if(!files.length) return;
+  var st = $("tcSt"), bad = [], cap = which === "cur" ? 60 : 300;
+  if(files.length > cap){ bad.push((files.length - cap) + " dosya sınır nedeniyle alınmadı"); files = files.slice(0, cap); }
+  st.textContent = "Okunuyor…";
+  TC[which] = [];
+  for(var i = 0; i < files.length; i++){
+    try{ var t = await readFile(files[i]); TC[which].push({name: files[i].name, disp: sdisp(files[i].name), key: skey(files[i].name), text: t}); }
+    catch(e){ bad.push(files[i].name + " (" + (ERR[e.message] || "okunamadı") + ")"); }
+    if(i % 5 === 4) await nap();
+  }
+  st.innerHTML = "Önceki ödev: " + TC.prev.length + " dosya · Bu ödevler: " + TC.cur.length + " dosya." + (bad.length ? "<br>Alınamayan: " + esc(bad.join(", ")) : "");
+}
+$("tcPrevB").addEventListener("click", function(){ $("tcPrevF").click(); });
+$("tcCurB").addEventListener("click", function(){ $("tcCurF").click(); });
+$("tcPrevF").addEventListener("change", function(){ tcLoad($("tcPrevF").files, "prev").then(function(){ $("tcPrevF").value = ""; }); });
+$("tcCurF").addEventListener("change", function(){ tcLoad($("tcCurF").files, "cur").then(function(){ $("tcCurF").value = ""; }); });
+$("tcClr").addEventListener("click", function(){ TC = {prev: [], cur: [], rows: []}; $("tcSt").textContent = "Temizlendi."; $("tcOut").innerHTML = ""; });
+function shingles(t){ var w = words(t), o = {}, i; for(i = 0; i + 5 <= w.length; i++) o[w.slice(i, i + 5).join(" ")] = 1; return o; }
+function jac(a, b){ var ka = Object.keys(a), n = 0, u; ka.forEach(function(k){ if(b[k]) n++; }); u = ka.length + Object.keys(b).length - n; return u ? n / u : 0; }
+$("tcGo").addEventListener("click", async function(){
+  var C = TC.cur; if(!C.length){ $("tcSt").textContent = "Önce “Bu ödevler” için dosya yükle."; return; }
+  if(BUSY) return; BUSY = true; $("tcGo").disabled = true;
+  try{
+    var sc = await scoreBatch(C.map(function(x){ return x.text; }), function(i, n){ $("tcSt").textContent = "Ölçülüyor… " + i + " / " + n; });
+    var J = jget(), shC = C.map(function(c){ return shingles(c.text); }), rows = [];
+    for(var i = 0; i < C.length; i++){
+      var c = C[i], base = [], baseSh = [], src = "";
+      TC.prev.forEach(function(p){ if(p.key === c.key && wc(p.text) >= 100){ base.push(sf2(p.text)); baseSh.push(shingles(p.text)); } });
+      if(base.length) src = base.length + " önceki ödev";
+      else { J.forEach(function(e){ if(tl(e.p) === c.key) base.push(e.f); }); if(base.length) src = base.length + " günlük kaydı"; }
+      var a = null, weak = false;
+      if(base.length && wc(c.text) >= 100){ a = dev(base, sf2(c.text)).a; weak = base.length < 2; }
+      var best = {v: 0, n: ""}, own = 0;
+      for(var j = 0; j < C.length; j++){ if(j === i || C[j].key === c.key) continue; var v = jac(shC[i], shC[j]); if(v > best.v) best = {v: v, n: C[j].disp}; }
+      baseSh.forEach(function(b){ var v = jac(shC[i], b); if(v > own) own = v; });
+      var s = sc[i], fl = [];
+      if(s !== null && s >= 50) fl.push("Güçlü AI izi"); else if(s !== null && s >= 25) fl.push("Belirsiz iz");
+      if(a !== null && a >= 2) fl.push("Belirgin üslup sapması" + (weak ? " (tek referans)" : "")); else if(a !== null && a >= 1) fl.push("Hafif sapma");
+      if(best.v >= 0.3) fl.push("Sınıf içi yüksek benzerlik"); if(own >= 0.3) fl.push("Önceki ödevle yüksek benzerlik");
+      var pr = (s !== null && s >= 50 && a !== null && a >= 2) ? 3 : ((s !== null && s >= 50) || (a !== null && a >= 2) || best.v >= 0.3) ? 2 : ((s !== null && s >= 25) || (a !== null && a >= 1)) ? 1 : 0;
+      rows.push({name: c.disp, file: c.name, w: wc(c.text), s: s, a: a, src: src, sim: best, own: own, fl: fl, pr: pr});
+      if(i % 4 === 3) await nap();
+    }
+    rows.sort(function(x, y){ return y.pr - x.pr || (y.s || 0) - (x.s || 0); });
+    TC.rows = rows;
+    $("tcOut").innerHTML = "<div class='tb'><table><thead><tr><th>Öğrenci</th><th>Kelime</th><th>İz puanı</th><th>Üslup sapması</th><th>Sınıf içi benzerlik</th><th>Değerlendirme</th></tr></thead><tbody>"
+      + rows.map(function(r){ return "<tr><td>" + esc(r.name) + "</td><td>" + r.w + "</td><td>" + (r.s === null ? "–" : r.s) + "</td><td>" + (r.a === null ? "<span class='warn'>referans yok</span>" : r.a.toFixed(1) + " <span class='warn'>(" + esc(r.src) + ")</span>") + "</td><td>" + (r.sim.v >= 0.05 ? "%" + Math.round(r.sim.v * 100) + " · " + esc(r.sim.n) : "–") + "</td><td style='color:" + (r.pr === 3 ? "var(--hi)" : r.pr === 2 ? "var(--mid)" : "inherit") + ";font-weight:" + (r.pr >= 2 ? 700 : 400) + "'>" + (r.pr === 3 ? "Öncelikli inceleme: " : "") + (r.fl.length ? esc(r.fl.join(" · ")) : "Belirgin sinyal yok") + "</td></tr>"; }).join("") + "</tbody></table></div>"
+      + "<p class='warn'>Bu tablo karar değil, konuşma başlatma aracıdır. Yüksek puan ya da sapma tek başına bir öğrencinin AI kullandığını göstermez, yanlış alarm olasılığı gerçektir (özellikle resmî dil kullananlar ve Türkçeyi ikinci dil olarak yazanlar için). İki sinyal birlikte çıkarsa önce öğrenciyle konuş, yazım sürecini (Yazım sekmesi kaydı) göstermesini iste. Not vermek ya da ceza için tek başına kullanma.</p>";
+    $("tcSt").textContent = rows.length + " öğrenci karşılaştırıldı. Sonuçlar saklanmaz.";
+  } finally { BUSY = false; $("tcGo").disabled = false; }
+});
+$("tcCsv").addEventListener("click", function(){
+  if(!TC.rows.length){ $("tcSt").textContent = "Önce karşılaştırmayı çalıştır."; return; }
+  var rows = ["ogrenci,dosya,kelime,iz_puani,uslup_sapmasi,referans,en_benzer,benzerlik,degerlendirme"].concat(TC.rows.map(function(r){ return [r.name, r.file, r.w, r.s === null ? "" : r.s, r.a === null ? "" : r.a.toFixed(2), r.src, r.sim.n, Math.round(r.sim.v * 100) + "%", r.fl.join(" | ")].map(cell).join(","); }));
+  saveFile("ai-iz-sinif.csv", "text/csv;charset=utf-8", "\ufeff" + rows.join("\r\n"));
+});
+
+/* ================= 1. Savunma dosyası ================= */
+async function defense(src){
+  var st = src === "wr" ? $("sdSt") : $("fmsg"), text = src === "wr" ? wr.value : inp.value;
+  if(wc(text) < 40){ st.textContent = "Savunma dosyası için en az 40 kelimelik metin gerekir."; return; }
+  if(BUSY){ st.textContent = "Başka bir işlem sürüyor, birkaç saniye sonra dene."; return; }
+  st.textContent = "Dosya hazırlanıyor…"; BUSY = true;
+  try{ await defenseBuild(src, text, st); } finally { BUSY = false; }
+}
+async function defenseBuild(src, text, st){
+  var name = $("sdName").value.trim().slice(0, 80), inclScore = $("sdScore").checked, inclPara = $("sdPara").checked;
+  await chainP;
+  var hash = await sha(text), n = wc(text), now = new Date().toLocaleString("tr-TR");
+  var useProc = LIVE.ev.length > 0 && (src === "wr" || text.trim() === wr.value.trim());
+  var h = "<div class='sdf'><h1>Yazarlık savunma dosyası</h1><p>" + esc(now) + " · AI İz Analizi " + esc(APPV) + " · Özgüler Forge" + (name ? " · Yazar: <b>" + esc(name) + "</b>" : "") + "</p>";
+  h += "<p>Bu dosya, aşağıdaki metnin yazılma sürecine ilişkin kayıtları ve metnin üslup özelliklerini bir arada sunar. Amaç, “bu metni ben yazdım” iddiasını destekleyen süreç bilgisini düzenli biçimde göstermektir. Bağımsız bir kanıt ya da resmî belge değildir (bkz. Sınırlılıklar).</p>";
+  h += "<h2>Metin ve mühür</h2><table><tbody><tr><td>Kelime sayısı</td><td>" + n + "</td></tr><tr><td>Karakter sayısı</td><td>" + text.length + "</td></tr><tr><td>SHA-256 özeti</td><td class='m'>" + esc(hash || "hesaplanamadı") + "</td></tr></tbody></table><p>Özet, metnin bu anki hâline aittir. Metinde tek karakter değişirse özet tamamen değişir.</p>";
+  /* Yazım süreci */
+  h += "<h2>Yazım süreci</h2>";
+  if(useProc){
+    var R = LIVE, o = evStats(R), tot = o.typed + o.pasted, fin = stateTo({ev: R.ev, cp: R.cp}, null, R.ev.length), vr = await verify(R);
+    var same = fin.text === wr.value, pm = (fin.mask.match(/1/g) || []).length;
+    var lines = window.WRX ? window.WRX.lines() : [];
+    h += "<table><tbody>" + lines.map(function(r){ return "<tr><td>" + esc(r[0]) + "</td><td>" + esc(String(r[1])) + "</td></tr>"; }).join("") + "</tbody></table>";
+    h += "<h2>Olay zinciri ve zaman çizelgesi</h2>" + strip(R, true);
+    h += "<table><tbody><tr><td>Kaydedilen olay</td><td>" + o.n + " (yazma ve silme olayları tek tek, zaman damgalı)</td></tr><tr><td>Yazılan / silinen / yapıştırılan karakter</td><td>" + o.typed + " / " + o.del + " / " + o.pasted + (tot ? " (yapıştırma %" + Math.round(o.pasted / tot * 100) + ")" : "") + "</td></tr>"
+      + "<tr><td>Son metnin yapıştırılmış kaynaklı kısmı</td><td>%" + (fin.text.length ? Math.round(pm / fin.text.length * 100) : 0) + "</td></tr>"
+      + "<tr><td>Büyük yapıştırma (20+ karakter)</td><td>" + o.blocks.length + (o.blocks.length ? "; en büyük: " + o.blocks.slice(0, 3).map(function(b){ return b.len + " karakter (" + clock(b.t) + " noktasında)"; }).join(", ") : "") + "</td></tr>"
+      + "<tr><td>60 sn üzeri duraksama</td><td>" + o.pauses + (o.longest ? " (en uzunu " + clock(o.longest) + ")" : "") + "</td></tr>"
+      + "<tr><td>Başlangıç</td><td>" + esc(new Date(R.st).toLocaleString("tr-TR")) + "</td></tr>"
+      + "<tr><td>Mühür (zincir sonu, SHA-256)</td><td class='m'>" + esc(R.head || "–") + "</td></tr>"
+      + "<tr><td>Zincir doğrulaması</td><td>" + esc(vr.msg) + "</td></tr>"
+      + "<tr><td>Kayıt – metin tutarlılığı</td><td>" + (same ? "Olaylardan yeniden üretilen metin, bu dosyadaki metinle birebir aynı." : "Olaylardan üretilen metin bu dosyadaki metinle aynı değil" + (R.over ? " (olay sınırı doldu)." : ".")) + "</td></tr></tbody></table>";
+    h += "<p>Her olay bir öncekinin özetine bağlıdır (hash zinciri). Kayıt sonradan değiştirilirse zincir bozulur. Zincir sonunu (mühür) teslimden önce hocanıza, editörünüze ya da kendinize e-postayla ilettiyseniz, sonradan yapılan değişiklikler bu mührü tutturamaz. Mühür önceden paylaşılmadıysa, kaydı baştan uyduran biri tutarlı bir zincir de üretebilir.</p>";
+  } else h += "<p>Bu metin için yazım süreci kaydı yok: metin Yazım defterinde yazılmadı ya da kayıt sıfırlandı. Süreç bilgisi yerine yalnızca aşağıdaki üslup ölçümleri sunuluyor.</p>";
+  /* Üslup uyumu */
+  var P = null; try{ P = JSON.parse(localStorage.getItem("aiiz_prof") || "null"); }catch(e){}
+  h += "<h2>Üslup uyumu</h2>";
+  if(P && P.f && n >= 100){
+    var x = sf2(text), z = KEYS.map(function(k){ return P.f[k] ? (x[k] - P.f[k].m) / P.f[k].s : 0; }), a = mean(z.map(Math.abs));
+    h += "<p><b>" + (a < 1 ? "Kişisel profille uyumlu" : a < 2 ? "Kısmen sapma var" : "Belirgin sapma var") + "</b> (ortalama sapma " + a.toFixed(1) + " standart sapma; profil " + P.n + " önceki metinden çıkarıldı)</p><table><tbody>" + KEYS.map(function(k, i){ return "<tr><td>" + SN2[k] + "</td><td>profil: " + P.f[k].m.toFixed(2) + "</td><td>bu metin: " + x[k].toFixed(2) + "</td><td>" + (z[i] > 0 ? "+" : "") + z[i].toFixed(1) + "</td></tr>"; }).join("") + "</tbody></table>";
+  } else h += "<p>Üslup profili çıkarılmamış ya da metin 100 kelimenin altında. Kalibrasyon sekmesinde kendi yazdığın en az 2 metinden profil çıkarılırsa bu bölüm dolar.</p>";
+  /* Geçmişle takip */
+  var tkP = name ? trk(name) : [];
+  if(tkP.length){
+    var lastE = tkP[tkP.length - 1];
+    h += "<h2>Zaman içinde üslup takibi</h2><p>“" + esc(name) + "” için günlükte " + tkP.length + " kayıt var. " + (lastE.a === null ? "Karşılaştırma için en az 4 metin gerekir." : "Son kayıt: <b>" + esc(lastE.st) + "</b> (sapma " + lastE.a.toFixed(1) + ").") + "</p><table><thead><tr><th>Tarih</th><th>Etiket</th><th>Kelime</th><th>Sapma</th><th>Durum</th></tr></thead><tbody>" + tkP.slice(-8).map(function(r){ return "<tr><td>" + esc(dstr(r.e.t)) + "</td><td>" + esc(r.e.l) + "</td><td>" + r.e.w + "</td><td>" + (r.a === null ? "–" : r.a.toFixed(1)) + "</td><td>" + esc(r.st) + "</td></tr>"; }).join("") + "</tbody></table>";
+  }
+  /* Paragraf haritası + puan */
+  if(inclPara){
+    var ps = text.split(/\n\s*\n/).map(function(q){ return q.trim(); }).filter(function(q){ return wc(q) >= 40; }).slice(0, 40), prow = [];
+    ps.forEach(function(q, i){ try{ var d = deep(q, words(q), sentences(q)); prow.push("<tr><td>¶ " + (i + 1) + "</td><td>" + wc(q) + "</td><td>" + d.score + "</td><td><div style='height:8px;border-radius:4px;background:" + (d.score >= 50 ? "#e11d48" : d.score >= 25 ? "#d97706" : "#059669") + ";width:" + Math.max(3, d.score) + "%'></div></td></tr>"); }catch(e){} });
+    if(prow.length >= 2) h += "<h2>Paragraf haritası</h2><p>Her paragrafın niteliksel iz puanı (0–100). Paragraflar arasında büyük fark, metnin farklı kaynaklardan birleştirildiğini gösterebilir, ama tutarlı bir dağılım da normal yazımda sık görülür.</p><table><thead><tr><th>Paragraf</th><th>Kelime</th><th>Puan</th><th style='width:40%'></th></tr></thead><tbody>" + prow.join("") + "</tbody></table>";
+  }
+  if(inclScore){
+    var sc = await scoreBatch([text]), s = sc[0];
+    h += "<h2>Araç değerlendirmesi</h2><p>" + (s === null ? "Puan hesaplanamadı." : "Kural tabanlı AI iz puanı: <b>" + s + "/100</b> (" + esc(bandOf(s)[0]) + "). Metin türü ayarı: " + esc(GENRES[GEN.id].n) + ".") + " Bu puan bir olasılık ipucudur. Yanlış alarm olasılığı gerçektir ve süreç kaydı ile birlikte okunmalıdır.</p>";
+  }
+  /* Güvenilirlik ve sınırlılıklar */
+  var rc = null; try{ rc = JSON.parse(localStorage.getItem("aiiz_card") || "null"); }catch(e){}
+  h += "<h2>Sınırlılıklar</h2><ul><li>Kayıt, yazarın kendi tarayıcısında üretilir. Bağımsız bir üçüncü taraf tarafından doğrulanmamıştır.</li><li>Zincir, yalnızca mühür önceden paylaşıldıysa sonradan değişikliği ortaya çıkarır.</li><li>Süreç kaydı yalnızca Yazım defterinde yazılan metni kapsar. Başka bir yerde yazılıp buraya yapıştırılan metin yapıştırma olarak görünür.</li><li>Kısa metinlerde (1000 kelime altı) üslup ölçümleri dalgalanır. Resmî dil kullananlar ve Türkçeyi ikinci dil olarak yazanlar daha sık yanlış işaretlenir. Parafraz edilmiş AI metinleri tespit edilemeyebilir.</li><li>Üslup sapması, metni başkasının yazdığını kanıtlamaz. Konu, tür ve ruh hâli de üslubu değiştirir.</li><li>" + (rc ? "Aracın son doğrulaması: " + esc(dstr(rc.t)) + ", " + rc.nH + " insan ve " + rc.nA + " AI metni, AUC " + rc.auc.toFixed(2) + (rc.nH < 30 || rc.nA < 30 ? " (örnek sayısı az, kesin değil)." : ".") : "Araç, yazarın kendi verisiyle doğrulanmamış, tahmini eşiklerle çalışıyor.") + "</li></ul>";
+  h += "<h2>Beyan</h2><p>Yukarıdaki metnin tarafımdan yazıldığını ve bu dosyadaki süreç bilgilerinin kendi cihazımdan alındığını beyan ederim.</p><div class='sg'><div>Ad Soyad" + (name ? ": " + esc(name) : "") + "</div><div>Tarih</div><div>İmza</div></div></div>";
+  $("prt").innerHTML = h;
+  var old = document.title; document.title = (name ? name + " – " : "") + "Savunma dosyası";
+  window.addEventListener("afterprint", function f(){ document.title = old; window.removeEventListener("afterprint", f); });
+  st.textContent = "Yazdır penceresinde “PDF olarak kaydet” seç.";
+  setTimeout(function(){ window.print(); }, 80);
+}
+$("sdGo").addEventListener("click", function(){ defense("wr"); });
+$("sdGo2").addEventListener("click", function(){ defense("inp"); });
+})();
 </script>
 </body>
 </html>
