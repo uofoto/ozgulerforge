@@ -11,6 +11,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="AI İz">
+<meta name="color-scheme" content="light dark">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta property="og:title" content="AI İz Analizi"><meta property="og:description" content="Metindeki olası yapay zekâ izlerini cihazında analiz et."><meta property="og:type" content="website">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -91,13 +94,17 @@ mark.h1{background:color-mix(in srgb,var(--mid) 30%,transparent)}mark.h2{backgro
 .deep h3{margin:18px 0 6px;font-size:16px}.deep p{margin:6px 0;font-size:14.5px}.deep .lead{color:var(--mute)}.deep .tbl{overflow-x:auto;margin:6px 0}.deep table{border-collapse:collapse;width:100%;font-size:13.5px}.deep th,.deep td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}.deep th{color:var(--mute);font-weight:700;font-size:12.5px}.deep td:first-child{min-width:150px}.deep ol.dl{padding-left:20px;margin:6px 0}.deep ol.dl li{margin:8px 0;font-size:14.5px;color:var(--mute)}.deep ol.dl b{color:var(--ink)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 @media print{body>*:not(#prt){display:none!important}#prt{display:block!important;color:#111;font-family:system-ui,sans-serif;padding:8px}:root:not([data-theme="x"]){--ink:#111;--mute:#444;--line:#ccc;--solid:#fff;--panel:#fff}html,body{background:#fff!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}#prt .view{max-height:none;overflow:visible}#prt table{border-collapse:collapse;width:100%}#prt th,#prt td{border-bottom:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top;font-size:12px}#prt h1{font-size:22px}#prt h3{break-after:avoid}#prt tr,#prt .sig,#prt li{break-inside:avoid}}
+#thm{margin-left:auto;font:700 13px system-ui;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}#inst{margin-left:0}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0b0a1a;--panel:rgba(30,26,58,.62);--solid:#1a1634;--ink:#f1eefe;--mute:#9d98c4;--line:rgba(160,140,255,.16);--accent:#8b7bff;--accent2:#e879f9;--accent3:#22d3ee;--hit:#6b5316;--lo:#34d399;--mid:#fbbf24;--hi:#fb7185;--sh:0 1px 0 rgba(255,255,255,.05) inset,0 12px 34px rgba(0,0,0,.4);--g:linear-gradient(135deg,#7c5cff 0%,#e879f9 60%,#fb923c 120%)}:root[data-theme="light"]{color-scheme:light}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}body::before,body::after{display:none}}
 </style>
 </head>
 <body>
+<noscript><p style="padding:20px;font:16px system-ui">Bu uygulama JavaScript gerektirir.</p></noscript>
 <header>
   <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><rect x="2" y="9" width="3" height="6" rx="1.5"/><rect x="7" y="4" width="3" height="16" rx="1.5"/><rect x="12" y="7" width="3" height="10" rx="1.5"/><rect x="17" y="2" width="3" height="20" rx="1.5"/></svg></div>
   <div><h1>AI İz Analizi</h1><small>Özgüler Forge</small></div>
-  <button id="inst" type="button">Yükle</button>
+  <button id="thm" type="button">Otomatik</button><button id="inst" type="button">Yükle</button>
 </header>
 <main>
 <section id="analiz" class="on">
@@ -119,8 +126,9 @@ mark.h1{background:color-mix(in srgb,var(--mid) 30%,transparent)}mark.h2{backgro
   <div class="card deep" id="deep"><p class="warn">Metin girince ayrıntılı değerlendirme burada görünür.</p></div>
   <h2>Model destekli ölçüm (deneysel)</h2>
   <div class="card" id="mcard">
-    <p class="warn" style="margin-top:0">İsteğe bağlı. Küçük bir dil modeli tarayıcında çalışır ve metnin ne kadar “tahmin edilebilir” olduğunu ölçer. Metnin cihazından çıkmaz. İlk kullanımda yaklaşık 0,5 GB model dosyası indirilir, sonra önbellekten çalışır. Wi-Fi ve güçlü bir cihaz önerilir.</p>
+    <p class="warn" style="margin-top:0">İsteğe bağlı. Küçük bir dil modeli tarayıcında çalışır ve metnin ne kadar “tahmin edilebilir” olduğunu ölçer. Metnin cihazından çıkmaz. İlk kullanımda seçtiğin modelin dosyası (yaklaşık 0,5–1,5 GB) indirilir, sonra önbellekten çalışır. Wi-Fi ve güçlü bir cihaz önerilir.</p>
     <p class="warn" id="mmob" hidden>Telefonlarda bu mod yavaş olabilir ya da bellek yetmeyebilir. Sorun olursa kural tabanlı analiz çalışmaya devam eder.</p>
+    <label for="msel">Model</label><select id="msel" style="width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);background:var(--solid);color:var(--ink);font:inherit"></select>
     <div class="row"><button class="btn" id="mgo" type="button">Modeli indir ve etkinleştir</button><button class="btn ghost" id="mrm" type="button">Modeli kaldır</button></div>
     <progress id="mprog" max="100" value="0" hidden></progress>
     <p class="warn" id="mst" role="status"></p>
@@ -131,17 +139,30 @@ mark.h1{background:color-mix(in srgb,var(--mid) 30%,transparent)}mark.h2{backgro
   <h2>İşaretlenen cümleler ve öneriler</h2>
   <div class="card"><div class="view" id="view">Henüz metin yok.</div><p class="leg">Vurgu yoğunluğu: <i style="background:color-mix(in srgb,var(--mid) 30%,transparent)"></i>hafif<i style="background:color-mix(in srgb,var(--mid) 60%,var(--hi) 20%)"></i>orta<i style="background:color-mix(in srgb,var(--hi) 48%,transparent)"></i>güçlü</p><ul class="why" id="why"></ul></div>
   <h2>Geçmiş (isteğe bağlı)</h2>
-  <div class="card"><p class="warn" style="margin-top:0">Metin saklanmaz. “Bu sonucu kaydet”e basarsan yalnızca tarih, kelime sayısı, puan (ve dosya adı) bu cihazda saklanır.</p><div class="row"><button class="btn ghost" id="hsave" type="button">Bu sonucu kaydet</button><button class="btn ghost" id="hclr" type="button">Geçmişi sil</button></div><p class="warn" id="hmsg" role="status"></p><ul class="why" id="hlist"></ul></div>
+  <div class="card"><p class="warn" style="margin-top:0">Metin saklanmaz. “Bu sonucu kaydet”e basarsan yalnızca tarih, kelime sayısı, puan (ve dosya adı) bu cihazda saklanır.</p><div class="row"><button class="btn ghost" id="hsave" type="button">Bu sonucu kaydet</button><button class="btn ghost" id="hclr" type="button">Geçmişi sil</button><button class="btn ghost" id="hcsv" type="button">CSV indir</button></div><p class="warn" id="hmsg" role="status"></p><ul class="why" id="hlist"></ul></div>
 </section>
 
 <section id="kalibrasyon">
-  <p class="sub">Eşikleri kendi yazım tarzına göre ayarla. Ayar yalnızca bu oturumda geçerlidir, sayfa yenilenince varsayılana döner.</p>
+  <p class="sub">Eşikleri kendi yazım tarzına göre ayarla. Ayar varsayılan olarak yalnızca bu oturumda geçerlidir. İstersen “Bu cihazda sakla” ile kaydedebilirsin.</p>
   <div class="card">
     <p class="warn" style="margin-top:0">Kendi yazdığın en az 2 metni yapıştır, metinleri ayrı bir satırda === yazarak ayır. Her metin en az 100 kelime olmalı. AI’dan aldığın örnekler varsa ikinci kutuya aynı şekilde ekle.</p>
     <label for="calH" style="margin-top:12px">Benim yazdığım metinler</label><textarea id="calH" style="min-height:120px"></textarea>
     <label for="calA" style="margin-top:12px">AI’dan aldığım metinler (isteğe bağlı)</label><textarea id="calA" style="min-height:120px"></textarea>
-    <div class="row"><button class="btn" id="calGo" type="button">Kalibre et</button><button class="btn ghost" id="calReset" type="button">Varsayılana dön</button></div>
+    <div class="row"><button class="btn" id="calGo" type="button">Kalibre et</button><button class="btn ghost" id="calReset" type="button">Varsayılana dön</button><button class="btn ghost" id="calSave" type="button">Bu cihazda sakla</button></div>
     <div id="calOut" class="warn" role="status"></div>
+  </div>
+</section>
+
+<section id="dogrulama">
+  <p class="sub">Aracın ne kadar isabetli olduğunu kendi etiketli metinlerinle ölç. Kalibrasyonda kullanmadığın, ayrı metinler kullan.</p>
+  <div class="card">
+    <p class="warn" style="margin-top:0">Metinleri ayrı bir satırda === yazarak ayır. Her metin en az 40 kelime olmalı. En az 30 insan ve 30 AI metni önerilir, az örnekte sonuç güvenilmez. Metinler cihazından çıkmaz.</p>
+    <label for="vH">İnsan yazımı metinler</label><textarea id="vH" style="min-height:120px"></textarea>
+    <label for="vA" style="margin-top:12px">AI üretimi metinler</label><textarea id="vA" style="min-height:120px"></textarea>
+    <div class="row"><button class="btn" id="vGo" type="button">Doğrulamayı çalıştır</button><button class="btn ghost" id="vFile" type="button">JSONL / TXT yükle</button><input type="file" id="vIn" accept=".jsonl,.json,.txt" hidden></div>
+    <label style="display:flex;gap:8px;align-items:center;margin:12px 0 0;font-weight:600"><input type="checkbox" id="vM"> Model şaşkınlığını da ölç (model etkinse, yavaş)</label>
+    <p class="warn">JSONL için her satır: {"label":"human" veya "ai","text":"..."}. TXT yüklersen metinler “insan” kutusuna eklenir.</p>
+    <p class="warn" id="vSt" role="status"></p><div id="vOut"></div>
   </div>
 </section>
 
@@ -158,12 +179,13 @@ mark.h1{background:color-mix(in srgb,var(--mid) 30%,transparent)}mark.h2{backgro
 <footer>
   <div class="fl"><button type="button" data-leg="kullanim">Kullanım Koşulları</button><button type="button" data-leg="gizlilik">Gizlilik</button><button type="button" data-leg="kvkk">KVKK Aydınlatma</button><button type="button" data-leg="kabul">Kabul Edilebilir Kullanım</button><button type="button" data-leg="ihlal">İçerik / İhlal Bildirimi</button><button type="button" data-leg="sorumluluk">Sorumluluk Reddi</button></div>
   <p>AI İz Analizi, Özgüler Forge’a ait bir araçtır. Sonuçlar olasılık ipucudur, kesin kanıt değildir. Metnin cihazında kalır.</p>
-  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 1.3 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
+  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 2.2 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
 </footer>
 
 <nav aria-label="Ana menü"><div>
   <a href="#analiz" class="on" data-t="analiz"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Analiz</a>
   <a href="#kalibrasyon" data-t="kalibrasyon"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Kalibrasyon</a>
+  <a href="#dogrulama" data-t="dogrulama"><svg viewBox="0 0 24 24"><path d="M5 12l4 4 10-10"/><path d="M4 20h16"/></svg>Doğrulama</a>
   <a href="#bilgi" data-t="bilgi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>Bilgi</a>
 </div></nav>
 
@@ -172,13 +194,15 @@ mark.h1{background:color-mix(in srgb,var(--mid) 30%,transparent)}mark.h2{backgro
 
 <script>
 var PH = ["elbette","tabii ki","umarım yardımcı olur","umarım bu yardımcı olur","özetle","sonuç olarak","şunu belirtmek gerekir","önemli bir nokta","bu bağlamda","dikkat çekici","dijital çağda","günümüzde","derinlemesine","her şeyden önce","bununla birlikte","öte yandan","unutulmamalıdır ki","göz ardı edilmemelidir","bir dizi","çok yönlü","certainly","i hope this helps","in conclusion","it is important to note","it's important to note","delve","in today's","moreover","furthermore","let me know if"];
+PH = PH.concat(["bir yapay zekâ olarak","bir yapay zeka olarak","dil modeli olarak","bilgi kesim","as an ai","kritik bir rol","önemli bir rol oynamaktadır","önemli bir rol oynar","hayati önem taşır","geniş bir yelpaze","sürekli gelişen","göz önünde bulundurulmalıdır","kapsamlı bir şekilde","kısacası"]);
+var PERSX = ["ben","bence","benim","bana","bende","beni","gördüm","sanırım","galiba","herhalde","açıkçası","hatırlıyorum","düşünüyorum","bizim","bize","biz"];
 var $ = function(id){ return document.getElementById(id); };
 var inp = $("inp"), timer;
 var DEF = {cvHi:0.35, cvLo:0.5, ttrHi:0.6, ttrLo:0.68, rrHi:0.06, rrLo:0.03, dHi:1.5, dLo:0.7};
 var TH = Object.assign({}, DEF);
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-function words(t){ return (t.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []); }
-function sentences(t){ var m = t.match(/[^.!?\u2026\n]+[.!?\u2026]*["')\]\u201D\u2019]*/g) || []; return m.map(function(s){ return s.trim(); }).filter(function(s){ return words(s).length > 0; }); }
+function words(t){ return (t.toLocaleLowerCase("tr").match(/[\p{L}\p{N}]+/gu) || []); }
+function sentences(t){ var P = t.replace(/(\d)\.(\d)/g,"$1\u0001$2").replace(/(^|[^\p{L}])(dr|prof|doç|yrd|sayın|sn|vb|vs|vd|örn|bkz|mah|cad|sok|apt|bul|müh|uzm|av)\./giu,"$1$2\u0002").replace(/(^|\n)[ \t]*(\d{1,2})\.(?=\s)/g,"$1$2\u0002"); var m = P.match(/[^.!?\u2026\n]+[.!?\u2026]*["')\]\u201D\u2019]*/g) || []; return m.map(function(x){ return x.replace(/[\u0001\u0002]/g,".").trim(); }).filter(function(x){ return words(x).length > 0; }); }
 function mean(a){ return a.reduce(function(x,y){return x+y;},0)/a.length; }
 function sd(a){ var m = mean(a); return Math.sqrt(a.reduce(function(x,y){return x+(y-m)*(y-m);},0)/a.length); }
 
@@ -255,7 +279,7 @@ function deep(text, W, S){
   });
   var figShare = S.length ? figN / S.length : 0, absDens = totAbs / n * 100;
   var low = tl(text);
-  var hasPers = finds(text, PERS).length > 0, hasDig = /\d/.test(text), hasProper = (text.match(/[^.!?\n]\s+\p{Lu}\p{L}+/gu) || []).length > 0;
+  var hasPers = W.some(function(w){ return PERSX.indexOf(w) !== -1; }), hasDig = /\d/.test(text), hasProper = (text.match(/[^.!?\n]\s+\p{Lu}\p{L}+/gu) || []).length > 0;
   var noPers = n >= 40 && !hasPers && !hasDig && !hasProper;
   var tri = (text.match(/[\p{L}]+, [\p{L}]+ ve [\p{L}]+/gu) || []).length;
   var aphN = F.some(function(f){ return f.aph; }) ? 1 : 0;
@@ -312,7 +336,8 @@ function deep(text, W, S){
 }
 
 function analyze(){
-  var text = inp.value, W = words(text), S = sentences(text), n = W.length;
+  var text = inp.value; if(text.length > 400000){ text = text.slice(0, 400000); $("fmsg").textContent = "Metin çok uzun: ilk 400.000 karakter analiz edildi."; }
+  var W = words(text), S = sentences(text), n = W.length;
   $("cnt").textContent = n + " kelime";
   var D = null;
   if(n >= 15){ try{ D = deep(text, W, S); }catch(err){ D = null; } }
@@ -562,9 +587,14 @@ var MDL = {
   dtypeGpu: "q4f16", dtypeCpu: "q8",
   win: 128, maxTok: 512, seg: 24
 };
+var MODELS = [
+  {id: "onnx-community/Qwen2.5-0.5B-Instruct", n: "Qwen2.5 0.5B (≈0,5 GB, varsayılan)"},
+  {id: "onnx-community/Qwen3-0.6B-ONNX", n: "Qwen3 0.6B (≈0,6 GB)"},
+  {id: "onnx-community/Qwen2.5-1.5B-Instruct", n: "Qwen2.5 1.5B (≈1,3 GB, güçlü cihaz, deneysel)"}
+];
 var M = {state: "off", tok: null, model: null, lib: null, dev: "", run: 0, res: null, busy: false, again: false}, PT = null, lastS = null, lastD = null, mtimer, mfiles = {};
 function h2f(h){ var s = (h & 0x8000) ? -1 : 1, e = (h >> 10) & 0x1f, f = h & 0x3ff; if(e === 0) return s * Math.pow(2, -14) * (f / 1024); if(e === 31) return f ? NaN : s * Infinity; return s * Math.pow(2, e - 15) * (1 + f / 1024); }
-function setM(st, msg){ M.state = st; $("mst").textContent = msg || ""; $("mgo").disabled = (st === "loading" || st === "ready"); $("mgo").textContent = st === "ready" ? "Model etkin" : "Modeli indir ve etkinleştir"; }
+function setM(st, msg){ M.state = st; $("mst").textContent = msg || ""; $("mgo").disabled = (st === "loading" || st === "ready"); $("msel").disabled = (st === "loading"); $("mgo").textContent = st === "ready" ? "Model etkin" : "Modeli indir ve etkinleştir"; }
 function onProg(p){
   if(!p || p.status !== "progress" || !p.total) return;
   mfiles[p.file] = {l: p.loaded, t: p.total};
@@ -696,8 +726,8 @@ if(/android|iphone|ipad|mobile/i.test(navigator.userAgent)) $("mmob").hidden = f
 /* Sekmeler (hash) */
 function route(){
   var h = (location.hash || "#analiz").slice(1); if(!$(h)) h = "analiz";
-  ["analiz","kalibrasyon","bilgi"].forEach(function(t){ $(t).classList.toggle("on", t === h); });
-  document.querySelectorAll("nav a").forEach(function(a){ a.classList.toggle("on", a.dataset.t === h); });
+  ["analiz","kalibrasyon","dogrulama","bilgi"].forEach(function(t){ $(t).classList.toggle("on", t === h); });
+  document.querySelectorAll("nav a").forEach(function(a){ var on = a.dataset.t === h; a.classList.toggle("on", on); if(on) a.setAttribute("aria-current","page"); else a.removeAttribute("aria-current"); });
   window.scrollTo(0,0);
 }
 window.addEventListener("hashchange", route); route();
@@ -715,7 +745,7 @@ kullanim: '<h3>Kullanım Koşulları</h3><p>Son güncelleme: 10 Kasım 2026</p>'
 gizlilik: '<h3>Gizlilik Politikası</h3><p>Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Metniniz</h4><p>Yapıştırdığınız metin yalnızca cihazınızdaki tarayıcıda analiz edilir. Sunucularımıza gönderilmez, kaydedilmez ve üçüncü kişilerle paylaşılmaz.</p>'
 + '<h4>İsteğe bağlı model modu</h4><p>“Model destekli ölçüm”ü etkinleştirirseniz tarayıcınız bir yazılım kütüphanesini cdn.jsdelivr.net üzerinden, model dosyalarını ise Hugging Face üzerinden indirir; bu sağlayıcılar IP adresinizi görebilir. Metniniz bu sağlayıcılara gönderilmez, ölçüm cihazınızda yapılır. Model dosyaları tarayıcı önbelleğinde saklanır ve “Modeli kaldır” ile silinir.</p><h4>Hesap, çerez ve izleme</h4><p>Uygulama hesap gerektirmez. Çerez, reklam veya izleme aracı kullanmaz.</p>'
-+ '<h4>Cihazda saklanan veriler</h4><p>Çevrimdışı çalışabilmesi için yalnızca uygulama dosyaları cihazınızda önbelleğe alınır. Metniniz saklanmaz. Kalibrasyon ayarları yalnızca açık oturumda bellekte tutulur. Geçmiş özelliğinde “Bu sonucu kaydet”e basarsanız tarih, kelime sayısı, puan ve (dosya yüklediyseniz) dosya adı yalnızca tarayıcınızın yerel deposunda saklanır, bu bilgiler bize gönderilmez. “Geçmişi sil” ile silebilirsiniz.</p>'
++ '<h4>Cihazda saklanan veriler</h4><p>Çevrimdışı çalışabilmesi için yalnızca uygulama dosyaları cihazınızda önbelleğe alınır. Metniniz saklanmaz. Kalibrasyon ayarları varsayılan olarak yalnızca açık oturumda bellekte tutulur; “Bu cihazda sakla”ya basarsanız eşik değerleri tarayıcınızın yerel deposuna yazılır, metinleriniz yine saklanmaz. Tema tercihiniz de yerel depoda tutulur. Geçmiş özelliğinde “Bu sonucu kaydet”e basarsanız tarih, kelime sayısı, puan ve (dosya yüklediyseniz) dosya adı yalnızca tarayıcınızın yerel deposunda saklanır, bu bilgiler bize gönderilmez. “Geçmişi sil” ile silebilirsiniz.</p>'
 + '<h4>İletişim</h4><p>' + MAIL + '</p>',
 kvkk: '<h3>KVKK Aydınlatma Metni</h3><p>6698 sayılı Kişisel Verilerin Korunması Kanunu’nun (KVKK) 10. maddesi kapsamında hazırlanmıştır. Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Veri sorumlusu</h4><p>Özgüler Forge (ozgulerforge.com.tr). İletişim: ' + MAIL + '</p>'
@@ -747,7 +777,7 @@ kullanim: '<h3>Terms of Use</h3><p>Last updated: November 10, 2026</p>'
 gizlilik: '<h3>Privacy Policy</h3><p>Last updated: November 10, 2026</p>'
 + '<h4>Your text</h4><p>The text you paste is analyzed only in the browser on your device. It is not sent to our servers, stored, or shared with third parties.</p>'
 + '<h4>Optional model mode</h4><p>If you enable “Model destekli ölçüm” (model-assisted measurement), your browser downloads a software library from cdn.jsdelivr.net and model files from Hugging Face; these providers can see your IP address. Your text is not sent to them, the measurement runs on your device. Model files are stored in the browser cache and are deleted with “Modeli kaldır” (remove model).</p><h4>Accounts, cookies and tracking</h4><p>The app does not require an account. It uses no cookies, advertising or tracking tools.</p>'
-+ '<h4>Data stored on your device</h4><p>Only the app files are cached on your device so that it can work offline. Your text is not stored. Calibration settings are kept in memory only during the open session. If you press “Bu sonucu kaydet” (save this result) in the history feature, the date, word count, score and (if you uploaded a file) the file name are stored only in your browser’s local storage and are not sent to us. You can remove them with “Geçmişi sil” (delete history).</p>'
++ '<h4>Data stored on your device</h4><p>Only the app files are cached on your device so that it can work offline. Your text is not stored. By default, calibration settings are kept in memory only during the open session; if you press “Bu cihazda sakla” (save on this device), the threshold values are written to your browser’s local storage and your texts are still not stored. Your theme preference is also kept in local storage. If you press “Bu sonucu kaydet” (save this result) in the history feature, the date, word count, score and (if you uploaded a file) the file name are stored only in your browser’s local storage and are not sent to us. You can remove them with “Geçmişi sil” (delete history).</p>'
 + '<h4>Contact</h4><p>' + MAIL + '</p>',
 kvkk: '<h3>KVKK Privacy Notice</h3><p>This notice is provided under Article 10 of the Turkish Personal Data Protection Law No. 6698 (KVKK). Last updated: November 10, 2026</p>'
 + '<h4>Data controller</h4><p>Özgüler Forge (ozgulerforge.com.tr). Contact: ' + MAIL + '</p>'
@@ -772,6 +802,132 @@ sorumluluk: '<h3>Disclaimer</h3>'
 document.querySelectorAll("[data-leg]").forEach(function(b){ b.addEventListener("click", function(){ $("dbody").innerHTML = LEG[b.dataset.leg] + '<hr class="en-sep"><div lang="en">' + LEG_EN[b.dataset.leg] + '</div>'; $("dbody").parentNode.scrollTop = 0; $("dlg").showModal(); }); });
 $("dclose").addEventListener("click", function(){ $("dlg").close(); });
 $("dlg").addEventListener("click", function(e){ if(e.target === $("dlg")) $("dlg").close(); });
+
+/* v2.0 eklemeleri */
+(function(){
+  try{ var mid = localStorage.getItem("aiiz_model"); if(mid && MODELS.some(function(m){ return m.id === mid; })) MDL.id = mid; }catch(e){}
+  var TK = "aiiz_theme", CK = "aiiz_cal", root = document.documentElement, tb = $("thm"), cyc = {auto: "light", light: "dark", dark: "auto"};
+  function gt(){ try{ return localStorage.getItem(TK) || "auto"; }catch(e){ return "auto"; } }
+  function applyTheme(m){
+    if(cyc[m] === undefined) m = "auto";
+    if(m === "auto") root.removeAttribute("data-theme"); else root.setAttribute("data-theme", m);
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function(x){
+      if(!x.dataset.o) x.dataset.o = x.getAttribute("content");
+      x.setAttribute("content", m === "auto" ? x.dataset.o : (m === "dark" ? "#0b0a1a" : "#f6f3ff"));
+    });
+    tb.textContent = m === "auto" ? "Otomatik" : m === "dark" ? "Koyu" : "Açık";
+    tb.setAttribute("aria-label", "Tema: " + tb.textContent + ". Değiştirmek için dokun.");
+  }
+  tb.addEventListener("click", function(){ var m = cyc[gt()] || "auto"; try{ localStorage.setItem(TK, m); }catch(e){} applyTheme(m); });
+  applyTheme(gt());
+
+  $("calSave").addEventListener("click", function(){
+    try{ localStorage.setItem(CK, JSON.stringify({TH: TH, PT: PT, id: MDL.id})); $("calOut").insertAdjacentHTML("beforeend", "<p class='warn'>Kalibrasyon bu cihazda saklandı.</p>"); }
+    catch(e){ $("calOut").insertAdjacentHTML("beforeend", "<p class='warn'>Bu tarayıcı yerel depolamaya izin vermiyor.</p>"); }
+  });
+  $("calReset").addEventListener("click", function(){ try{ localStorage.removeItem(CK); }catch(e){} });
+  try{ var o = JSON.parse(localStorage.getItem(CK) || "null"); if(o && o.TH){ TH = Object.assign({}, DEF, o.TH); PT = (o.PT && o.id === MDL.id) ? o.PT : null; $("calOut").textContent = "Kayıtlı kalibrasyon yüklendi."; } }catch(e){}
+
+  $("hcsv").addEventListener("click", function(){
+    var a = hget(); if(!a.length){ $("hmsg").textContent = "Dışa aktarılacak kayıt yok."; return; }
+    var rows = ["tarih,kelime,puan,sonuc,dosya"].concat(a.map(function(x){
+      return [new Date(x.t).toISOString(), x.w, x.s, x.b, x.f || ""].map(function(v){ v = String(v); if(/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }).join(",");
+    }));
+    var u = URL.createObjectURL(new Blob(["\ufeff" + rows.join("\r\n")], {type: "text/csv;charset=utf-8"})), l = document.createElement("a");
+    l.href = u; l.download = "ai-iz-gecmis.csv"; document.body.appendChild(l); l.click(); l.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 1000);
+  });
+
+  try{ var q = new URLSearchParams(location.search), st = [q.get("title"), q.get("text")].filter(Boolean).join("\n\n"); if(st){ inp.value = st.slice(0, 400000); history.replaceState(null, "", location.pathname + location.hash); } }catch(e){}
+})();
+
+/* Model seçici */
+(function(){
+  var sel = $("msel");
+  MODELS.forEach(function(m){ var o = document.createElement("option"); o.value = m.id; o.textContent = m.n; sel.appendChild(o); });
+  sel.value = MDL.id;
+  sel.addEventListener("change", function(){
+    try{ localStorage.setItem("aiiz_model", sel.value); }catch(e){}
+    try{ if(M.model && M.model.dispose) M.model.dispose(); }catch(e){}
+    MDL.id = sel.value; M.model = null; M.tok = null; PT = null; M.res = null; clearTimeout(mtimer); M.run++;
+    setM("off", "Model değişti. İndirmek için düğmeye bas. Eşikler modele özeldir, Kalibrasyon veya Doğrulama ile yeniden ayarla.");
+    $("mres").innerHTML = ""; analyze();
+  });
+})();
+
+/* Doğrulama (isabet ölçümü) */
+(function(){
+  function sp(v){ return v.split(/^\s*={3,}\s*$/m).map(function(t){ return t.trim(); }).filter(function(t){ return words(t).length >= 40; }); }
+  function wil(k, n){ if(!n) return [0, 0]; var z = 1.96, p = k / n, d = 1 + z*z/n, c = p + z*z/(2*n), r = z * Math.sqrt(p*(1-p)/n + z*z/(4*n*n)); return [(c - r)/d, (c + r)/d]; }
+  function pc(x){ return Math.round(x * 100) + "%"; }
+  function ci(k, n){ var w = wil(k, n); return pc(n ? k/n : 0) + " (" + pc(w[0]) + "–" + pc(w[1]) + ")"; }
+  function auc(h, a){ var w = 0; a.forEach(function(x){ h.forEach(function(y){ w += x > y ? 1 : x === y ? 0.5 : 0; }); }); return w / (h.length * a.length); }
+  function ge(arr, t){ return arr.filter(function(x){ return x >= t; }).length; }
+  var withM = false;
+  async function score(list, label){
+    var out = [], keep = {m: M.state, v: inp.value}; M.state = "eval";
+    try{
+      for(var i = 0; i < list.length; i++){
+        inp.value = list[i]; analyze();
+        if(cur !== null){
+          var it = {s: cur, w: words(list[i]).length, p: null};
+          if(withM){ try{ var rr = mdlMetrics(await mdlScore(list[i])); if(rr) it.p = rr.ppl; }catch(e){} }
+          out.push(it);
+        }
+        $("vSt").textContent = label + ": " + (i + 1) + " / " + list.length;
+        await new Promise(function(r){ setTimeout(r, 0); });
+      }
+    } finally { M.state = keep.m; inp.value = keep.v; analyze(); }
+    return out;
+  }
+  $("vGo").addEventListener("click", async function(){
+    var H = sp($("vH").value), A = sp($("vA").value), out = $("vOut");
+    if(H.length < 3 || A.length < 3){ $("vSt").textContent = "Her iki gruptan en az 3 metin gerekir."; return; }
+    $("vGo").disabled = true; out.innerHTML = ""; withM = M.state === "ready" && $("vM").checked;
+    var hs = await score(H, "İnsan metinleri"), as = await score(A, "AI metinleri");
+    $("vGo").disabled = false; $("vSt").textContent = "";
+    var hv = hs.map(function(x){ return x.s; }), av = as.map(function(x){ return x.s; }), nH = hv.length, nA = av.length;
+    if(!nH || !nA){ $("vSt").textContent = "Metinler ölçülemedi."; return; }
+    var best = {j: -1, t: 0};
+    for(var t = 0; t <= 100; t++){ var j = ge(av, t)/nA - ge(hv, t)/nH; if(j > best.j) best = {j: j, t: t}; }
+    function row(name, t){ var fp = ge(hv, t), tp = ge(av, t), acc = (nH - fp + tp) / (nH + nA); return "<tr><td>" + name + " (≥" + t + ")</td><td>" + ci(fp, nH) + "</td><td>" + ci(tp, nA) + "</td><td>" + pc(acc) + "</td></tr>"; }
+    var bk = [["0–149", 0, 150], ["150–499", 150, 500], ["500+", 500, 1e9]].map(function(b){
+      var x = hs.filter(function(q){ return q.w >= b[1] && q.w < b[2]; }); return "<tr><td>" + b[0] + " kelime</td><td>" + x.length + "</td><td>" + (x.length ? ci(x.filter(function(q){ return q.s >= 50; }).length, x.length) : "–") + "</td></tr>";
+    }).join("");
+    var bins = ""; for(var b = 0; b < 10; b++){ var lo = b*10, hi = b === 9 ? 101 : lo + 10; bins += "<tr><td>" + lo + "–" + (b === 9 ? 100 : lo + 9) + "</td><td>" + hv.filter(function(x){ return x >= lo && x < hi; }).length + "</td><td>" + av.filter(function(x){ return x >= lo && x < hi; }).length + "</td></tr>"; }
+    var a = auc(hv, av), small = nH < 30 || nA < 30, modelHtml = "", VP = null;
+    if(withM){
+      var hp = hs.filter(function(q){ return q.p !== null; }).map(function(q){ return q.p; }), ap = as.filter(function(q){ return q.p !== null; }).map(function(q){ return q.p; });
+      if(hp.length >= 3 && ap.length >= 3){
+        var cand = hp.concat(ap).sort(function(x, y){ return x - y; }), bj = -2, bt = cand[0];
+        cand.forEach(function(t){ var j = ap.filter(function(x){ return x <= t; }).length / ap.length - hp.filter(function(x){ return x <= t; }).length / hp.length; if(j > bj){ bj = j; bt = t; } });
+        var tpv = ap.filter(function(x){ return x <= bt; }).length, fpv = hp.filter(function(x){ return x <= bt; }).length, aps = ap.slice().sort(function(x, y){ return x - y; }), med = aps[Math.floor(aps.length / 2)];
+        VP = {lo: bt, hi: med < bt ? med : bt * 0.7};
+        modelHtml = "<h3>Model şaşkınlığı (" + esc(MDL.id.split("/")[1]) + ")</h3><p><b>AUC: " + auc(ap, hp).toFixed(2) + "</b> · " + hp.length + " insan, " + ap.length + " AI metni. En iyi eşik (şaşkınlık ≤ " + bt.toFixed(1) + "): yanlış alarm " + ci(fpv, hp.length) + ", yakalama " + ci(tpv, ap.length) + ".</p><p class='warn'>Aynı verileri başka bir modelle de çalıştır, AUC’si en yüksek olanı seç. Eşik bu örneğe göre seçildi.</p><button class='btn ghost' id='vApply' type='button'>Bu eşiği model kalibrasyonu yap</button>";
+      } else modelHtml = "<p class='warn'>Model ölçümü için yeterli metin ölçülemedi.</p>";
+    }
+    out.innerHTML = '<div class="deep"><h3>Sonuç</h3><p><b>AUC: ' + a.toFixed(2) + '</b> · ' + nH + ' insan, ' + nA + ' AI metni ölçüldü (0,5 şans düzeyi, 1,0 kusursuz ayrım).</p>'
+      + (small ? "<p class='warn'>Örnek sayısı az (30’un altı). Güven aralıkları çok geniş, sonucu kesin sayma.</p>" : "")
+      + '<div class="tbl"><table><thead><tr><th>Eşik</th><th>Yanlış alarm (insan→AI)</th><th>Yakalama (AI→AI)</th><th>Doğruluk</th></tr></thead><tbody>' + row("Belirsiz bandı", 25) + row("Güçlü AI izi", 50) + row("En iyi ayırıcı", best.t) + '</tbody></table></div>'
+      + "<p class='warn'>Parantez içi %95 güven aralığıdır. En iyi eşik bu örneğe göre seçildi, bağımsız bir sette tekrar doğrula. Yanlış alarm oranı yüksekse sonucu kişiler hakkında karar için kullanma.</p>"
+      + "<h3>Yanlış alarm, metin uzunluğuna göre (güçlü eşik)</h3><div class='tbl'><table><thead><tr><th>Uzunluk</th><th>İnsan metni</th><th>≥50 çıkan</th></tr></thead><tbody>" + bk + "</tbody></table></div>"
+      + "<h3>Puan dağılımı</h3><div class='tbl'><table><thead><tr><th>Puan</th><th>İnsan</th><th>AI</th></tr></thead><tbody>" + bins + "</tbody></table></div>" + modelHtml + "</div>";
+    var ab = $("vApply"); if(ab) ab.addEventListener("click", function(){ PT = VP; ab.textContent = "Uygulandı"; analyze(); });
+  });
+  $("vFile").addEventListener("click", function(){ $("vIn").click(); });
+  $("vIn").addEventListener("change", function(){
+    var f = $("vIn").files[0]; if(!f) return;
+    f.text().then(function(t){
+      var H = [], A = [], bad = 0;
+      if(/\.txt$/i.test(f.name)){ $("vH").value += ($("vH").value ? "\n===\n" : "") + t; $("vSt").textContent = "TXT insan kutusuna eklendi."; return; }
+      t.split(/\r?\n/).forEach(function(l){
+        if(!l.trim()) return;
+        try{ var o = JSON.parse(l), lb = String(o.label).toLowerCase(), tx = String(o.text || ""); if(/^(human|insan|0)$/.test(lb)) H.push(tx); else if(/^(ai|yapay|1)$/.test(lb)) A.push(tx); else bad++; }catch(e){ bad++; }
+      });
+      $("vH").value = H.join("\n===\n"); $("vA").value = A.join("\n===\n");
+      $("vSt").textContent = H.length + " insan, " + A.length + " AI metni yüklendi." + (bad ? " Okunamayan satır: " + bad : "");
+    }); $("vIn").value = "";
+  });
+})();
 
 /* PWA: kurulum ve çevrimdışı */
 var dp;
