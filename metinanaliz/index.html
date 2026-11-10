@@ -84,8 +84,12 @@ footer .fl{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:12px}
 footer .fl button,footer .upd{all:unset;cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;font-size:14px}
 footer .upd{color:var(--accent2);font-weight:700;text-decoration:none}
 footer a{color:var(--accent2);font-weight:600}
+mark.h1{background:color-mix(in srgb,var(--mid) 30%,transparent)}mark.h2{background:color-mix(in srgb,var(--mid) 60%,var(--hi) 20%)}mark.h3{background:color-mix(in srgb,var(--hi) 48%,transparent)}.leg{font-size:12.5px;color:var(--mute);margin:8px 0 0}.leg i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-1px;margin:0 3px 0 8px}.row.tools{margin:0 0 10px}.row.tools .btn{margin-top:0}
+#prt{display:none}
+@media(max-width:520px){.deep th:nth-child(3),.deep td:nth-child(3){display:none}}
 .deep h3{margin:18px 0 6px;font-size:16px}.deep p{margin:6px 0;font-size:14.5px}.deep .lead{color:var(--mute)}.deep .tbl{overflow-x:auto;margin:6px 0}.deep table{border-collapse:collapse;width:100%;font-size:13.5px}.deep th,.deep td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}.deep th{color:var(--mute);font-weight:700;font-size:12.5px}.deep td:first-child{min-width:150px}.deep ol.dl{padding-left:20px;margin:6px 0}.deep ol.dl li{margin:8px 0;font-size:14.5px;color:var(--mute)}.deep ol.dl b{color:var(--ink)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media print{body>*:not(#prt){display:none!important}#prt{display:block!important;color:#111;font-family:system-ui,sans-serif;padding:8px}:root:not([data-theme="x"]){--ink:#111;--mute:#444;--line:#ccc;--solid:#fff;--panel:#fff}html,body{background:#fff!important}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}#prt .view{max-height:none;overflow:visible}#prt table{border-collapse:collapse;width:100%}#prt th,#prt td{border-bottom:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top;font-size:12px}#prt h1{font-size:22px}#prt h3{break-after:avoid}#prt tr,#prt .sig,#prt li{break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -100,18 +104,24 @@ footer a{color:var(--accent2);font-weight:600}
   <div class="card">
     <label for="inp">Metin</label>
     <textarea id="inp" placeholder="En az 1000 kelimelik bir metin yapıştır"></textarea>
-    <div class="row"><button class="btn ghost" id="paste" type="button">Panodan yapıştır</button><button class="btn ghost" id="clr" type="button">Temizle</button><span class="counter" id="cnt">0 kelime</span></div>
+    <div class="row"><button class="btn ghost" id="paste" type="button">Panodan yapıştır</button><button class="btn ghost" id="clr" type="button">Temizle</button><button class="btn ghost" id="fbtn" type="button">Dosya yükle</button><button class="btn ghost" id="refb" type="button">Referans yap</button><input type="file" id="fin" accept=".txt,.md,.docx" multiple hidden><span class="counter" id="cnt">0 kelime</span></div>
+    <p class="warn" id="fmsg" role="status">txt, md ve docx dosyaları yüklenebilir. Birden fazla dosya seçersen toplu analiz yapılır.</p>
   </div>
+  <div class="card" id="batch" hidden></div>
   <div class="card gauge" aria-live="polite">
     <div class="ring"><svg viewBox="0 0 108 108"><circle class="bg" cx="54" cy="54" r="46"/><circle class="fg" id="fill" cx="54" cy="54" r="46"/></svg><b id="score">–</b></div>
     <div><div class="band" id="band">Metin bekleniyor</div><div id="meta" class="warn"></div></div>
   </div>
+  <div class="card" id="cmp" hidden></div>
   <h2>Ayrıntılı değerlendirme</h2>
+  <div class="row tools"><button class="btn ghost" id="pdfb" type="button">Raporu PDF kaydet</button><button class="btn ghost" id="cpyb" type="button">Raporu kopyala</button></div>
   <div class="card deep" id="deep"><p class="warn">Metin girince ayrıntılı değerlendirme burada görünür.</p></div>
   <h2>Ölçülen işaretler (istatistik)</h2>
   <div class="card" id="rows"></div>
   <h2>İşaretlenen cümleler ve öneriler</h2>
-  <div class="card"><div class="view" id="view">Henüz metin yok.</div><ul class="why" id="why"></ul></div>
+  <div class="card"><div class="view" id="view">Henüz metin yok.</div><p class="leg">Vurgu yoğunluğu: <i style="background:color-mix(in srgb,var(--mid) 30%,transparent)"></i>hafif<i style="background:color-mix(in srgb,var(--mid) 60%,var(--hi) 20%)"></i>orta<i style="background:color-mix(in srgb,var(--hi) 48%,transparent)"></i>güçlü</p><ul class="why" id="why"></ul></div>
+  <h2>Geçmiş (isteğe bağlı)</h2>
+  <div class="card"><p class="warn" style="margin-top:0">Metin saklanmaz. “Bu sonucu kaydet”e basarsan yalnızca tarih, kelime sayısı, puan (ve dosya adı) bu cihazda saklanır.</p><div class="row"><button class="btn ghost" id="hsave" type="button">Bu sonucu kaydet</button><button class="btn ghost" id="hclr" type="button">Geçmişi sil</button></div><p class="warn" id="hmsg" role="status"></p><ul class="why" id="hlist"></ul></div>
 </section>
 
 <section id="kalibrasyon">
@@ -127,7 +137,7 @@ footer a{color:var(--accent2);font-weight:600}
 
 <section id="bilgi">
   <div class="card"><b>Nasıl çalışır?</b><p class="sub" style="margin-bottom:0">Cümle uzunluğu değişkenliği, kelime çeşitliliği, tekrar eden kalıplar, geçiş ifadeleri ve biçim artıkları ölçülür. Hiçbir sunucuya veri gönderilmez, analiz tamamen tarayıcında çalışır. Sonuç olasılık ipucudur, kanıt değildir.</p></div>
-  <h2>Sık sorulanlar</h2><div class="faq"><details><summary>Metnim nereye gidiyor?</summary><p>Hiçbir yere. Analiz tamamen cihazındaki tarayıcıda yapılır. Metin sunucuya gönderilmez ve kaydedilmez.</p></details><details><summary>Sonuç ne kadar güvenilir?</summary><p>Sonuç bir olasılık ipucudur, kanıt değildir. Güvenilir bir okuma için en az 1000 kelimelik metin önerilir. Kısa metinlerde sonuç dalgalanır.</p></details><details><summary>Kendi yazdığım metin neden yüksek çıkabilir?</summary><p>Düzenli yazan, resmî dil kullanan veya Türkçeyi ikinci dil olarak yazan kişilerin metinleri de AI’a benzer çıkabilir. Bu yüzden sonuçla kimseyi suçlama veya not verme.</p></details><details><summary>Kalibrasyon ne işe yarar?</summary><p>Kendi yazdığın birkaç metinle eşikleri senin tarzına göre ayarlar. Böylece kendi metinlerin gereksiz yere işaretlenmez. Ayar sayfa yenilenince sıfırlanır.</p></details><details><summary>Çevrimdışı çalışır mı?</summary><p>Evet. İlk açılıştan sonra uygulama dosyaları cihazda saklanır, internet olmadan da kullanabilirsin.</p></details><details><summary>Telefona nasıl kurarım?</summary><p>Android’de Chrome’da “Yükle” düğmesine dokun. iPhone’da Safari’de Paylaş simgesinden “Ana Ekrana Ekle” seç.</p></details><details><summary>Hangi dillerde çalışır?</summary><p>Kalıp ifade listesi Türkçe ve İngilizce için hazırlanmıştır. Diğer ölçümler dilden bağımsız çalışır ama en iyi sonucu Türkçe metinlerde verir.</p></details></div>
+  <h2>Sık sorulanlar</h2><div class="faq"><details><summary>Metnim nereye gidiyor?</summary><p>Hiçbir yere. Analiz tamamen cihazındaki tarayıcıda yapılır. Metin sunucuya gönderilmez ve kaydedilmez.</p></details><details><summary>Sonuç ne kadar güvenilir?</summary><p>Sonuç bir olasılık ipucudur, kanıt değildir. Güvenilir bir okuma için en az 1000 kelimelik metin önerilir. Kısa metinlerde sonuç dalgalanır.</p></details><details><summary>Kendi yazdığım metin neden yüksek çıkabilir?</summary><p>Düzenli yazan, resmî dil kullanan veya Türkçeyi ikinci dil olarak yazan kişilerin metinleri de AI’a benzer çıkabilir. Bu yüzden sonuçla kimseyi suçlama veya not verme.</p></details><details><summary>Kalibrasyon ne işe yarar?</summary><p>Kendi yazdığın birkaç metinle eşikleri senin tarzına göre ayarlar. Böylece kendi metinlerin gereksiz yere işaretlenmez. Ayar sayfa yenilenince sıfırlanır.</p></details><details><summary>Çevrimdışı çalışır mı?</summary><p>Evet. İlk açılıştan sonra uygulama dosyaları cihazda saklanır, internet olmadan da kullanabilirsin.</p></details><details><summary>Telefona nasıl kurarım?</summary><p>Android’de Chrome’da “Yükle” düğmesine dokun. iPhone’da Safari’de Paylaş simgesinden “Ana Ekrana Ekle” seç.</p></details><details><summary>Hangi dillerde çalışır?</summary><p>Kalıp ifade listesi Türkçe ve İngilizce için hazırlanmıştır. Diğer ölçümler dilden bağımsız çalışır ama en iyi sonucu Türkçe metinlerde verir.</p></details><details><summary>Yöntem nasıl çalışıyor?</summary><p>İki katman var. İstatistik katmanı cümle uzunluğu değişkenliğini, kelime çeşitliliğini, tekrarları ve kalıp ifadeleri ölçer. Niteliksel katman benzetmeleri, kişileştirmeleri, kalıplaşmış ifadeleri, soyut duygu sözcüklerini ve özdeyiş kapanışını arar. Genel puan ikisinin ağırlıklı ortalamasıdır (%40 istatistik, %60 niteliksel).</p></details><details><summary>Doğruluk oranı nedir?</summary><p>Bu sürüm kurallara ve sözcük listelerine dayanır, bir dil modeli değildir. Ölçülmüş bir doğruluk oranı yayımlanmadı. Yanlış pozitif ve yanlış negatif sonuçlar çıkabilir, bu yüzden sonuç tek başına karar için kullanılmamalıdır.</p></details><details><summary>Dosya yükleyebilir miyim?</summary><p>txt, md ve docx dosyaları yüklenebilir, birden fazla dosya seçersen toplu analiz yapılır. Dosya yalnızca cihazında okunur, sunucuya gönderilmez. PDF henüz desteklenmiyor.</p></details><details><summary>Sürüm notları (1.2)</summary><p>Ayrıntılı değerlendirme, cümle ısı haritası, güvenilirlik bölümü, dosya yükleme ve toplu analiz, referansla karşılaştırma, PDF rapor, isteğe bağlı yerel geçmiş.</p></details></div>
   <h2>İletişim</h2>
   <div class="links">
     <a href="mailto:iletisim@ozguler.com.tr">iletisim@ozguler.com.tr<span>E-posta</span></a>
@@ -138,7 +148,7 @@ footer a{color:var(--accent2);font-weight:600}
 <footer>
   <div class="fl"><button type="button" data-leg="kullanim">Kullanım Koşulları</button><button type="button" data-leg="gizlilik">Gizlilik</button><button type="button" data-leg="kvkk">KVKK Aydınlatma</button><button type="button" data-leg="kabul">Kabul Edilebilir Kullanım</button><button type="button" data-leg="ihlal">İçerik / İhlal Bildirimi</button><button type="button" data-leg="sorumluluk">Sorumluluk Reddi</button></div>
   <p>AI İz Analizi, Özgüler Forge’a ait bir araçtır. Sonuçlar olasılık ipucudur, kesin kanıt değildir. Metnin cihazında kalır.</p>
-  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 1.1 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
+  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 1.2 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
 </footer>
 
 <nav aria-label="Ana menü"><div>
@@ -147,6 +157,7 @@ footer a{color:var(--accent2);font-weight:600}
   <a href="#bilgi" data-t="bilgi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>Bilgi</a>
 </div></nav>
 
+<div id="prt" aria-hidden="true"></div>
 <dialog id="dlg"><div class="in"><div id="dbody"></div><button class="btn" id="dclose" type="button">Kapat</button></div></dialog>
 
 <script>
@@ -279,8 +290,15 @@ function deep(text, W, S){
   });
   h += adv.length ? "<ul class='why'>" + adv.slice(0, 6).join("") + "</ul>" : "<p>Cümle bazında öneri gerekmiyor.</p>";
   h += "<p><b>Genel ilkeler:</b></p><ul class='why'><li>Gözlemlenen somut ayrıntıyı öne çıkar.</li><li>Gereksiz benzetmeleri azalt.</li><li>Duyguyu koru, ama okuyucuya dikte etme.</li><li>Cümle uzunluğunu ve tonu değiştir, araya sade cümleler koy.</li></ul>";
+  var conf = n < 100 ? ["Düşük", "Metin çok kısa (" + n + " kelime)."] : n < 300 ? ["Düşük-orta", "Metin kısa (" + n + " kelime)."] : n < 1000 ? ["Orta", "Metin orta uzunlukta (" + n + " kelime)."] : ["Yeterli", "Metin uzunluğu ölçüm için yeterli."];
+  var why5 = ["Değerlendirme kurallara ve sözcük listelerine dayanır; bir dil modeli değildir ve her kalıbı tanımaz."];
+  if(figShare >= 0.5) why5.push("Edebî, şiirsel veya duygusal yazan insanlar da benzer benzetme ve kalıplar kullanır.");
+  if(n < 150 || S.length < 6) why5.push("Kısa metinlerde birkaç ifade puanı büyük ölçüde değiştirir.");
+  why5.push("Resmî dil kullanan ya da Türkçeyi ikinci dil olarak yazan kişilerin metinleri de yüksek çıkabilir.");
+  why5.push("Sonucu tek başına suçlama, not verme veya karar için kullanma.");
+  h += "<h3>5. Güvenilirlik ve sınırlar</h3><p><b>Güvenilirlik: " + conf[0] + "</b> · " + conf[1] + "</p><p>Bu sonuç yanılmış olabilir, çünkü:</p><ul class='why'>" + why5.map(function(x){ return "<li>" + x + "</li>"; }).join("") + "</ul>";
   h += "<p><b>Son söz:</b> " + (score >= 55 ? "Metin edebî açıdan başarılı olabilir, ancak doğal bir anlatımdan çok süslenmiş, yapay zekâ üslubunu andırıyor. İyi bir anlatım, ne hissettirmesi gerektiğini söylemez; okuyanın duyguyu kendisinin keşfetmesine izin verir." : score >= 30 ? "Bazı kalıplar dikkat çekiyor, ancak bunlar insan yazılarında da sık görülür. Yukarıdaki önerileri uygulamak anlatımı daha doğal kılar." : "Belirgin bir yapay zekâ üslubu görünmüyor. Yine de sonuç kesin değildir.") + "</p>";
-  return {score: score, html: h};
+  return {score: score, html: h, W: F.map(function(f){ return f.w; }), tags: F.map(function(f){ var t = []; if(f.sim.length) t.push("benzetme"); if(f.pers.length) t.push("kişileştirme"); if(f.cli.length) t.push("kalıplaşmış ifade"); if(f.exp.length) t.push("duyguyu açıklayan fiil"); if(f.abs.length) t.push("soyut duygu sözcüğü"); if(f.aph) t.push("özdeyiş kapanışı"); return t; })};
 }
 
 function analyze(){
@@ -290,7 +308,7 @@ function analyze(){
   if(n >= 15){ try{ D = deep(text, W, S); }catch(err){ D = null; } }
   $("deep").innerHTML = D ? D.html : "<p class='warn'>Ayrıntılı değerlendirme için en az 15 kelime gerekir.</p>";
   if(n < 40){
-    if(D){ var bb = D.score >= 50 ? ["Güçlü AI izi var", "var(--hi)"] : D.score >= 25 ? ["Belirsiz, bazı işaretler var", "var(--mid)"] : ["Belirgin iz görünmüyor", "var(--lo)"]; $("band").textContent = bb[0]; $("band").style.color = bb[1]; setScore(D.score, bb[1]); $("meta").textContent = "Kısa metin: yalnızca niteliksel değerlendirme (" + D.score + "/100)"; $("rows").innerHTML = "<p class='warn'>İstatistiksel işaretler için en az 40 kelime gerekir.</p>"; $("view").textContent = "Henüz yeterli metin yok."; $("why").innerHTML = ""; return; }
+    if(D){ var bb = D.score >= 50 ? ["Güçlü AI izi var", "var(--hi)"] : D.score >= 25 ? ["Belirsiz, bazı işaretler var", "var(--mid)"] : ["Belirgin iz görünmüyor", "var(--lo)"]; $("band").textContent = bb[0]; $("band").style.color = bb[1]; setScore(D.score, bb[1]); cur = D.score; $("meta").textContent = "Kısa metin: yalnızca niteliksel değerlendirme (" + D.score + "/100)"; $("rows").innerHTML = "<p class='warn'>İstatistiksel işaretler için en az 40 kelime gerekir.</p>"; $("view").textContent = "Henüz yeterli metin yok."; $("why").innerHTML = ""; return; }
     $("band").textContent = "Metin bekleniyor"; $("band").style.color = ""; setScore(null);
     $("meta").textContent = n ? "Analiz için en az 40 kelime gerekir, güvenilir sonuç için 1000 ve üzeri." : "";
     $("rows").innerHTML = "<p class='warn'>Metin girince işaretler burada görünür.</p>"; $("view").textContent = "Henüz metin yok."; $("why").innerHTML = ""; return;
@@ -333,6 +351,7 @@ function analyze(){
   add("Biçim artıkları", "Markdown " + md + ", görünmez " + inv + ", uzun tire " + em, p6, 10, "Sohbet çıktısından kopyalanmış metinlerde görülür. Başka kaynaklardan da gelebilir.");
   total = Math.min(100, total);
   var statTotal = total; if(D) total = Math.round(0.4*statTotal + 0.6*D.score);
+  cur = total;
   $("rows").innerHTML = sig.join("");
   var band = total >= 50 ? ["Güçlü AI izi var", "var(--hi)"] : total >= 25 ? ["Belirsiz, bazı işaretler var", "var(--mid)"] : ["Belirgin iz görünmüyor", "var(--lo)"];
   $("band").textContent = band[0]; $("band").style.color = band[1]; setScore(total, band[1]);
@@ -343,13 +362,17 @@ function analyze(){
     PH.forEach(function(ph){ if(sl.indexOf(ph) !== -1) rs.push("kalıp ifade: " + ph); });
     if(rep5 && starts[si] === top) rs.push("tekrar eden cümle başı: " + top);
     if(si >= 2 && Math.abs(L[si]-L[si-1]) <= 1 && Math.abs(L[si-1]-L[si-2]) <= 1 && L[si] >= 8) rs.push("üst üste benzer uzunlukta 3 cümle");
-    html += (si ? " " : "") + (rs.length ? '<mark title="' + esc(rs.join("; ")) + '">' + esc(s) + "</mark>" : esc(s));
-    if(rs.length) why.push("<li>" + esc(s.length > 70 ? s.slice(0,70) + "…" : s) + " → " + esc(rs.join("; ")) + "<br><em>Öneri: " + esc(rs.map(tip).join(" ")) + "</em></li>");
+    var dw = D ? D.W[si] : 0, all = rs.concat(D ? D.tags[si] : []);
+    var lvl = dw >= 5 ? 3 : dw >= 3 ? 2 : (dw >= 1 || rs.length) ? 1 : 0;
+    html += (si ? " " : "") + (lvl ? '<mark class="h' + lvl + '" title="' + esc(all.join("; ")) + '">' + esc(s) + "</mark>" : esc(s));
+    if(lvl) why.push("<li>" + esc(s.length > 70 ? s.slice(0,70) + "…" : s) + " → " + esc(all.join("; ")) + "<br><em>Öneri: " + esc(all.map(tip).join(" ")) + "</em></li>");
   });
   $("view").innerHTML = html;
   $("why").innerHTML = why.length ? why.join("") : "<li>İşaretlenen cümle yok.</li>";
 }
+var TIPD = {"benzetme":"Benzetmeyi çıkarıp görüneni doğrudan yaz.","kişileştirme":"Doğaya verilen insan eylemi yerine olayı düz anlat.","kalıplaşmış ifade":"Kalıp ifadeyi somut bir sözcükle değiştir.","duyguyu açıklayan fiil":"Duyguyu söyleme, onu düşündüren ayrıntıyı yaz.","soyut duygu sözcüğü":"Soyut sözcüğü davranışa ya da somut ayrıntıya çevir.","özdeyiş kapanışı":"Özdeyiş yerine somut bir ayrıntıyla bitir."};
 function tip(r){
+  if(TIPD[r]) return TIPD[r];
   if(r.indexOf("kalıp ifade") === 0) return "Bu geçiş ifadesi çoğu zaman silinebilir. Silince cümle hâlâ anlaşılıyorsa gerekmiyordur.";
   if(r.indexOf("tekrar eden cümle başı") === 0) return "Cümleyi başka yerinden başlat: zamanla, yerle ya da kendi gözleminle gir.";
   return "Birini kısalt ya da ikisini birleştir, araya kendi yaşadığın bir örnek veya somut bir ayrıntı ekle.";
@@ -396,6 +419,131 @@ $("paste").addEventListener("click", function(){
   navigator.clipboard.readText().then(function(t){ inp.value = t; analyze(); }).catch(function(){ inp.focus(); });
 });
 
+
+/* Ek özellikler: dosya, karşılaştırma, geçmiş, rapor */
+var cur = null, ref = null, lastFile = "";
+var analyze0 = analyze;
+analyze = function(){ cur = null; analyze0(); updCmp(); };
+function updCmp(){
+  var c = $("cmp");
+  if(!ref){ c.hidden = true; return; }
+  c.hidden = false;
+  var d = cur === null ? null : cur - ref.s;
+  c.innerHTML = "<b>Karşılaştırma</b><p class='warn'>Referans: " + ref.s + "/100 (" + ref.w + " kelime) → Şimdi: " + (cur === null ? "–" : cur + "/100") + (d === null ? "" : " · " + (d > 0 ? "+" : "") + d + " puan" + (d < 0 ? " (AI izi azaldı)" : d > 0 ? " (AI izi arttı)" : " (değişmedi)")) + "</p><button class='btn ghost' id='refx' type='button'>Referansı kaldır</button>";
+  $("refx").addEventListener("click", function(){ ref = null; updCmp(); });
+}
+$("refb").addEventListener("click", function(){
+  if(cur === null){ $("fmsg").textContent = "Referans için önce en az 15 kelimelik bir metin analiz edilmeli."; return; }
+  ref = {s: cur, w: words(inp.value).length}; $("fmsg").textContent = "Referans kaydedildi. Metni düzenledikçe fark burada görünür."; updCmp();
+});
+
+function inflateRaw(u8){
+  if(typeof DecompressionStream === "undefined") return Promise.reject(new Error("nodecomp"));
+  var ds = new DecompressionStream("deflate-raw"), w = ds.writable.getWriter();
+  w.write(u8); w.close();
+  return new Response(ds.readable).arrayBuffer();
+}
+function docxText(buf){
+  var dv = new DataView(buf), u8 = new Uint8Array(buf), i, eocd = -1, dec = new TextDecoder();
+  for(i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--){ if(dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; } }
+  if(eocd < 0) return Promise.reject(new Error("zip"));
+  var cnt = dv.getUint16(eocd + 10, true), p = dv.getUint32(eocd + 16, true), found = null;
+  for(var k = 0; k < cnt; k++){
+    if(dv.getUint32(p, true) !== 0x02014b50) break;
+    var method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), el = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
+    if(dec.decode(u8.subarray(p + 46, p + 46 + nl)) === "word/document.xml"){ found = {m: method, c: csize, o: lo}; break; }
+    p += 46 + nl + el + cl;
+  }
+  if(!found) return Promise.reject(new Error("nodoc"));
+  var ln = dv.getUint16(found.o + 26, true), le = dv.getUint16(found.o + 28, true), st = found.o + 30 + ln + le, data = u8.subarray(st, st + found.c);
+  var pr = found.m === 0 ? Promise.resolve(data.slice().buffer) : inflateRaw(data);
+  return pr.then(function(ab){
+    var xml = new DOMParser().parseFromString(dec.decode(ab), "application/xml"), out = [], ps = xml.getElementsByTagName("w:p");
+    for(var q = 0; q < ps.length; q++){
+      var s = "", ch = ps[q].getElementsByTagName("*");
+      for(var z = 0; z < ch.length; z++){ var tn = ch[z].nodeName; if(tn === "w:t") s += ch[z].textContent; else if(tn === "w:tab") s += " "; else if(tn === "w:br") s += "\n"; }
+      out.push(s);
+    }
+    return out.join("\n");
+  });
+}
+function readFile(f){
+  var n = f.name.toLowerCase();
+  if(/\.docx$/.test(n)) return f.arrayBuffer().then(docxText);
+  if(/\.(txt|md|text|csv)$/.test(n) || (f.type || "").indexOf("text/") === 0) return f.text();
+  return Promise.reject(new Error(/\.pdf$/.test(n) ? "pdf" : "fmt"));
+}
+var ERR = {pdf: "PDF henüz desteklenmiyor, metni kopyalayıp yapıştır", fmt: "Desteklenmeyen biçim (txt, md, docx)", nodecomp: "Bu tarayıcı docx okumayı desteklemiyor", zip: "Dosya okunamadı", nodoc: "Dosya okunamadı"};
+var batchTexts = [];
+function loadFiles(list){
+  var files = Array.prototype.slice.call(list || []);
+  if(!files.length) return;
+  $("fmsg").textContent = "Okunuyor…"; $("batch").hidden = true;
+  var res = [], p = Promise.resolve();
+  files.forEach(function(f){ p = p.then(function(){ return readFile(f).then(function(t){ res.push({name: f.name, text: t}); }).catch(function(e){ res.push({name: f.name, err: ERR[e.message] || "Okunamadı"}); }); }); });
+  p.then(function(){
+    var ok = res.filter(function(r){ return typeof r.text === "string"; }), bad = res.filter(function(r){ return r.err; });
+    if(!ok.length){ $("fmsg").textContent = bad.map(function(b){ return b.name + ": " + b.err; }).join(" · "); return; }
+    if(ok.length === 1){
+      inp.value = ok[0].text; lastFile = ok[0].name; analyze();
+      $("fmsg").textContent = ok[0].name + " yüklendi, " + words(ok[0].text).length + " kelime." + (bad.length ? " Okunamayan: " + bad.map(function(b){ return b.name + " (" + b.err + ")"; }).join(", ") : "");
+      return;
+    }
+    batchTexts = ok; var rows = "";
+    ok.forEach(function(r, i){
+      inp.value = r.text; analyze();
+      rows += "<tr><td>" + esc(r.name) + "</td><td>" + words(r.text).length + "</td><td>" + (cur === null ? "–" : cur + "/100") + "</td><td>" + esc($("band").textContent) + "</td><td><button class='btn ghost' type='button' data-bi='" + i + "' style='margin:0;padding:6px 12px;font-size:13px'>Aç</button></td></tr>";
+    });
+    inp.value = ok[0].text; lastFile = ok[0].name; analyze();
+    $("batch").hidden = false;
+    $("batch").innerHTML = "<b>Toplu analiz (" + ok.length + " dosya)</b><div class='tbl'><table><thead><tr><th>Dosya</th><th>Kelime</th><th>Puan</th><th>Sonuç</th><th></th></tr></thead><tbody>" + rows + "</tbody></table></div>" + (bad.length ? "<p class='warn'>Okunamayan: " + bad.map(function(b){ return esc(b.name) + " (" + b.err + ")"; }).join(", ") + "</p>" : "");
+    $("fmsg").textContent = ok.length + " dosya analiz edildi. Ayrıntı için “Aç”a dokun.";
+  });
+}
+$("fbtn").addEventListener("click", function(){ $("fin").click(); });
+inp.addEventListener("input", function(){ lastFile = ""; });
+$("clr").addEventListener("click", function(){ lastFile = ""; });
+$("paste").addEventListener("click", function(){ lastFile = ""; });
+$("fin").addEventListener("change", function(){ loadFiles($("fin").files); $("fin").value = ""; });
+$("batch").addEventListener("click", function(e){
+  var b = e.target.closest ? e.target.closest("button[data-bi]") : null; if(!b) return;
+  var r = batchTexts[+b.dataset.bi]; inp.value = r.text; lastFile = r.name; analyze(); window.scrollTo({top: 0, behavior: "smooth"});
+});
+inp.addEventListener("dragover", function(e){ e.preventDefault(); });
+inp.addEventListener("drop", function(e){ if(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length){ e.preventDefault(); loadFiles(e.dataTransfer.files); } });
+
+var HK = "aiiz_hist";
+function hget(){ try{ return JSON.parse(localStorage.getItem(HK) || "[]"); }catch(e){ return []; } }
+function hset(a){ try{ localStorage.setItem(HK, JSON.stringify(a)); return true; }catch(e){ return false; } }
+function hrender(){
+  var a = hget();
+  $("hlist").innerHTML = a.length ? a.slice().reverse().map(function(x){ return "<li>" + esc(new Date(x.t).toLocaleString("tr-TR")) + " · " + x.w + " kelime · puan " + x.s + " · " + esc(x.b) + (x.f ? " · " + esc(x.f) : "") + "</li>"; }).join("") : "<li>Kayıt yok.</li>";
+}
+$("hsave").addEventListener("click", function(){
+  if(cur === null){ $("hmsg").textContent = "Kaydetmek için önce en az 15 kelimelik bir metin analiz et."; return; }
+  var a = hget(); a.push({t: Date.now(), w: words(inp.value).length, s: cur, b: $("band").textContent, f: lastFile || ""});
+  if(a.length > 50) a = a.slice(a.length - 50);
+  $("hmsg").textContent = hset(a) ? "Kaydedildi. Metin saklanmadı, yalnızca özet." : "Bu tarayıcı yerel depolamaya izin vermiyor."; hrender();
+});
+$("hclr").addEventListener("click", function(){ try{ localStorage.removeItem(HK); }catch(e){} $("hmsg").textContent = "Geçmiş silindi."; hrender(); });
+hrender();
+
+function buildReport(){
+  return "<h1>AI İz Analizi · Rapor</h1><p>" + esc(new Date().toLocaleString("tr-TR")) + " · " + esc($("cnt").textContent) + (lastFile ? " · " + esc(lastFile) : "") + "</p><p><b>" + esc($("band").textContent) + "</b> · " + esc($("meta").textContent) + "</p>" + $("deep").innerHTML + "<h3>İşaretli metin</h3><div class='view'>" + $("view").innerHTML + "</div><h3>Ölçülen işaretler (istatistik)</h3>" + $("rows").innerHTML + "<p class='warn'>Kural tabanlı değerlendirme; yazarlık kanıtı değildir. Özgüler Forge · ozgulerforge.com.tr</p>";
+}
+$("pdfb").addEventListener("click", function(){
+  if(cur === null){ $("fmsg").textContent = "Rapor için önce en az 15 kelimelik bir metin analiz et."; return; }
+  $("prt").innerHTML = buildReport();
+  $("fmsg").textContent = "Yazdır penceresinde “PDF olarak kaydet” seç.";
+  setTimeout(function(){ window.print(); }, 50);
+});
+$("cpyb").addEventListener("click", function(){
+  if(cur === null){ $("fmsg").textContent = "Kopyalamak için önce en az 15 kelimelik bir metin analiz et."; return; }
+  var t = "AI İz Analizi · Rapor\n" + $("band").textContent + " · " + $("meta").textContent + "\n\n" + $("deep").innerText;
+  if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ $("fmsg").textContent = "Rapor kopyalandı."; }).catch(function(){ $("fmsg").textContent = "Kopyalanamadı."; });
+  else $("fmsg").textContent = "Bu tarayıcıda kopyalama desteklenmiyor.";
+});
+
 /* Sekmeler (hash) */
 function route(){
   var h = (location.hash || "#analiz").slice(1); if(!$(h)) h = "analiz";
@@ -418,7 +566,7 @@ kullanim: '<h3>Kullanım Koşulları</h3><p>Son güncelleme: 10 Kasım 2026</p>'
 gizlilik: '<h3>Gizlilik Politikası</h3><p>Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Metniniz</h4><p>Yapıştırdığınız metin yalnızca cihazınızdaki tarayıcıda analiz edilir. Sunucularımıza gönderilmez, kaydedilmez ve üçüncü kişilerle paylaşılmaz.</p>'
 + '<h4>Hesap, çerez ve izleme</h4><p>Uygulama hesap gerektirmez. Çerez, reklam veya izleme aracı kullanmaz.</p>'
-+ '<h4>Cihazda saklanan veriler</h4><p>Çevrimdışı çalışabilmesi için yalnızca uygulama dosyaları cihazınızda önbelleğe alınır. Kişisel veri saklanmaz. Kalibrasyon ayarları yalnızca açık oturumda bellekte tutulur.</p>'
++ '<h4>Cihazda saklanan veriler</h4><p>Çevrimdışı çalışabilmesi için yalnızca uygulama dosyaları cihazınızda önbelleğe alınır. Metniniz saklanmaz. Kalibrasyon ayarları yalnızca açık oturumda bellekte tutulur. Geçmiş özelliğinde “Bu sonucu kaydet”e basarsanız tarih, kelime sayısı, puan ve (dosya yüklediyseniz) dosya adı yalnızca tarayıcınızın yerel deposunda saklanır, bu bilgiler bize gönderilmez. “Geçmişi sil” ile silebilirsiniz.</p>'
 + '<h4>İletişim</h4><p>' + MAIL + '</p>',
 kvkk: '<h3>KVKK Aydınlatma Metni</h3><p>6698 sayılı Kişisel Verilerin Korunması Kanunu’nun (KVKK) 10. maddesi kapsamında hazırlanmıştır. Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Veri sorumlusu</h4><p>Özgüler Forge (ozgulerforge.com.tr). İletişim: ' + MAIL + '</p>'
@@ -450,7 +598,7 @@ kullanim: '<h3>Terms of Use</h3><p>Last updated: November 10, 2026</p>'
 gizlilik: '<h3>Privacy Policy</h3><p>Last updated: November 10, 2026</p>'
 + '<h4>Your text</h4><p>The text you paste is analyzed only in the browser on your device. It is not sent to our servers, stored, or shared with third parties.</p>'
 + '<h4>Accounts, cookies and tracking</h4><p>The app does not require an account. It uses no cookies, advertising or tracking tools.</p>'
-+ '<h4>Data stored on your device</h4><p>Only the app files are cached on your device so that it can work offline. No personal data is stored. Calibration settings are kept in memory only during the open session.</p>'
++ '<h4>Data stored on your device</h4><p>Only the app files are cached on your device so that it can work offline. Your text is not stored. Calibration settings are kept in memory only during the open session. If you press “Bu sonucu kaydet” (save this result) in the history feature, the date, word count, score and (if you uploaded a file) the file name are stored only in your browser’s local storage and are not sent to us. You can remove them with “Geçmişi sil” (delete history).</p>'
 + '<h4>Contact</h4><p>' + MAIL + '</p>',
 kvkk: '<h3>KVKK Privacy Notice</h3><p>This notice is provided under Article 10 of the Turkish Personal Data Protection Law No. 6698 (KVKK). Last updated: November 10, 2026</p>'
 + '<h4>Data controller</h4><p>Özgüler Forge (ozgulerforge.com.tr). Contact: ' + MAIL + '</p>'
