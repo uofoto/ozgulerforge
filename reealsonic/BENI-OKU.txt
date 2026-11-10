@@ -1,0 +1,58 @@
+﻿REEL SES (Windows + Telefon)
+============================
+
+Sadece kişisel kullanım içindir. İndirdiğin içeriklerin telif haklarına dikkat et.
+
+0) Hazırlık (bir kere)
+----------------------
+1. Zip dosyasına sağ tıkla > Özellikler > en altta "Engellemeyi kaldır" kutusunu işaretle > Tamam.
+2. Zip'i bir klasöre TAMAMEN çıkar (örn. D:\reelses). Zip içinden çalıştırma.
+3. Windows "bilgisayarınızı korudu" uyarısı çıkarırsa: Daha fazla bilgi > Yine de çalıştır.
+
+1) Bilgisayarda kullanım (pencereli uygulama)
+---------------------------------------------
+Baslat.bat dosyasına çift tıkla, Reel linkini yapıştır, İndir'e bas.
+MP3'ler "Indirilenler" klasörüne kaydedilir.
+İlk açılışta yt-dlp ve ffmpeg otomatik indirilir (yaklaşık 100+ MB, bir kere).
+
+2) Telefonda kullanım (PWA)
+---------------------------
+Telefon, indirmeyi bilgisayarın üzerinden yaptırır. Bu yüzden bilgisayar AÇIK olmalı
+ve Telefon-Sunucu penceresi AÇIK kalmalı.
+
+A) Aynı Wi-Fi'da (en kolay):
+   1. Telefon-Sunucu.bat dosyasına çift tıkla.
+   2. Windows güvenlik duvarı sorarsa "Özel ağlar"a izin ver.
+   3. Pencerede yazan adresi (örn. http://192.168.1.20:8000) telefonda aç.
+   4. Penceredeki ANAHTARI telefona bir kere gir.
+   5. Reel linkini yapıştır > İndir. MP3 telefonun İndirilenler klasörüne düşer.
+      (iPhone'da "Paylaş / Dosyalara kaydet" düğmesini kullan.)
+   Not: Bu adres http olduğu için Chrome "Ana ekrana ekle" ile sadece kısayol ekler.
+   Paylaş menüsünden link alma ve tam uygulama kurulumu için B yolunu kullan.
+
+B) Her yerden + tam PWA + Paylaş menüsü (Tailscale, ücretsiz):
+   1. Bilgisayara ve telefona Tailscale kur, ikisinde de aynı hesapla giriş yap.
+   2. login.tailscale.com/admin/dns sayfasında "HTTPS Certificates" özelliğini aç.
+   3. Bilgisayarda komut satırı aç ve şunu çalıştır:  tailscale serve --bg 8000
+      (Ayrıntı: https://tailscale.com/kb/1312/serve)
+   4. Komutun yazdığı https://....ts.net adresini telefonda aç.
+   5. Chrome menüsü > "Uygulamayı yükle". Artık Instagram'da Reel > Paylaş > "Reel Ses"
+      dediğinde link otomatik gelir ve indirme başlar (Android).
+      iPhone'da Safari > Paylaş > Ana Ekrana Ekle; Paylaş menüsü entegrasyonu iOS'ta yok.
+   Tailscale adresi sadece senin cihazlarında açılır, internete herkese açılmaz.
+
+3) Güvenlik
+-----------
+- Sunucu "anahtar" ister. Anahtar ayarlar.txt dosyasındadır, istersen değiştirebilirsin.
+- Router'da port yönlendirme (port forwarding) YAPMA. Dışarıdan erişim için Tailscale kullan.
+
+4) Sorun giderme
+----------------
+- Instagram giriş isterse: ayarlar.txt içinde browser=firefox yaz (o tarayıcıda Instagram'a
+  giriş yapılı olsun, tarayıcı kapalı olsun), sunucuyu yeniden başlat.
+  Pencereli uygulamada ise listeden tarayıcıyı seç.
+- Bir gün çalışmazsa: Baslat.bat içindeki "yt-dlp güncelle" butonuna bas.
+- Port doluysa: ayarlar.txt içindeki port= değerini değiştir.
+- Telefon bağlanamazsa: telefon ve bilgisayar aynı Wi-Fi'da mı, güvenlik duvarı izni verildi mi,
+  sunucu penceresi açık mı kontrol et.
+- Kaldırmak için klasörü silmen yeterli.
