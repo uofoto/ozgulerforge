@@ -1,12 +1,14 @@
-const CACHE_NAME = 'sescebi-shell-v5';
-const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/manus-routes.json', '/icons/icon-192.svg', '/icons/icon-512.svg', '/icons/icon-192.png', '/icons/icon-512.png'];
+const CACHE_NAME = 'sescebi-shell-v6';
+const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/manus-routes.json', '/icons/icon-192.svg', '/icons/icon-512.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-192.png', '/icons/icon-maskable-512.png'];
 
 async function precacheAppShell() {
   const cache = await caches.open(CACHE_NAME);
-  const response = await fetch('/?sw-shell=5', { cache: 'no-store' });
+  const response = await fetch('/?sw-shell=6', { cache: 'no-store' });
   const html = await response.clone().text();
   const assets = [...html.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css))["']/g)].map((match) => match[1]);
-  await cache.addAll([...new Set([...APP_SHELL, ...assets])]);
+  const urls = [...new Set([...APP_SHELL, ...assets])];
+  // Tek bir dosya hata verirse tüm kurulum bozulmasın.
+  await Promise.allSettled(urls.map((url) => cache.add(url)));
 }
 
 async function networkFirst(request) {
@@ -38,8 +40,7 @@ async function cacheFirst(request) {
 }
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(precacheAppShell());
-  self.skipWaiting();
+  event.waitUntil(precacheAppShell().then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (event) => {
