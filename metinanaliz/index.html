@@ -84,6 +84,7 @@ footer .fl{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:12px}
 footer .fl button,footer .upd{all:unset;cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;font-size:14px}
 footer .upd{color:var(--accent2);font-weight:700;text-decoration:none}
 footer a{color:var(--accent2);font-weight:600}
+.deep h3{margin:18px 0 6px;font-size:16px}.deep p{margin:6px 0;font-size:14.5px}.deep .lead{color:var(--mute)}.deep .tbl{overflow-x:auto;margin:6px 0}.deep table{border-collapse:collapse;width:100%;font-size:13.5px}.deep th,.deep td{text-align:left;vertical-align:top;padding:8px 10px;border-bottom:1px solid var(--line)}.deep th{color:var(--mute);font-weight:700;font-size:12.5px}.deep td:first-child{min-width:150px}.deep ol.dl{padding-left:20px;margin:6px 0}.deep ol.dl li{margin:8px 0;font-size:14.5px;color:var(--mute)}.deep ol.dl b{color:var(--ink)}
 :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 </style>
 </head>
@@ -105,7 +106,9 @@ footer a{color:var(--accent2);font-weight:600}
     <div class="ring"><svg viewBox="0 0 108 108"><circle class="bg" cx="54" cy="54" r="46"/><circle class="fg" id="fill" cx="54" cy="54" r="46"/></svg><b id="score">–</b></div>
     <div><div class="band" id="band">Metin bekleniyor</div><div id="meta" class="warn"></div></div>
   </div>
-  <h2>Ölçülen işaretler</h2>
+  <h2>Ayrıntılı değerlendirme</h2>
+  <div class="card deep" id="deep"><p class="warn">Metin girince ayrıntılı değerlendirme burada görünür.</p></div>
+  <h2>Ölçülen işaretler (istatistik)</h2>
   <div class="card" id="rows"></div>
   <h2>İşaretlenen cümleler ve öneriler</h2>
   <div class="card"><div class="view" id="view">Henüz metin yok.</div><ul class="why" id="why"></ul></div>
@@ -160,10 +163,134 @@ function sd(a){ var m = mean(a); return Math.sqrt(a.reduce(function(x,y){return 
 
 function setScore(total, color){ $("score").textContent = total === null ? "–" : total; $("fill").style.strokeDashoffset = 289 - 289*(total||0)/100; $("fill").style.stroke = color || "var(--lo)"; $("fill").parentNode.parentNode.style.setProperty("--rc", color || "var(--lo)"); }
 
+/* Ayrıntılı (niteliksel) değerlendirme */
+var ABS = ["umut","umud","cesaret","özgürlük","özgürlüğ","hayal","dilek","dileğ","huzur","sevgi","mutluluk","mutluluğ","hüzün","özlem","nostalji","sonsuzluk","sonsuzluğ","yürek","yüreğ","masumiyet","neşe","tutku","hatıra"];
+var NAT = ["rüzgâr","rüzgar","gökyüzü","güneş","gece","deniz","nehir","bulut","yıldız","dalga","sessizlik","zaman","toprak","orman","dağ","şehir","sokak","gölge","yağmur","sis","akşam","sabah","kahkaha","uçurtma","ışık"];
+var PV = ["fısılda","kucakla","dans e","selamla","öp","gülümse","haykır","sarıl","sarmala","anlat","taşı","salı","armağan","hediye","okşa","ağla","uyut","ninni","yüksel","boyan","söyle","fısılt"];
+var KL = ["bulutlara karış","gökyüzüne yüksel","renkli dilek","kalplere dokun","yüreğe dokun","zamanın ötesinde","umut ışığı","sessiz bir çığlık","bir senfoni","bir mozaik","bir tablo","masalsı","büyülü","eşsiz","muhteşem","benzersiz","nefes kesici","unutulmaz","görkemli","büyüleyici","göz kamaştırıcı","olağanüstü","sığmayan","zamanın durduğu","görünmez bir","altın rengi","gün batımı","sonsuzluğa"];
+var EXP = ["taşıyor","taşıyordu","taşıyan","yansıtı","yansıy","simgele","sembolize","hissettir","hatırlatı","müjdele","anlatıyordu","anlatıyor"];
+var APH = ["yakala","gizli","saklı","hatırlat","kanıtla","özetle","demektir","sığmayan","yetmez","bazen","çünkü","aslında","belki de","hayat","işte"];
+var PERS = ["ben","bence","benim","bana","bende","gördüm","sanırım","galiba","herhalde","açıkçası","hatırlıyorum","düşünüyorum"];
+function tl(s){ return s.toLocaleLowerCase("tr"); }
+function finds(sent, stems){
+  var low = tl(sent), re = new RegExp("(^|[^\\p{L}])(" + stems.join("|") + ")[\\p{L}]*", "gu"), out = [], m;
+  while((m = re.exec(low)) !== null){ var st = m.index + m[1].length; out.push({i: st, t: sent.slice(st, m.index + m[0].length)}); if(m[0].length === 0) re.lastIndex++; }
+  return out;
+}
+function around(sent, idx, before, after){
+  var toks = [], re = /\S+/g, m;
+  while((m = re.exec(sent)) !== null) toks.push({s: m.index, w: m[0]});
+  var k = 0; for(var i = 0; i < toks.length; i++){ if(toks[i].s <= idx) k = i; }
+  var a = Math.max(0, k - before), b = Math.min(toks.length, k + after + 1);
+  return toks.slice(a, b).map(function(x){ return x.w; }).join(" ").replace(/^[,;:"“”]+|[,;:"“”]+$/g, "");
+}
+function similes(sent){
+  var out = [], toks = sent.split(/\s+/), skip = ["bu","şu","o","ben","sen","biz","siz","benim","senin","bunun","şunun","onun","bizim","sizin","ne","nasıl","her","hiç"];
+  toks.forEach(function(t, i){
+    var c = tl(t).replace(/[^\p{L}]/gu, "");
+    if(c === "gibi" || c === "sanki" || c === "adeta" || c === "âdeta" || c === "misali"){
+      var prev = i ? tl(toks[i-1]).replace(/[^\p{L}]/gu, "") : "";
+      if(c === "gibi" && skip.indexOf(prev) !== -1) return;
+      var g = c === "gibi", a = Math.max(0, i - (g ? 3 : 0)), b = Math.min(toks.length, i + (g ? 2 : 4));
+      out.push(toks.slice(a, b).join(" ").replace(/^[,;:"“”]+|[,;:"“”]+$/g, ""));
+    }
+  });
+  return out;
+}
+function short(s, n){ return s.length > n ? s.slice(0, n).replace(/\s+\S*$/, "") + "…" : s; }
+function deep(text, W, S){
+  var n = W.length, rows = [], F = [];
+  var NOTE = {
+    sim: ["Benzetme", "‘gibi/sanki’ ile kurulan benzetme. Görünen olay yerine hazır bir imge sunuyor."],
+    pers: ["Kişileştirme", "Doğa unsuruna insan eylemi yükleyen tipik edebî anlatım."],
+    cli: ["Kalıplaşmış ifade", "Yapay zekâ metinlerinde sık geçen süslü ya da kalıplaşmış anlatım."],
+    exp: ["Duyguyu açıklama", "Görünene soyut bir anlam yüklüyor, çıkarımı okuyucuya bırakmıyor."],
+    abs: ["Soyut duygu yığılması", "Aynı cümlede birden fazla soyut duygu sözcüğü var."],
+    aph: ["Özdeyiş kapanışı", "Etkileyici görünmeyi amaçlayan, genelleyici kapanış cümlesi."],
+    ph: ["Kalıp geçiş", "Sohbet modellerinde sık geçen geçiş ya da kalıp ifade."]
+  };
+  var seen = {};
+  function addRow(si, type, phrase){ var pl = tl(phrase); for(var q = 0; q < rows.length; q++){ if(rows[q].si === si){ var ql = tl(rows[q].phrase); if(ql.indexOf(pl) !== -1 || pl.indexOf(ql) !== -1) return; } } rows.push({si: si, type: type, phrase: phrase}); }
+  var totAbs = 0, totExp = 0, totCli = 0, figN = 0, totPh = 0;
+  S.forEach(function(s, si){
+    var f = {sim: similes(s), pers: [], cli: finds(s, KL), abs: finds(s, ABS), exp: finds(s, EXP), ph: []};
+    var nat = finds(s, NAT), pv = finds(s, PV);
+    if(nat.length && pv.length){ var a = Math.min(nat[0].i, pv[0].i), b = Math.max(nat[nat.length-1].i, pv[pv.length-1].i); f.pers = [around(s, a, 0, 6)]; }
+    var low = tl(s); PH.forEach(function(ph){ if(low.indexOf(ph) !== -1) f.ph.push(ph); });
+    f.last = si === S.length - 1;
+    f.aph = f.last && S.length >= 3 && (f.abs.length > 0 || finds(s, KL).length) && (finds(s, APH).length > 0);
+    f.fig = f.sim.length + f.pers.length + f.cli.length > 0;
+    if(f.fig) figN++;
+    totAbs += f.abs.length; totExp += f.exp.length; totCli += f.cli.length; totPh += f.ph.length;
+    f.w = f.sim.length*2 + f.pers.length*2 + f.cli.length*2 + f.exp.length*3 + f.abs.length + (f.aph ? 3 : 0) + f.ph.length;
+    f.text = s; F.push(f);
+    f.sim.forEach(function(p){ addRow(si, "sim", p); });
+    f.pers.forEach(function(p){ addRow(si, "pers", p); });
+    f.cli.forEach(function(m){ addRow(si, "cli", around(s, m.i, 1, 2)); });
+    f.exp.forEach(function(m){ addRow(si, "exp", around(s, m.i, 5, 3)); });
+    if(f.abs.length >= 2) addRow(si, "abs", short(s, 80));
+    if(f.aph) addRow(si, "aph", short(s, 90));
+    f.ph.forEach(function(p){ addRow(si, "ph", p); });
+  });
+  var figShare = S.length ? figN / S.length : 0, absDens = totAbs / n * 100;
+  var low = tl(text);
+  var hasPers = finds(text, PERS).length > 0, hasDig = /\d/.test(text), hasProper = (text.match(/[^.!?\n]\s+\p{Lu}\p{L}+/gu) || []).length > 0;
+  var noPers = n >= 40 && !hasPers && !hasDig && !hasProper;
+  var tri = (text.match(/[\p{L}]+, [\p{L}]+ ve [\p{L}]+/gu) || []).length;
+  var aphN = F.some(function(f){ return f.aph; }) ? 1 : 0;
+  var score = Math.min(100, Math.round(figShare*35 + Math.min(20, absDens*5) + Math.min(15, totExp*7) + Math.min(15, totCli*5) + aphN*10 + (noPers ? 5 : 0) + Math.min(10, totPh*4) + Math.min(5, tri*2)));
+  var level = score >= 55 ? "Belirgin" : score >= 30 ? "Orta" : "Zayıf";
+  var h = "";
+  h += '<p class="lead">Metni, yapay zekâ metinlerinde sık görülen anlatım kalıpları, sözcük seçimleri, benzetmeler, duygusal yoğunluk ve cümle kuruluşu açısından inceledim. Bu değerlendirme cihazında, kurallara dayalı olarak yapılır ve yazarlık kanıtı değildir.</p>';
+  h += '<p><b>İlk değerlendirmem:</b> ' + (score >= 55 ? "Metinde yapay zekâ üretimi izlenimi uyandıran belirgin özellikler var." : score >= 30 ? "Metinde yapay zekâ izlenimi veren bazı özellikler var, ama tek başına belirleyici değil." : "Metinde yapay zekâ izlenimi veren belirgin bir özellik görünmüyor.") + " Yalnızca metne bakarak kesin hüküm vermek mümkün değil.</p>";
+  h += "<h3>1. Yapay zekâ izlenimi veren ifadeler</h3>";
+  if(rows.length){
+    var rs = rows.slice(0, 14);
+    h += '<div class="tbl"><table><thead><tr><th>İfade</th><th>Tür</th><th>Değerlendirme</th></tr></thead><tbody>' + rs.map(function(r){ return "<tr><td>“" + esc(r.phrase) + "”</td><td>" + NOTE[r.type][0] + "</td><td>" + NOTE[r.type][1] + "</td></tr>"; }).join("") + "</tbody></table></div>";
+    if(rows.length > rs.length) h += '<p class="warn">' + (rows.length - rs.length) + " ifade daha bulundu, listede ilk " + rs.length + " tanesi gösteriliyor.</p>";
+  } else h += "<p>Belirgin bir ifade bulunamadı.</p>";
+  h += "<h3>2. En belirgin işaretler</h3>";
+  var sg = [];
+  function ex(type, k){ return rows.filter(function(r){ return r.type === type; }).slice(0, k).map(function(r){ return "“" + esc(short(r.phrase, 60)) + "”"; }).join(", "); }
+  if(figShare >= 0.5 || figN >= 3) sg.push(["Yoğun benzetme ve sembolik anlatım", "Cümlelerin %" + Math.round(figShare*100) + "’inde benzetme, kişileştirme veya kalıplaşmış edebî ifade var." + (ex("sim", 2) ? " Örnek: " + ex("sim", 2) + "." : "")]);
+  if(totExp >= 1 || totAbs >= 3) sg.push(["Duyguyu fazla açıklama", "Soyut duygu sözcükleri (" + totAbs + " adet, 100 kelimede " + absDens.toFixed(1) + ") ve “taşıyordu, yansıtıyor” gibi anlam yükleyen fiiller var. Gözlemlenen şey anlatılmak yerine ne hissettirmesi gerektiği söyleniyor."]);
+  if(S.length >= 4 && figShare >= 0.7) sg.push(["Kusursuzlaştırılmış, tek tonlu anlatım", "Cümlelerin neredeyse tamamı aynı şiirsel atmosferde ilerliyor. Doğal yazıda daha sık görülen çeşitlilik, duraksama ve sade cümleler az."]);
+  if(aphN) sg.push(["Etkileyici final arayışı", "Son cümle özdeyiş niteliğinde: “" + esc(short(S[S.length-1], 90)) + "” Bu tür kapanışlar yapay zekâ metinlerinde oldukça yaygın."]);
+  if(noPers) sg.push(["Kişisel gözlem izi az", "Metinde “ben, bence”, sayı, tarih veya özel ad gibi kişisel ya da somut ayrıntı görünmüyor."]);
+  if(tri >= 2) sg.push(["Üçlü sıralamalar", tri + " yerde “A, B ve C” biçiminde üçlü sıralama var. Bu yapı yapay zekâ metinlerinde sık görülür."]);
+  if(totPh >= 1) sg.push(["Kalıp geçiş ifadeleri", totPh + " kalıp ifade bulundu (örn. " + esc(rows.filter(function(r){ return r.type === "ph"; }).slice(0, 2).map(function(r){ return r.phrase; }).join(", ")) + ")."]);
+  h += sg.length ? "<ol class='dl'>" + sg.map(function(x){ return "<li><b>" + x[0] + "</b><br>" + x[1] + "</li>"; }).join("") + "</ol>" : "<p>Belirgin bir işaret bulunamadı.</p>";
+  h += "<h3>3. Genel değerlendirme</h3>";
+  h += '<p><b>Yapay zekâ izlenimi: ' + level + "</b> (niteliksel puan " + score + "/100)<br><span class='warn'>Niteliksel metin değerlendirmesi; istatistiksel tespit veya yazarlık kanıtı değildir.</span></p>";
+  var worst = null; F.forEach(function(f){ if(f.w >= 3 && (!worst || f.w > worst.w)) worst = f; });
+  if(worst) h += "<p><b>En sorunlu cümle:</b><br>“" + esc(short(worst.text, 160)) + "”<br><span class='warn'>Burada " + [worst.sim.length ? "benzetme" : "", worst.pers.length ? "kişileştirme" : "", worst.cli.length ? "kalıplaşmış ifade" : "", worst.exp.length ? "duyguyu açıklayan fiil" : "", worst.abs.length ? "soyut duygu sözcüğü" : "", worst.aph ? "özdeyiş kapanışı" : ""].filter(Boolean).join(", ") + " bir arada.</span></p>";
+  var adj = []; if(figShare >= 0.5) adj.push("fazla süslü"); if(figShare >= 0.7 || noPers) adj.push("fazla kusursuz"); if(aphN || totCli >= 2) adj.push("tahmin edilebilir");
+  h += "<p><b>Genel kanaatim:</b> " + (adj.length ? "Metin akıcı, ancak " + adj.join(", ") + (adj.length > 1 ? " bir izlenim veriyor." : " bir izlenim veriyor.") : (score >= 30 ? "Metinde bazı kalıplar var, ama genel akış doğal." : "Metin doğal ve dengeli bir izlenim veriyor.")) + "</p>";
+  h += "<h3>4. Nasıl daha doğal yazılabilirdi?</h3>";
+  var adv = [];
+  F.forEach(function(f){
+    var t = [];
+    if(f.sim.length) t.push("‘gibi’ benzetmesini çıkar, fotoğrafta ya da olayda gerçekten görüneni yaz (renk, hareket, kim ne yapıyor).");
+    if(f.pers.length) t.push("Doğa unsuruna verilen insan eylemi yerine olayı doğrudan söyle: ne oldu, ne yaptı?");
+    if(f.exp.length || f.abs.length >= 2) t.push("Soyut duygu sözcüklerini çıkar, o duyguyu düşündüren davranışı ya da ayrıntıyı yaz.");
+    if(f.cli.length) t.push("Kalıplaşmış sıfat ve imgeyi kendi gözlemine ait somut bir sözcükle değiştir.");
+    if(f.aph) t.push("Kapanışa özdeyiş koyma, somut bir ayrıntıyla bitir.");
+    if(t.length) adv.push("<li>“" + esc(short(f.text, 80)) + "”<br><em>" + t.join(" ") + "</em></li>");
+  });
+  h += adv.length ? "<ul class='why'>" + adv.slice(0, 6).join("") + "</ul>" : "<p>Cümle bazında öneri gerekmiyor.</p>";
+  h += "<p><b>Genel ilkeler:</b></p><ul class='why'><li>Gözlemlenen somut ayrıntıyı öne çıkar.</li><li>Gereksiz benzetmeleri azalt.</li><li>Duyguyu koru, ama okuyucuya dikte etme.</li><li>Cümle uzunluğunu ve tonu değiştir, araya sade cümleler koy.</li></ul>";
+  h += "<p><b>Son söz:</b> " + (score >= 55 ? "Metin edebî açıdan başarılı olabilir, ancak doğal bir anlatımdan çok süslenmiş, yapay zekâ üslubunu andırıyor. İyi bir anlatım, ne hissettirmesi gerektiğini söylemez; okuyanın duyguyu kendisinin keşfetmesine izin verir." : score >= 30 ? "Bazı kalıplar dikkat çekiyor, ancak bunlar insan yazılarında da sık görülür. Yukarıdaki önerileri uygulamak anlatımı daha doğal kılar." : "Belirgin bir yapay zekâ üslubu görünmüyor. Yine de sonuç kesin değildir.") + "</p>";
+  return {score: score, html: h};
+}
+
 function analyze(){
   var text = inp.value, W = words(text), S = sentences(text), n = W.length;
   $("cnt").textContent = n + " kelime";
+  var D = null;
+  if(n >= 15){ try{ D = deep(text, W, S); }catch(err){ D = null; } }
+  $("deep").innerHTML = D ? D.html : "<p class='warn'>Ayrıntılı değerlendirme için en az 15 kelime gerekir.</p>";
   if(n < 40){
+    if(D){ var bb = D.score >= 50 ? ["Güçlü AI izi var", "var(--hi)"] : D.score >= 25 ? ["Belirsiz, bazı işaretler var", "var(--mid)"] : ["Belirgin iz görünmüyor", "var(--lo)"]; $("band").textContent = bb[0]; $("band").style.color = bb[1]; setScore(D.score, bb[1]); $("meta").textContent = "Kısa metin: yalnızca niteliksel değerlendirme (" + D.score + "/100)"; $("rows").innerHTML = "<p class='warn'>İstatistiksel işaretler için en az 40 kelime gerekir.</p>"; $("view").textContent = "Henüz yeterli metin yok."; $("why").innerHTML = ""; return; }
     $("band").textContent = "Metin bekleniyor"; $("band").style.color = ""; setScore(null);
     $("meta").textContent = n ? "Analiz için en az 40 kelime gerekir, güvenilir sonuç için 1000 ve üzeri." : "";
     $("rows").innerHTML = "<p class='warn'>Metin girince işaretler burada görünür.</p>"; $("view").textContent = "Henüz metin yok."; $("why").innerHTML = ""; return;
@@ -205,10 +332,11 @@ function analyze(){
   var p6 = Math.min(10, (md ? 6 : 0) + (inv ? 2 : 0) + (em/n*100 > 1 ? 2 : 0));
   add("Biçim artıkları", "Markdown " + md + ", görünmez " + inv + ", uzun tire " + em, p6, 10, "Sohbet çıktısından kopyalanmış metinlerde görülür. Başka kaynaklardan da gelebilir.");
   total = Math.min(100, total);
+  var statTotal = total; if(D) total = Math.round(0.4*statTotal + 0.6*D.score);
   $("rows").innerHTML = sig.join("");
   var band = total >= 50 ? ["Güçlü AI izi var", "var(--hi)"] : total >= 25 ? ["Belirsiz, bazı işaretler var", "var(--mid)"] : ["Belirgin iz görünmüyor", "var(--lo)"];
   $("band").textContent = band[0]; $("band").style.color = band[1]; setScore(total, band[1]);
-  $("meta").textContent = "İz puanı " + total + "/100 · " + S.length + " cümle" + (n < 1000 ? " · Metin kısa, sonuç güvenilmez" : "");
+  $("meta").textContent = "İz puanı " + total + "/100" + (D ? " (istatistik " + statTotal + ", niteliksel " + D.score + ")" : "") + " · " + S.length + " cümle" + (n < 1000 ? " · Metin kısa, sonuç güvenilmez" : "");
   var why = [], html = "";
   S.forEach(function(s, si){
     var rs = [], sl = s.toLowerCase();
