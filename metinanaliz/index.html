@@ -127,7 +127,7 @@ footer a{color:var(--accent2);font-weight:600}
   <h2>Sık sorulanlar</h2><div class="faq"><details><summary>Metnim nereye gidiyor?</summary><p>Hiçbir yere. Analiz tamamen cihazındaki tarayıcıda yapılır. Metin sunucuya gönderilmez ve kaydedilmez.</p></details><details><summary>Sonuç ne kadar güvenilir?</summary><p>Sonuç bir olasılık ipucudur, kanıt değildir. Güvenilir bir okuma için en az 1000 kelimelik metin önerilir. Kısa metinlerde sonuç dalgalanır.</p></details><details><summary>Kendi yazdığım metin neden yüksek çıkabilir?</summary><p>Düzenli yazan, resmî dil kullanan veya Türkçeyi ikinci dil olarak yazan kişilerin metinleri de AI’a benzer çıkabilir. Bu yüzden sonuçla kimseyi suçlama veya not verme.</p></details><details><summary>Kalibrasyon ne işe yarar?</summary><p>Kendi yazdığın birkaç metinle eşikleri senin tarzına göre ayarlar. Böylece kendi metinlerin gereksiz yere işaretlenmez. Ayar sayfa yenilenince sıfırlanır.</p></details><details><summary>Çevrimdışı çalışır mı?</summary><p>Evet. İlk açılıştan sonra uygulama dosyaları cihazda saklanır, internet olmadan da kullanabilirsin.</p></details><details><summary>Telefona nasıl kurarım?</summary><p>Android’de Chrome’da “Yükle” düğmesine dokun. iPhone’da Safari’de Paylaş simgesinden “Ana Ekrana Ekle” seç.</p></details><details><summary>Hangi dillerde çalışır?</summary><p>Kalıp ifade listesi Türkçe ve İngilizce için hazırlanmıştır. Diğer ölçümler dilden bağımsız çalışır ama en iyi sonucu Türkçe metinlerde verir.</p></details></div>
   <h2>İletişim</h2>
   <div class="links">
-    <a href="mailto:iletisim@ozgulerforge.com">iletisim@ozgulerforge.com<span>E-posta</span></a>
+    <a href="mailto:iletisim@ozguler.com.tr">iletisim@ozguler.com.tr<span>E-posta</span></a>
     <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr<span>Web sitesi</span></a>
   </div>
   </section>
@@ -279,7 +279,7 @@ window.addEventListener("hashchange", route); route();
 $("yr").textContent = new Date().getFullYear();
 
 /* Yasal metinler */
-var MAIL = '<a href="mailto:iletisim@ozgulerforge.com">iletisim@ozgulerforge.com</a>';
+var MAIL = '<a href="mailto:iletisim@ozguler.com.tr">iletisim@ozguler.com.tr</a>';
 var LEG = {
 kullanim: '<h3>Kullanım Koşulları</h3><p>Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Hizmetin kapsamı</h4><p>AI İz Analizi, metnin yazım özelliklerine bakarak olası yapay zekâ izlerini gösteren ücretsiz bir araçtır. Uygulamayı kullanarak bu koşulları kabul etmiş olursunuz.</p>'
@@ -314,10 +314,20 @@ $("dlg").addEventListener("click", function(e){ if(e.target === $("dlg")) $("dlg
 
 /* PWA: kurulum ve çevrimdışı */
 var dp;
-window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); dp = e; $("inst").style.display = "block"; });
-$("inst").addEventListener("click", function(){ if(dp){ dp.prompt(); dp = null; $("inst").style.display = "none"; } });
-var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone && !matchMedia("(display-mode: standalone)").matches;
-if(ios){ $("inst").style.display = "block"; $("inst").textContent = "Ana ekrana ekle"; $("inst").addEventListener("click", function(){ $("dbody").innerHTML = "<h3>Ana ekrana ekle</h3><p>Safari’de Paylaş simgesine dokun, ardından “Ana Ekrana Ekle” seçeneğini seç.</p>"; $("dlg").showModal(); }); }
+var dp = null;
+var standalone = !!navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+var mobile = ios || /android|mobile/i.test(navigator.userAgent) || matchMedia("(pointer:coarse)").matches;
+window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); dp = e; if(!standalone) $("inst").style.display = "block"; });
+if(mobile && !standalone){ $("inst").style.display = "block"; }
+$("inst").textContent = "İndir";
+$("inst").addEventListener("click", function(){
+  if(dp){ dp.prompt(); dp.userChoice.then(function(){ dp = null; }); return; }
+  $("dbody").innerHTML = ios
+    ? "<h3>Uygulamayı indir</h3><p>Safari’de Paylaş simgesine dokun, ardından “Ana Ekrana Ekle” seçeneğini seç.</p>"
+    : "<h3>Uygulamayı indir</h3><p>Tarayıcı menüsünü (⋮) aç ve “Uygulamayı yükle” ya da “Ana ekrana ekle” seçeneğine dokun.</p>";
+  $("dlg").showModal();
+});
 window.addEventListener("appinstalled", function(){ $("inst").style.display = "none"; });
 if("serviceWorker" in navigator){ window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); }); }
 var hadC = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
