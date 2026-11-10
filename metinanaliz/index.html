@@ -72,7 +72,7 @@ dialog{border:0;border-radius:28px 28px 0 0;padding:0;width:100%;max-width:640px
 dialog::backdrop{background:rgba(10,6,30,.55);backdrop-filter:blur(4px)}
 dialog .in{padding:22px 22px calc(26px + env(safe-area-inset-bottom,0px));overflow:auto;max-height:86vh}
 dialog h3{margin:0 0 4px;font-size:21px;letter-spacing:-.02em}dialog h4{margin:16px 0 4px;font-size:15px}dialog p,dialog li{font-size:14.5px;color:var(--mute);margin:4px 0}
-dialog a{color:var(--accent)}
+dialog a{color:var(--accent)}dialog .en-sep{border:0;border-top:1px solid var(--line);margin:22px 0 18px}
 .faq details{background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;margin-bottom:10px;box-shadow:var(--sh)}
 .faq summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:700;font-size:15.5px;display:flex;justify-content:space-between;align-items:center;gap:12px}
 .faq summary::-webkit-details-marker{display:none}
@@ -292,11 +292,15 @@ gizlilik: '<h3>Gizlilik Politikası</h3><p>Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Hesap, çerez ve izleme</h4><p>Uygulama hesap gerektirmez. Çerez, reklam veya izleme aracı kullanmaz.</p>'
 + '<h4>Cihazda saklanan veriler</h4><p>Çevrimdışı çalışabilmesi için yalnızca uygulama dosyaları cihazınızda önbelleğe alınır. Kişisel veri saklanmaz. Kalibrasyon ayarları yalnızca açık oturumda bellekte tutulur.</p>'
 + '<h4>İletişim</h4><p>' + MAIL + '</p>',
-kvkk: '<h3>KVKK Aydınlatma Metni</h3><p>6698 sayılı Kişisel Verilerin Korunması Kanunu’nun 10. maddesi kapsamındadır. Son güncelleme: 10 Kasım 2026</p>'
+kvkk: '<h3>KVKK Aydınlatma Metni</h3><p>6698 sayılı Kişisel Verilerin Korunması Kanunu’nun (KVKK) 10. maddesi kapsamında hazırlanmıştır. Son güncelleme: 10 Kasım 2026</p>'
 + '<h4>Veri sorumlusu</h4><p>Özgüler Forge (ozgulerforge.com.tr). İletişim: ' + MAIL + '</p>'
-+ '<h4>İşlenen kişisel veri</h4><p>Uygulama sunucu tarafında kişisel veri toplamaz veya işlemez. Metin analizi yalnızca cihazınızda gerçekleşir. Bize e-posta gönderirseniz e-posta adresiniz ve mesajınız yalnızca talebinizi yanıtlamak amacıyla işlenir.</p>'
-+ '<h4>Hukuki sebep ve aktarım</h4><p>E-posta yazışmaları, meşru menfaat ve talebinizi yerine getirme sebebine dayanır. Verileriniz üçüncü kişilere aktarılmaz.</p>'
-+ '<h4>Haklarınız</h4><p>KVKK’nın 11. maddesi uyarınca verilerinizin işlenip işlenmediğini öğrenme, düzeltme, silme ve itiraz etme haklarına sahipsiniz. Taleplerinizi ' + MAIL + ' adresine iletebilirsiniz.</p>',
++ '<h4>İşlenen kişisel veriler ve toplama yöntemi</h4><p>Uygulama hesap gerektirmez ve analiz için yapıştırdığınız metni sunucuya göndermez. Metin analizi yalnızca cihazınızdaki tarayıcıda gerçekleşir. Siteyi barındıran altyapı, teknik olarak standart sunucu erişim kayıtlarını (ör. IP adresi, tarih ve saat) tutabilir. Bize e-posta gönderirseniz e-posta adresiniz ve mesajınızdaki bilgiler, sizin tarafınızdan otomatik olmayan yolla (e-posta) bize iletilir ve işlenir.</p>'
++ '<h4>İşleme amacı</h4><p>E-posta ile ilettiğiniz bilgiler yalnızca talebinizi, sorunuzu veya başvurunuzu yanıtlamak ve sonuçlandırmak amacıyla işlenir. Başka bir amaçla kullanılmaz.</p>'
++ '<h4>Hukuki sebep</h4><p>Bu veriler, KVKK m. 5/2(f) uyarınca veri sorumlusunun meşru menfaati için zorunlu olması ve KVKK m. 5/2(ç) uyarınca hukuki yükümlülüğün (başvurunuzu yanıtlama) yerine getirilmesi sebeplerine dayanılarak işlenir.</p>'
++ '<h4>Aktarım</h4><p>Verileriniz, yasal bir zorunluluk olmadıkça üçüncü kişilere aktarılmaz. E-posta ve barındırma hizmeti sağlayıcıları, hizmetin teknik olarak sunulması için verilere erişebilir.</p>'
++ '<h4>Saklama süresi</h4><p>E-posta yazışmaları, talebinizin sonuçlanması için gereken süre ve yasal zorunlu süreler boyunca saklanır, ardından silinir veya yok edilir.</p>'
++ '<h4>Haklarınız (KVKK m. 11)</h4><p>Veri sahibi olarak şu haklara sahipsiniz:</p><ul><li>Kişisel verilerinizin işlenip işlenmediğini öğrenme,</li><li>İşlenmişse buna ilişkin bilgi talep etme,</li><li>İşlenme amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme,</li><li>Yurt içinde veya yurt dışında verilerin aktarıldığı üçüncü kişileri bilme,</li><li>Eksik veya yanlış işlenmişse düzeltilmesini isteme,</li><li>KVKK m. 7 çerçevesinde silinmesini veya yok edilmesini isteme,</li><li>Düzeltme, silme veya yok etme işlemlerinin verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme,</li><li>İşlenen verilerin münhasıran otomatik sistemlerle analiz edilmesi sonucunda aleyhinize bir sonuç çıkmasına itiraz etme,</li><li>Kanuna aykırı işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme.</li></ul>'
++ '<h4>Başvuru yöntemi</h4><p>Taleplerinizi ' + MAIL + ' adresine yazılı olarak iletebilirsiniz. Başvurunuzda ad, soyad ve talebinizin konusunu belirtin; kimliğinizin doğrulanması için ek bilgi istenebilir. Talepler, niteliğine göre en geç otuz gün içinde ve ücretsiz olarak sonuçlandırılır. İşlemin ayrıca bir maliyeti gerektirmesi hâlinde Kişisel Verileri Koruma Kurulu’nun belirlediği tarifedeki ücret alınabilir. Yanıtı yetersiz bulur veya yanıt alamazsanız, yanıtı öğrendiğiniz tarihten itibaren otuz gün ve her hâlde başvuru tarihinden itibaren altmış gün içinde Kişisel Verileri Koruma Kurulu’na şikâyette bulunabilirsiniz.</p>',
 kabul: '<h3>Kabul Edilebilir Kullanım</h3>'
 + '<p>Uygulamayı kullanırken şunları yapmamayı kabul edersiniz:</p>'
 + '<ul><li>Sonuçları kişileri suçlamak, itibarını zedelemek veya haksız yere cezalandırmak için kullanmak.</li><li>Başkasına ait özel veya gizli metinleri izinsiz analiz etmek.</li><li>Aracı yasa dışı, yanıltıcı veya zararlı bir amaçla kullanmak.</li><li>Uygulamanın işleyişine zarar vermeye ya da kodunu izinsiz kopyalayıp dağıtmaya çalışmak.</li></ul>'
@@ -308,7 +312,39 @@ sorumluluk: '<h3>Sorumluluk Reddi</h3>'
 + '<p>Araç istatistiksel ipuçları üretir. Sonuçlar kesin değildir, yanlış pozitif ve yanlış negatif içerebilir. Düzenli yazan, resmî dil kullanan veya Türkçeyi ikinci dil olarak yazan kişilerin metinleri de yüksek çıkabilir.</p>'
 + '<p>Sonuçlar kanıt niteliği taşımaz. Bu sonuçlara dayanarak alınan kararlardan Özgüler Forge sorumlu tutulamaz. Uygulama “olduğu gibi” sunulur, kesintisiz veya hatasız çalışacağı garanti edilmez.</p>'
 };
-document.querySelectorAll("[data-leg]").forEach(function(b){ b.addEventListener("click", function(){ $("dbody").innerHTML = LEG[b.dataset.leg]; $("dlg").showModal(); }); });
+var LEG_EN = {
+kullanim: '<h3>Terms of Use</h3><p>Last updated: November 10, 2026</p>'
++ '<h4>Scope of the service</h4><p>AI Trace Analysis is a free tool that looks at the writing features of a text and shows possible signs of AI-generated writing. By using the app, you accept these terms.</p>'
++ '<h4>Rules of use</h4><p>You agree to use the tool lawfully and ethically, and not to use the results alone as grounds for accusing, penalizing or grading anyone. You are responsible for the rights to the text you analyze.</p>'
++ '<h4>Intellectual property</h4><p>The design and code of the app belong to Özgüler Forge. They may not be copied without permission or distributed for commercial purposes.</p>'
++ '<h4>Changes and termination</h4><p>The service may be changed or discontinued without prior notice. For questions: ' + MAIL + '</p>'
++ '<h4>Governing law</h4><p>These terms are governed by the laws of the Republic of Türkiye.</p>',
+gizlilik: '<h3>Privacy Policy</h3><p>Last updated: November 10, 2026</p>'
++ '<h4>Your text</h4><p>The text you paste is analyzed only in the browser on your device. It is not sent to our servers, stored, or shared with third parties.</p>'
++ '<h4>Accounts, cookies and tracking</h4><p>The app does not require an account. It uses no cookies, advertising or tracking tools.</p>'
++ '<h4>Data stored on your device</h4><p>Only the app files are cached on your device so that it can work offline. No personal data is stored. Calibration settings are kept in memory only during the open session.</p>'
++ '<h4>Contact</h4><p>' + MAIL + '</p>',
+kvkk: '<h3>KVKK Privacy Notice</h3><p>This notice is provided under Article 10 of the Turkish Personal Data Protection Law No. 6698 (KVKK). Last updated: November 10, 2026</p>'
++ '<h4>Data controller</h4><p>Özgüler Forge (ozgulerforge.com.tr). Contact: ' + MAIL + '</p>'
++ '<h4>Personal data processed and method of collection</h4><p>The app does not require an account and does not send the text you paste for analysis to any server. Text analysis takes place only in the browser on your device. The infrastructure hosting the site may technically keep standard server access logs (for example IP address, date and time). If you email us, your email address and the information in your message reach us through a non-automated means (email) and are processed.</p>'
++ '<h4>Purpose of processing</h4><p>Information you send by email is processed solely to respond to and resolve your request, question or application. It is not used for any other purpose.</p>'
++ '<h4>Legal basis</h4><p>This data is processed on the grounds that it is necessary for the legitimate interests of the data controller (KVKK Art. 5/2(f)) and for compliance with a legal obligation (KVKK Art. 5/2(ç)), namely responding to your application.</p>'
++ '<h4>Transfer</h4><p>Your data is not transferred to third parties unless legally required. Email and hosting service providers may have access to the data as part of providing the service technically.</p>'
++ '<h4>Retention period</h4><p>Email correspondence is kept for as long as needed to resolve your request and for any legally required periods, and is then deleted or destroyed.</p>'
++ '<h4>Your rights (KVKK Art. 11)</h4><p>As a data subject, you have the right to:</p><ul><li>Learn whether your personal data is processed,</li><li>Request information if it has been processed,</li><li>Learn the purpose of processing and whether it is used accordingly,</li><li>Know the third parties, in Türkiye or abroad, to whom your data is transferred,</li><li>Request correction if it is incomplete or inaccurate,</li><li>Request deletion or destruction under Article 7 of the KVKK,</li><li>Request that corrections, deletions or destructions be notified to the third parties to whom your data has been transferred,</li><li>Object to an outcome against you resulting from the analysis of your data exclusively by automated systems,</li><li>Claim compensation if you suffer damage because your data was processed unlawfully.</li></ul>'
++ '<h4>How to apply</h4><p>You can send your requests in writing to ' + MAIL + '. Please include your name, surname and the subject of your request; additional information may be requested to verify your identity. Requests are resolved free of charge as soon as possible and within thirty days at the latest, depending on their nature. If the process requires a separate cost, a fee under the tariff set by the Personal Data Protection Board may be charged. If you find the response inadequate or receive no response, you may file a complaint with the Personal Data Protection Board within thirty days of learning the response and in any case within sixty days of the application date.</p>',
+kabul: '<h3>Acceptable Use</h3>'
++ '<p>By using the app, you agree not to:</p>'
++ '<ul><li>Use the results to accuse people, damage their reputation or penalize them unfairly.</li><li>Analyze other people’s private or confidential texts without permission.</li><li>Use the tool for any unlawful, misleading or harmful purpose.</li><li>Try to harm the operation of the app or copy and distribute its code without permission.</li></ul>'
++ '<p>If these rules are not followed, access to the service may be restricted.</p>',
+ihlal: '<h3>Content / Infringement Notice</h3>'
++ '<p>The app does not store or publish user content on a server. Still, if you believe the app’s content infringes copyright, personality rights or any other right, write to ' + MAIL + '.</p>'
++ '<p>In your notice, include the content you believe is infringing, proof of your ownership of the rights, and contact details where we can reach you. Notices are reviewed within a reasonable time.</p>',
+sorumluluk: '<h3>Disclaimer</h3>'
++ '<p>The tool produces statistical hints. Results are not definitive and may include false positives and false negatives. Texts by people who write in a very regular style, use formal language or write in Turkish as a second language may also score high.</p>'
++ '<p>Results are not evidence. Özgüler Forge cannot be held responsible for decisions made based on these results. The app is provided “as is”, and uninterrupted or error-free operation is not guaranteed.</p>'
+};
+document.querySelectorAll("[data-leg]").forEach(function(b){ b.addEventListener("click", function(){ $("dbody").innerHTML = LEG[b.dataset.leg] + '<hr class="en-sep"><div lang="en">' + LEG_EN[b.dataset.leg] + '</div>'; $("dbody").parentNode.scrollTop = 0; $("dlg").showModal(); }); });
 $("dclose").addEventListener("click", function(){ $("dlg").close(); });
 $("dlg").addEventListener("click", function(e){ if(e.target === $("dlg")) $("dlg").close(); });
 
