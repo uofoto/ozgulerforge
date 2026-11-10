@@ -113,7 +113,7 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
   <div class="card">
     <label for="inp">Metin</label>
     <textarea id="inp" placeholder="En az 1000 kelimelik bir metin yapıştır"></textarea>
-    <div class="row"><button class="btn ghost" id="paste" type="button">Panodan yapıştır</button><button class="btn ghost" id="clr" type="button">Temizle</button><button class="btn ghost" id="fbtn" type="button">Dosya yükle</button><button class="btn ghost" id="refb" type="button">Referans yap</button><input type="file" id="fin" accept=".txt,.md,.docx" multiple hidden><span class="counter" id="cnt">0 kelime</span></div>
+    <div class="row"><button class="btn ghost" id="paste" type="button">Panodan yapıştır</button><button class="btn ghost" id="clr" type="button">Temizle</button><button class="btn ghost" id="fbtn" type="button">Dosya yükle</button><button class="btn ghost" id="refb" type="button">Referans yap</button><input type="file" id="fin" accept=".txt,.md,.docx,.pdf" multiple hidden><span class="counter" id="cnt">0 kelime</span></div>
     <p class="warn" id="fmsg" role="status">txt, md ve docx dosyaları yüklenebilir. Birden fazla dosya seçersen toplu analiz yapılır.</p>
   </div>
   <div class="card" id="batch" hidden></div>
@@ -123,6 +123,12 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
   </div>
   <div class="card" id="cmp" hidden></div>
   <div class="card" id="pmap" hidden></div>
+  <div class="card" id="sty" hidden></div>
+  <div class="card"><b>Ek araçlar</b>
+    <div class="row"><button class="btn ghost" id="xRob" type="button">Dayanıklılık testi</button><button class="btn ghost" id="xDoi" type="button">Kaynakları (DOI) kontrol et</button></div>
+    <div class="row"><button class="btn ghost" id="xH" type="button">Doğrulama setine ekle: insan yazdı</button><button class="btn ghost" id="xA" type="button">Doğrulama setine ekle: AI yazdı</button></div>
+    <p class="warn">Sonuç yanlışsa metni doğru etiketle doğrulama setine ekle, ölçüm gerçek hatalarından öğrensin. DOI kontrolü yalnızca DOI’leri api.crossref.org’a gönderir, metni göndermez.</p>
+    <div id="xOut" class="deep"></div></div>
   <h2>Ayrıntılı değerlendirme</h2>
   <div class="row tools"><button class="btn ghost" id="pdfb" type="button">Raporu PDF kaydet</button><button class="btn ghost" id="cpyb" type="button">Raporu kopyala</button></div>
   <div class="card deep" id="deep"><p class="warn">Metin girince ayrıntılı değerlendirme burada görünür.</p></div>
@@ -162,6 +168,10 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
     <label for="calA" style="margin-top:12px">AI’dan aldığım metinler (isteğe bağlı)</label><textarea id="calA" style="min-height:120px"></textarea>
     <div class="row"><button class="btn" id="calGo" type="button">Kalibre et</button><button class="btn ghost" id="calReset" type="button">Varsayılana dön</button><button class="btn ghost" id="calSave" type="button">Bu cihazda sakla</button></div>
     <div id="calOut" class="warn" role="status"></div>
+    <h2>Üslup profili</h2>
+    <p class="warn" style="margin-top:0">“Benim yazdığım metinler” kutusundaki (en az 2, her biri 100+ kelime) metinlerden kişisel üslup profilin çıkarılır. Analiz edilen metin bu profille karşılaştırılır. Yalnızca sayısal özetler cihazında saklanır.</p>
+    <div class="row"><button class="btn" id="proGo" type="button">Profili çıkar ve sakla</button><button class="btn ghost" id="proDel" type="button">Profili sil</button></div>
+    <p class="warn" id="proSt" role="status"></p>
   </div>
 </section>
 
@@ -192,7 +202,7 @@ nav div{max-width:520px}nav a{font-size:10.5px}.pm{display:flex;align-items:cent
 <footer>
   <div class="fl"><button type="button" data-leg="kullanim">Kullanım Koşulları</button><button type="button" data-leg="gizlilik">Gizlilik</button><button type="button" data-leg="kvkk">KVKK Aydınlatma</button><button type="button" data-leg="kabul">Kabul Edilebilir Kullanım</button><button type="button" data-leg="ihlal">İçerik / İhlal Bildirimi</button><button type="button" data-leg="sorumluluk">Sorumluluk Reddi</button></div>
   <p>AI İz Analizi, Özgüler Forge’a ait bir araçtır. Sonuçlar olasılık ipucudur, kesin kanıt değildir. Metnin cihazında kalır.</p>
-  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 2.3 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
+  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 2.4 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
 </footer>
 
 <nav aria-label="Ana menü"><div>
@@ -522,7 +532,7 @@ function readFile(f){
   if(/\.(txt|md|text|csv)$/.test(n) || (f.type || "").indexOf("text/") === 0) return f.text();
   return Promise.reject(new Error(/\.pdf$/.test(n) ? "pdf" : "fmt"));
 }
-var ERR = {pdf: "PDF henüz desteklenmiyor, metni kopyalayıp yapıştır", fmt: "Desteklenmeyen biçim (txt, md, docx)", nodecomp: "Bu tarayıcı docx okumayı desteklemiyor", zip: "Dosya okunamadı", nodoc: "Dosya okunamadı"};
+var ERR = {pdf: "PDF okunamadı (çevrimiçi olmalı, taranmış görsel PDF de olabilir). Metni kopyalayıp yapıştır", fmt: "Desteklenmeyen biçim (txt, md, docx)", nodecomp: "Bu tarayıcı docx okumayı desteklemiyor", zip: "Dosya okunamadı", nodoc: "Dosya okunamadı"};
 var batchTexts = [];
 function loadFiles(list){
   var files = Array.prototype.slice.call(list || []);
@@ -855,7 +865,7 @@ $("dlg").addEventListener("click", function(e){ if(e.target === $("dlg")) $("dlg
 })();
 
 /* v2.3: yazım defteri, paragraf haritası, mühür, benzerlik, güvenilirlik kartı */
-var APPV = "2.3";
+var APPV = "2.4";
 function sha(t){ try{ return crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)).then(function(b){ return Array.from(new Uint8Array(b)).map(function(x){ return ("0" + x.toString(16)).slice(-2); }).join(""); }); }catch(e){ return Promise.resolve(""); } }
 (function(){
   var Wr = {st: 0, act: 0, last: 0, keys: 0, del: 0, pn: 0, pc: 0}, wr = $("wr");
@@ -918,6 +928,65 @@ function relRender(){
     + "<p class='warn'>Bilinen sınırlar: kısa metinlerde (1000 kelime altı) sonuç dalgalanır. Resmî dil kullananlar ve Türkçeyi ikinci dil olarak yazanlar daha sık yanlış işaretlenir. Parafraz edilmiş AI metinleri tespit edilemeyebilir.</p>";
 }
 relRender();
+
+/* v2.4: PDF, üslup profili, dayanıklılık, DOI, doğrulama seti */
+var PDFJS = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/";
+async function pdfText(f){
+  try{
+    var lib = await import(PDFJS + "pdf.min.mjs"), src = await (await fetch(PDFJS + "pdf.worker.min.mjs")).text();
+    lib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([src], {type: "text/javascript"}));
+    var doc = await lib.getDocument({data: new Uint8Array(await f.arrayBuffer())}).promise, out = [];
+    for(var i = 1; i <= doc.numPages; i++){ var c = await (await doc.getPage(i)).getTextContent(); out.push(c.items.map(function(x){ return x.str + (x.hasEOL ? "\n" : " "); }).join("")); }
+    return out.join("\n\n");
+  }catch(e){ throw new Error("pdf"); }
+}
+var rf0 = readFile; readFile = function(f){ return /\.pdf$/i.test(f.name) ? pdfText(f) : rf0(f); };
+
+(function(){
+  var PK = "aiiz_prof", SN = {sl: "Ort. cümle uzunluğu", cv: "Cümle değişkenliği", wl: "Ort. kelime uzunluğu", cm: "Cümle başı virgül", ttr: "Kelime çeşitliliği"}, stT;
+  function sf(t){ var W = words(t), S = sentences(t), L = S.map(function(x){ return words(x).length; }); return {sl: mean(L), cv: sd(L) / mean(L), wl: mean(W.map(function(w){ return w.length; })), cm: (t.match(/,/g) || []).length / S.length, ttr: feats(t).ttr}; }
+  function getP(){ try{ return JSON.parse(localStorage.getItem(PK) || "null"); }catch(e){ return null; } }
+  $("proGo").addEventListener("click", function(){
+    var H = parts($("calH").value), o = {n: H.length, f: {}};
+    if(H.length < 2){ $("proSt").textContent = "En az 2 metin gerekir (her biri 100+ kelime, === ile ayrılmış)."; return; }
+    var F = H.map(sf); Object.keys(SN).forEach(function(k){ var v = F.map(function(x){ return x[k]; }), m = mean(v); o.f[k] = {m: m, s: Math.max(sd(v), Math.abs(m) * 0.15, 1e-6)}; });
+    try{ localStorage.setItem(PK, JSON.stringify(o)); $("proSt").textContent = H.length + " metinden profil saklandı."; }catch(e){ $("proSt").textContent = "Bu tarayıcı yerel depolamaya izin vermiyor."; }
+    analyze();
+  });
+  $("proDel").addEventListener("click", function(){ try{ localStorage.removeItem(PK); }catch(e){} $("proSt").textContent = "Profil silindi."; analyze(); });
+  window.sty = function(){
+    var c = $("sty"), P = getP(), t = inp.value; if(!P || words(t).length < 100){ c.hidden = true; return; }
+    var x = sf(t), z = Object.keys(SN).map(function(k){ return (x[k] - P.f[k].m) / P.f[k].s; }), a = mean(z.map(Math.abs));
+    c.hidden = false;
+    c.innerHTML = "<b>Üslup uyumu</b><p><b>" + (a < 1 ? "Profilinle uyumlu" : a < 2 ? "Kısmen sapma var" : "Belirgin sapma var") + "</b> (ortalama sapma " + a.toFixed(1) + " standart sapma)</p><div class='tbl'><table><tbody>" + Object.keys(SN).map(function(k, i){ return "<tr><td>" + SN[k] + "</td><td>senin: " + P.f[k].m.toFixed(2) + "</td><td>bu metin: " + x[k].toFixed(2) + "</td><td>" + (z[i] > 0 ? "+" : "") + z[i].toFixed(1) + "</td></tr>"; }).join("") + "</tbody></table></div><p class='warn'>Sapma, metni başkasının yazdığını kanıtlamaz. Konu, tür ve ruh hâli de üslubu değiştirir.</p>";
+  };
+  var an2 = analyze; analyze = function(){ an2(); clearTimeout(stT); stT = setTimeout(window.sty, 450); };
+
+  function scoreOf(t){ var k = {m: M.state, v: inp.value}; M.state = "eval"; try{ inp.value = t; an1(); return cur; } finally { M.state = k.m; inp.value = k.v; an1(); } }
+  $("xRob").addEventListener("click", function(){
+    var t = inp.value, o = $("xOut");
+    if(words(t).length < 40){ o.innerHTML = "<p class='warn'>En az 40 kelimelik metin gerekir.</p>"; return; }
+    var V = [["Kalıp ifadeler silindi", PH.reduce(function(a, p){ return a.replace(new RegExp(p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), ""); }, t)],
+      ["Biçim artıkları temizlendi", t.replace(/\*\*|`|^#{1,6}\s/gm, "").replace(/\u2014/g, ", ")],
+      ["Cümleler birleştirildi", (function(){ var i = 0; return t.replace(/\.\s+/g, function(m){ return ++i % 2 ? " ve " : m; }); })()]];
+    var b = scoreOf(t);
+    o.innerHTML = "<h3>Dayanıklılık testi</h3><div class='tbl'><table><tbody><tr><td>Orijinal</td><td>" + b + "</td><td></td></tr>" + V.map(function(v){ var q = scoreOf(v[1]); return "<tr><td>" + v[0] + "</td><td>" + q + "</td><td>" + (q - b > 0 ? "+" : "") + (q - b) + "</td></tr>"; }).join("") + "</tbody></table></div><p class='warn'>Basit müdahalelerle puan çok düşüyorsa sonuç kırılgan demektir. Bu gerçek bir parafraz testi değildir, gerçek parafraz metinleri Doğrulama sekmesinde AI grubuna ekleyerek ölç.</p>";
+  });
+  $("xDoi").addEventListener("click", async function(){
+    var o = $("xOut"), d = Array.from(new Set((inp.value.match(/10\.\d{4,9}\/[^\s"<>)\]]+/g) || []).map(function(x){ return x.replace(/[.,;]+$/, ""); }))).slice(0, 10);
+    if(!d.length){ o.innerHTML = "<p class='warn'>Metinde DOI bulunamadı.</p>"; return; }
+    o.innerHTML = "<h3>Kaynak kontrolü</h3><p class='warn'>Kontrol ediliyor…</p>"; var rows = "";
+    for(var i = 0; i < d.length; i++){
+      var st;
+      try{ var r = await fetch("https://api.crossref.org/works/" + encodeURIComponent(d[i])); st = r.status === 404 ? "Kayıt bulunamadı (uydurma ya da hatalı olabilir)" : r.ok ? "Bulundu: " + esc(String(((await r.json()).message.title || [""])[0]).slice(0, 90)) : "Kontrol edilemedi"; }catch(e){ st = "Kontrol edilemedi (çevrimdışı olabilir)"; }
+      rows += "<tr><td>" + esc(d[i]) + "</td><td>" + st + "</td></tr>";
+    }
+    o.innerHTML = "<h3>Kaynak kontrolü</h3><div class='tbl'><table><tbody>" + rows + "</tbody></table></div><p class='warn'>Yalnızca Crossref’te kayıtlı DOI’ler doğrulanır. Kayıt olmaması tek başına sahte olduğunu göstermez.</p>";
+  });
+  function toSet(id, n){ var t = inp.value.trim(); if(words(t).length < 40){ $("xOut").innerHTML = "<p class='warn'>En az 40 kelime gerekir.</p>"; return; } var b = $(id); b.value += (b.value ? "\n===\n" : "") + t; $("xOut").innerHTML = "<p class='warn'>Metin Doğrulama sekmesindeki " + n + " kutusuna eklendi (saklanmaz).</p>"; }
+  $("xH").addEventListener("click", function(){ toSet("vH", "insan"); });
+  $("xA").addEventListener("click", function(){ toSet("vA", "AI"); });
+})();
 
 /* Model seçici */
 (function(){
@@ -1009,6 +1078,8 @@ relRender();
   });
 })();
 
+LEG.gizlilik += '<h4>PDF ve kaynak kontrolü</h4><p>PDF yüklerseniz okuma kütüphanesi cdn.jsdelivr.net üzerinden indirilir; dosyanız gönderilmez. “Kaynakları (DOI) kontrol et”e basarsanız yalnızca metindeki DOI’ler api.crossref.org’a gönderilir. Üslup profili yalnızca sayısal özetlerle yerel depoda saklanır.</p>';
+LEG_EN.gizlilik += '<h4>PDF and source check</h4><p>If you upload a PDF, the reader library is downloaded from cdn.jsdelivr.net; your file is not sent. If you press the DOI check, only the DOIs in the text are sent to api.crossref.org. The style profile is stored in local storage as numeric summaries only.</p>';
 /* PWA: kurulum ve çevrimdışı */
 var dp;
 var dp = null;
