@@ -148,13 +148,21 @@ function get<T extends Element>(selector: string): T {
   return element;
 }
 
+let dbPromise: Promise<IDBDatabase> | null = null;
+
 function openDatabase(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, 1);
     request.onupgradeneeded = () => request.result.createObjectStore(STORE_NAME, { keyPath: 'id' });
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error('Yerel arşiv açılamadı.'));
+    request.onsuccess = () => {
+      const db = request.result;
+      db.onversionchange = () => { db.close(); dbPromise = null; };
+      resolve(db);
+    };
+    request.onerror = () => { dbPromise = null; reject(request.error ?? new Error('Yerel arşiv açılamadı.')); };
   });
+  return dbPromise;
 }
 
 async function dbGetAll(): Promise<StoredSong[]> {
@@ -310,7 +318,7 @@ async function readUrlBlob(url: URL): Promise<{ blob: Blob; type: string }> {
       chunks.push(copy.buffer as ArrayBuffer);
       received += part.value.byteLength;
       if (received > MAX_SIZE) { await reader.cancel(); throw new Error('Bu dosya 100 MB sınırını aşıyor.'); }
-      const percent = length ? (received / length) * 100 : Math.min(95, received / (1024 * 1024));
+      const percent = length ? (received / length) * 100 : Math.min(95, (received / MAX_SIZE) * 100);
       setProgress('Bağlantıdan alınıyor…', percent);
     }
   }
@@ -376,7 +384,7 @@ function resetSource(): void {
 }
 
 function renderLibrary(): void {
-  libraryCount.textContent = `${songs.length} ${songs.length === 1 ? 'kayıt' : 'kayıt'}`;
+  libraryCount.textContent = `${songs.length} kayıt`;
   emptyState.hidden = songs.length > 0;
   songList.innerHTML = songs.map((song) => `
     <article class="song-row" data-song-id="${song.id}">
@@ -398,7 +406,7 @@ function escapeHtml(value: string): string {
   return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character] || character));
 }
 
-async function loadSong(song: StoredSong): Promise<void> {
+function loadSong(song: StoredSong): void {
   if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
   activeObjectUrl = URL.createObjectURL(song.blob);
   activeSong = song;
@@ -412,7 +420,7 @@ async function loadSong(song: StoredSong): Promise<void> {
 }
 
 async function toggleSong(song: StoredSong): Promise<void> {
-  if (activeSong?.id !== song.id) await loadSong(song);
+  if (activeSong?.id !== song.id) loadSong(song);
   if (audio.paused) {
     try { await audio.play(); } catch { toast('Bu ses tarayıcıda oynatılamadı.', true); }
   } else audio.pause();
@@ -454,7 +462,14 @@ async function deleteSong(song: StoredSong): Promise<void> {
   try {
     await dbDelete(song.id);
     songs = songs.filter((item) => item.id !== song.id);
-    if (activeSong?.id === song.id) { audio.pause(); activeSong = null; player.classList.remove('visible'); }
+    if (activeSong?.id === song.id) {
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+      if (activeObjectUrl) { URL.revokeObjectURL(activeObjectUrl); activeObjectUrl = ''; }
+      activeSong = null;
+      player.classList.remove('visible');
+    }
     renderLibrary();
     toast('Ses arşivden silindi.');
   } catch {
@@ -471,7 +486,14 @@ consent.addEventListener('change', updateAddButton);
 urlInput.addEventListener('input', updateAddButton);
 addButton.addEventListener('click', () => void addSelectedAudio());
 document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach((button) => button.addEventListener('click', () => switchTab(button.dataset.tab as SourceType)));
-playButton.addEventListener('click', () => { if (!activeSong) return; if (audio.paused) void audio.play(); else audio.pause(); updatePlayerUI(); renderLibrary(); });
+playButton.addEventListener('click', async () => {
+  if (!activeSong) return;
+  if (audio.paused) {
+    try { await audio.play(); } catch { toast('Bu ses tarayıcıda oynatılamadı.', true); }
+  } else audio.pause();
+  updatePlayerUI();
+  renderLibrary();
+});
 get<HTMLButtonElement>('back-button').addEventListener('click', () => { audio.currentTime = Math.max(0, audio.currentTime - 10); });
 get<HTMLButtonElement>('forward-button').addEventListener('click', () => { audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + 10); });
 seek.addEventListener('input', () => { audio.currentTime = Number(seek.value); updatePlayerUI(); });
@@ -489,7 +511,7 @@ async function init(): Promise<void> {
     songs = await dbGetAll();
     renderLibrary();
   } catch { toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true); }
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js?v=5').catch(() => undefined);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js?v=6').catch(() => undefined);
 }
 
 void init();
