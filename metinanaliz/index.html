@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI İz Analizi — Özgüler Forge</title>
+<meta name="description" content="Metindeki olası yapay zekâ izlerini cihazınızdan ayrılmadan analiz edin. Metin hiçbir yere gönderilmez.">
+<meta name="theme-color" content="#f6f3ff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b0a1a" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="AI İz">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{--bg:#f6f3ff;--panel:rgba(255,255,255,.72);--solid:#fff;--ink:#17142b;--mute:#6a6685;--line:rgba(90,70,160,.14);--accent:#5b3df5;--accent2:#c026d3;--accent3:#06b6d4;--hit:#ffe9a8;--lo:#10b981;--mid:#f59e0b;--hi:#f43f5e;--r:22px;--sh:0 1px 0 rgba(255,255,255,.8) inset,0 10px 30px rgba(91,61,245,.10);--g:linear-gradient(135deg,#5b3df5 0%,#c026d3 60%,#f97316 120%);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b0a1a;--panel:rgba(30,26,58,.62);--solid:#1a1634;--ink:#f1eefe;--mute:#9d98c4;--line:rgba(160,140,255,.16);--accent:#8b7bff;--accent2:#e879f9;--accent3:#22d3ee;--hit:#6b5316;--lo:#34d399;--mid:#fbbf24;--hi:#fb7185;--sh:0 1px 0 rgba(255,255,255,.05) inset,0 12px 34px rgba(0,0,0,.4);--g:linear-gradient(135deg,#7c5cff 0%,#e879f9 60%,#fb923c 120%)}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font:400 16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));position:relative;overflow-x:hidden}
+body::before,body::after{content:"";position:fixed;z-index:-1;width:380px;height:380px;border-radius:50%;filter:blur(80px);opacity:.45;animation:fl 14s ease-in-out infinite alternate}
+body::before{top:-120px;left:-100px;background:var(--accent)}body::after{top:180px;right:-140px;background:var(--accent2);animation-delay:-6s;opacity:.3}
+@keyframes fl{to{transform:translate(40px,60px) scale(1.15)}}
+header{max-width:720px;margin:0 auto;padding:20px 18px 6px;display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:15px;background:var(--g);display:grid;place-items:center;box-shadow:0 8px 22px rgba(124,92,255,.45)}
+.logo svg{width:26px;height:26px}
+header h1{font-size:21px;line-height:1.1;margin:0;font-weight:800;letter-spacing:-.03em}
+header small{color:var(--mute);font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+#inst{margin-left:auto;font:700 13px system-ui;padding:9px 15px;border-radius:999px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--accent);cursor:pointer;display:none}
+main{max-width:720px;margin:0 auto;padding:8px 18px}
+section{display:none;animation:in .3s ease}section.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:var(--panel);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:0 0 14px;box-shadow:var(--sh)}
+.sub{color:var(--mute);margin:6px 2px 16px;font-size:15px}
+label{font-weight:700;font-size:14px;display:block;margin-bottom:8px}
+textarea{width:100%;min-height:180px;padding:14px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--solid) 60%,transparent);color:var(--ink);font:inherit;resize:vertical;transition:box-shadow .2s,border-color .2s}
+textarea:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 22%,transparent)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{font:700 15px system-ui;padding:12px 20px;border-radius:14px;border:0;background:var(--g);color:#fff;cursor:pointer;margin-top:12px;box-shadow:0 8px 20px rgba(124,92,255,.35);transition:transform .15s}
+.btn:active{transform:scale(.96)}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line);box-shadow:none}
+.counter{color:var(--mute);font-size:13px;margin-left:auto;margin-top:12px;font-variant-numeric:tabular-nums}
+.gauge{display:flex;gap:18px;align-items:center;background:var(--panel)}
+.ring{position:relative;width:116px;height:116px;flex:none;filter:drop-shadow(0 0 14px color-mix(in srgb,var(--rc,var(--lo)) 45%,transparent))}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:11;stroke-linecap:round}
+.ring .bg{stroke:var(--line)}.ring .fg{stroke:var(--lo);stroke-dasharray:289;stroke-dashoffset:289;transition:stroke-dashoffset .7s cubic-bezier(.2,.8,.2,1),stroke .3s}
+.ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:30px;font-weight:800;letter-spacing:-.03em}
+.band{font-size:20px;font-weight:800;line-height:1.2;letter-spacing:-.02em}
+.warn{color:var(--mute);font-size:13px;margin:6px 0 0}
+h2{font-size:13px;margin:24px 4px 10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.sig{border-top:1px solid var(--line);padding:13px 0}.sig:first-child{border:0;padding-top:0}.sig:last-child{padding-bottom:0}
+.sig .h{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:15px}
+.sig .v{font-size:14px;font-weight:600;background:var(--g);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}.sig p{margin:2px 0 0;color:var(--mute);font-size:13.5px}
+.tag{font-size:11.5px;font-weight:800;border-radius:999px;padding:3px 11px;white-space:nowrap;align-self:flex-start}
+.t-ai{color:var(--hi);background:color-mix(in srgb,var(--hi) 15%,transparent)}.t-n{color:var(--mid);background:color-mix(in srgb,var(--mid) 15%,transparent)}.t-h{color:var(--lo);background:color-mix(in srgb,var(--lo) 15%,transparent)}
+.view{white-space:pre-wrap;word-break:break-word;max-height:340px;overflow:auto}
+mark{background:var(--hit);color:inherit;border-radius:6px;padding:1px 3px;cursor:help}
+ul.why{margin:10px 0 0;padding-left:18px;font-size:14px;color:var(--mute)}ul.why li{margin-bottom:10px}
+.links{display:grid;gap:10px}
+.links button,.links a{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;font:600 15px system-ui;padding:16px;border-radius:16px;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:var(--ink);text-decoration:none;cursor:pointer;box-shadow:var(--sh)}
+.links span{color:var(--accent);font-weight:600;font-size:13px}
+nav{position:fixed;left:0;right:0;bottom:0;z-index:5;display:flex;justify-content:center;padding:0 16px calc(12px + env(safe-area-inset-bottom,0px));pointer-events:none}
+nav div{pointer-events:auto;display:flex;gap:4px;width:100%;max-width:420px;padding:6px;border-radius:26px;background:var(--panel);backdrop-filter:blur(22px) saturate(1.6);-webkit-backdrop-filter:blur(22px) saturate(1.6);border:1px solid var(--line);box-shadow:0 14px 40px rgba(60,40,140,.25)}
+nav a{flex:1;text-align:center;text-decoration:none;color:var(--mute);font:700 11.5px system-ui;padding:9px 4px;border-radius:20px;transition:all .2s}
+nav a svg{display:block;margin:0 auto 2px;width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+nav a.on{color:#fff;background:var(--g);box-shadow:0 6px 16px rgba(124,92,255,.4)}
+dialog{border:0;border-radius:28px 28px 0 0;padding:0;width:100%;max-width:640px;max-height:86vh;margin:auto auto 0;background:var(--solid);color:var(--ink)}
+dialog::backdrop{background:rgba(10,6,30,.55);backdrop-filter:blur(4px)}
+dialog .in{padding:22px 22px calc(26px + env(safe-area-inset-bottom,0px));overflow:auto;max-height:86vh}
+dialog h3{margin:0 0 4px;font-size:21px;letter-spacing:-.02em}dialog h4{margin:16px 0 4px;font-size:15px}dialog p,dialog li{font-size:14.5px;color:var(--mute);margin:4px 0}
+dialog a{color:var(--accent)}
+.faq details{background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:18px;margin-bottom:10px;box-shadow:var(--sh)}
+.faq summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:700;font-size:15.5px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-size:24px;font-weight:500;line-height:1;color:var(--accent2);transition:transform .25s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq details p{margin:0;padding:0 18px 16px;color:var(--mute);font-size:14.5px}
+footer{max-width:720px;margin:8px auto 0;padding:18px 18px 8px;border-top:1px solid var(--line);font-size:13.5px;color:var(--mute)}
+footer .fl{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:12px}
+footer .fl button,footer .upd{all:unset;cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;font-size:14px}
+footer .upd{color:var(--accent2);font-weight:700;text-decoration:none}
+footer a{color:var(--accent2);font-weight:600}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="#fff"><rect x="2" y="9" width="3" height="6" rx="1.5"/><rect x="7" y="4" width="3" height="16" rx="1.5"/><rect x="12" y="7" width="3" height="10" rx="1.5"/><rect x="17" y="2" width="3" height="20" rx="1.5"/></svg></div>
+  <div><h1>AI İz Analizi</h1><small>Özgüler Forge</small></div>
+  <button id="inst" type="button">Yükle</button>
+</header>
+<main>
+<section id="analiz" class="on">
+  <p class="sub">Metni yapıştır, yazım özelliklerine bakıp olası AI izlerini göster. Kesin hüküm vermez. Metin cihazından çıkmaz.</p>
+  <div class="card">
+    <label for="inp">Metin</label>
+    <textarea id="inp" placeholder="En az 1000 kelimelik bir metin yapıştır"></textarea>
+    <div class="row"><button class="btn ghost" id="paste" type="button">Panodan yapıştır</button><button class="btn ghost" id="clr" type="button">Temizle</button><span class="counter" id="cnt">0 kelime</span></div>
+  </div>
+  <div class="card gauge" aria-live="polite">
+    <div class="ring"><svg viewBox="0 0 108 108"><circle class="bg" cx="54" cy="54" r="46"/><circle class="fg" id="fill" cx="54" cy="54" r="46"/></svg><b id="score">–</b></div>
+    <div><div class="band" id="band">Metin bekleniyor</div><div id="meta" class="warn"></div></div>
+  </div>
+  <h2>Ölçülen işaretler</h2>
+  <div class="card" id="rows"></div>
+  <h2>İşaretlenen cümleler ve öneriler</h2>
+  <div class="card"><div class="view" id="view">Henüz metin yok.</div><ul class="why" id="why"></ul></div>
+</section>
+
+<section id="kalibrasyon">
+  <p class="sub">Eşikleri kendi yazım tarzına göre ayarla. Ayar yalnızca bu oturumda geçerlidir, sayfa yenilenince varsayılana döner.</p>
+  <div class="card">
+    <p class="warn" style="margin-top:0">Kendi yazdığın en az 2 metni yapıştır, metinleri ayrı bir satırda === yazarak ayır. Her metin en az 100 kelime olmalı. AI’dan aldığın örnekler varsa ikinci kutuya aynı şekilde ekle.</p>
+    <label for="calH" style="margin-top:12px">Benim yazdığım metinler</label><textarea id="calH" style="min-height:120px"></textarea>
+    <label for="calA" style="margin-top:12px">AI’dan aldığım metinler (isteğe bağlı)</label><textarea id="calA" style="min-height:120px"></textarea>
+    <div class="row"><button class="btn" id="calGo" type="button">Kalibre et</button><button class="btn ghost" id="calReset" type="button">Varsayılana dön</button></div>
+    <div id="calOut" class="warn" role="status"></div>
+  </div>
+</section>
+
+<section id="bilgi">
+  <div class="card"><b>Nasıl çalışır?</b><p class="sub" style="margin-bottom:0">Cümle uzunluğu değişkenliği, kelime çeşitliliği, tekrar eden kalıplar, geçiş ifadeleri ve biçim artıkları ölçülür. Hiçbir sunucuya veri gönderilmez, analiz tamamen tarayıcında çalışır. Sonuç olasılık ipucudur, kanıt değildir.</p></div>
+  <h2>Sık sorulanlar</h2><div class="faq"><details><summary>Metnim nereye gidiyor?</summary><p>Hiçbir yere. Analiz tamamen cihazındaki tarayıcıda yapılır. Metin sunucuya gönderilmez ve kaydedilmez.</p></details><details><summary>Sonuç ne kadar güvenilir?</summary><p>Sonuç bir olasılık ipucudur, kanıt değildir. Güvenilir bir okuma için en az 1000 kelimelik metin önerilir. Kısa metinlerde sonuç dalgalanır.</p></details><details><summary>Kendi yazdığım metin neden yüksek çıkabilir?</summary><p>Düzenli yazan, resmî dil kullanan veya Türkçeyi ikinci dil olarak yazan kişilerin metinleri de AI’a benzer çıkabilir. Bu yüzden sonuçla kimseyi suçlama veya not verme.</p></details><details><summary>Kalibrasyon ne işe yarar?</summary><p>Kendi yazdığın birkaç metinle eşikleri senin tarzına göre ayarlar. Böylece kendi metinlerin gereksiz yere işaretlenmez. Ayar sayfa yenilenince sıfırlanır.</p></details><details><summary>Çevrimdışı çalışır mı?</summary><p>Evet. İlk açılıştan sonra uygulama dosyaları cihazda saklanır, internet olmadan da kullanabilirsin.</p></details><details><summary>Telefona nasıl kurarım?</summary><p>Android’de Chrome’da “Yükle” düğmesine dokun. iPhone’da Safari’de Paylaş simgesinden “Ana Ekrana Ekle” seç.</p></details><details><summary>Hangi dillerde çalışır?</summary><p>Kalıp ifade listesi Türkçe ve İngilizce için hazırlanmıştır. Diğer ölçümler dilden bağımsız çalışır ama en iyi sonucu Türkçe metinlerde verir.</p></details></div>
+  <h2>İletişim</h2>
+  <div class="links">
+    <a href="mailto:iletisim@ozgulerforge.com">iletisim@ozgulerforge.com<span>E-posta</span></a>
+    <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr<span>Web sitesi</span></a>
+  </div>
+  </section>
+</main>
+<footer>
+  <div class="fl"><button type="button" data-leg="kullanim">Kullanım Koşulları</button><button type="button" data-leg="gizlilik">Gizlilik</button><button type="button" data-leg="kvkk">KVKK Aydınlatma</button><button type="button" data-leg="kabul">Kabul Edilebilir Kullanım</button><button type="button" data-leg="ihlal">İçerik / İhlal Bildirimi</button><button type="button" data-leg="sorumluluk">Sorumluluk Reddi</button></div>
+  <p>AI İz Analizi, Özgüler Forge’a ait bir araçtır. Sonuçlar olasılık ipucudur, kesin kanıt değildir. Metnin cihazında kalır.</p>
+  <p>© <span id="yr"></span> Özgüler Forge · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">www.ozgulerforge.com.tr</a> · Sürüm 1.1 · <button type="button" class="upd" id="upd">Güncellemeleri kontrol et</button></p>
+</footer>
+
+<nav aria-label="Ana menü"><div>
+  <a href="#analiz" class="on" data-t="analiz"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Analiz</a>
+  <a href="#kalibrasyon" data-t="kalibrasyon"><svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Kalibrasyon</a>
+  <a href="#bilgi" data-t="bilgi"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>Bilgi</a>
+</div></nav>
+
+<dialog id="dlg"><div class="in"><div id="dbody"></div><button class="btn" id="dclose" type="button">Kapat</button></div></dialog>
+
+<script>
+var PH = ["elbette","tabii ki","umarım yardımcı olur","umarım bu yardımcı olur","özetle","sonuç olarak","şunu belirtmek gerekir","önemli bir nokta","bu bağlamda","dikkat çekici","dijital çağda","günümüzde","derinlemesine","her şeyden önce","bununla birlikte","öte yandan","unutulmamalıdır ki","göz ardı edilmemelidir","bir dizi","çok yönlü","certainly","i hope this helps","in conclusion","it is important to note","it's important to note","delve","in today's","moreover","furthermore","let me know if"];
+var $ = function(id){ return document.getElementById(id); };
+var inp = $("inp"), timer;
+var DEF = {cvHi:0.35, cvLo:0.5, ttrHi:0.6, ttrLo:0.68, rrHi:0.06, rrLo:0.03, dHi:1.5, dLo:0.7};
+var TH = Object.assign({}, DEF);
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function words(t){ return (t.toLowerCase().match(/[\p{L}\p{N}]+/gu) || []); }
+function sentences(t){ var m = t.match(/[^.!?\u2026\n]+[.!?\u2026]*["')\]\u201D\u2019]*/g) || []; return m.map(function(s){ return s.trim(); }).filter(function(s){ return words(s).length > 0; }); }
+function mean(a){ return a.reduce(function(x,y){return x+y;},0)/a.length; }
+function sd(a){ var m = mean(a); return Math.sqrt(a.reduce(function(x,y){return x+(y-m)*(y-m);},0)/a.length); }
+
+function setScore(total, color){ $("score").textContent = total === null ? "–" : total; $("fill").style.strokeDashoffset = 289 - 289*(total||0)/100; $("fill").style.stroke = color || "var(--lo)"; $("fill").parentNode.parentNode.style.setProperty("--rc", color || "var(--lo)"); }
+
+function analyze(){
+  var text = inp.value, W = words(text), S = sentences(text), n = W.length;
+  $("cnt").textContent = n + " kelime";
+  if(n < 40){
+    $("band").textContent = "Metin bekleniyor"; $("band").style.color = ""; setScore(null);
+    $("meta").textContent = n ? "Analiz için en az 40 kelime gerekir, güvenilir sonuç için 1000 ve üzeri." : "";
+    $("rows").innerHTML = "<p class='warn'>Metin girince işaretler burada görünür.</p>"; $("view").textContent = "Henüz metin yok."; $("why").innerHTML = ""; return;
+  }
+  var sig = [], total = 0;
+  function add(name, val, pts, max, meaning){
+    total += pts;
+    var r = pts >= max*0.6 ? ["AI yönünde","t-ai"] : pts > 0 ? ["Hafif işaret","t-n"] : ["İşaret yok","t-h"];
+    sig.push('<div class="sig"><div class="h"><span>' + name + '</span><span class="tag ' + r[1] + '">' + r[0] + '</span></div><div class="v">' + val + '</div><p>' + meaning + '</p></div>');
+  }
+  var L = S.map(function(s){ return words(s).length; });
+  if(S.length >= 6){
+    var cv = sd(L)/mean(L), p = cv < TH.cvHi ? 25 : cv < TH.cvLo ? 12 : 0;
+    add("Cümle uzunluğu değişkenliği", cv.toFixed(2), p, 25, "İnsanlar genelde kısa ve uzun cümleleri karıştırır. Çok düzenli uzunluk AI yönünde bir işarettir.");
+  } else add("Cümle uzunluğu değişkenliği", "-", 0, 25, "En az 6 cümle gerekir.");
+  if(n >= 60){
+    var win = 50, acc = 0, cnt = 0;
+    for(var i = 0; i + win <= n; i += 5){ acc += new Set(W.slice(i, i+win)).size/win; cnt++; }
+    var ttr = acc/cnt, p2 = ttr < TH.ttrHi ? 10 : ttr < TH.ttrLo ? 5 : 0;
+    add("Kelime çeşitliliği", ttr.toFixed(2), p2, 10, "Düşük değer aynı kelimelerin sık dönmesi demektir. Zayıf bir işarettir.");
+  } else add("Kelime çeşitliliği", "-", 0, 10, "En az 60 kelime gerekir.");
+  var tg = {}, tot = 0;
+  for(var j = 0; j + 3 <= n; j++){ var k = W.slice(j, j+3).join(" "); tg[k] = (tg[k]||0)+1; tot++; }
+  var rep = 0; Object.keys(tg).forEach(function(k){ if(tg[k] > 1) rep += tg[k]; });
+  var rr = tot ? rep/tot : 0, p3 = rr > TH.rrHi ? 15 : rr > TH.rrLo ? 8 : 0;
+  add("Tekrar eden üç kelimelik kalıplar", (rr*100).toFixed(1) + "%", p3, 15, "Aynı ifadelerin sık tekrarı hem AI hem özensiz yazım için görülür.");
+  var low = text.toLowerCase(), hits = [];
+  PH.forEach(function(ph){ var idx = low.indexOf(ph); while(idx !== -1){ hits.push(ph); idx = low.indexOf(ph, idx+ph.length); } });
+  var dens = hits.length/n*100, p4 = dens >= TH.dHi ? 25 : dens >= TH.dLo ? 12 : hits.length ? 5 : 0;
+  add("Kalıp ifade yoğunluğu", hits.length + " adet (100 kelimede " + dens.toFixed(1) + ")", p4, 25, "Özetle, sonuç olarak, bu bağlamda gibi geçişlerin yoğun kullanımı.");
+  var starts = S.map(function(s){ return words(s)[0]; }), sc = {};
+  starts.forEach(function(w){ sc[w] = (sc[w]||0)+1; });
+  var top = Object.keys(sc).sort(function(a,b){ return sc[b]-sc[a]; })[0], share = S.length ? sc[top]/S.length : 0;
+  var rep5 = sc[top] >= 3 && share >= 0.25, p5 = rep5 ? 10 : 0;
+  add("Cümle başı tekrarı", S.length >= 4 ? "“" + esc(top) + "” %" + Math.round(share*100) : "-", p5, 10, "Cümlelerin çoğunun aynı kelimeyle başlaması.");
+  var inv = (text.match(/[\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF\u00AD]/g)||[]).length;
+  var md = (text.match(/\*\*|^#{1,6}\s|^-{3,}$|`/gm)||[]).length;
+  var em = (text.match(/\u2014/g)||[]).length;
+  var p6 = Math.min(10, (md ? 6 : 0) + (inv ? 2 : 0) + (em/n*100 > 1 ? 2 : 0));
+  add("Biçim artıkları", "Markdown " + md + ", görünmez " + inv + ", uzun tire " + em, p6, 10, "Sohbet çıktısından kopyalanmış metinlerde görülür. Başka kaynaklardan da gelebilir.");
+  total = Math.min(100, total);
+  $("rows").innerHTML = sig.join("");
+  var band = total >= 50 ? ["Güçlü AI izi var", "var(--hi)"] : total >= 25 ? ["Belirsiz, bazı işaretler var", "var(--mid)"] : ["Belirgin iz görünmüyor", "var(--lo)"];
+  $("band").textContent = band[0]; $("band").style.color = band[1]; setScore(total, band[1]);
+  $("meta").textContent = "İz puanı " + total + "/100 · " + S.length + " cümle" + (n < 1000 ? " · Metin kısa, sonuç güvenilmez" : "");
+  var why = [], html = "";
+  S.forEach(function(s, si){
+    var rs = [], sl = s.toLowerCase();
+    PH.forEach(function(ph){ if(sl.indexOf(ph) !== -1) rs.push("kalıp ifade: " + ph); });
+    if(rep5 && starts[si] === top) rs.push("tekrar eden cümle başı: " + top);
+    if(si >= 2 && Math.abs(L[si]-L[si-1]) <= 1 && Math.abs(L[si-1]-L[si-2]) <= 1 && L[si] >= 8) rs.push("üst üste benzer uzunlukta 3 cümle");
+    html += (si ? " " : "") + (rs.length ? '<mark title="' + esc(rs.join("; ")) + '">' + esc(s) + "</mark>" : esc(s));
+    if(rs.length) why.push("<li>" + esc(s.length > 70 ? s.slice(0,70) + "…" : s) + " → " + esc(rs.join("; ")) + "<br><em>Öneri: " + esc(rs.map(tip).join(" ")) + "</em></li>");
+  });
+  $("view").innerHTML = html;
+  $("why").innerHTML = why.length ? why.join("") : "<li>İşaretlenen cümle yok.</li>";
+}
+function tip(r){
+  if(r.indexOf("kalıp ifade") === 0) return "Bu geçiş ifadesi çoğu zaman silinebilir. Silince cümle hâlâ anlaşılıyorsa gerekmiyordur.";
+  if(r.indexOf("tekrar eden cümle başı") === 0) return "Cümleyi başka yerinden başlat: zamanla, yerle ya da kendi gözleminle gir.";
+  return "Birini kısalt ya da ikisini birleştir, araya kendi yaşadığın bir örnek veya somut bir ayrıntı ekle.";
+}
+
+/* Kalibrasyon */
+var FS = [['cv','cvHi','cvLo',-1,'Cümle uzunluğu değişkenliği'],['ttr','ttrHi','ttrLo',-1,'Kelime çeşitliliği'],['rr','rrHi','rrLo',1,'Tekrar eden kalıplar'],['dens','dHi','dLo',1,'Kalıp ifade yoğunluğu']];
+function feats(text){
+  var W = words(text), n = W.length, L = sentences(text).map(function(s){ return words(s).length; }), low = text.toLowerCase();
+  var acc = 0, cnt = 0, i;
+  for(i = 0; i + 50 <= n; i += 5){ acc += new Set(W.slice(i, i+50)).size/50; cnt++; }
+  var tg = {}, tt = 0, rp = 0, h = 0;
+  for(i = 0; i + 3 <= n; i++){ var k = W.slice(i, i+3).join(' '); tg[k] = (tg[k]||0)+1; tt++; }
+  Object.keys(tg).forEach(function(k){ if(tg[k] > 1) rp += tg[k]; });
+  PH.forEach(function(ph){ var x = low.indexOf(ph); while(x !== -1){ h++; x = low.indexOf(ph, x+ph.length); } });
+  return {cv: sd(L)/mean(L), ttr: cnt ? acc/cnt : 1, rr: tt ? rp/tt : 0, dens: h/n*100};
+}
+function parts(v){ return v.split(/^\s*={3,}\s*$/m).map(function(t){ return t.trim(); }).filter(function(t){ return words(t).length >= 100; }); }
+function calibrate(){
+  var H = parts($('calH').value), A = parts($('calA').value), out = $('calOut');
+  if(H.length < 2){ out.textContent = 'En az 2 metin gerekir. Her biri 100 kelime veya daha uzun olmalı, aralarına === yazılı bir satır koy.'; return; }
+  var fh = H.map(feats), fa = A.map(feats), rows = '';
+  FS.forEach(function(f){
+    var k = f[0], hv = fh.map(function(x){ return x[k]; }), hM = mean(hv), aM = fa.length ? mean(fa.map(function(x){ return x[k]; })) : null, lo, hi;
+    if(f[3] < 0){
+      var mn = Math.min.apply(null, hv);
+      if(aM !== null && aM < hM){ lo = Math.min((hM+aM)/2, mn); hi = Math.min(lo, (lo+aM)/2); } else { lo = mn*0.92; hi = mn*0.8; }
+    } else {
+      var mx = Math.max.apply(null, hv), s = (k === 'rr') ? [0.005, 0.015] : [0.2, 0.5];
+      if(aM !== null && aM > hM){ lo = Math.max((hM+aM)/2, mx); hi = Math.max(lo, (lo+aM)/2); } else { lo = mx*1.15 + s[0]; hi = mx*1.4 + s[1]; }
+    }
+    TH[f[1]] = hi; TH[f[2]] = lo;
+    rows += '<li>' + f[4] + ': senin ortalaman ' + hM.toFixed(2) + (aM !== null ? ', AI ortalaması ' + aM.toFixed(2) : '') + ' → zayıf eşik ' + lo.toFixed(2) + ', güçlü eşik ' + hi.toFixed(2) + '</li>';
+  });
+  out.innerHTML = H.length + ' kendi metnin' + (A.length ? ', ' + A.length + ' AI metni' : '') + ' kullanıldı. Yeni eşikler:<ul class="why">' + rows + '</ul>';
+  analyze();
+}
+$('calGo').addEventListener('click', calibrate);
+$('calReset').addEventListener('click', function(){ TH = Object.assign({}, DEF); $('calOut').textContent = 'Varsayılan eşiklere dönüldü.'; analyze(); });
+inp.addEventListener("input", function(){ clearTimeout(timer); timer = setTimeout(analyze, 250); });
+$("clr").addEventListener("click", function(){ inp.value = ""; analyze(); inp.focus(); });
+$("paste").addEventListener("click", function(){
+  if(!navigator.clipboard || !navigator.clipboard.readText){ inp.focus(); return; }
+  navigator.clipboard.readText().then(function(t){ inp.value = t; analyze(); }).catch(function(){ inp.focus(); });
+});
+
+/* Sekmeler (hash) */
+function route(){
+  var h = (location.hash || "#analiz").slice(1); if(!$(h)) h = "analiz";
+  ["analiz","kalibrasyon","bilgi"].forEach(function(t){ $(t).classList.toggle("on", t === h); });
+  document.querySelectorAll("nav a").forEach(function(a){ a.classList.toggle("on", a.dataset.t === h); });
+  window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route); route();
+$("yr").textContent = new Date().getFullYear();
+
+/* Yasal metinler */
+var MAIL = '<a href="mailto:iletisim@ozgulerforge.com">iletisim@ozgulerforge.com</a>';
+var LEG = {
+kullanim: '<h3>Kullanım Koşulları</h3><p>Son güncelleme: 10 Kasım 2026</p>'
++ '<h4>Hizmetin kapsamı</h4><p>AI İz Analizi, metnin yazım özelliklerine bakarak olası yapay zekâ izlerini gösteren ücretsiz bir araçtır. Uygulamayı kullanarak bu koşulları kabul etmiş olursunuz.</p>'
++ '<h4>Kullanım kuralları</h4><p>Aracı hukuka ve genel ahlaka uygun kullanmayı, sonuçları tek başına suçlama, cezalandırma veya not verme dayanağı yapmamayı kabul edersiniz. Analiz ettiğiniz metin üzerindeki haklardan siz sorumlusunuz.</p>'
++ '<h4>Fikri mülkiyet</h4><p>Uygulamanın tasarımı ve kodu Özgüler Forge’a aittir. İzinsiz kopyalanamaz veya ticari amaçla dağıtılamaz.</p>'
++ '<h4>Değişiklik ve sonlandırma</h4><p>Hizmet önceden haber verilmeden değiştirilebilir veya durdurulabilir. Sorularınız için: ' + MAIL + '</p>'
++ '<h4>Uygulanacak hukuk</h4><p>Bu koşullar Türkiye Cumhuriyeti hukukuna tabidir.</p>',
+gizlilik: '<h3>Gizlilik Politikası</h3><p>Son güncelleme: 10 Kasım 2026</p>'
++ '<h4>Metniniz</h4><p>Yapıştırdığınız metin yalnızca cihazınızdaki tarayıcıda analiz edilir. Sunucularımıza gönderilmez, kaydedilmez ve üçüncü kişilerle paylaşılmaz.</p>'
++ '<h4>Hesap, çerez ve izleme</h4><p>Uygulama hesap gerektirmez. Çerez, reklam veya izleme aracı kullanmaz.</p>'
++ '<h4>Cihazda saklanan veriler</h4><p>Çevrimdışı çalışabilmesi için yalnızca uygulama dosyaları cihazınızda önbelleğe alınır. Kişisel veri saklanmaz. Kalibrasyon ayarları yalnızca açık oturumda bellekte tutulur.</p>'
++ '<h4>İletişim</h4><p>' + MAIL + '</p>',
+kvkk: '<h3>KVKK Aydınlatma Metni</h3><p>6698 sayılı Kişisel Verilerin Korunması Kanunu’nun 10. maddesi kapsamındadır. Son güncelleme: 10 Kasım 2026</p>'
++ '<h4>Veri sorumlusu</h4><p>Özgüler Forge (ozgulerforge.com.tr). İletişim: ' + MAIL + '</p>'
++ '<h4>İşlenen kişisel veri</h4><p>Uygulama sunucu tarafında kişisel veri toplamaz veya işlemez. Metin analizi yalnızca cihazınızda gerçekleşir. Bize e-posta gönderirseniz e-posta adresiniz ve mesajınız yalnızca talebinizi yanıtlamak amacıyla işlenir.</p>'
++ '<h4>Hukuki sebep ve aktarım</h4><p>E-posta yazışmaları, meşru menfaat ve talebinizi yerine getirme sebebine dayanır. Verileriniz üçüncü kişilere aktarılmaz.</p>'
++ '<h4>Haklarınız</h4><p>KVKK’nın 11. maddesi uyarınca verilerinizin işlenip işlenmediğini öğrenme, düzeltme, silme ve itiraz etme haklarına sahipsiniz. Taleplerinizi ' + MAIL + ' adresine iletebilirsiniz.</p>',
+kabul: '<h3>Kabul Edilebilir Kullanım</h3>'
++ '<p>Uygulamayı kullanırken şunları yapmamayı kabul edersiniz:</p>'
++ '<ul><li>Sonuçları kişileri suçlamak, itibarını zedelemek veya haksız yere cezalandırmak için kullanmak.</li><li>Başkasına ait özel veya gizli metinleri izinsiz analiz etmek.</li><li>Aracı yasa dışı, yanıltıcı veya zararlı bir amaçla kullanmak.</li><li>Uygulamanın işleyişine zarar vermeye ya da kodunu izinsiz kopyalayıp dağıtmaya çalışmak.</li></ul>'
++ '<p>Bu kurallara uyulmaması hâlinde hizmet erişimi sınırlandırılabilir.</p>',
+ihlal: '<h3>İçerik / İhlal Bildirimi</h3>'
++ '<p>Uygulama kullanıcı içeriğini sunucuda tutmaz veya yayımlamaz. Yine de uygulamanın içeriğinde telif hakkı, kişilik hakkı veya başka bir hak ihlali olduğunu düşünüyorsanız ' + MAIL + ' adresine yazın.</p>'
++ '<p>Bildiriminizde ihlal edildiğini düşündüğünüz içeriği, hak sahipliğinizi ve size ulaşabileceğimiz iletişim bilgisini belirtin. Başvurular makul sürede incelenir.</p>',
+sorumluluk: '<h3>Sorumluluk Reddi</h3>'
++ '<p>Araç istatistiksel ipuçları üretir. Sonuçlar kesin değildir, yanlış pozitif ve yanlış negatif içerebilir. Düzenli yazan, resmî dil kullanan veya Türkçeyi ikinci dil olarak yazan kişilerin metinleri de yüksek çıkabilir.</p>'
++ '<p>Sonuçlar kanıt niteliği taşımaz. Bu sonuçlara dayanarak alınan kararlardan Özgüler Forge sorumlu tutulamaz. Uygulama “olduğu gibi” sunulur, kesintisiz veya hatasız çalışacağı garanti edilmez.</p>'
+};
+document.querySelectorAll("[data-leg]").forEach(function(b){ b.addEventListener("click", function(){ $("dbody").innerHTML = LEG[b.dataset.leg]; $("dlg").showModal(); }); });
+$("dclose").addEventListener("click", function(){ $("dlg").close(); });
+$("dlg").addEventListener("click", function(e){ if(e.target === $("dlg")) $("dlg").close(); });
+
+/* PWA: kurulum ve çevrimdışı */
+var dp;
+window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); dp = e; $("inst").style.display = "block"; });
+$("inst").addEventListener("click", function(){ if(dp){ dp.prompt(); dp = null; $("inst").style.display = "none"; } });
+var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !navigator.standalone && !matchMedia("(display-mode: standalone)").matches;
+if(ios){ $("inst").style.display = "block"; $("inst").textContent = "Ana ekrana ekle"; $("inst").addEventListener("click", function(){ $("dbody").innerHTML = "<h3>Ana ekrana ekle</h3><p>Safari’de Paylaş simgesine dokun, ardından “Ana Ekrana Ekle” seçeneğini seç.</p>"; $("dlg").showModal(); }); }
+window.addEventListener("appinstalled", function(){ $("inst").style.display = "none"; });
+if("serviceWorker" in navigator){ window.addEventListener("load", function(){ navigator.serviceWorker.register("sw.js").catch(function(){}); }); }
+var hadC = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
+if("serviceWorker" in navigator){ navigator.serviceWorker.addEventListener("controllerchange", function(){ if(hadC) location.reload(); }); }
+$("upd").addEventListener("click", function(){
+  var b = $("upd"); b.textContent = "Kontrol ediliyor…";
+  if(!("serviceWorker" in navigator)){ b.textContent = "Bu tarayıcıda desteklenmiyor"; return; }
+  navigator.serviceWorker.getRegistration().then(function(r){ return r ? r.update() : null; }).then(function(){ b.textContent = "Güncel, yeni sürüm varsa yenilenecek"; }).catch(function(){ b.textContent = "Kontrol edilemedi"; });
+});
+analyze();
+</script>
+</body>
+</html>
