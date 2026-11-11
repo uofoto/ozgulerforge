@@ -36,6 +36,7 @@ section{padding:100px 0 0}.section-head{display:flex;justify-content:space-betwe
 .ios-tip{margin:-16px 0 26px;max-width:440px;padding:12px 16px;border:1px dashed var(--line);border-radius:16px;color:var(--muted);font-size:13px}.ios-tip strong{color:var(--ink)}
 .foot-contact{flex-basis:100%;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding-bottom:18px;margin-bottom:4px;border-bottom:1px solid var(--line);font-size:14px}.foot-contact a{color:var(--ink);font-weight:700;border-bottom:1px solid var(--accent)}
 @supports(padding:max(0px)){footer{padding-bottom:max(28px,env(safe-area-inset-bottom))}}
+.upd{position:fixed;left:50%;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:50;width:min(420px,calc(100% - 32px));display:flex;align-items:center;gap:12px;padding:12px 14px 12px 18px;border-radius:18px;background:var(--deep);color:#fff;box-shadow:0 18px 40px rgba(0,0,0,.28);font-size:13px}.upd span{flex:1}.upd button{border:0;border-radius:999px;padding:9px 15px;font-size:12px;font-weight:700;background:var(--accent-2);color:#20150b}.upd button#updLater{background:transparent;color:rgba(255,255,255,.7);padding:9px 8px}
 </style>
 </head>
 <body>
@@ -51,12 +52,23 @@ section{padding:100px 0 0}.section-head{display:flex;justify-content:space-betwe
 <article class="app"><div class="app-copy"><div class="eyebrow">06 / sakla</div><h3>Ses Cebi</h3><p>İzinli sesleri cihazında saklayan kişisel mobil ses arşivi. Kayıtların sana ait kalır, bir sunucuya yüklenmez.</p><ul class="features"><li>Sesler yalnızca cihazında saklanır</li><li>Kişisel ve izinli kayıtlar için sade arşiv</li><li>Ana ekrana uygulama gibi eklenir</li></ul><a class="btn primary" href="/sescebi/index.html">Uygulamayı aç <span aria-hidden="true">↗</span></a></div><div class="app-art"><div class="phone"><div class="screen"><div class="screen-title">Ses Cebi</div><div class="mini-label">Kişisel ses arşivi</div><div style="flex:1;border-radius:15px;background:linear-gradient(150deg,#2b2623,#17130f);display:flex;align-items:center;justify-content:center;gap:5px"><div style="width:5px;height:18px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:34px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:54px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:28px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:66px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:42px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:24px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:50px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:32px;border-radius:99px;background:var(--accent)"></div><div style="width:5px;height:16px;border-radius:99px;background:var(--accent)"></div></div><div class="bar long"></div><div class="screen-cta">Dinle</div></div></div><span class="art-badge">cihazda saklanır</span></div></article></div></section>
 <section id="neden"><div class="section-head"><div><div class="eyebrow">Tasarım ilkeleri</div><h2>Güven, deneyimin temelidir.</h2></div><p>Teknolojiyi görünür kılmak yerine, doğru yerde sessizce çalışmasını tercih ediyoruz.</p></div><div class="trust"><article><div class="trust-icon">01</div><h3>Önce gizlilik</h3><p>Dosyaların cihazında işlenir. Takip, analitik ve gereksiz izin yok.</p></article><article><div class="trust-icon">02</div><h3>Hızlı ve hafif</h3><p>Mağaza beklemeden kurulur; ana ekrana eklenir, çevrimdışı da çalışır.</p></article><article><div class="trust-icon">03</div><h3>Titiz tasarım</h3><p>Her ekran tek bir amaca odaklanır. Karmaşa değil, netlik.</p></article></div></section>
 </main><footer><div class="wrap"><div class="foot-contact"><span>İletişim</span><a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></div><span>© 2026 Ümit Özgüler · Özgüler Forge</span><span><a href="yasal.html#kosullar">Kullanım Koşulları</a> · <a href="yasal.html#gizlilik">Gizlilik</a> · <a href="yasal.html#kvkk">KVKK</a> · <a href="yasal.html#cerez">Çerezler</a> · <a href="yasal.html#sorumluluk">Sorumluluk Reddi</a></span><span><a href="https://www.ozgulerforge.com.tr">www.ozgulerforge.com.tr</a></span></div></footer>
+<div class="upd" id="updToast" role="status" aria-live="polite" hidden><span>Yeni sürüm hazır.</span><button id="updReload" type="button">Yenile</button><button id="updLater" type="button" aria-label="Kapat">Sonra</button></div>
 <script>
 const root=document.documentElement, toggle=document.getElementById('themeToggle');
 const saved=localStorage.getItem('forge_theme'); if(saved) root.dataset.theme=saved;
 toggle.addEventListener('click',()=>{const next=root.dataset.theme==='dark'?'light':'dark';root.dataset.theme=next;localStorage.setItem('forge_theme',next)});
 
-if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+if('serviceWorker' in navigator){
+const tst=document.getElementById('updToast'),hadCtl=!!navigator.serviceWorker.controller;let shown=false;
+navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadCtl&&!shown){shown=true;tst.hidden=false}});
+addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').then(reg=>{
+const chk=()=>reg.update().catch(()=>{});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)chk()});
+setInterval(chk,30*60*1000);chk();
+}).catch(()=>{}));
+}
+document.getElementById('updReload').addEventListener('click',()=>location.reload());
+document.getElementById('updLater').addEventListener('click',()=>{document.getElementById('updToast').hidden=true});
 let dp=null;const ib=document.getElementById('installBtn'),tip=document.getElementById('iosTip');
 const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;if(!standalone)ib.hidden=false});
