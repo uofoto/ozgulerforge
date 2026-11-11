@@ -50,10 +50,11 @@ app.innerHTML = `
       </section>
 
       <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
-        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 11</span></div>
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 12</span></div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
           <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
+          <button class="ghost-button" id="diag-button" type="button"><span>Kurulum durumu</span></button>
         </div>
       </section>
 
@@ -597,7 +598,7 @@ audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); });
-const APP_VERSION = '11';
+const APP_VERSION = '12';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -697,6 +698,47 @@ if ('serviceWorker' in navigator) {
             swRegistration?.update().catch(() => undefined);
     });
 }
+async function diagnose() {
+    const out = [];
+    const ok = (good, text) => out.push((good ? '✔ ' : '✘ ') + text);
+    ok(window.isSecureContext, 'Güvenli bağlantı (HTTPS)');
+    ok('serviceWorker' in navigator, 'Service worker desteği');
+    try {
+        const reg = await navigator.serviceWorker.getRegistration('./');
+        ok(!!reg && !!reg.active, 'Service worker etkin');
+    }
+    catch {
+        ok(false, 'Service worker kaydı');
+    }
+    const link = document.querySelector('link[rel=manifest]');
+    let manifest = null;
+    try {
+        const res = await fetch(link.href, { cache: 'no-store' });
+        manifest = await res.json();
+        ok(res.ok, `Manifest okundu (${res.status})`);
+    }
+    catch {
+        ok(false, 'Manifest bulunamadı ya da bozuk');
+    }
+    if (manifest) {
+        ok(manifest.display === 'standalone' || manifest.display === 'fullscreen', 'display ayarı');
+        const sizes = (manifest.icons || []).map((i) => i.sizes).join(' ');
+        ok(/192x192/.test(sizes) && /512x512/.test(sizes), '192 ve 512 simge tanımlı');
+        for (const icon of manifest.icons || []) {
+            try {
+                const res = await fetch(new URL(icon.src, link.href), { cache: 'no-store' });
+                ok(res.ok && (res.headers.get('content-type') || '').startsWith('image'), `${icon.src} (${res.status})`);
+            }
+            catch {
+                ok(false, `${icon.src} yüklenemedi`);
+            }
+        }
+    }
+    ok(!!deferredInstallPrompt, 'Tarayıcı kurulum penceresine hazır');
+    ok(!isStandalone(), 'Şu an tarayıcıda açık (uygulama olarak değil)');
+    window.alert(out.join('\n'));
+}
+get('diag-button').addEventListener('click', () => void diagnose());
 refreshAppCard();
 async function init() {
     if (navigator.storage?.persist) {
@@ -713,6 +755,6 @@ async function init() {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=11', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=12', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();

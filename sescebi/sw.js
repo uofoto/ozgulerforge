@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sescebi-shell-v11';
+const CACHE_NAME = 'sescebi-shell-v12';
 // Service worker hangi alt klasörde yayınlanırsa onun kapsamını kullanır (örn. /sescebi/).
 const BASE = self.registration.scope;
 const scoped = (path) => new URL(path, BASE).href;
@@ -17,7 +17,7 @@ const APP_SHELL = [
 
 async function precacheAppShell() {
   const cache = await caches.open(CACHE_NAME);
-  const response = await fetch(scoped('./?sw-shell=11'), { cache: 'no-store' });
+  const response = await fetch(scoped('./?sw-shell=12'), { cache: 'no-store' });
   const html = await response.clone().text();
   const assets = [...html.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css))["']/g)].map((match) => new URL(match[1], BASE).href);
   const urls = [...new Set([...APP_SHELL, ...assets])];
