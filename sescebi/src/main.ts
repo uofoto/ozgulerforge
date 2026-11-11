@@ -70,7 +70,7 @@ app.innerHTML = `
         <div>
           <section class="card add-card" aria-labelledby="add-title">
             <div class="card-heading">
-              <div><h2 id="add-title">Cebe bir ses koy</h2><p>Dosyadan seç veya izinli bağlantı ekle.</p></div>
+              <div><h2 id="add-title">Cebe bir ses koy</h2><p>Dosyadan seç (videodan sesi ayır) veya izinli bağlantı ekle.</p></div>
               <span class="stamp">YEREL</span>
             </div>
             <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi">
@@ -80,9 +80,9 @@ app.innerHTML = `
             <div id="file-panel" role="tabpanel">
               <label class="file-drop" for="file-input">
                 ${icons.upload}
-                <strong>Ses dosyasını seç</strong>
-                <span>MP3, M4A, WAV, OGG · en fazla 100 MB</span>
-                <input id="file-input" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac" />
+                <strong>Ses veya video dosyasını seç</strong>
+                <span>MP3, M4A, WAV, OGG veya MP4/MOV/WEBM video · en fazla 100 MB</span>
+                <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.mp4,.m4v,.mov,.webm,.mkv" />
               </label>
               <p class="file-name" id="file-name" aria-live="polite">Henüz dosya seçilmedi</p>
             </div>
@@ -327,6 +327,63 @@ async function readUrlBlob(url: URL): Promise<{ blob: Blob; type: string }> {
   return normalizeAudioBlob(blob, declaredType);
 }
 
+const VIDEO_EXT = /\.(mp4|m4v|mov|webm|mkv)$/i;
+
+function isVideoFile(file: File): boolean {
+  return file.type.startsWith('video/') || VIDEO_EXT.test(file.name);
+}
+
+function decodeAudio(ctx: AudioContext, data: ArrayBuffer): Promise<AudioBuffer> {
+  // Eski Safari sürümleri için geri çağırmalı biçim de kullanılır.
+  return new Promise((resolve, reject) => {
+    try { ctx.decodeAudioData(data, resolve, reject)?.then?.(resolve, reject); } catch (error) { reject(error); }
+  });
+}
+
+function encodeWav(buffer: AudioBuffer): Blob {
+  const channels = Math.min(2, buffer.numberOfChannels);
+  const length = buffer.length;
+  const sampleRate = buffer.sampleRate;
+  const dataSize = length * channels * 2;
+  const out = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(out);
+  const writeText = (offset: number, text: string) => { for (let i = 0; i < text.length; i++) view.setUint8(offset + i, text.charCodeAt(i)); };
+  writeText(0, 'RIFF'); view.setUint32(4, 36 + dataSize, true); writeText(8, 'WAVE');
+  writeText(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, channels, true);
+  view.setUint32(24, sampleRate, true); view.setUint32(28, sampleRate * channels * 2, true); view.setUint16(32, channels * 2, true); view.setUint16(34, 16, true);
+  writeText(36, 'data'); view.setUint32(40, dataSize, true);
+  const data = Array.from({ length: channels }, (_, c) => buffer.getChannelData(c));
+  let offset = 44;
+  for (let i = 0; i < length; i++) {
+    for (let c = 0; c < channels; c++) {
+      const sample = Math.max(-1, Math.min(1, data[c][i]));
+      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+      offset += 2;
+    }
+  }
+  return new Blob([out], { type: 'audio/wav' });
+}
+
+async function extractAudioFromVideo(file: File): Promise<Blob> {
+  setProgress('Video okunuyor…', 15);
+  const data = await file.arrayBuffer();
+  const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+  const ctx = new AudioCtx();
+  let decoded: AudioBuffer;
+  try {
+    setProgress('Videodan ses ayrılıyor…', 40);
+    decoded = await decodeAudio(ctx, data);
+  } catch {
+    throw new Error('Videodaki ses okunamadı. Videoda ses kanalı olmayabilir veya tarayıcın bu biçimi desteklemiyor (MP4/H.264+AAC dene).');
+  } finally {
+    ctx.close().catch(() => undefined);
+  }
+  if (!decoded.length || decoded.duration <= 0) throw new Error('Videoda ses bulunamadı.');
+  setProgress('Ses dosyası hazırlanıyor…', 75);
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  return encodeWav(decoded);
+}
+
 async function createSong(blob: Blob, name: string, source: SourceType): Promise<StoredSong> {
   const declaredType = blob.type.toLowerCase();
   const type = declaredType.startsWith('audio/') ? declaredType : (await looksLikeAudio(blob) ? 'audio/mpeg' : '');
@@ -346,12 +403,17 @@ async function addSelectedAudio(): Promise<void> {
     let name: string;
     let source: SourceType = activeTab;
     if (activeTab === 'file') {
-      if (!selectedFile) throw new Error('Önce bir ses dosyası seç.');
-      if (!selectedFile.type.startsWith('audio/') && !/\.(mp3|m4a|wav|ogg|aac|flac)$/i.test(selectedFile.name)) throw new Error('Bu dosya desteklenen bir ses formatında değil.');
+      if (!selectedFile) throw new Error('Önce bir ses veya video dosyası seç.');
+      const isVideo = isVideoFile(selectedFile);
+      if (!isVideo && !selectedFile.type.startsWith('audio/') && !/\.(mp3|m4a|wav|ogg|aac|flac)$/i.test(selectedFile.name)) throw new Error('Bu dosya desteklenen bir ses veya video formatında değil.');
       if (selectedFile.size > MAX_SIZE) throw new Error('Bu dosya 100 MB sınırını aşıyor.');
-      blob = selectedFile;
       name = selectedFile.name;
-      setProgress('Cihaza kaydediliyor…', 72);
+      if (isVideo) {
+        blob = await extractAudioFromVideo(selectedFile);
+      } else {
+        blob = selectedFile;
+      }
+      setProgress('Cihaza kaydediliyor…', 90);
     } else {
       const url = validateDirectUrl(urlInput.value.trim());
       name = urlBaseName(url);
@@ -511,7 +573,7 @@ async function init(): Promise<void> {
     songs = await dbGetAll();
     renderLibrary();
   } catch { toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true); }
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js?v=6').catch(() => undefined);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=8', { scope: './' }).catch(() => undefined);
 }
 
 void init();
