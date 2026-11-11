@@ -169,3 +169,10 @@ progress::-moz-progress-bar { background: var(--orange); border-radius: 99px; }
   .song-art { width: 40px; height: 40px; }
   .song-actions { grid-column: 2; justify-content: flex-start; }
 }
+
+.app-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 14px 18px; margin-bottom: 22px; background: rgba(255, 250, 243, .78); border: 1px solid var(--line); border-radius: 18px; }
+.app-card-text { display: flex; flex-direction: column; gap: 3px; font-size: .84rem; color: var(--muted); }
+.app-card-text strong { color: var(--ink); font-size: .98rem; }
+.app-card-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.app-card-actions .primary-button { width: auto; padding: 0 18px; }
+@media (max-width: 430px) { .app-card-actions { width: 100%; } .app-card-actions > * { flex: 1; } }

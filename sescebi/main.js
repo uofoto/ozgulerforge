@@ -49,6 +49,14 @@ app.innerHTML = `
         </div>
       </section>
 
+      <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 9</span></div>
+        <div class="app-card-actions">
+          <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
+          <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
+        </div>
+      </section>
+
       <section class="content-grid" aria-label="Ses ekleme ve arşiv">
         <div>
           <section class="card add-card" aria-labelledby="add-title">
@@ -589,6 +597,107 @@ audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); });
+const APP_VERSION = '9';
+let deferredInstallPrompt = null;
+let swRegistration = null;
+let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
+const installButton = get('install-button');
+const updateButton = get('update-button');
+const appStatus = get('app-status');
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function refreshAppCard() {
+    if (isStandalone()) {
+        installButton.hidden = true;
+        appStatus.textContent = `Uygulama olarak çalışıyor · Sürüm ${APP_VERSION}`;
+    }
+    else {
+        installButton.hidden = false;
+        appStatus.textContent = deferredInstallPrompt ? `Ana ekrana yüklenmeye hazır · Sürüm ${APP_VERSION}` : `Tarayıcıda açık · Sürüm ${APP_VERSION}`;
+    }
+}
+window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    refreshAppCard();
+});
+window.addEventListener('appinstalled', () => {
+    deferredInstallPrompt = null;
+    toast('Ses Cebi ana ekrana yüklendi.');
+    refreshAppCard();
+});
+window.matchMedia('(display-mode: standalone)').addEventListener?.('change', refreshAppCard);
+installButton.addEventListener('click', async () => {
+    if (deferredInstallPrompt) {
+        const promptEvent = deferredInstallPrompt;
+        deferredInstallPrompt = null;
+        try {
+            await promptEvent.prompt();
+            const choice = await promptEvent.userChoice;
+            toast(choice.outcome === 'accepted' ? 'Yükleme başlatıldı.' : 'Yükleme iptal edildi.');
+        }
+        catch {
+            toast('Yükleme penceresi açılamadı.', true);
+        }
+        refreshAppCard();
+        return;
+    }
+    if (isIos) {
+        toast('Safari’de Paylaş düğmesine dokun, ardından “Ana Ekrana Ekle”yi seç.');
+        return;
+    }
+    toast('Tarayıcı menüsünden (⋮) “Uygulamayı yükle” veya “Ana ekrana ekle”yi seç. “Zaten yüklü” diyorsa eski kurulumu kaldırıp tekrar dene.', true);
+});
+async function checkForUpdates() {
+    if (!('serviceWorker' in navigator)) {
+        toast('Bu tarayıcı güncelleme denetimini desteklemiyor.', true);
+        return;
+    }
+    updateButton.disabled = true;
+    const label = updateButton.querySelector('span');
+    if (label)
+        label.textContent = 'Denetleniyor…';
+    try {
+        const registration = swRegistration || await navigator.serviceWorker.getRegistration('./');
+        if (!registration)
+            throw new Error('kayıt yok');
+        await registration.update();
+        if (registration.waiting)
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        if (registration.installing || registration.waiting)
+            toast('Yeni sürüm bulundu, yükleniyor…');
+        else
+            toast(`Uygulama güncel · Sürüm ${APP_VERSION}`);
+    }
+    catch {
+        toast('Güncelleme denetlenemedi. İnternet bağlantını kontrol et.', true);
+    }
+    finally {
+        updateButton.disabled = false;
+        if (label)
+            label.textContent = 'Güncellemeleri denetle';
+    }
+}
+updateButton.addEventListener('click', () => void checkForUpdates());
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadController) {
+            hadController = true;
+            return;
+        }
+        if (audio.paused) {
+            toast('Yeni sürüm yüklendi, yenileniyor…');
+            window.setTimeout(() => window.location.reload(), 1200);
+        }
+        else
+            toast('Yeni sürüm hazır. Çalan sesi bitirince sayfayı yenile.');
+    });
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible')
+            swRegistration?.update().catch(() => undefined);
+    });
+}
+refreshAppCard();
 async function init() {
     if (navigator.storage?.persist) {
         try {
@@ -604,6 +713,6 @@ async function init() {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=8', { scope: './' }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=9', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sescebi-shell-v8';
+const CACHE_NAME = 'sescebi-shell-v9';
 // Service worker hangi alt klasörde yayınlanırsa onun kapsamını kullanır (örn. /sescebi/).
 const BASE = self.registration.scope;
 const scoped = (path) => new URL(path, BASE).href;
@@ -17,7 +17,7 @@ const APP_SHELL = [
 
 async function precacheAppShell() {
   const cache = await caches.open(CACHE_NAME);
-  const response = await fetch(scoped('./?sw-shell=8'), { cache: 'no-store' });
+  const response = await fetch(scoped('./?sw-shell=9'), { cache: 'no-store' });
   const html = await response.clone().text();
   const assets = [...html.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css))["']/g)].map((match) => new URL(match[1], BASE).href);
   const urls = [...new Set([...APP_SHELL, ...assets])];
@@ -75,4 +75,8 @@ self.addEventListener('fetch', (event) => {
     requestUrl.href === scoped('index.html') ||
     requestUrl.href === scoped('sw.js');
   event.respondWith(isDocument ? networkFirst(event.request) : cacheFirst(event.request));
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
