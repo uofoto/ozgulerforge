@@ -8,6 +8,7 @@
 - [x] Kullanıcı, sahip olduğu veya indirme izni bulunan ses dosyalarını cihazın dosya seçicisi üzerinden uygulamaya ekleyebilmeli.
 - [x] İzinli, doğrudan medya dosyası bağlantısından ses ekleme ve kaydetme akışı desteklenmeli.
 - [x] Eklenen ses dosyaları cihazda yerel ve kalıcı biçimde saklanmalı ve çevrimdışı erişilebilmeli.
+- [x] Kullanıcının kendi videosundan (MP4/MOV/WEBM) ses ayrıştırma tarayıcıda yerel yapılır; sunucuya gönderilmez.
 - [x] İçerik ekleme akışında hak sahipliği veya indirme izni sorumluluğunu açıklayan kullanım onayı bulunmalı.
 
 ## Ses arşivi ve oynatıcı
