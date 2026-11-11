@@ -2,7 +2,7 @@
   "name": "Ses Cebi",
   "short_name": "Ses Cebi",
   "description": "İzinli sesleri cihazında saklayan kişisel mobil ses arşivi.",
-  "id": "./",
+  "id": "./?ses-cebi=2",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

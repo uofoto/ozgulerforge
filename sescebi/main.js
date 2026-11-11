@@ -50,7 +50,7 @@ app.innerHTML = `
       </section>
 
       <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
-        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 9</span></div>
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 10</span></div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
           <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
@@ -597,7 +597,7 @@ audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); });
-const APP_VERSION = '9';
+const APP_VERSION = '10';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -713,6 +713,6 @@ async function init() {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=9', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=10', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();
