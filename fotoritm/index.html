@@ -187,7 +187,7 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
 const $ = id => document.getElementById(id);
 const cv = $('cv'), main = cv.getContext('2d'), tlc = $('tlc'), tctx = tlc.getContext('2d');
 let ctx = main, mc = null, bc = null, imgs = [], AC = null, buf = null, beats = [], bpm = 0;
-let tl = [], BS = [], startT = 0, endT = 0;
+let tl = [], BS = [], startT = 0, endT = 0, beatPeak = 0;
 let vlive = false;
 let pf = 0, lastUrl = null, dragI = -1, lastSec = -1, src = null, ctx0 = 0, playing = false, recMode = false, raf = 0, mr = null, chunks = [], finishing = false;
 
@@ -347,10 +347,12 @@ function build() {
   let bpp = +$('bpp').value;
   const iv = (endT - st) / BS.length, mn = +$('minS').value;
   let starts = [];
+  let beatLevels = [];
   if (bpp) {
     // Elle seçilen değer: her öğeyi sabit sayıda vuruşta değiştir.
     if (mn > 0 && bpp * iv < mn) bpp = [1, 2, 4, 8, 16, 32, 64].find(v => v >= mn / iv) || 64;
     starts = BS.filter((_, i) => i % bpp === 0);
+    beatLevels = starts.map(t => { const i = BS.indexOf(t); return i >= 0 ? Math.max(0, ...BS.slice(Math.max(0, i - 1), i + 2).map(x => { const k = Math.round(x * WF); return Math.max(0, ...ON.slice(Math.max(0, k - 3), k + 4)); })) : 0; });
   } else {
     // Otomatik: güçlü vurgularda erken, zayıf vuruşlarda daha geç değiştir.
     // Her değişim algılanan bir vuruşa oturur; aralık 1–4 vuruş arasında değişebilir.
@@ -365,17 +367,19 @@ function build() {
     const threshold = Math.max(.12, p75 * .72);
     const minGap = mn > 0 ? mn : iv * .72;
     starts = [BS[0]];
+    beatLevels = [strengths[0] || 0];
     let last = BS[0], lastIndex = 0;
     for (let i = 1; i < BS.length; i++) {
       const elapsed = BS[i] - last;
       const forced = i - lastIndex >= 4;
       const accent = strengths[i] >= threshold;
-      if (elapsed >= minGap && (accent || forced)) { starts.push(BS[i]); last = BS[i]; lastIndex = i; }
+      if (elapsed >= minGap && (accent || forced)) { starts.push(BS[i]); beatLevels.push(strengths[i]); last = BS[i]; lastIndex = i; }
     }
     bpp = 0;
   }
   startT = st;
-  starts.forEach((t, i) => tl.push({ t0: i === 0 ? st : t, t1: i + 1 < starts.length ? starts[i + 1] : endT, img: i % imgs.length }));
+  beatPeak = Math.max(0, ...beatLevels);
+  starts.forEach((t, i) => tl.push({ t0: i === 0 ? st : t, t1: i + 1 < starts.length ? starts[i + 1] : endT, img: i % imgs.length, beat: beatLevels[i] || 0 }));
   const timingLabel = bpp ? 'her biri ' + bpp + ' vuruş (≈' + (bpp * iv).toFixed(1) + ' sn)' : 'vurgulara göre değişken aralık · geçişler vuruşta';
   say(imgs.length + ' öğe → ' + tl.length + ' kare · ' + timingLabel + ' · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · öğeler tekrar eder' : '') + (tl.length < imgs.length ? ' · ' + (imgs.length - tl.length) + ' öğe sığmadı: en kısa süreyi düşür' : ''));
   draw(st); drawTL(st);
@@ -445,7 +449,9 @@ function draw(t, fx) {
   const W = cv.width; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, cv.height);
   let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
   const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), tv = $('trans').value, lb = lastBeat(t), z = $('zoom').checked;
-  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), kd = tv === 'mix' ? TR[k % TR.length] : tv, F = kd === 'cut' ? 0 : Math.min(kd === 'fade' ? 1.2 : .95, dur * (kd === 'fade' ? .9 : .8));
+  // Karışık modda vuruş gücüne göre efekt: güçlü=kesme, orta=ışık/derinlik, hafif=yumuşak.
+  const autoFx = s.beat >= beatPeak * .68 ? 'cut' : s.beat >= beatPeak * .36 ? 'isi' : 'fade';
+  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), kd = tv === 'mix' ? autoFx : tv, F = kd === 'cut' ? 0 : Math.min(kd === 'fade' ? 1.2 : .95, dur * (kd === 'fade' ? .9 : .8));
   if (k > 0 && since < F) trans(kd, since / F, tl[k - 1].img, s.img); else put(s.img, { sc });
   if ($('flash').checked && lb != null) { const a = Math.max(0, 1 - (t - lb) / .12) * .18; if (a > 0) { ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fillRect(0, 0, W, cv.height); } }
   if (fx && $('fade').checked) { const fd = Math.min(1.2, (endT - pf) / 3), fi = Math.min(.6, fd), a = Math.max(Math.max(0, 1 - (t - pf) / fi), Math.max(0, 1 - (endT - t) / fd)); if (a > 0) { ctx.fillStyle = 'rgba(0,0,0,' + Math.min(1, a) + ')'; ctx.fillRect(0, 0, W, cv.height); } }
