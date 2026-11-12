@@ -136,6 +136,7 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
       <button id="shuf" disabled>Karıştır</button>
     </div>
     <div id="thumbs"></div>
+    <p id="photoAdvice" class="note" aria-live="polite">Müzik yüklendiğinde önerilen fotoğraf sayısı burada gösterilir.</p>
     <p class="note">Sırayı değiştirmek için sürükle ya da ‹ › düğmelerini kullan. İlk öğe videoyu açar. Videolar kendi slaytlarında sessiz oynar (ses olarak müzik duyulur); slayttan kısa videolar baştan döner.</p>
   </div>
 
@@ -258,6 +259,14 @@ function drop(it) {
   try { it.bmp.close(); } catch (x) { }
   if (it.v) { try { it.v.pause(); it.v.removeAttribute('src'); it.v.load(); } catch (x) { } URL.revokeObjectURL(it.vu); }
 }
+let recommendedPhotos = 0;
+function updatePhotoAdvice() {
+  const el = $('photoAdvice'); if (!el) return;
+  if (!recommendedPhotos) { el.textContent = 'Müzik yüklendiğinde önerilen fotoğraf sayısı burada gösterilir.'; return; }
+  if (!imgs.length) { el.textContent = 'Bu parça için yaklaşık ' + recommendedPhotos + ' fotoğraf önerilir (ortalama 2,5–5 sn aralıklı geçişler). Daha az fotoğraf varsa tekrar kullanılır; fotoğrafları şimdi ekleyebilirsin.'; return; }
+  const diff = imgs.length - recommendedPhotos;
+  el.textContent = 'Öneri: yaklaşık ' + recommendedPhotos + ' fotoğraf · yüklü: ' + imgs.length + (diff === 0 ? ' — uygun sayıda.' : diff < 0 ? ' — ' + (-diff) + ' fotoğraf daha ekleyebilirsin; mevcutlar tekrar eder.' : ' — ' + diff + ' fotoğraf öneriye göre fazla; son fotoğraflar müzik bitmeden gösterilemeyebilir.');
+}
 $('pics').onchange = async e => {
   const files = Array.from(e.target.files), bad = [];
   if (e.target.value !== undefined) try { e.target.value = ''; } catch (x) { }
@@ -265,17 +274,17 @@ $('pics').onchange = async e => {
   for (const f of files) {
     try { imgs.push({ ...await (isVid(f) ? loadVid(f) : loadImg(f)), f }); } catch (x) { bad.push(f.name); }
   }
-  thumbs(); build();
+  thumbs(); updatePhotoAdvice(); build();
   if (bad.length) say(bad.length + ' dosya açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : '') + ' (HEIC/HEIF fotoğrafı JPG, videoyu MP4/H.264 olarak kaydedip tekrar ekle)', 'err');
 };
-$('shuf').onclick = () => { stop(); for (let i = imgs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [imgs[i], imgs[j]] = [imgs[j], imgs[i]]; } thumbs(); build(); };
+$('shuf').onclick = () => { stop(); for (let i = imgs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [imgs[i], imgs[j]] = [imgs[j], imgs[i]]; } thumbs(); updatePhotoAdvice(); build(); };
 function thumbs() {
   const t = $('thumbs'); t.textContent = '';
   imgs.forEach((im, i) => {
     const d = document.createElement('div'); d.className = 'th';
     const g = document.createElement('img'); g.src = im.url; g.alt = 'Fotoğraf ' + (i + 1);
     const b = document.createElement('button'); b.textContent = '×'; b.title = 'Kaldır'; b.setAttribute('aria-label', 'Fotoğraf ' + (i + 1) + ' kaldır');
-    b.onclick = () => { stop(); const r = imgs.splice(i, 1)[0]; drop(r); thumbs(); build(); };
+    b.onclick = () => { stop(); const r = imgs.splice(i, 1)[0]; drop(r); thumbs(); updatePhotoAdvice(); build(); };
     const dl = document.createElement('button'); dl.textContent = '⬇'; dl.title = 'Orijinal dosyayı indir'; dl.className = 'dl'; dl.setAttribute('aria-label', 'Orijinali indir');
     dl.onclick = () => { const u = URL.createObjectURL(im.f), a = document.createElement('a'); a.href = u; a.download = im.f.name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 4e3); };
     d.draggable = true;
@@ -305,39 +314,112 @@ $('aud').onchange = async e => {
   try { buf = await AC.decodeAudioData(await f.arrayBuffer()); } catch (x) { buf = null; return say('Ses dosyası okunamadı.', 'err'); }
   await new Promise(r => setTimeout(r, 20));
   if (!analyze()) { beats = []; say('Müzikte belirgin bir ritim bulunamadı.', 'err'); $('ainfo').textContent = ''; return build(); }
-  $('ainfo').textContent = f.name + ' · ' + buf.duration.toFixed(1) + ' sn · yaklaşık ' + bpm.toFixed(0) + ' vuruş/dk';
-  say(''); build();
+  const secPerBeat = 60 / bpm, targetGap = Math.max(2.5, Math.min(5, secPerBeat * 4));
+  recommendedPhotos = Math.max(1, Math.ceil(buf.duration / targetGap));
+  $('ainfo').textContent = f.name + ' · ' + mmss(buf.duration) + ' · yaklaşık ' + bpm.toFixed(1) + ' BPM · ritim belirginliği ' + bpmConfidence + '%';
+  updatePhotoAdvice(); say('Müzik analiz edildi. Önerilen fotoğraf sayısını kontrol edip fotoğrafları ekle.', 'ok'); build();
 };
 
 function analyze() {
+  // Spectral-flux onset: 22.05 kHz mono, Hann-window FFT, positive spectral change.
   const sr = buf.sampleRate, n = buf.length, d0 = buf.getChannelData(0), d1 = buf.numberOfChannels > 1 ? buf.getChannelData(1) : d0;
-  const hop = 512, nf = Math.floor(n / hop), fps = sr / hop, env = new Float32Array(nf), waveMin = new Float32Array(nf), waveMax = new Float32Array(nf);
-  for (let i = 0; i < nf; i++) { let s = 0, lo = 1, hi = -1; const o = i * hop; for (let j = 0; j < hop; j++) { const x = d0[o + j]; if (x < lo) lo = x; if (x > hi) hi = x; if ((j & 1) === 0) { const v = (d0[o + j] + d1[o + j]) * .5; s += v * v; } } waveMin[i] = lo; waveMax[i] = hi; env[i] = Math.pow(s / (hop / 2), .25); }
-  WMIN = waveMin; WMAX = waveMax;
-  const on = new Float32Array(nf); let mx = 0;
-  for (let i = 1; i < nf; i++) { on[i] = Math.max(0, env[i] - env[i - 1]); if (on[i] > mx) mx = on[i]; }
-  if (!mx || nf < fps * 3) return false;
-  for (let i = 0; i < nf; i++) on[i] /= mx;
-  let em = 0; for (let i = 0; i < nf; i++) if (env[i] > em) em = env[i]; WV = env.map(v => v / (em || 1)); WF = fps; ON = on;
-  // tempo: özilişki, 100-130 civarını hafifçe tercih eder
-  const lo = Math.round(fps * 60 / 180), hi = Math.round(fps * 60 / 60);
-  let bestL = lo, bestS = -1;
-  for (let L = lo; L <= hi; L++) {
-    let s = 0; for (let i = L; i < nf; i++) s += on[i] * on[i - L];
-    s /= (nf - L); s *= Math.exp(-.5 * Math.pow(Math.log2(fps * 60 / L / 115) / .7, 2));
-    if (s > bestS) { bestS = s; bestL = L; }
-  }
-  // ince ayar: periyodu ve vuruş fazını birlikte ara (sapma birikmesin)
-  let best = { s: -1, p: bestL, off: 0 };
-  for (let p = bestL * .96; p <= bestL * 1.04; p += bestL * .0015) {
-    for (let off = 0; off < p; off += 1) {
-      let s = 0, c = 0;
-      for (let t = off; t < nf - 1; t += p) { const k = Math.round(t); s += Math.max(on[k - 1] || 0, on[k], on[k + 1] || 0); c++; }
-      s /= c; if (s > best.s) best = { s, p, off };
+  const rate = 22050, N = 1024, hop = 512, fps = rate / hop;
+  const duration = n / sr, nf = Math.floor(duration * fps), env = new Float32Array(nf), waveMin = new Float32Array(nf), waveMax = new Float32Array(nf);
+  if (nf < fps * 4) return false;
+  const hann = new Float32Array(N), re = new Float64Array(N), im = new Float64Array(N), prev = new Float32Array(N / 2 + 1), flux = new Float32Array(nf);
+  for (let i = 0; i < N; i++) hann[i] = .5 - .5 * Math.cos(2 * Math.PI * i / (N - 1));
+  const step = sr / rate, mid = Math.floor(N / 2);
+  for (let f = 0; f < nf; f++) {
+    const center = f * hop, start = center - mid;
+    let energy = 0, lo = 1, hi = -1;
+    for (let j = 0; j < N; j++) {
+      const pos = start + j * step, idx = Math.floor(pos), frac = pos - idx;
+      let a = 0, b = 0;
+      if (idx >= 0 && idx < n) { a = (d0[idx] + d1[idx]) * .5; b = idx + 1 < n ? (d0[idx + 1] + d1[idx + 1]) * .5 : a; }
+      const v = a + (b - a) * frac;
+      if (j >= mid - hop / 2 && j < mid + hop / 2) { if (v < lo) lo = v; if (v > hi) hi = v; energy += v * v; }
+      re[j] = v * hann[j]; im[j] = 0;
     }
+    waveMin[f] = lo; waveMax[f] = hi; env[f] = Math.sqrt(energy / hop);
+    // In-place radix-2 Cooley–Tukey FFT.
+    for (let i = 1, j = 0; i < N; i++) { let bit = N >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (let len = 2; len <= N; len <<= 1) {
+      const ang = -2 * Math.PI / len, wr0 = Math.cos(ang), wi0 = Math.sin(ang);
+      for (let base = 0; base < N; base += len) {
+        let wr = 1, wi = 0;
+        for (let j = 0; j < len / 2; j++) {
+          const u = base + j, v = u + len / 2, tr = wr * re[v] - wi * im[v], ti = wr * im[v] + wi * re[v];
+          re[v] = re[u] - tr; im[v] = im[u] - ti; re[u] += tr; im[u] += ti;
+          const nw = wr * wr0 - wi * wi0; wi = wr * wi0 + wi * wr0; wr = nw;
+        }
+      }
+    }
+    let sum = 0;
+    for (let k = 2; k <= N / 2; k++) {
+      const mag = Math.log1p(Math.hypot(re[k], im[k]));
+      // Ignore very low rumble; frequency weighting emphasizes transient-rich bands.
+      const weight = k < 8 ? .35 : k < 80 ? 1 : .8;
+      const rise = Math.max(0, mag - prev[k]); flux[f] += rise * weight; sum += mag;
+      prev[k] = mag;
+    }
+    // Mild level normalization reduces loudness-dependent bias.
+    flux[f] /= Math.max(.15, sum / (N / 2));
   }
-  beats = []; for (let t = best.off; t < nf; t += best.p) beats.push((t + .5) * hop / sr);
-  bpm = fps * 60 / best.p;
+  WMIN = waveMin; WMAX = waveMax;
+  // Remove slowly varying background and normalize spectral flux.
+  const on = new Float32Array(nf); let mx = 0;
+  const win = Math.max(2, Math.round(fps * .18));
+  for (let i = 0; i < nf; i++) {
+    let base = 0, count = 0;
+    for (let j = Math.max(0, i - win); j <= Math.min(nf - 1, i + win); j += 2) { base += flux[j]; count++; }
+    on[i] = Math.max(0, flux[i] - (count ? base / count : 0)); if (on[i] > mx) mx = on[i];
+  }
+  if (!mx) return false;
+  for (let i = 0; i < nf; i++) on[i] /= mx;
+  let em = 0; for (let i = 0; i < nf; i++) if (env[i] > em) em = env[i];
+  WV = env.map(v => v / (em || 1)); WF = fps; ON = on;
+  // Normalized autocorrelation searches 60–200 BPM with octave candidates.
+  const minLag = Math.max(1, Math.floor(fps * 60 / 200)), maxLag = Math.ceil(fps * 60 / 60);
+  let bestLag = 0, bestScore = -Infinity;
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    let cross = 0, aa = 0, bb = 0;
+    for (let i = lag; i < nf; i++) { const a = on[i], b = on[i - lag]; cross += a * b; aa += a * a; bb += b * b; }
+    const corr = cross / Math.sqrt(Math.max(1e-12, aa * bb));
+    // Harmonic/octave disambiguation: mild preference for plausible common tempo, not a fixed target.
+    const tempo = fps * 60 / lag, prior = Math.exp(-.10 * Math.pow(Math.log2(tempo / 112), 2));
+    const score = corr * (.92 + .08 * prior);
+    if (score > bestScore) { bestScore = score; bestLag = lag; }
+  }
+  if (!bestLag) return false;
+  // Compare half/double-time alternatives to reduce octave errors.
+  const candidates = [bestLag, Math.round(bestLag * 2), Math.round(bestLag / 2)].filter(x => x >= minLag && x <= maxLag);
+  const corrAt = lag => { let c = 0, a2 = 0, b2 = 0; for (let i = lag; i < nf; i++) { const a = on[i], b = on[i-lag]; c += a*b; a2 += a*a; b2 += b*b; } return c / Math.sqrt(Math.max(1e-12, a2*b2)); };
+  for (const lag of candidates) if (corrAt(lag) > corrAt(bestLag) * 1.06) bestLag = lag;
+  const period = bestLag;
+  // Refine pulse period locally, then find the most likely grid phase from onset strength.
+  let refined = period, refinedScore = -Infinity;
+  for (let p = Math.max(minLag, period - 2); p <= Math.min(maxLag, period + 2); p += .125) {
+    let c = 0, a2 = 0, b2 = 0; const lag = Math.round(p);
+    for (let i = lag; i < nf; i++) { const a = on[i], b = on[i-lag]; c += a*b; a2 += a*a; b2 += b*b; }
+    const score = c / Math.sqrt(Math.max(1e-12, a2*b2));
+    if (score > refinedScore) { refinedScore = score; refined = p; }
+  }
+  let phase = 0, phaseScore = -1;
+  const phaseStep = .25;
+  for (let off = 0; off < refined; off += phaseStep) {
+    let score = 0, count = 0;
+    for (let t = off; t < nf; t += refined) {
+      const k = Math.round(t); let peak = 0;
+      for (let j = Math.max(0, k - 2); j <= Math.min(nf - 1, k + 2); j++) if (on[j] > peak) peak = on[j];
+      score += peak; count++;
+    }
+    score /= Math.max(1, count);
+    if (score > phaseScore) { phaseScore = score; phase = off; }
+  }
+  beats = [];
+  for (let t = phase; t < nf; t += refined) beats.push(t / fps);
+  bpm = fps * 60 / refined;
+  bpmConfidence = Math.max(0, Math.min(100, Math.round(corrAt(Math.max(1, Math.round(refined))) * 100)));
   return true;
 }
 
@@ -523,12 +605,19 @@ function start(rec, from) {
   if (!an) { an = AC.createAnalyser(); an.fftSize = 256; an.smoothingTimeConstant = .72; } gn.connect(an);
   let dest = null;
   if (rec) {
-    const types = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+    const types = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4'] : ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp8,opus', 'video/webm'];
     const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
     if (!mt) { lock(0); say('Bu tarayıcı video kaydını desteklemiyor. Chrome veya Edge kullan.', 'err'); return; }
     dest = AC.createMediaStreamDestination(); gn.connect(dest);
+    // Mobil cihazlarda 2K/4K canvas bellek/encoder taşmasına yol açıp siyah video üretebilir.
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && cv.width * cv.height > 1920 * 1080) {
+      const q = $('q'); q.value = '1080'; size(); save(); build();
+    }
     draw(pf, 1);
-    const stream = cv.captureStream(30); dest.stream.getAudioTracks().forEach(x => stream.addTrack(x));
+    const stream = cv.captureStream(0);
+    const videoTrack = stream.getVideoTracks()[0];
+    if (videoTrack && typeof videoTrack.requestFrame === 'function') videoTrack.requestFrame();
+    dest.stream.getAudioTracks().forEach(x => stream.addTrack(x));
     chunks = []; finishing = false;
     mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: Math.round(Math.min(8e7, Math.max(8e6, cv.width * cv.height * 9))), audioBitsPerSecond: 256e3 });
     mr.ondataavailable = e => e.data.size && chunks.push(e.data);
@@ -537,15 +626,17 @@ function start(rec, from) {
       if (!finishing) return;
       if (!chunks.length) { lock(0); $('pg').hidden = true; say('Kayıt boş çıktı; tekrar dene.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
       const ext = mt.startsWith('video/mp4') ? 'mp4' : 'webm', url = URL.createObjectURL(new Blob(chunks, { type: mt.split(';')[0] }));
+      if (chunks.reduce((n, c) => n + c.size, 0) < 50000) { lock(0); say('Kayıt beklenenden küçük/boş çıktı. Mobilde ekranı açık tutup 720p ile yeniden deneyin.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
       lastUrl = url; const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, ''); const a = document.createElement('a'); a.href = url; a.download = 'foto-ritim-' + stamp + '.' + ext; a.className = 'btn main'; a.textContent = 'Videoyu indir (' + ext.toUpperCase() + ')';
       const o = $('out'); o.textContent = ''; o.appendChild(a);
+      if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) { const hint = document.createElement('p'); hint.className = 'note'; hint.textContent = 'iPhone/iPad: İndir düğmesi dosyayı indirmezse Paylaş’a dokunup Dosyalara Kaydet’i seçin. Kayıt sırasında Safari’yi açık tutun.'; o.appendChild(hint); }
       const fl = new File(chunks, a.download, { type: mt.split(';')[0] });
       if (navigator.canShare && navigator.canShare({ files: [fl] })) { const sb = document.createElement('button'); sb.textContent = 'Paylaş'; sb.style.marginLeft = '8px'; sb.onclick = () => navigator.share({ files: [fl] }).catch(() => { }); o.appendChild(sb); }
       lock(0);
       if (ext === 'webm') { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Bu tarayıcı MP4 kaydetmedi, WebM üretildi. Güncel Chrome veya Edge MP4 verir.'; o.appendChild(p); }
       say('Hazır ✓', 'ok'); $('pg').hidden = true; $('tc').textContent = ''; draw(startT); drawTL(startT); $('rec').disabled = $('play').disabled = false;
     };
-    mr.start(250); $('rec').disabled = true; say('Kaydediliyor… müzik bitene kadar bekle.');
+    mr.start(1000); $('rec').disabled = true; say('Kaydediliyor… ekranı açık tut ve uygulamadan çıkma.');
   }
   ctx0 = AC.currentTime + .1; src.start(ctx0, pf, endT - pf);
   if ($('fade').checked) { const tot = endT - pf, fd = Math.min(1.2, tot / 3), fi = Math.min(.6, fd), g = gn.gain; g.setValueAtTime(0, ctx0); g.linearRampToValueAtTime(1, ctx0 + fi); g.setValueAtTime(1, ctx0 + tot - fd); g.linearRampToValueAtTime(0, ctx0 + tot); }
@@ -566,7 +657,7 @@ function finish() {
   playing = false; cancelAnimationFrame(raf); $('play').textContent = 'Önizle';
   if (recMode) $('play').disabled = true; else { $('pg').hidden = true; $('tc').textContent = ''; }
   draw(Math.max(startT, endT - .03), recMode); vstop(); drawTL(endT); drawEQ(1);
-  if (recMode && mr && mr.state !== 'inactive') { finishing = true; setTimeout(() => mr.stop(), 400); }
+  if (recMode && mr && mr.state !== 'inactive') { finishing = true; try { const track = mr.stream && mr.stream.getVideoTracks()[0]; if (track && typeof track.requestFrame === 'function') track.requestFrame(); } catch (x) {} setTimeout(() => mr.stop(), 800); }
 }
 function stop() {
   const wasRec = recMode && playing;
@@ -576,7 +667,7 @@ function stop() {
   $('play').textContent = 'Önizle'; $('pg').hidden = true; $('tc').textContent = ''; drawEQ(1);
 }
 
-let WV = null, WF = 0, ON = null, WMIN = null, WMAX = null, an = null, pv = 0;
+let WV = null, WF = 0, ON = null, WMIN = null, WMAX = null, an = null, pv = 0, bpmConfidence = 0;
 const eq = $('eq'), ec = eq.getContext('2d');
 function drawEQ(clr) {
   const w = eq.clientWidth, h = eq.clientHeight, d = devicePixelRatio || 1;
@@ -630,7 +721,7 @@ navigator.storage?.persist?.();
 document.body.addEventListener('dragover', e => e.preventDefault());
 document.body.addEventListener('drop', e => { e.preventDefault(); const f = [...e.dataTransfer.files]; const im = f.filter(x => /^(image|video)\//.test(x.type)), au = f.find(x => x.type.startsWith('audio/')); const p = $('pics'), dt = new DataTransfer(); if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); } if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); } });
 addEventListener('keydown', e => { if (e.code === 'Space' && !/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName) && !$('play').disabled) { e.preventDefault(); $('play').click(); } });
-load(); $('sensv').textContent = $('sens').value; $('thrv').textContent = $('beatThreshold').value; $('fxsv').textContent = $('fxStrong').value + '%'; $('fxmv').textContent = $('fxMedium').value + '%'; mark(); size(); clearView();
+load(); updatePhotoAdvice(); $('sensv').textContent = $('sens').value; $('thrv').textContent = $('beatThreshold').value; $('fxsv').textContent = $('fxStrong').value + '%'; $('fxmv').textContent = $('fxMedium').value + '%'; mark(); size(); clearView();
 </script>
 </body>
 </html>
