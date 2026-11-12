@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Foto Ritim – Özgüler Forge</title>
 <meta name="description" content="Fotoğraflarını müziğin ritmine göre videoya çevir. Orijinal kalite, çevrimdışı çalışır.">
-<meta name="theme-color" content="#10121f"><link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#fbf8f4"><link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Foto Ritim"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Foto Ritim"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root{--bg:#10121f;--panel:#191c2e;--line:#2a2e48;--tx:#eef0fa;--mu:#9aa0c0;--pk:#ec4899;--cy:#5eead4;color-scheme:dark}
 *{box-sizing:border-box}
@@ -18,7 +18,7 @@ h1{font-size:1.7rem;letter-spacing:-.02em;margin:0 0 4px}
 .sub{margin:0;color:var(--mu);max-width:60ch}
 .stage{display:grid;gap:10px;justify-items:center}
 #cv{max-width:100%;max-height:68vh;background:#000;border-radius:10px;display:block}
-#tlc{width:100%;height:64px;display:block}
+#tlc{width:100%;height:96px;display:block}#eq{width:100%;height:56px;display:block}
 .ctl{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:12px}
 .ctl h2{font-size:1rem;margin:0}
 .pick{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -49,12 +49,29 @@ footer a,footer nav button{color:var(--cy);background:none;border:0;padding:0;fo
 dialog{max-width:min(720px,94vw);max-height:88vh;background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:14px;padding:18px}dialog::backdrop{background:#000a;backdrop-filter:blur(4px)}
 dialog details{border-top:1px solid var(--line);padding:8px 0}dialog summary{cursor:pointer;font-weight:700}dialog p,dialog li{color:#cfd3ee;font-size:.9rem}
 #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#232744;border:1px solid var(--cy);border-radius:10px;padding:10px 14px;display:none;gap:10px;align-items:center;z-index:9}
+/* Premium açık tema (Filigran uyumlu krem) */
+:root{--bg:#fbf8f4;--panel:#fff;--line:#e9e1d7;--tx:#2a2521;--mu:#8b8076;--pk:#2a2521;--cy:#b8864b;color-scheme:light}
+body{background:var(--bg)!important;color:var(--tx)}
+.eb{letter-spacing:.28em;font-size:.7rem;color:var(--cy);font-weight:700}
+h1{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:2.1rem;background:none!important;-webkit-text-fill-color:var(--tx);color:var(--tx)}
+.ctl{background:#fff!important;border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 1px 2px #2a252108,0 12px 32px -16px #2a25212e;backdrop-filter:none}
+.ctl h2{font-family:Georgia,serif;font-weight:500;font-size:1.1rem}
+button,.btn,select,input[type=number]{background:#fff;color:var(--tx);border:1px solid var(--line);border-radius:12px}
+button:hover:not(:disabled),.btn:hover{border-color:var(--cy)}
+.btn.main,button.main,.main{background:var(--pk)!important;border-color:var(--pk)!important;color:#fff!important}
+#cv{border-radius:16px;box-shadow:0 24px 50px -22px #2a252170}
+.th{background:#eee}.note{color:var(--mu)}.err{color:#b42318}.ok{color:#166534}
+input[type=range]{accent-color:var(--cy)}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.tg button{padding:10px 6px;font-weight:500;font-size:.82rem;text-align:center}.tg button.on{border-color:var(--cy);background:#f6ecdf;box-shadow:inset 0 0 0 1px var(--cy)}
+dialog{background:#fff;color:var(--tx)}dialog p,dialog li{color:#4b433c}#toast{background:#fff;border-color:var(--cy);color:var(--tx);box-shadow:0 10px 30px #0002}
+footer a,footer nav button{color:var(--cy)}
 </style>
 </head>
 <body>
 <main>
 <header>
-  <h1>Foto Ritim</h1>
+  <div class="eb">ÖZGÜLER FORGE</div><h1>Foto Ritim</h1>
   <div class="pick" style="margin-top:8px"><button id="inst" class="main" hidden>Uygulamayı yükle</button><button id="info">Nasıl kullanılır?</button><span id="net" class="note"></span></div>
   <p id="ios" class="note" hidden>iPhone: Safari’de Paylaş → “Ana Ekrana Ekle”.</p>
   <p class="sub">Fotoğrafları ve müziği seç. Geçişler müziğin vuruşuna oturur; sonucu MP4 olarak kaydet.</p>
@@ -62,7 +79,9 @@ dialog details{border-top:1px solid var(--line);padding:8px 0}dialog summary{cur
 
 <section class="stage" aria-label="Önizleme">
   <canvas id="cv" width="720" height="1280"></canvas>
+  <canvas id="eq" aria-label="Canlı ses ekolayzırı"></canvas>
   <canvas id="tlc" aria-label="Vuruş çizelgesi"></canvas>
+  <p class="note" style="margin:0">Dalga biçiminde altın sütunlar müzikteki vurguları, çizgiler vuruş noktalarını gösterir.</p>
   <div class="pick">
     <button id="play" class="main" disabled>Önizle</button>
     <button id="rec" disabled>MP4 kaydet</button>
@@ -103,8 +122,7 @@ dialog details{border-top:1px solid var(--line);padding:8px 0}dialog summary{cur
         <select id="fit"><option value="blur">Orijinal, kırpmasız (bulanık dolgu)</option><option value="black">Orijinal, kırpmasız (siyah)</option><option value="fill">Doldur (kırpar)</option></select></label>
       <label class="f">Fotoğraf başına vuruş
         <select id="bpp"><option value="0">Otomatik</option><option>1</option><option>2</option><option>4</option><option>8</option></select></label>
-      <label class="f">Geçiş efekti
-        <select id="trans"><option value="mix">Karışık (otomatik)</option><option value="fade">Yumuşak geçiş</option><option value="slide">Kaydırma</option><option value="up">Yukarı itme</option><option value="zoom">Yakınlaşarak erime</option><option value="flip">Çevirme</option><option value="circle">Daire açılış</option><option value="wipe">Silme</option><option value="blinds">Jaluzi</option><option value="mosaic">Mozaik</option><option value="spin">Dönerek giriş</option><option value="cut">Kesme</option></select></label>
+      <div class="f" style="grid-column:1/-1"><span>Geçiş efekti — üzerine gel veya dokun: önizle, tıkla: seç</span><div id="trg" class="tg"></div><select id="trans" hidden><option value="mix">Karışık (otomatik)</option><option value="fade">Yumuşak (sinematik)</option><option value="slide">Kaydırma</option><option value="up">Yukarı itme</option><option value="zoom">Yakınlaşarak erime</option><option value="flip">Çevirme</option><option value="circle">Daire açılış</option><option value="wipe">Silme</option><option value="blinds">Jaluzi</option><option value="mosaic">Mozaik</option><option value="spin">Dönerek giriş</option><option value="cut">Kesme</option></select></div>
       <label class="f">Süre (sn, 0 = tamamı)
         <input id="dur" type="number" min="0" max="600" value="0"></label>
       <label class="f">Başlangıç (sn)
@@ -204,6 +222,7 @@ function analyze() {
   for (let i = 1; i < nf; i++) { on[i] = Math.max(0, env[i] - env[i - 1]); if (on[i] > mx) mx = on[i]; }
   if (!mx || nf < fps * 3) return false;
   for (let i = 0; i < nf; i++) on[i] /= mx;
+  let em = 0; for (let i = 0; i < nf; i++) if (env[i] > em) em = env[i]; WV = env.map(v => v / (em || 1)); WF = fps; ON = on;
   // tempo: özilişki, 100-130 civarını hafifçe tercih eder
   const lo = Math.round(fps * 60 / 180), hi = Math.round(fps * 60 / 60);
   let bestL = lo, bestS = -1;
@@ -268,7 +287,7 @@ function put(i, o = {}) {
   ctx.drawImage(b, -b.width * r / 2, -b.height * r / 2, b.width * r, b.height * r); ctx.restore();
 }
 function trans(k, p, a, b) {
-  const W = cv.width, H = cv.height, e = 1 - Math.pow(1 - p, 3), clip = f => { ctx.save(); ctx.beginPath(); f(); ctx.clip(); put(b); ctx.restore(); };
+  const W = cv.width, H = cv.height, e = p * p * p * (p * (p * 6 - 15) + 10), clip = f => { ctx.save(); ctx.beginPath(); f(); ctx.clip(); put(b); ctx.restore(); };
   switch (k) {
     case 'slide': put(a, { dx: -W * e }); put(b, { dx: W * (1 - e) }); break;
     case 'up': put(a, { dy: -H * e }); put(b, { dy: H * (1 - e) }); break;
@@ -286,8 +305,8 @@ function draw(t) {
   const W = cv.width; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, cv.height);
   let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
   const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), tv = $('trans').value, lb = lastBeat(t), z = $('zoom').checked;
-  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), F = tv === 'cut' ? 0 : Math.min(.55, dur * .5);
-  if (k > 0 && since < F) trans(tv === 'mix' ? TR[k % TR.length] : tv, since / F, tl[k - 1].img, s.img); else put(s.img, { sc });
+  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), kd = tv === 'mix' ? TR[k % TR.length] : tv, F = kd === 'cut' ? 0 : Math.min(kd === 'fade' ? 1.2 : .65, dur * (kd === 'fade' ? .9 : .6));
+  if (k > 0 && since < F) trans(kd, since / F, tl[k - 1].img, s.img); else put(s.img, { sc });
   if ($('flash').checked && lb != null) { const a = Math.max(0, 1 - (t - lb) / .12) * .18; if (a > 0) { ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fillRect(0, 0, W, cv.height); } }
 }
 function drawTL(t) {
@@ -296,10 +315,15 @@ function drawTL(t) {
   tctx.setTransform(dpr, 0, 0, dpr, 0, 0); tctx.clearRect(0, 0, w, h);
   if (!tl.length) return;
   const a = startT, b = endT, X = v => (v - a) / (b - a) * w;
-  tl.forEach((s, i) => { tctx.fillStyle = i % 2 ? '#232744' : '#2d3256'; tctx.fillRect(X(s.t0), 18, Math.max(1, X(s.t1) - X(s.t0) - 1), h - 24); });
-  tctx.fillStyle = '#9aa0c0'; BS.forEach(v => tctx.fillRect(X(v), 6, 1, 10));
-  tctx.fillStyle = '#ec4899'; tl.forEach(s => tctx.fillRect(X(s.t0), 2, 2, 16));
-  if (t >= 0) { tctx.fillStyle = '#5eead4'; tctx.fillRect(X(Math.min(t, b)) - 1, 0, 2, h); }
+  tl.forEach((s, i) => { tctx.fillStyle = i % 2 ? '#f3ede5' : '#ebe2d6'; tctx.fillRect(X(s.t0), 18, Math.max(1, X(s.t1) - X(s.t0) - 1), h - 24); });
+  if (WV) for (let x = 0; x < w; x++) {
+    const i0 = Math.floor((a + (b - a) * x / w) * WF), i1 = Math.max(i0 + 1, Math.floor((a + (b - a) * (x + 1) / w) * WF)); let mm = 0, oo = 0;
+    for (let i = i0; i < i1 && i < WV.length; i++) { if (WV[i] > mm) mm = WV[i]; if (ON[i] > oo) oo = ON[i]; }
+    const hh = mm * (h - 26); tctx.fillStyle = oo > .45 ? '#b8864b' : '#cdbfae'; tctx.fillRect(x, h - 4 - hh, 1, hh);
+  }
+  tctx.fillStyle = '#b3a595'; BS.forEach(v => tctx.fillRect(X(v), 6, 1, 10));
+  tctx.fillStyle = '#b8864b'; tl.forEach(s => tctx.fillRect(X(s.t0), 2, 2, 16));
+  if (t >= 0) { tctx.fillStyle = '#2a2521'; tctx.fillRect(X(Math.min(t, b)) - 1, 0, 2, h); }
 }
 addEventListener('resize', () => { if (!playing) drawTL(startT); });
 
@@ -311,6 +335,7 @@ function start(rec) {
   if (!tl.length) return; stop();
   AC.resume(); $('out').textContent = ''; if (rec) lock(1);
   src = AC.createBufferSource(); src.buffer = buf; src.connect(AC.destination);
+  if (!an) { an = AC.createAnalyser(); an.fftSize = 256; an.smoothingTimeConstant = .72; } src.connect(an);
   let dest = null;
   if (rec) {
     const types = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
@@ -344,11 +369,11 @@ function frame() {
   if (!playing) return;
   const t = startT + Math.max(0, AC.currentTime - ctx0);
   if (t >= endT - .02) return finish();
-  draw(t); drawTL(t); raf = requestAnimationFrame(frame);
+  draw(t); drawTL(t); drawEQ(); raf = requestAnimationFrame(frame);
 }
 function finish() {
   playing = false; cancelAnimationFrame(raf); $('play').textContent = 'Önizle';
-  draw(Math.max(startT, endT - .03)); drawTL(endT);
+  draw(Math.max(startT, endT - .03)); drawTL(endT); drawEQ(1);
   if (recMode && mr && mr.state !== 'inactive') { finishing = true; setTimeout(() => mr.stop(), 400); }
 }
 function stop() {
@@ -356,9 +381,36 @@ function stop() {
   playing = false; cancelAnimationFrame(raf);
   try { src && src.stop(); } catch (x) { }
   if (wasRec && mr && mr.state !== 'inactive') { finishing = false; mr.stop(); $('rec').disabled = !tl.length; say('Kayıt iptal edildi.'); }
-  $('play').textContent = 'Önizle';
+  $('play').textContent = 'Önizle'; drawEQ(1);
 }
 
+let WV = null, WF = 0, ON = null, an = null, pv = 0;
+const eq = $('eq'), ec = eq.getContext('2d');
+function drawEQ(clr) {
+  const w = eq.clientWidth, h = eq.clientHeight, d = devicePixelRatio || 1;
+  if (eq.width !== Math.round(w * d)) { eq.width = Math.round(w * d); eq.height = Math.round(h * d); }
+  ec.setTransform(d, 0, 0, d, 0, 0); ec.clearRect(0, 0, w, h); if (clr || !an) return;
+  const a = new Uint8Array(an.frequencyBinCount); an.getByteFrequencyData(a);
+  const n = 40, bw = w / n, lb = lastBeat(startT + AC.currentTime - ctx0), hit = lb != null && startT + AC.currentTime - ctx0 - lb < .12;
+  for (let i = 0; i < n; i++) { const v = a[Math.floor(Math.pow(i / n, 1.7) * 110) + 1] / 255, bh = Math.max(2, v * h);
+    ec.fillStyle = hit ? '#b8864b' : '#d9c9b2'; ec.beginPath(); ec.roundRect(i * bw + 1, h - bh, bw - 2, bh, 2); ec.fill(); }
+}
+function prev(kind) {
+  cancelAnimationFrame(pv); if (playing) return;
+  if (imgs.length < 2) return say('Efekt önizlemesi için en az 2 fotoğraf ekle.', 'err');
+  if (kind === 'mix') kind = TR[Math.random() * TR.length | 0];
+  const D = kind === 'fade' ? 1.2 : .65, T = D + .9, t0 = performance.now();
+  (function f(now) {
+    const x = (now - t0) / 1000;
+    if (x >= T) { tl.length ? draw(startT) : (ctx.fillStyle = '#000', ctx.fillRect(0, 0, cv.width, cv.height), put(0)); return; }
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
+    if (x < .35) put(0); else if (x >= .35 + D || kind === 'cut') put(1); else trans(kind, (x - .35) / D, 0, 1);
+    pv = requestAnimationFrame(f);
+  })(t0);
+}
+const mark = () => document.querySelectorAll('#trg button').forEach(b => b.classList.toggle('on', b.dataset.v === $('trans').value));
+[...$('trans').options].forEach(o => { const b = document.createElement('button'); b.textContent = o.text; b.dataset.v = o.value; b.type = 'button';
+  b.onpointerenter = b.onfocus = () => prev(o.value); b.onclick = () => { $('trans').value = o.value; $('trans').onchange(); mark(); prev(o.value); }; $('trg').appendChild(b); });
 let wl = null;
 async function lock(on) { try { if (on) wl = await navigator.wakeLock.request('screen'); else if (wl) { wl.release(); wl = null; } } catch (x) { } }
 document.addEventListener('visibilitychange', () => { if (document.hidden && playing && recMode) say('Uygulama arka plana geçti; kayıt bozulabilir. Geri dön.', 'err'); });
@@ -379,7 +431,7 @@ navigator.storage?.persist?.();
 document.body.addEventListener('dragover', e => e.preventDefault());
 document.body.addEventListener('drop', e => { e.preventDefault(); const f = [...e.dataTransfer.files]; const im = f.filter(x => x.type.startsWith('image/')), au = f.find(x => x.type.startsWith('audio/')); const p = $('pics'), dt = new DataTransfer(); if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); } if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); } });
 addEventListener('keydown', e => { if (e.code === 'Space' && !/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName) && !$('play').disabled) { e.preventDefault(); $('play').click(); } });
-load(); size(); clearView();
+load(); mark(); size(); clearView();
 </script>
 </body>
 </html>
