@@ -345,13 +345,39 @@ function build() {
   BS = beats.map(b => b + sh).filter(b => b >= st && b < endT);
   if (BS.length < 2) { $('play').disabled = $('rec').disabled = true; return say('Seçilen aralıkta yeterli vuruş yok.', 'err'); }
   let bpp = +$('bpp').value;
-  if (!bpp) { const raw = Math.max(1, BS.length / imgs.length); bpp = [1, 2, 4, 8].reduce((a, b) => Math.abs(b - raw) < Math.abs(a - raw) ? b : a); }
   const iv = (endT - st) / BS.length, mn = +$('minS').value;
-  if (mn > 0 && bpp * iv < mn) bpp = [1, 2, 4, 8, 16, 32, 64].find(v => v >= mn / iv) || 64;
-  const starts = BS.filter((_, i) => i % bpp === 0);
+  let starts = [];
+  if (bpp) {
+    // Elle seçilen değer: her öğeyi sabit sayıda vuruşta değiştir.
+    if (mn > 0 && bpp * iv < mn) bpp = [1, 2, 4, 8, 16, 32, 64].find(v => v >= mn / iv) || 64;
+    starts = BS.filter((_, i) => i % bpp === 0);
+  } else {
+    // Otomatik: güçlü vurgularda erken, zayıf vuruşlarda daha geç değiştir.
+    // Her değişim algılanan bir vuruşa oturur; aralık 1–4 vuruş arasında değişebilir.
+    const strengths = BS.map(t => {
+      const k = Math.round(t * WF), radius = Math.max(1, Math.round(WF * .06));
+      let peak = 0;
+      for (let j = Math.max(0, k - radius); j <= Math.min(ON.length - 1, k + radius); j++) peak = Math.max(peak, ON[j] || 0);
+      return peak;
+    });
+    const sorted = strengths.slice().sort((a, b) => a - b);
+    const p75 = sorted[Math.floor((sorted.length - 1) * .75)] || 0;
+    const threshold = Math.max(.12, p75 * .72);
+    const minGap = mn > 0 ? mn : iv * .72;
+    starts = [BS[0]];
+    let last = BS[0], lastIndex = 0;
+    for (let i = 1; i < BS.length; i++) {
+      const elapsed = BS[i] - last;
+      const forced = i - lastIndex >= 4;
+      const accent = strengths[i] >= threshold;
+      if (elapsed >= minGap && (accent || forced)) { starts.push(BS[i]); last = BS[i]; lastIndex = i; }
+    }
+    bpp = 0;
+  }
   startT = st;
   starts.forEach((t, i) => tl.push({ t0: i === 0 ? st : t, t1: i + 1 < starts.length ? starts[i + 1] : endT, img: i % imgs.length }));
-  say(imgs.length + ' öğe → ' + tl.length + ' kare · her biri ' + bpp + ' vuruş (≈' + (bpp * iv).toFixed(1) + ' sn) · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · öğeler tekrar eder' : '') + (tl.length < imgs.length ? ' · ' + (imgs.length - tl.length) + ' öğe sığmadı: en kısa süreyi düşür' : ''));
+  const timingLabel = bpp ? 'her biri ' + bpp + ' vuruş (≈' + (bpp * iv).toFixed(1) + ' sn)' : 'vurgulara göre değişken aralık · geçişler vuruşta';
+  say(imgs.length + ' öğe → ' + tl.length + ' kare · ' + timingLabel + ' · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · öğeler tekrar eder' : '') + (tl.length < imgs.length ? ' · ' + (imgs.length - tl.length) + ' öğe sığmadı: en kısa süreyi düşür' : ''));
   draw(st); drawTL(st);
 }
 function clearView() { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height); if (imgs.length) put(0); drawTL(-1); }
