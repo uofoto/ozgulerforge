@@ -1,0 +1,112 @@
+﻿REEL SES - YASAL NOT VE KULLANIM KOŞULLARI (sürüm v1, 11.11.2026)
+=================================================================
+
+Bu belge hukuki danışmanlık değildir. Bilgilendirme amaçlıdır. Somut bir uyuşmazlık
+veya belirsizlik durumunda bir avukata danış.
+
+
+1) Kapsam
+---------
+Reel Ses, yalnızca yazarın KİŞİSEL kullanımı için, kendi bilgisayarında ve kendi telefonunda
+çalışan bir araçtır. Başkalarına dağıtılmaz, yayınlanmaz, hizmet olarak sunulmaz.
+Aracı bir başkasına vermeyi, bir sitede ya da mağazada yayınlamayı düşünürsen bu belge
+YETERLİ DEĞİLDİR; önce hukuki değerlendirme yaptırman gerekir (bkz. madde 8).
+
+
+2) Sorumluluk sende
+-------------------
+Araç hangi içeriği indirdiğini bilmez ve denetlemez. Her indirmeden önce şunları
+kendin sağlarsın ve uygulamadaki onay kutusunu bu anlamda işaretlersin:
+ - İçeriği indirme hakkın vardır: içerik senindir, hak sahibi izin vermiştir veya
+   içerik indirmeye/kullanıma izin veren bir lisansla (ör. Creative Commons) sunulmuştur.
+ - İndirdiğin dosyayı yalnızca kişisel kullanımın için saklar ve dinler/izlersin.
+ - İndirdiğin dosyayı hak sahibinin izni olmadan paylaşmaz, yeniden yüklemez,
+   düzenleyip yayınlamaz, ticari amaçla kullanmaz ve başkasına dağıtmazsın.
+
+
+3) Telif hakkı
+--------------
+Reel'lerdeki video, müzik, ses ve görseller çoğunlukla telif hakkıyla korunur
+(Türkiye'de 5846 sayılı Fikir ve Sanat Eserleri Kanunu; diğer ülkelerde ilgili yerel
+yasalar ve uluslararası sözleşmeler). Kişisel kullanım için çoğaltmaya ilişkin istisnalar
+dardır, ülkeye ve olaya göre değişir ve her indirmeyi otomatik olarak yasal yapmaz.
+"Erişilebilir olması" ya da "ücretsiz olması" indirme veya kullanma hakkı doğurmaz.
+Bu araç hiçbir içerik için lisans veya izin vermez.
+
+
+4) Kişisel veriler ve kişilik hakları
+-------------------------------------
+İndirdiğin içerikte başkalarının görüntüsü, sesi veya kişisel verileri bulunabilir.
+Bunları işleme, paylaşma veya yayınlama durumunda 6698 sayılı KVKK ve kişilik hakları
+hükümleri devreye girebilir. Bu konudaki sorumluluk sana aittir.
+
+
+5) Instagram / Meta kullanım şartları
+-------------------------------------
+Instagram'ın kullanım şartları, içeriğin otomatik araçlarla toplanmasını/indirilmesini
+genellikle kısıtlar. Bu aracı kullanman bu şartlara aykırı olabilir ve sonuç olarak
+hesabın uyarılabilir, kısıtlanabilir veya kapatılabilir.
+Özellikle "tarayıcı çerezlerini kullan" seçeneği (browser=...) Instagram oturum
+bilgilerini yt-dlp'ye kullandırır; bu, hesap riskini artırır. Mümkünse ana hesabını
+kullanma ve bu seçeneği yalnızca gerektiğinde aç.
+Bu proje Instagram, Meta veya herhangi bir içerik sahibiyle bağlantılı, onlar tarafından
+onaylanmış veya desteklenmiş değildir. Instagram ve Meta, sahiplerinin ticari markalarıdır.
+
+
+6) Üçüncü taraf yazılımlar
+--------------------------
+Bu pakete yt-dlp ve FFmpeg DAHİL DEĞİLDİR. İlk çalıştırmada senin bilgisayarına, kendi
+yayın sayfalarından indirilir ve yayınlanan sağlama toplamlarıyla (SHA-256) doğrulanır:
+ - yt-dlp: Unlicense (kamu malı benzeri) lisansı. https://github.com/yt-dlp/yt-dlp
+ - FFmpeg: yt-dlp/FFmpeg-Builds projesinin "gpl" derlemesi, GNU GPL lisansı altında.
+   https://github.com/yt-dlp/FFmpeg-Builds  -  https://ffmpeg.org
+   İlgili lisans metinleri ve kaynak kodu bu adreslerden edinilebilir.
+Bu araçların lisansları kendi sahiplerine aittir. İndirilen ffmpeg dosyalarını (veya bin
+klasörünü) başkalarına vermek GPL yükümlülükleri doğurabilir; bu yüzden paketi
+dağıtmıyoruz.
+
+
+7) Gizlilik ve güvenlik
+-----------------------
+ - Telefon sunucusu indirilen dosyaları bilgisayarındaki geçici klasörde (TEMP\reelses-jobs)
+   tutar ve bitiş/hatadan yaklaşık 30 dakika sonra siler. Başlangıçta eski artıkları da siler.
+ - Sunucu ve masaüstü uygulaması, tanılama için kayit\reelses.log dosyasına olay ve hata satırları
+   yazar. Bu satırlar indirilen Reel linklerini içerebilir. Dosya 512 KB'ı aşınca eskisi
+   reelses.log.old olarak ayrılır. İstediğin zaman silebilirsin; kimseye otomatik gönderilmez.
+ - Telefondaki "Kitaplık", indirilen dosyaları telefonun tarayıcı depolamasında tutar. Dosyalar o
+   telefonda kalır; Kitaplık'tan tek tek veya topluca silebilirsin.
+ - "Telefon için QR göster" geçici bir HTML dosyası açar; bu dosya anahtarı içerir, yaklaşık 10 dakika
+   sonra otomatik silinir. QR'ı ve sayfayı başkalarına gösterme.
+ - İndirilen dosyalara başlık, yükleyen hesap adı ve kapak resmi gömülebilir (ayarlar.txt: kapak=hayir ile kapatılır).
+   Bu bilgiler içeriğin sahibine aittir; dosyayı paylaşırsan birlikte gider.
+ - Anahtar ayarlar.txt dosyasında saklanır. Bu dosyayı ve anahtarı kimseyle paylaşma.
+ - Router'da port yönlendirme YAPMA. Dışarıdan erişim için Tailscale (HTTPS) kullan.
+ - Şifresiz yerel ağ (wifi) kipinde anahtar ağda açık gider; güvenmediğin ağda kullanma.
+ - Araç dosyalarının sağlama toplamları bin\araclar.json içinde tutulur; dosya değişirse
+   program uyarı verip çalışmayı reddeder.
+
+
+8) Garanti verilmez, sorumluluk sınırı
+--------------------------------------
+Yazılım "OLDUĞU GİBİ" sunulur. Çalışacağına, kesintisiz olacağına, hatasız olacağına veya
+belirli bir amaca uygun olduğuna dair açık ya da zımni hiçbir garanti verilmez. Instagram
+yapısını değiştirdiğinde araç çalışmayabilir. Yasaların izin verdiği ölçüde; kullanımdan
+doğan hesap kısıtlaması, veri kaybı, hukuki uyuşmazlık veya başka zararlardan yazar sorumlu
+tutulamaz. (Kasıt ve ağır kusur gibi yasayla sınırlanamayan sorumluluklar saklıdır.)
+
+Aracın kullanımı tamamen senin sorumluluğundadır. Bu koşulları kabul etmiyorsan
+aracı kullanma ve klasörü sil.
+
+
+9) Kurulum ve imza
+------------------
+Kur.bat programı yalnızca kullanıcı hesabına (%LOCALAPPDATA%\ReelSes) kurar; Başlat menüsü kısayolları ve
+HKCU altında bir "kaldırma" kaydı ekler, sistem geneline dokunmaz. Kaldır ile hepsi silinir
+(İndirilenler klasörünü silmeyi sen seçersin). Imzala.ps1 ile üretilen sertifika sizin kendi
+sertifikanızdır, yalnızca o bilgisayarda güvenilir yapılır; bir yayıncı doğrulaması anlamına gelmez.
+ReelSes-Kurulum.exe imzasızdır; yalnızca kendi ürettiğin dosyayı çalıştır, başkasından gelen bir kopyaya
+(SHA-256 değeri eşleşmiyorsa) güvenme.
+
+10) Değişiklikler
+----------------
+Bu metin değişirse sürüm numarası artar (v1 -> v2) ve uygulamalar onay kutusunu yeniden ister.

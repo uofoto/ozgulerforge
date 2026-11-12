@@ -1,0 +1,130 @@
+﻿REEL SES (Windows + Telefon)
+============================
+
+Sadece kişisel kullanım içindir. Kullanmadan önce YASAL-NOT.txt dosyasını oku.
+İndirdiğin içeriklerin telif haklarına ve Instagram kullanım şartlarına dikkat et.
+
+KURULUM (isteğe bağlı, önerilir)
+--------------------------------
+Zip'i tamamen çıkardıktan sonra Kur.bat dosyasına çift tıkla. Yasal notu gösterir ve onay ister,
+sonra programı %LOCALAPPDATA%\ReelSes klasörüne kurar, Başlat menüsüne kısayolları ekler
+(Reel Ses, Telefon Sunucusu, arka plan sürümü, Kaldır) ve Ayarlar > Uygulamalar listesine yazar.
+Yönetici izni gerekmez. Güncelleme için yeni zip'in Kur.bat'ını çalıştır: ayarların, bin klasörün ve
+indirdiklerin korunur. Kaldırmak için Başlat menüsünden "Reel Ses Kaldır" veya Ayarlar > Uygulamalar.
+
+Tek dosya (ReelSes-Kurulum.exe) istersen: Paket-Olustur.bat dosyasını çalıştır. Windows'un kendi
+IExpress aracıyla tek bir kurulum programı üretir (yanına SHA-256 dosyası da yazar). Bu dosya
+imzasızdır; SmartScreen "bilinmeyen yayıncı" derse "Daha fazla bilgi > Yine de çalıştır".
+
+İmza: Imzala.ps1 betikleri Authenticode ile imzalar. Parametresiz çalışırsa kendi (self-signed)
+sertifikanı üretip yalnızca bu bilgisayarda güvenilir yapar. Kendi kod imzalama sertifikan varsa:
+  powershell -ExecutionPolicy Bypass -File Imzala.ps1 -Pfx C:\yol\imza.pfx
+Kendi sertifikan başka bilgisayarlarda tanınmaz; herkese açık güven için ücretli bir kod imzalama
+sertifikası gerekir. Bir betiği düzenlersen imza bozulur, Imzala.ps1'i yeniden çalıştır.
+
+0) Hazırlık (kurulumsuz kullanım için, bir kere)
+------------------------------------------------
+1. Zip dosyasına sağ tıkla > Özellikler > en altta "Engellemeyi kaldır" kutusunu işaretle > Tamam.
+2. Zip'i bir klasöre TAMAMEN çıkar (örn. D:\reelses). Zip içinden çalıştırma.
+3. Windows "bilgisayarınızı korudu" uyarısı çıkarırsa: Daha fazla bilgi > Yine de çalıştır.
+
+Kurulumsuz kullanımda dosyalar: Baslat.bat, Telefon-Sunucu.bat, Telefon-Sunucu-Arka-Plan.bat, ReelSes.ps1, Sunucu.ps1,
+Ortak.ps1, qr.js ve web klasörü aynı klasörde durmalı.
+
+1) Bilgisayarda kullanım (pencereli uygulama)
+---------------------------------------------
+Baslat.bat dosyasına çift tıkla, Reel linkini yapıştır, onay kutusunu işaretle, İndir'e bas.
+İndirme sırasında yüzde ilerlemesi görünür. Dosyalar "Indirilenler" klasörüne kaydedilir.
+
+İlk açılışta yt-dlp ve ffmpeg otomatik indirilir (yaklaşık 100+ MB, bir kere) ve
+yayıncıların açıkladığı sağlama toplamıyla (SHA-256) doğrulanır. Doğrulanamazsa kurulmaz.
+Eski sürümden geliyorsan ffmpeg bir kere yeniden indirilip doğrulanır.
+
+Otomatik güncelleme: yt-dlp, program açılışında günde en fazla bir kez kontrol edilip
+güncellenir. Bir indirme Instagram değişikliği yüzünden hata verirse program yt-dlp'yi
+güncelleyip bir kez daha dener. Elle denemek için "yt-dlp güncelle" butonu var.
+ffmpeg otomatik güncellenmez (sürümü sabit kalır). Güncellemek istersen bin klasöründeki
+ffmpeg.exe ve ffprobe.exe dosyalarını sil, program yeniden indirip doğrular.
+
+2) Telefonda kullanım (PWA)
+---------------------------
+Telefon, indirmeyi bilgisayarın üzerinden yaptırır. Bu yüzden bilgisayar AÇIK olmalı
+ve Telefon-Sunucu penceresi AÇIK kalmalı.
+
+İndirmeler sunucuda sıraya girer (aynı anda tek indirme, en fazla 15 iş sırada). Telefonda
+"Sırada: N. sıra" ve "İndiriliyor %xx" görünür.
+
+Bağlantı yolu (ayarlar.txt içindeki erisim=):
+  otomatik (varsayılan): Tailscale kuruluysa sunucu otomatik olarak Tailscale HTTPS'e bağlanır
+                         ve yalnızca onun üzerinden erişilir. Kurulu değilse yerel ağda
+                         şifresiz HTTP kullanır ve pencerede sarı uyarı gösterir.
+  tailscale:             Sadece Tailscale. Çalışmıyorsa sunucu hiç başlamaz.
+  wifi:                  Sadece yerel ağ, şifresiz HTTP (önerilmez).
+
+A) Tailscale ile (önerilen, ücretsiz; her yerden, tam PWA, Paylaş menüsü):
+   1. Bilgisayara ve telefona Tailscale kur, ikisinde de aynı hesapla giriş yap.
+   2. login.tailscale.com/admin/dns sayfasında "HTTPS Certificates" özelliğini aç.
+   3. Telefon-Sunucu.bat dosyasına çift tıkla. Sunucu "tailscale serve" komutunu kendisi çalıştırır.
+   4. Pencerede yazan https://....ts.net adresini telefonda aç. Anahtarı elle girmek istemezsen
+      pencerede yazan "#anahtar=..." uzantılı adresi aç, anahtar kendiliğinden girilir.
+   5. Chrome menüsü > "Uygulamayı yükle". Instagram'da Reel > Paylaş > "Reel Ses" dediğinde
+      link otomatik gelir (Android). iPhone'da Safari > Paylaş > Ana Ekrana Ekle;
+      Paylaş menüsü entegrasyonu iOS'ta yok.
+   Tailscale adresi sadece senin cihazlarında açılır, internete herkese açılmaz.
+
+B) Aynı Wi-Fi'da, Tailscale olmadan (HTTP):
+   1. Telefon-Sunucu.bat dosyasına çift tıkla, güvenlik duvarı sorarsa "Özel ağlar"a izin ver.
+   2. Pencerede yazan adresi telefonda aç, anahtarı gir.
+   Not: HTTP olduğu için Chrome "Ana ekrana ekle" ile sadece kısayol ekler, Paylaş menüsü çalışmaz.
+   Güvenmediğin bir Wi-Fi ağında bu yolu kullanma: anahtar şifresiz gider.
+
+3) Özellikler
+-------------
+- QR ile bağlanma: sunucu çalışırken görev çubuğundaki (gizli simgeler içinde) Reel Ses simgesine
+  sağ tıkla > "Telefon için QR göster". Telefonun kamerasıyla okut, açılan bağlantıya dokun; anahtar
+  otomatik girilir. Simgeye çift tıklamak da QR'ı açar. QR sayfası internet gerektirmez.
+- Toplu indirme: kutuya birden çok link yapıştır (her satıra bir tane). Sırayla indirilir,
+  "(2/5)" gibi sayaç görünür. Telefonda da bilgisayar uygulamasında da çalışır.
+- Kalite/biçim: ses için MP3 veya M4A (M4A daha hızlı, kayıpsız), video için en iyi / 1080p / 720p.
+- Tekrar indirmeyi engelleme: bilgisayarda aynı Reel aynı biçimde zaten indirilmişse sorar (toplu
+  indirmede atlar). Telefonda Kitaplık'ta varsa tekrar indirmez, doğrudan açar.
+- Telefon Kitaplığı: indirdiklerin telefonda listelenir; oynat, kaydet/paylaş, sil. Çevrimdışı çalışır.
+  Not: tarayıcı depolaması telefon temizlenirse silinebilir; önemli dosyaları "Kaydet" ile dosyalara al.
+- Kırpma: "Kırp" alanlarına başlangıç/bitiş yaz (90 veya 1:30 biçiminde; bitiş boşsa sona kadar).
+  Birden çok link yapıştırdıysan aynı kırpma hepsine uygulanır. Kırpılan dosyaların adına "kirpik" eklenir.
+  Kırpılırken yüzde ilerlemesi görünmeyebilir. Telefonda "Gelişmiş" bölümünde.
+- Ses seviyesi eşitleme: "Ses seviyesini eşitle" kutusu sesi yaklaşık -16 LUFS'a getirir (sessiz/yüksek
+  Reel'ler aynı seviyede olur). Yalnızca MP3'te çalışır; M4A ve videoda ses kopyalandığı için uygulanamaz.
+- Başlık, sanatçı ve kapak resmi dosyaya gömülür (müzik çalarlarda düzgün görünür). Sorun çıkarırsa
+  otomatik olarak gömsüz yeniden denenir. Kapatmak için ayarlar.txt: kapak=hayir
+- Arka planda çalışma: Telefon-Sunucu-Arka-Plan.bat penceresiz başlar, sadece tepsi simgesi görünür.
+  Simge menüsünden "Windows ile başlat" işaretlersen bilgisayar açılınca kendiliğinden başlar
+  (ağın/Tailscale'in hazır olması için 20 sn bekler). "Çıkış" ile kapanır.
+- Uyku engelleme: sunucu çalışırken bilgisayar uykuya geçmez. İstemezsen ayarlar.txt: uyku=izin
+- Tanılama: simge menüsü > "Tanılama raporu" sürümleri, ayarları (anahtar gizli) ve son kayıt satırlarını
+  tek dosyada açar. Kayıtlar kayit\reelses.log dosyasındadır.
+
+4) Güvenlik
+-----------
+- Sunucu "anahtar" ister. Anahtar 32 karakterlik rastgele değerdir ve ayarlar.txt dosyasındadır.
+  Eski kısa anahtar varsa ilk açılışta otomatik olarak yenisi üretilir (telefonda yeniden girersin).
+- Art arda 5 yanlış anahtar denemesinde o adres 1 dakika engellenir, sonraki hatalarda süre
+  ikiye katlanır (en fazla 60 dakika). Tailscale kullanırken adresler sunucuya yerel görünebilir,
+  bu durumda engel herkes için geçerli olur; doğru anahtarı girince sıfırlanır.
+- Router'da port yönlendirme (port forwarding) YAPMA. Dışarıdan erişim için Tailscale kullan.
+- bin\araclar.json araçların sağlama toplamlarını tutar. yt-dlp.exe, ffmpeg.exe veya ffprobe.exe
+  dışarıdan değiştirilirse program uyarı verir ve çalışmaz.
+- yt-dlp'yi belirli bir sürüme sabitlemek istersen ayarlar.txt içine ytdlp_surum=2025.01.15 gibi
+  yaz (bu durumda otomatik güncelleme kapanır).
+
+5) Sorun giderme
+----------------
+- Instagram giriş isterse: ayarlar.txt içinde browser=firefox yaz (o tarayıcıda Instagram'a
+  giriş yapılı olsun, tarayıcı kapalı olsun), sunucuyu yeniden başlat.
+  Pencereli uygulamada ise listeden tarayıcıyı seç. Bu seçenek hesap riskini artırır (YASAL-NOT madde 5).
+- "Sağlama toplamı uyuşmadı / bulunamadı" hatası: internet bağlantısını ve GitHub erişimini kontrol et,
+  yeniden dene. Doğrulanamayan dosya kullanılmaz.
+- Port doluysa: ayarlar.txt içindeki port= değerini değiştir.
+- Telefon bağlanamazsa: telefon ve bilgisayar aynı ağda mı (veya ikisinde de Tailscale açık mı),
+  güvenlik duvarı izni verildi mi, sunucu penceresi açık mı kontrol et.
+- Kaldırmak için klasörü silmen yeterli.
