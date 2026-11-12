@@ -185,7 +185,7 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
   </div>
 <footer><div><b>Foto Ritim</b> · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr</a> · <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></div>
 <nav><button data-s="nasil">Nasıl kullanılır</button><button data-s="gizlilik">Gizlilik ve KVKK</button><button data-s="sartlar">Kullanım şartları</button><button data-s="telif">Telif ve sorumluluk</button><button data-s="yerel">Çerez ve yerel depolama</button></nav>
-<div>© 2026 Özgüler Forge. Tüm hakları saklıdır.</div></footer>
+<div>Foto Ritim <span class="note">v1.9.0</span> · © 2026 Özgüler Forge. Tüm hakları saklıdır.</div></footer>
 </main>
 <dialog id="dlg"><div class="pick" style="justify-content:space-between"><h2 style="margin:0">Bilgi ve yasal metinler</h2><button id="x" class="main">Kapat</button></div>
 <details id="nasil"><summary>Nasıl kullanılır?</summary>
@@ -300,6 +300,11 @@ function drop(it) {
   if (it.v) { try { it.v.pause(); it.v.removeAttribute('src'); it.v.load(); } catch (x) { } URL.revokeObjectURL(it.vu); }
 }
 let recommendedPhotos = 0;
+function estimatePhotoCount(durationSeconds, tempoBpm) {
+  const secPerBeat = 60 / Math.max(1, tempoBpm);
+  const targetGap = Math.max(2.5, Math.min(5, secPerBeat * 4));
+  return Math.max(1, Math.ceil(durationSeconds / targetGap));
+}
 function updatePhotoAdvice() {
   const el = $('photoAdvice'); if (!el) return;
   if (!recommendedPhotos) { el.textContent = 'Müzik yüklendiğinde önerilen fotoğraf sayısı burada gösterilir.'; return; }
@@ -354,8 +359,7 @@ $('aud').onchange = async e => {
   try { buf = await AC.decodeAudioData(await f.arrayBuffer()); } catch (x) { buf = null; return say('Ses dosyası okunamadı.', 'err'); }
   await new Promise(r => setTimeout(r, 20));
   if (!analyze()) { beats = []; say('Müzikte belirgin bir ritim bulunamadı.', 'err'); $('ainfo').textContent = ''; return build(); }
-  const secPerBeat = 60 / bpm, targetGap = Math.max(2.5, Math.min(5, secPerBeat * 4));
-  recommendedPhotos = Math.max(1, Math.ceil(buf.duration / targetGap));
+  recommendedPhotos = estimatePhotoCount(buf.duration, bpm);
   $('ainfo').textContent = f.name + ' · ' + mmss(buf.duration) + ' · yaklaşık ' + bpm.toFixed(1) + ' BPM · ritim belirginliği ' + bpmConfidence + '%';
   updatePhotoAdvice(); say('Müzik analiz edildi. Önerilen fotoğraf sayısını kontrol edip fotoğrafları ekle.', 'ok'); build();
 };
@@ -636,7 +640,7 @@ $('play').onclick = () => playing ? (stop(), draw(startT), drawTL(startT)) : sta
 $('rec').onclick = () => start(true);
 tlc.onclick = e => { if (!tl.length || (playing && recMode)) return; const r = tlc.getBoundingClientRect(), t = startT + Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * (endT - startT); start(false, Math.min(t, endT - .5)); };
 
-function start(rec, from) {
+async function start(rec, from) {
   if (!tl.length) return; stop();
   pf = rec || from == null ? startT : Math.max(startT, from); lastSec = -1;
   AC.resume(); if (rec) { if (lastUrl) { URL.revokeObjectURL(lastUrl); lastUrl = null; } $('out').textContent = ''; lock(1); }
@@ -648,6 +652,20 @@ function start(rec, from) {
     const types = /iPhone|iPad|iPod/i.test(navigator.userAgent) ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4'] : ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp8,opus', 'video/webm'];
     const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
     if (!mt) { lock(0); say('Bu tarayıcı video kaydını desteklemiyor. Chrome veya Edge kullan.', 'err'); return; }
+    let outputHandle = null, outputWriter = null, writeQueue = Promise.resolve();
+    const fileExt = mt.startsWith('video/mp4') ? 'mp4' : 'webm';
+    if (/Android/i.test(navigator.userAgent) && typeof window.showSaveFilePicker === 'function') {
+      try {
+        outputHandle = await window.showSaveFilePicker({
+          suggestedName: 'foto-ritim-' + new Date().toISOString().slice(0,16).replace(/[-:T]/g,'') + '.' + fileExt,
+          types: [{ description: fileExt.toUpperCase() + ' video', accept: { [mt.split(';')[0]]: ['.' + fileExt] } }]
+        });
+        outputWriter = await outputHandle.createWritable();
+      } catch (e) {
+        if (e && e.name === 'AbortError') { lock(0); say('Dosya kaydetme iptal edildi. Kayıt başlatılmadı.'); return; }
+        outputHandle = outputWriter = null; say('Doğrudan dosyaya yazılamadı; bellek dostu parçalı kayıt kullanılacak.');
+      }
+    }
     dest = AC.createMediaStreamDestination(); gn.connect(dest);
     // Mobilde 720p/24fps, canvas encoder belleğini ve ısınmayı azaltır.
     const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -662,21 +680,30 @@ function start(rec, from) {
     chunks = []; finishing = false;
     const videoBitrate = isMobile ? 4e6 : Math.round(Math.min(8e7, Math.max(8e6, cv.width * cv.height * 9)));
     mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: videoBitrate, audioBitsPerSecond: 128e3 });
-    mr.ondataavailable = e => e.data.size && chunks.push(e.data);
+    mr.ondataavailable = e => {
+      if (!e.data || !e.data.size) return;
+      if (outputWriter) writeQueue = writeQueue.then(() => outputWriter.write(e.data));
+      else chunks.push(e.data);
+    };
     mr.onerror = () => { stop(); lock(0); say('Kayıt sırasında bir hata oluştu. Tekrar dene.', 'err'); };
-    mr.onstop = () => {
+    mr.onstop = async () => {
       if (!finishing) return;
-      if (!chunks.length) { lock(0); $('pg').hidden = true; say('Kayıt boş çıktı; tekrar dene.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
-      const ext = mt.startsWith('video/mp4') ? 'mp4' : 'webm', url = URL.createObjectURL(new Blob(chunks, { type: mt.split(';')[0] }));
-      if (chunks.reduce((n, c) => n + c.size, 0) < 50000) { lock(0); say('Kayıt beklenenden küçük/boş çıktı. Mobilde ekranı açık tutup 720p ile yeniden deneyin.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
+      let outputBlob;
+      try {
+        if (outputWriter) { await writeQueue; await outputWriter.close(); outputBlob = await outputHandle.getFile(); }
+        else if (chunks.length) outputBlob = new Blob(chunks, { type: mt.split(';')[0] });
+      } catch (e) { lock(0); say('Videonun dosyaya yazılması tamamlanamadı. Daha düşük çözünürlükte yeniden deneyin.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
+      if (!outputBlob || outputBlob.size < 50000) { lock(0); $('pg').hidden = true; say('Kayıt boş veya çok küçük çıktı. 720p ile yeniden deneyin.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
+      const ext = fileExt, url = URL.createObjectURL(outputBlob);
       lastUrl = url; const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, ''); const a = document.createElement('a'); a.href = url; a.download = 'foto-ritim-' + stamp + '.' + ext; a.className = 'btn main'; a.textContent = 'Videoyu indir (' + ext.toUpperCase() + ')';
       const o = $('out'); o.textContent = ''; o.appendChild(a);
       const preview = document.createElement('video'); preview.controls = true; preview.playsInline = true; preview.setAttribute('playsinline',''); preview.preload = 'metadata'; preview.src = url; preview.setAttribute('aria-label','Oluşturulan videonun önizlemesi'); o.appendChild(preview);
       if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) { const hint = document.createElement('p'); hint.className = 'note'; hint.textContent = 'iPhone/iPad: İndir düğmesi dosyayı indirmezse Paylaş’a dokunup Dosyalara Kaydet’i seçin. Kayıt sırasında Safari’yi açık tutun.'; o.appendChild(hint); }
-      const fl = new File(chunks, a.download, { type: mt.split(';')[0] });
+      const fl = new File([outputBlob], a.download, { type: mt.split(';')[0] });
       if (navigator.canShare && navigator.canShare({ files: [fl] })) { const sb = document.createElement('button'); sb.textContent = 'Paylaş'; sb.style.marginLeft = '8px'; sb.onclick = () => navigator.share({ files: [fl] }).catch(() => { }); o.appendChild(sb); }
       lock(0);
-      if (ext === 'webm') { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Bu tarayıcı MP4 kaydetmedi, WebM üretildi. Güncel Chrome veya Edge MP4 verir.'; o.appendChild(p); }
+      if (outputHandle) { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Kayıt parçaları doğrudan seçtiğiniz dosyaya yazıldı; RAM kullanımı azaltıldı.'; o.appendChild(p); }
+      if (ext === 'webm') { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Bu tarayıcı MP4 kaydetmedi, WebM üretildi. Güncel Chrome veya Edge MP4 verebilir.'; o.appendChild(p); }
       say('Hazır ✓', 'ok'); $('pg').hidden = true; $('tc').textContent = ''; draw(startT); drawTL(startT); $('rec').disabled = $('play').disabled = false;
     };
     mr.start(1000); $('rec').disabled = true; say('Kaydediliyor… ekranı açık tut ve uygulamadan çıkma.');
