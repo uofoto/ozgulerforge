@@ -2,8 +2,12 @@
 <html lang="tr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Foto Ritim</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Foto Ritim – Özgüler Forge</title>
+<meta name="description" content="Fotoğraflarını müziğin ritmine göre videoya çevir. Orijinal kalite, çevrimdışı çalışır.">
+<meta name="theme-color" content="#10121f"><link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Foto Ritim"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{--bg:#10121f;--panel:#191c2e;--line:#2a2e48;--tx:#eef0fa;--mu:#9aa0c0;--pk:#ec4899;--cy:#5eead4;color-scheme:dark}
 *{box-sizing:border-box}
@@ -35,12 +39,24 @@ label.c{display:flex;gap:8px;align-items:center;font-size:.9rem}
 #st{min-height:1.4em;font-size:.9rem}.err{color:#fca5a5}.ok{color:#6ee7b7}
 input[type=range]{width:100%;accent-color:var(--pk)}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+body{background:radial-gradient(900px 500px at 10% -10%,#ec489933,transparent),radial-gradient(800px 500px at 100% 0,#5eead433,transparent),var(--bg);background-attachment:fixed}
+.ctl,.stage{animation:in .6s both}.ctl:nth-child(2){animation-delay:.1s}.ctl:nth-child(3){animation-delay:.2s}@keyframes in{from{opacity:0;transform:translateY(14px)}}
+.ctl{backdrop-filter:blur(8px);background:#191c2ecc}button,.btn{transition:transform .15s,filter .15s}button:active,.btn:active{transform:scale(.96)}.main{background:linear-gradient(90deg,#ec4899,#a855f7)!important}
+h1{background:linear-gradient(90deg,#ec4899,#5eead4);-webkit-background-clip:text;background-clip:text;color:transparent}
+.th{width:64px;height:64px}.th .dl{top:auto;bottom:0;right:auto;left:0;border-radius:0 6px 0 0}
+footer{grid-column:1/-1;text-align:center;color:var(--mu);font-size:.82rem;display:grid;gap:8px;padding-top:8px}footer nav{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center}
+footer a,footer nav button{color:var(--cy);background:none;border:0;padding:0;font-weight:400;text-decoration:underline;cursor:pointer}
+dialog{max-width:min(720px,94vw);max-height:88vh;background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:14px;padding:18px}dialog::backdrop{background:#000a;backdrop-filter:blur(4px)}
+dialog details{border-top:1px solid var(--line);padding:8px 0}dialog summary{cursor:pointer;font-weight:700}dialog p,dialog li{color:#cfd3ee;font-size:.9rem}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#232744;border:1px solid var(--cy);border-radius:10px;padding:10px 14px;display:none;gap:10px;align-items:center;z-index:9}
 </style>
 </head>
 <body>
 <main>
 <header>
   <h1>Foto Ritim</h1>
+  <div class="pick" style="margin-top:8px"><button id="inst" class="main" hidden>Uygulamayı yükle</button><button id="info">Nasıl kullanılır?</button><span id="net" class="note"></span></div>
+  <p id="ios" class="note" hidden>iPhone: Safari’de Paylaş → “Ana Ekrana Ekle”.</p>
   <p class="sub">Fotoğrafları ve müziği seç. Geçişler müziğin vuruşuna oturur; sonucu MP4 olarak kaydet.</p>
 </header>
 
@@ -80,11 +96,15 @@ input[type=range]{width:100%;accent-color:var(--pk)}
     <h2>Ayarlar</h2>
     <div class="grid">
       <label class="f">Biçim
-        <select id="fmt"><option value="720x1280">Dikey 9:16 (Reel)</option><option value="1080x1080">Kare 1:1</option><option value="1280x720">Yatay 16:9</option></select></label>
+        <select id="fmt"><option value="9x16">Dikey 9:16 (Reel)</option><option value="1x1">Kare 1:1</option><option value="4x5">Dikey 4:5</option><option value="16x9">Yatay 16:9</option></select></label>
+      <label class="f">Çözünürlük
+        <select id="q"><option value="720">HD 720p</option><option value="1080" selected>Full HD 1080p</option><option value="1440">2K 1440p</option><option value="2160">4K 2160p</option></select></label>
+      <label class="f">Kadraj
+        <select id="fit"><option value="blur">Orijinal, kırpmasız (bulanık dolgu)</option><option value="black">Orijinal, kırpmasız (siyah)</option><option value="fill">Doldur (kırpar)</option></select></label>
       <label class="f">Fotoğraf başına vuruş
         <select id="bpp"><option value="0">Otomatik</option><option>1</option><option>2</option><option>4</option><option>8</option></select></label>
-      <label class="f">Geçiş
-        <select id="trans"><option value="cut">Kesme</option><option value="soft">Yumuşak</option><option value="slide">Kaydırma</option></select></label>
+      <label class="f">Geçiş efekti
+        <select id="trans"><option value="mix">Karışık (otomatik)</option><option value="fade">Yumuşak geçiş</option><option value="slide">Kaydırma</option><option value="up">Yukarı itme</option><option value="zoom">Yakınlaşarak erime</option><option value="flip">Çevirme</option><option value="circle">Daire açılış</option><option value="wipe">Silme</option><option value="blinds">Jaluzi</option><option value="mosaic">Mozaik</option><option value="spin">Dönerek giriş</option><option value="cut">Kesme</option></select></label>
       <label class="f">Süre (sn, 0 = tamamı)
         <input id="dur" type="number" min="0" max="600" value="0"></label>
       <label class="f">Başlangıç (sn)
@@ -92,10 +112,22 @@ input[type=range]{width:100%;accent-color:var(--pk)}
       <label class="f">Vuruş kaydırma: <span id="shv">0 ms</span>
         <input id="shift" type="range" min="-250" max="250" step="5" value="0"></label>
     </div>
-    <label class="c"><input id="zoom" type="checkbox" checked> Vuruşta yakınlaşma</label>
+    <label class="c"><input id="zoom" type="checkbox"> Vuruşta yakınlaşma (kenarları az kırpar)</label>
     <label class="c"><input id="flash" type="checkbox"> Vuruşta ışık çakması</label>
   </div>
+<footer><div><b>Foto Ritim</b> · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr</a> · <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></div>
+<nav><button data-s="nasil">Nasıl kullanılır</button><button data-s="gizlilik">Gizlilik ve KVKK</button><button data-s="sartlar">Kullanım şartları</button><button data-s="telif">Telif ve sorumluluk</button><button data-s="yerel">Çerez ve yerel depolama</button></nav>
+<div>© 2026 Özgüler Forge. Tüm hakları saklıdır.</div></footer>
 </main>
+<dialog id="dlg"><div class="pick" style="justify-content:space-between"><h2 style="margin:0">Bilgi ve yasal metinler</h2><button id="x" class="main">Kapat</button></div>
+<details id="nasil"><summary>Nasıl kullanılır?</summary><ol><li><b>Fotoğraf ekle:</b> bir veya çok fotoğraf seç. Küçük ⬇ düğmesi orijinal dosyayı hiç değiştirmeden indirir.</li><li><b>Müzik seç:</b> MP3/M4A seç; uygulama vuruşları otomatik bulur.</li><li><b>Ayarlar:</b> biçim, çözünürlük (4K’ya kadar), kadraj ve geçiş efektini seç. “Karışık” her fotoğrafta farklı efekt kullanır. Vuruş kaydırma ile ritmi ince ayarla.</li><li><b>Önizle</b> ile dene, <b>MP4 kaydet</b> ile videoyu üret. Kayıt müzik süresince gerçek zamanlı sürer: ekranı kapatma, başka sekmeye geçme.</li><li><b>İndir veya paylaş:</b> hazır videoyu indir ya da telefondan doğrudan paylaş.</li><li><b>Telefona yükle:</b> Android Chrome’da “Uygulamayı yükle”; iPhone Safari’de Paylaş → Ana Ekrana Ekle. Yüklendikten sonra internetsiz çalışır.</li></ol>
+<p><b>Kalite notu:</b> Fotoğraflar sunucuya gitmez, yeniden sıkıştırılmaz ve dosyaları değiştirilmez. “Orijinal, kırpmasız” kadrajda fotoğrafın tamamı görünür. Video, seçtiğin çözünürlükte yüksek bit hızıyla kodlanır; MP4 doğası gereği sıkıştırmalıdır, kaliteyi korumak için 1080p/4K seç.</p></details>
+<details id="gizlilik"><summary>Gizlilik Politikası ve KVKK Aydınlatma Metni</summary><p>Veri sorumlusu: Özgüler Forge (iletisim@ozgulerforge.com.tr). Uygulama tamamen cihazında çalışır; fotoğraf, müzik ve oluşturulan videolar cihazından çıkmaz, sunucuya yüklenmez. Hesap, reklam, analiz veya takip aracı yoktur. Bu nedenle 6698 sayılı KVKK kapsamında uygulama içinde kişisel veri işlenmez.</p><p>Bize e-posta yazarsan e-posta adresin ve mesajın yalnızca yanıtlamak ve destek vermek için (meşru menfaat/sözleşme ilişkisi) işlenir, gerekli süre sonunda silinir. KVKK md. 11 kapsamındaki bilgi, düzeltme, silme ve itiraz haklarını iletisim@ozgulerforge.com.tr adresine başvurarak kullanabilirsin.</p></details>
+<details id="sartlar"><summary>Kullanım Şartları</summary><p>Uygulamayı kullanarak bu şartları kabul edersin. Uygulama “olduğu gibi” sunulur; kesintisiz veya hatasız çalışacağı garanti edilmez. Yasalara aykırı, başkalarının haklarını ihlal eden içerik üretmek yasaktır. Yazılımın ve arayüzün hakları Özgüler Forge’a aittir; kopyalanamaz, izinsiz dağıtılamaz. Şartlar güncellenebilir; güncel sürüm uygulamada yayınlanır. Türk hukuku uygulanır, Türkiye mahkemeleri yetkilidir.</p></details>
+<details id="telif"><summary>Telif Hakkı ve Sorumluluk Reddi</summary><p>Yüklediğin fotoğraf ve müziklerin telif ve kişilik haklarından sen sorumlusun. Müziği yalnızca kullanma hakkın varsa kullan; sosyal platformlarda telifli müzik nedeniyle videon kısıtlanabilir. Üretilen videoların kullanımından doğan sorumluluk kullanıcıya aittir. Özgüler Forge, veri kaybı veya dolaylı zararlardan yasaların izin verdiği ölçüde sorumlu değildir. Hak ihlali bildirimleri: iletisim@ozgulerforge.com.tr</p></details>
+<details id="yerel"><summary>Çerez ve Yerel Depolama</summary><p>Çerez kullanılmaz. Tarayıcıda yalnızca ayarların (çözünürlük, geçiş vb.) ve çevrimdışı çalışma için uygulama dosyalarının önbelleği saklanır. Tarayıcı ayarlarından istediğin zaman silebilirsin.</p></details>
+<p class="note" style="margin-top:10px">Özgüler Forge · ozgulerforge.com.tr · iletisim@ozgulerforge.com.tr</p></dialog>
+<div id="toast"><span id="tm"></span><button id="tb" class="main">Yenile</button></div>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -116,21 +148,22 @@ async function loadImg(f) {
     try { await im.decode(); bmp = await createImageBitmap(im); } finally { URL.revokeObjectURL(u); }
   }
   const m = Math.max(bmp.width, bmp.height);
-  if (m > 2560) {
-    const r = 2560 / m, c = document.createElement('canvas'); c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
+  if (m > 4096) {
+    const r = 4096 / m, c = document.createElement('canvas'); c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
     c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); bmp.close(); bmp = await createImageBitmap(c);
   }
-  const t = document.createElement('canvas'), q = 104 / Math.max(bmp.width, bmp.height);
+  const t = document.createElement('canvas'), q = 144 / Math.max(bmp.width, bmp.height);
   t.width = Math.max(1, Math.round(bmp.width * q)); t.height = Math.max(1, Math.round(bmp.height * q));
   t.getContext('2d').drawImage(bmp, 0, 0, t.width, t.height);
-  return { bmp, url: t.toDataURL('image/jpeg', .7) };
+  const g = document.createElement('canvas'), z = 40 / Math.max(bmp.width, bmp.height); g.width = Math.max(1, Math.round(bmp.width * z)); g.height = Math.max(1, Math.round(bmp.height * z)); g.getContext('2d').drawImage(bmp, 0, 0, g.width, g.height);
+  return { bmp, bg: g, url: t.toDataURL('image/jpeg', .85) };
 }
 $('pics').onchange = async e => {
   const files = Array.from(e.target.files), bad = [];
-  e.target.value = '';
+  if (e.target.value !== undefined) try { e.target.value = ''; } catch (x) { }
   say('Fotoğraflar yükleniyor… (' + files.length + ')');
   for (const f of files) {
-    try { imgs.push(await loadImg(f)); } catch (x) { bad.push(f.name); }
+    try { imgs.push({ ...await loadImg(f), f }); } catch (x) { bad.push(f.name); }
   }
   thumbs(); build();
   if (bad.length) say(bad.length + ' fotoğraf açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : '') + ' (HEIC/HEIF ise JPG olarak kaydedip tekrar ekle)', 'err');
@@ -143,7 +176,9 @@ function thumbs() {
     const g = document.createElement('img'); g.src = im.url; g.alt = 'Fotoğraf ' + (i + 1);
     const b = document.createElement('button'); b.textContent = '×'; b.title = 'Kaldır'; b.setAttribute('aria-label', 'Fotoğraf ' + (i + 1) + ' kaldır');
     b.onclick = () => { imgs.splice(i, 1); thumbs(); build(); };
-    d.append(g, b); t.appendChild(d);
+    const dl = document.createElement('button'); dl.textContent = '⬇'; dl.title = 'Orijinal dosyayı indir'; dl.className = 'dl'; dl.setAttribute('aria-label', 'Orijinali indir');
+    dl.onclick = () => { const u = URL.createObjectURL(im.f), a = document.createElement('a'); a.href = u; a.download = im.f.name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 4e3); };
+    d.append(g, b, dl); t.appendChild(d);
   });
   $('shuf').disabled = imgs.length < 2;
 }
@@ -192,9 +227,12 @@ function analyze() {
 }
 
 // ---------- zaman çizelgesi ----------
-['fmt', 'bpp', 'trans', 'dur', 'start', 'zoom', 'flash'].forEach(id => $(id).onchange = () => { if (id === 'fmt') size(); build(); });
+['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start', 'zoom', 'flash'].forEach(id => $(id).onchange = () => { if (id === 'fmt' || id === 'q') size(); save(); build(); });
 $('shift').oninput = () => { $('shv').textContent = $('shift').value + ' ms'; build(); };
-function size() { const [w, h] = $('fmt').value.split('x').map(Number); cv.width = w; cv.height = h; }
+const SV = ['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start'];
+function save() { try { localStorage.fs = JSON.stringify([...SV.map(i => $(i).value), $('zoom').checked, $('flash').checked]); } catch (x) { } }
+function load() { try { const a = JSON.parse(localStorage.fs); SV.forEach((i, n) => { if (a[n] != null) $(i).value = a[n]; }); $('zoom').checked = !!a[SV.length]; $('flash').checked = !!a[SV.length + 1]; } catch (x) { } }
+function size() { const [a, b] = $('fmt').value.split('x').map(Number), q = +$('q').value, e = v => Math.round(v / 2) * 2; let w = q, h = q; if (a < b) h = e(q * b / a); else if (a > b) w = e(q * a / b); cv.width = w; cv.height = h; }
 
 function build() {
   stop(); tl = []; BS = [];
@@ -221,22 +259,35 @@ function lastBeat(t) {
   while (lo <= hi) { const m = (lo + hi) >> 1; if (BS[m] <= t) { r = BS[m]; lo = m + 1; } else hi = m - 1; }
   return r;
 }
-function put(i, sc, dx, al) {
-  const b = imgs[i].bmp, W = cv.width, H = cv.height, r = Math.max(W / b.width, H / b.height) * sc;
-  ctx.globalAlpha = al; ctx.drawImage(b, (W - b.width * r) / 2 + dx, (H - b.height * r) / 2, b.width * r, b.height * r); ctx.globalAlpha = 1;
+const TR = ['fade', 'slide', 'up', 'zoom', 'flip', 'circle', 'wipe', 'blinds', 'mosaic', 'spin'];
+function put(i, o = {}) {
+  const b = imgs[i].bmp, W = cv.width, H = cv.height, f = $('fit').value, r = (f === 'fill' ? Math.max : Math.min)(W / b.width, H / b.height);
+  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.globalAlpha = o.al ?? 1;
+  ctx.translate(W / 2 + (o.dx || 0), H / 2 + (o.dy || 0)); ctx.rotate(o.rot || 0); ctx.scale((o.sc || 1) * (o.sx ?? 1), o.sc || 1);
+  if (f === 'blur') { const g = imgs[i].bg, k = Math.max(W / g.width, H / g.height); ctx.drawImage(g, -g.width * k / 2, -g.height * k / 2, g.width * k, g.height * k); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(-W / 2, -H / 2, W, H); }
+  ctx.drawImage(b, -b.width * r / 2, -b.height * r / 2, b.width * r, b.height * r); ctx.restore();
+}
+function trans(k, p, a, b) {
+  const W = cv.width, H = cv.height, e = 1 - Math.pow(1 - p, 3), clip = f => { ctx.save(); ctx.beginPath(); f(); ctx.clip(); put(b); ctx.restore(); };
+  switch (k) {
+    case 'slide': put(a, { dx: -W * e }); put(b, { dx: W * (1 - e) }); break;
+    case 'up': put(a, { dy: -H * e }); put(b, { dy: H * (1 - e) }); break;
+    case 'zoom': put(a, { sc: 1 + e * .35, al: 1 - e }); put(b, { sc: .7 + .3 * e, al: e }); break;
+    case 'flip': e < .5 ? put(a, { sx: Math.cos(e * Math.PI) }) : put(b, { sx: -Math.cos(e * Math.PI) }); break;
+    case 'circle': put(a); clip(() => ctx.arc(W / 2, H / 2, e * Math.hypot(W, H) / 2, 0, 7)); break;
+    case 'wipe': put(a); clip(() => ctx.rect(0, 0, W * e, H)); break;
+    case 'blinds': put(a); clip(() => { for (let i = 0; i < 10; i++) ctx.rect(i * W / 10, 0, W / 10 * e, H); }); break;
+    case 'mosaic': put(a); clip(() => { const s = W / 8; for (let y = 0; y * s < H; y++) for (let x = 0; x < 8; x++) if (((x * 7 + y * 13) % 11) / 11 < e * 1.1) ctx.rect(x * s, y * s, s + 1, s + 1); }); break;
+    case 'spin': put(a, { al: 1 - e }); put(b, { sc: .6 + .4 * e, rot: (1 - e) * .6, al: e }); break;
+    default: put(a); put(b, { al: e });
+  }
 }
 function draw(t) {
   const W = cv.width; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, cv.height);
   let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
-  const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), tr = $('trans').value, lb = lastBeat(t);
-  const pulse = $('zoom').checked && lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0;
-  const kb = 1.02 + .05 * Math.min(1, since / dur) + pulse, F = .2;
-  if (k > 0 && since < F) {
-    const p = since / F, e = 1 - Math.pow(1 - p, 3), prev = tl[k - 1].img;
-    if (tr === 'soft') { put(prev, 1.07, 0, 1); put(s.img, kb, 0, e); }
-    else if (tr === 'slide') { put(prev, 1.07, -W * e, 1); put(s.img, kb, W * (1 - e), 1); }
-    else put(s.img, kb, 0, 1);
-  } else put(s.img, kb, 0, 1);
+  const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), tv = $('trans').value, lb = lastBeat(t), z = $('zoom').checked;
+  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), F = tv === 'cut' ? 0 : Math.min(.55, dur * .5);
+  if (k > 0 && since < F) trans(tv === 'mix' ? TR[k % TR.length] : tv, since / F, tl[k - 1].img, s.img); else put(s.img, { sc });
   if ($('flash').checked && lb != null) { const a = Math.max(0, 1 - (t - lb) / .12) * .18; if (a > 0) { ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fillRect(0, 0, W, cv.height); } }
 }
 function drawTL(t) {
@@ -258,7 +309,7 @@ $('rec').onclick = () => start(true);
 
 function start(rec) {
   if (!tl.length) return; stop();
-  AC.resume(); $('out').textContent = '';
+  AC.resume(); $('out').textContent = ''; if (rec) lock(1);
   src = AC.createBufferSource(); src.buffer = buf; src.connect(AC.destination);
   let dest = null;
   if (rec) {
@@ -269,13 +320,16 @@ function start(rec) {
     draw(startT);
     const stream = cv.captureStream(30); dest.stream.getAudioTracks().forEach(x => stream.addTrack(x));
     chunks = []; finishing = false;
-    mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: 5e6, audioBitsPerSecond: 192e3 });
+    mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: Math.round(Math.min(8e7, Math.max(8e6, cv.width * cv.height * 9))), audioBitsPerSecond: 256e3 });
     mr.ondataavailable = e => e.data.size && chunks.push(e.data);
     mr.onstop = () => {
       if (!finishing) return;
       const ext = mt.startsWith('video/mp4') ? 'mp4' : 'webm', url = URL.createObjectURL(new Blob(chunks, { type: mt.split(';')[0] }));
       const a = document.createElement('a'); a.href = url; a.download = 'foto-ritim.' + ext; a.className = 'btn main'; a.textContent = 'Videoyu indir (' + ext.toUpperCase() + ')';
       const o = $('out'); o.textContent = ''; o.appendChild(a);
+      const fl = new File(chunks, a.download, { type: mt.split(';')[0] });
+      if (navigator.canShare && navigator.canShare({ files: [fl] })) { const sb = document.createElement('button'); sb.textContent = 'Paylaş'; sb.style.marginLeft = '8px'; sb.onclick = () => navigator.share({ files: [fl] }).catch(() => { }); o.appendChild(sb); }
+      lock(0);
       if (ext === 'webm') { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Bu tarayıcı MP4 kaydetmedi, WebM üretildi. Güncel Chrome veya Edge MP4 verir.'; o.appendChild(p); }
       say('Hazır ✓', 'ok'); $('rec').disabled = $('play').disabled = false;
     };
@@ -305,7 +359,27 @@ function stop() {
   $('play').textContent = 'Önizle';
 }
 
-size(); clearView();
+let wl = null;
+async function lock(on) { try { if (on) wl = await navigator.wakeLock.request('screen'); else if (wl) { wl.release(); wl = null; } } catch (x) { } }
+document.addEventListener('visibilitychange', () => { if (document.hidden && playing && recMode) say('Uygulama arka plana geçti; kayıt bozulabilir. Geri dön.', 'err'); });
+const dlg = $('dlg'), openD = id => { dlg.showModal(); document.querySelectorAll('dialog details').forEach(d => d.open = d.id === id); };
+document.querySelectorAll('footer [data-s]').forEach(b => b.onclick = () => openD(b.dataset.s)); $('info').onclick = () => openD('nasil'); $('x').onclick = () => dlg.close();
+try { if (!localStorage.fr) { localStorage.fr = 1; openD('nasil'); } } catch (x) { }
+function toast(m, f) { $('tm').textContent = m; $('tb').onclick = f; $('toast').style.display = 'flex'; }
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  navigator.serviceWorker.register('sw.js').then(r => { r.onupdatefound = () => { const w = r.installing; w.onstatechange = () => { if (w.state === 'installed' && navigator.serviceWorker.controller) toast('Yeni sürüm hazır', () => w.postMessage('skip')); }; }; }).catch(() => { });
+  let rl; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!rl && !playing) { rl = 1; location.reload(); } });
+}
+let dp; addEventListener('beforeinstallprompt', e => { e.preventDefault(); dp = e; $('inst').hidden = false; });
+$('inst').onclick = async () => { dp.prompt(); await dp.userChoice; $('inst').hidden = true; };
+addEventListener('appinstalled', () => $('inst').hidden = true);
+if (/iphone|ipad/i.test(navigator.userAgent) && !navigator.standalone) $('ios').hidden = false;
+const net = () => $('net').textContent = navigator.onLine ? '' : '● Çevrimdışı mod'; addEventListener('online', net); addEventListener('offline', net); net();
+navigator.storage?.persist?.();
+document.body.addEventListener('dragover', e => e.preventDefault());
+document.body.addEventListener('drop', e => { e.preventDefault(); const f = [...e.dataTransfer.files]; const im = f.filter(x => x.type.startsWith('image/')), au = f.find(x => x.type.startsWith('audio/')); const p = $('pics'), dt = new DataTransfer(); if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); } if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); } });
+addEventListener('keydown', e => { if (e.code === 'Space' && !/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName) && !$('play').disabled) { e.preventDefault(); $('play').click(); } });
+load(); size(); clearView();
 </script>
 </body>
 </html>
