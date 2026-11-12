@@ -163,6 +163,14 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
         <input id="start" type="number" min="0" max="600" value="0"></label>
       <label class="f">Vuruş kaydırma: <span id="shv">0 ms</span>
         <input id="shift" type="range" min="-250" max="250" step="5" value="0"></label>
+      <label class="f" style="grid-column:1/-1">Ritim algılama hassasiyeti: <span id="sensv">60</span>
+        <input id="sens" type="range" min="0" max="100" step="1" value="60"></label>
+      <label class="f" style="grid-column:1/-1">Vurgu eşiği: <span id="thrv">80</span>
+        <input id="beatThreshold" type="range" min="0" max="100" step="1" value="80"></label>
+      <label class="f">Güçlü vuruş efekti eşiği: <span id="fxsv">68%</span>
+        <input id="fxStrong" type="range" min="20" max="100" step="1" value="68"></label>
+      <label class="f">Orta vuruş efekti eşiği: <span id="fxmv">36%</span>
+        <input id="fxMedium" type="range" min="5" max="80" step="1" value="36"></label>
     </div>
     <label class="c"><input id="zoom" type="checkbox"> Vuruşta yakınlaşma (kenarları az kırpar)</label>
     <label class="c"><input id="flash" type="checkbox"> Vuruşta ışık çakması</label>
@@ -329,7 +337,11 @@ function analyze() {
 // ---------- zaman çizelgesi ----------
 ['fmt', 'q', 'fit', 'bpp', 'minS', 'trans', 'dur', 'start', 'zoom', 'flash', 'fade'].forEach(id => $(id).onchange = () => { if (id === 'fmt' || id === 'q') size(); save(); build(); });
 $('shift').oninput = () => { $('shv').textContent = $('shift').value + ' ms'; build(); };
-const SV = ['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start', 'minS'];
+for (const [id, label, suffix] of [['sens','sensv',''], ['beatThreshold','thrv',''], ['fxStrong','fxsv','%'], ['fxMedium','fxmv','%']]) {
+  $(id).oninput = () => { $(label).textContent = $(id).value + suffix; };
+  $(id).onchange = () => { save(); build(); };
+}
+const SV = ['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start', 'minS', 'sens', 'beatThreshold', 'fxStrong', 'fxMedium'];
 function save() { try { localStorage.fs2 = JSON.stringify([...SV.map(i => $(i).value), $('zoom').checked, $('flash').checked, $('fade').checked]); } catch (x) { } }
 function load() { try { const a = JSON.parse(localStorage.fs2); SV.forEach((i, n) => { if (a[n] != null) $(i).value = a[n]; }); $('zoom').checked = !!a[SV.length]; $('flash').checked = !!a[SV.length + 1]; $('fade').checked = a[SV.length + 2] !== false; } catch (x) { } }
 function size() { const [a, b] = $('fmt').value.split('x').map(Number), q = +$('q').value, e = v => Math.round(v / 2) * 2; let w = q, h = q; if (a < b) h = e(q * b / a); else if (a > b) w = e(q * a / b); cv.width = w; cv.height = h; }
@@ -364,7 +376,8 @@ function build() {
     });
     const sorted = strengths.slice().sort((a, b) => a - b);
     const p75 = sorted[Math.floor((sorted.length - 1) * .75)] || 0;
-    const threshold = Math.max(.12, p75 * .72);
+    const sensitivity = +$('sens').value / 100, thresholdControl = +$('beatThreshold').value / 100;
+    const threshold = Math.max(.025, p75 * (1.25 - sensitivity * .008) * (1.35 - thresholdControl * .006));
     const minGap = mn > 0 ? mn : iv * .72;
     starts = [BS[0]];
     beatLevels = [strengths[0] || 0];
@@ -450,7 +463,8 @@ function draw(t, fx) {
   let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
   const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), tv = $('trans').value, lb = lastBeat(t), z = $('zoom').checked;
   // Karışık modda vuruş gücüne göre efekt: güçlü=kesme, orta=ışık/derinlik, hafif=yumuşak.
-  const autoFx = s.beat >= beatPeak * .68 ? 'cut' : s.beat >= beatPeak * .36 ? 'isi' : 'fade';
+  const strongEdge = +$('fxStrong').value / 100, mediumEdge = +$('fxMedium').value / 100;
+  const autoFx = s.beat >= beatPeak * strongEdge ? 'cut' : s.beat >= beatPeak * mediumEdge ? 'isi' : 'fade';
   const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), kd = tv === 'mix' ? autoFx : tv, F = kd === 'cut' ? 0 : Math.min(kd === 'fade' ? 1.2 : .95, dur * (kd === 'fade' ? .9 : .8));
   if (k > 0 && since < F) trans(kd, since / F, tl[k - 1].img, s.img); else put(s.img, { sc });
   if ($('flash').checked && lb != null) { const a = Math.max(0, 1 - (t - lb) / .12) * .18; if (a > 0) { ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fillRect(0, 0, W, cv.height); } }
@@ -595,7 +609,7 @@ navigator.storage?.persist?.();
 document.body.addEventListener('dragover', e => e.preventDefault());
 document.body.addEventListener('drop', e => { e.preventDefault(); const f = [...e.dataTransfer.files]; const im = f.filter(x => /^(image|video)\//.test(x.type)), au = f.find(x => x.type.startsWith('audio/')); const p = $('pics'), dt = new DataTransfer(); if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); } if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); } });
 addEventListener('keydown', e => { if (e.code === 'Space' && !/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName) && !$('play').disabled) { e.preventDefault(); $('play').click(); } });
-load(); mark(); size(); clearView();
+load(); $('sensv').textContent = $('sens').value; $('thrv').textContent = $('beatThreshold').value; $('fxsv').textContent = $('fxStrong').value + '%'; $('fxmv').textContent = $('fxMedium').value + '%'; mark(); size(); clearView();
 </script>
 </body>
 </html>
