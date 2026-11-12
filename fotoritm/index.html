@@ -48,7 +48,7 @@ footer{grid-column:1/-1;text-align:center;color:var(--mu);font-size:.82rem;displ
 footer a,footer nav button{color:var(--cy);background:none;border:0;padding:0;font-weight:400;text-decoration:underline;cursor:pointer}
 dialog{max-width:min(720px,94vw);max-height:88vh;background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:14px;padding:18px}dialog::backdrop{background:#000a;backdrop-filter:blur(4px)}
 dialog details{border-top:1px solid var(--line);padding:8px 0}dialog summary{cursor:pointer;font-weight:700}dialog p,dialog li{color:#cfd3ee;font-size:.9rem}
-#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#232744;border:1px solid var(--cy);border-radius:10px;padding:10px 14px;display:none;gap:10px;align-items:center;z-index:9}
+#out video{display:block;width:min(100%,420px);max-height:55vh;margin:12px auto;border-radius:12px;background:#000}#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#232744;border:1px solid var(--cy);border-radius:10px;padding:10px 14px;display:none;gap:10px;align-items:center;z-index:9}
 /* Premium açık tema (Filigran uyumlu krem) */
 :root{--bg:#fbf8f4;--panel:#fff;--line:#e9e1d7;--tx:#2a2521;--mu:#8b8076;--pk:#2a2521;--cy:#b8864b;color-scheme:light}
 body{background:var(--bg)!important;color:var(--tx)}
@@ -649,17 +649,19 @@ function start(rec, from) {
     const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
     if (!mt) { lock(0); say('Bu tarayıcı video kaydını desteklemiyor. Chrome veya Edge kullan.', 'err'); return; }
     dest = AC.createMediaStreamDestination(); gn.connect(dest);
-    // Mobil cihazlarda 2K/4K canvas bellek/encoder taşmasına yol açıp siyah video üretebilir.
-    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && cv.width * cv.height > 1920 * 1080) {
-      const q = $('q'); q.value = '1080'; size(); save(); build();
-    }
+    // Mobilde 720p/24fps, canvas encoder belleğini ve ısınmayı azaltır.
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile && +$('q').value > 720) { $('q').value = '720'; size(); save(); build(); }
     draw(pf, 1);
-    const stream = cv.captureStream(0);
+    let stream;
+    try { stream = cv.captureStream(isMobile ? 24 : 30); }
+    catch (x) { lock(0); say('Bu tarayıcı canvas videosu kaydını başlatamadı. Safari/Chrome’u güncelleyin.', 'err'); return; }
     const videoTrack = stream.getVideoTracks()[0];
-    if (videoTrack && typeof videoTrack.requestFrame === 'function') videoTrack.requestFrame();
+    if (!videoTrack) { lock(0); say('Video kare akışı oluşturulamadı. Sayfayı yenileyip yeniden deneyin.', 'err'); return; }
     dest.stream.getAudioTracks().forEach(x => stream.addTrack(x));
     chunks = []; finishing = false;
-    mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: Math.round(Math.min(8e7, Math.max(8e6, cv.width * cv.height * 9))), audioBitsPerSecond: 256e3 });
+    const videoBitrate = isMobile ? 4e6 : Math.round(Math.min(8e7, Math.max(8e6, cv.width * cv.height * 9)));
+    mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: videoBitrate, audioBitsPerSecond: 128e3 });
     mr.ondataavailable = e => e.data.size && chunks.push(e.data);
     mr.onerror = () => { stop(); lock(0); say('Kayıt sırasında bir hata oluştu. Tekrar dene.', 'err'); };
     mr.onstop = () => {
@@ -669,6 +671,7 @@ function start(rec, from) {
       if (chunks.reduce((n, c) => n + c.size, 0) < 50000) { lock(0); say('Kayıt beklenenden küçük/boş çıktı. Mobilde ekranı açık tutup 720p ile yeniden deneyin.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
       lastUrl = url; const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, ''); const a = document.createElement('a'); a.href = url; a.download = 'foto-ritim-' + stamp + '.' + ext; a.className = 'btn main'; a.textContent = 'Videoyu indir (' + ext.toUpperCase() + ')';
       const o = $('out'); o.textContent = ''; o.appendChild(a);
+      const preview = document.createElement('video'); preview.controls = true; preview.playsInline = true; preview.setAttribute('playsinline',''); preview.preload = 'metadata'; preview.src = url; preview.setAttribute('aria-label','Oluşturulan videonun önizlemesi'); o.appendChild(preview);
       if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) { const hint = document.createElement('p'); hint.className = 'note'; hint.textContent = 'iPhone/iPad: İndir düğmesi dosyayı indirmezse Paylaş’a dokunup Dosyalara Kaydet’i seçin. Kayıt sırasında Safari’yi açık tutun.'; o.appendChild(hint); }
       const fl = new File(chunks, a.download, { type: mt.split(';')[0] });
       if (navigator.canShare && navigator.canShare({ files: [fl] })) { const sb = document.createElement('button'); sb.textContent = 'Paylaş'; sb.style.marginLeft = '8px'; sb.onclick = () => navigator.share({ files: [fl] }).catch(() => { }); o.appendChild(sb); }
@@ -697,7 +700,7 @@ function finish() {
   playing = false; cancelAnimationFrame(raf); $('play').textContent = 'Önizle';
   if (recMode) $('play').disabled = true; else { $('pg').hidden = true; $('tc').textContent = ''; }
   draw(Math.max(startT, endT - .03), recMode); vstop(); drawTL(endT); drawEQ(1);
-  if (recMode && mr && mr.state !== 'inactive') { finishing = true; try { const track = mr.stream && mr.stream.getVideoTracks()[0]; if (track && typeof track.requestFrame === 'function') track.requestFrame(); } catch (x) {} setTimeout(() => mr.stop(), 800); }
+  if (recMode && mr && mr.state !== 'inactive') { finishing = true; try { const track = mr.stream && mr.stream.getVideoTracks()[0]; if (track && typeof track.requestFrame === 'function') track.requestFrame(); } catch (x) {} setTimeout(() => mr.stop(), 1000); }
 }
 function stop() {
   const wasRec = recMode && playing;
