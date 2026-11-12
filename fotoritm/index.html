@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foto Ritim</title>
+<style>
+:root{--bg:#10121f;--panel:#191c2e;--line:#2a2e48;--tx:#eef0fa;--mu:#9aa0c0;--pk:#ec4899;--cy:#5eead4;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
+main{max-width:980px;margin:0 auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:860px){main{grid-template-columns:minmax(0,5fr) minmax(0,4fr);align-items:start}header{grid-column:1/-1}}
+h1{font-size:1.7rem;letter-spacing:-.02em;margin:0 0 4px}
+.sub{margin:0;color:var(--mu);max-width:60ch}
+.stage{display:grid;gap:10px;justify-items:center}
+#cv{max-width:100%;max-height:68vh;background:#000;border-radius:10px;display:block}
+#tlc{width:100%;height:64px;display:block}
+.ctl{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:12px}
+.ctl h2{font-size:1rem;margin:0}
+.pick{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+button,.btn,select,input[type=number]{font:inherit;color:inherit;border-radius:8px;border:1px solid var(--line);background:#232744;padding:9px 12px}
+button,.btn{cursor:pointer;font-weight:600}
+.btn.main,button.main{background:var(--pk);border-color:var(--pk);color:#fff}
+button:disabled{opacity:.45;cursor:default}
+:is(button,.btn,select,input,summary):focus-visible{outline:2px solid var(--cy);outline-offset:2px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label.f{display:grid;gap:4px;font-size:.82rem;color:var(--mu)}
+label.f select,label.f input{width:100%;color:var(--tx)}
+label.c{display:flex;gap:8px;align-items:center;font-size:.9rem}
+#thumbs{display:flex;gap:6px;flex-wrap:wrap}
+.th{position:relative;width:52px;height:52px;border-radius:6px;overflow:hidden;background:#000}
+.th img{width:100%;height:100%;object-fit:cover}
+.th button{position:absolute;top:0;right:0;padding:0 5px;line-height:1.1;font-size:.8rem;border:0;border-radius:0 0 0 6px;background:#000b;color:#fff}
+.note{font-size:.85rem;color:var(--mu);margin:0}
+#st{min-height:1.4em;font-size:.9rem}.err{color:#fca5a5}.ok{color:#6ee7b7}
+input[type=range]{width:100%;accent-color:var(--pk)}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Foto Ritim</h1>
+  <p class="sub">Fotoğrafları ve müziği seç. Geçişler müziğin vuruşuna oturur; sonucu MP4 olarak kaydet.</p>
+</header>
+
+<section class="stage" aria-label="Önizleme">
+  <canvas id="cv" width="720" height="1280"></canvas>
+  <canvas id="tlc" aria-label="Vuruş çizelgesi"></canvas>
+  <div class="pick">
+    <button id="play" class="main" disabled>Önizle</button>
+    <button id="rec" disabled>MP4 kaydet</button>
+  </div>
+  <div id="st" role="status"></div>
+  <div id="out"></div>
+</section>
+
+<section style="display:grid;gap:14px">
+  <div class="ctl">
+    <h2>Fotoğraflar</h2>
+    <div class="pick">
+      <label class="btn main" for="pics" tabindex="0">Fotoğraf ekle</label>
+      <input id="pics" type="file" accept="image/*" multiple hidden>
+      <button id="shuf" disabled>Karıştır</button>
+    </div>
+    <div id="thumbs"></div>
+  </div>
+
+  <div class="ctl">
+    <h2>Müzik</h2>
+    <div class="pick">
+      <label class="btn main" for="aud" tabindex="0">Müzik seç</label>
+      <input id="aud" type="file" accept="audio/*" hidden>
+    </div>
+    <p class="note">Reel Ses'in Indirilenler klasöründeki MP3 veya M4A dosyasını seç.</p>
+    <p id="ainfo" class="note"></p>
+  </div>
+
+  <div class="ctl">
+    <h2>Ayarlar</h2>
+    <div class="grid">
+      <label class="f">Biçim
+        <select id="fmt"><option value="720x1280">Dikey 9:16 (Reel)</option><option value="1080x1080">Kare 1:1</option><option value="1280x720">Yatay 16:9</option></select></label>
+      <label class="f">Fotoğraf başına vuruş
+        <select id="bpp"><option value="0">Otomatik</option><option>1</option><option>2</option><option>4</option><option>8</option></select></label>
+      <label class="f">Geçiş
+        <select id="trans"><option value="cut">Kesme</option><option value="soft">Yumuşak</option><option value="slide">Kaydırma</option></select></label>
+      <label class="f">Süre (sn, 0 = tamamı)
+        <input id="dur" type="number" min="0" max="600" value="0"></label>
+      <label class="f">Başlangıç (sn)
+        <input id="start" type="number" min="0" max="600" value="0"></label>
+      <label class="f">Vuruş kaydırma: <span id="shv">0 ms</span>
+        <input id="shift" type="range" min="-250" max="250" step="5" value="0"></label>
+    </div>
+    <label class="c"><input id="zoom" type="checkbox" checked> Vuruşta yakınlaşma</label>
+    <label class="c"><input id="flash" type="checkbox"> Vuruşta ışık çakması</label>
+  </div>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d'), tlc = $('tlc'), tctx = tlc.getContext('2d');
+let imgs = [], AC = null, buf = null, beats = [], bpm = 0;
+let tl = [], BS = [], startT = 0, endT = 0;
+let src = null, ctx0 = 0, playing = false, recMode = false, raf = 0, mr = null, chunks = [], finishing = false;
+
+function say(m, c) { const s = $('st'); s.textContent = m || ''; s.className = c || ''; }
+
+// ---------- fotoğraflar ----------
+// Fotoğrafı açar: önce doğrudan, olmazsa <img> ile (HEIC gibi biçimler için); çok büyükse küçültür
+async function loadImg(f) {
+  let bmp;
+  try { bmp = await createImageBitmap(f); }
+  catch (e) {
+    const u = URL.createObjectURL(f), im = new Image(); im.src = u;
+    try { await im.decode(); bmp = await createImageBitmap(im); } finally { URL.revokeObjectURL(u); }
+  }
+  const m = Math.max(bmp.width, bmp.height);
+  if (m > 2560) {
+    const r = 2560 / m, c = document.createElement('canvas'); c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); bmp.close(); bmp = await createImageBitmap(c);
+  }
+  const t = document.createElement('canvas'), q = 104 / Math.max(bmp.width, bmp.height);
+  t.width = Math.max(1, Math.round(bmp.width * q)); t.height = Math.max(1, Math.round(bmp.height * q));
+  t.getContext('2d').drawImage(bmp, 0, 0, t.width, t.height);
+  return { bmp, url: t.toDataURL('image/jpeg', .7) };
+}
+$('pics').onchange = async e => {
+  const files = Array.from(e.target.files), bad = [];
+  e.target.value = '';
+  say('Fotoğraflar yükleniyor… (' + files.length + ')');
+  for (const f of files) {
+    try { imgs.push(await loadImg(f)); } catch (x) { bad.push(f.name); }
+  }
+  thumbs(); build();
+  if (bad.length) say(bad.length + ' fotoğraf açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : '') + ' (HEIC/HEIF ise JPG olarak kaydedip tekrar ekle)', 'err');
+};
+$('shuf').onclick = () => { for (let i = imgs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [imgs[i], imgs[j]] = [imgs[j], imgs[i]]; } thumbs(); build(); };
+function thumbs() {
+  const t = $('thumbs'); t.textContent = '';
+  imgs.forEach((im, i) => {
+    const d = document.createElement('div'); d.className = 'th';
+    const g = document.createElement('img'); g.src = im.url; g.alt = 'Fotoğraf ' + (i + 1);
+    const b = document.createElement('button'); b.textContent = '×'; b.title = 'Kaldır'; b.setAttribute('aria-label', 'Fotoğraf ' + (i + 1) + ' kaldır');
+    b.onclick = () => { imgs.splice(i, 1); thumbs(); build(); };
+    d.append(g, b); t.appendChild(d);
+  });
+  $('shuf').disabled = imgs.length < 2;
+}
+for (const l of document.querySelectorAll('label.btn')) l.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); l.click(); } };
+
+// ---------- müzik + ritim analizi ----------
+$('aud').onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  stop(); say('Müzik çözülüyor ve ritim aranıyor…');
+  AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+  try { buf = await AC.decodeAudioData(await f.arrayBuffer()); } catch (x) { buf = null; return say('Ses dosyası okunamadı.', 'err'); }
+  await new Promise(r => setTimeout(r, 20));
+  if (!analyze()) { beats = []; say('Müzikte belirgin bir ritim bulunamadı.', 'err'); $('ainfo').textContent = ''; return build(); }
+  $('ainfo').textContent = f.name + ' · ' + buf.duration.toFixed(1) + ' sn · yaklaşık ' + bpm.toFixed(0) + ' vuruş/dk';
+  say(''); build();
+};
+
+function analyze() {
+  const sr = buf.sampleRate, n = buf.length, d0 = buf.getChannelData(0), d1 = buf.numberOfChannels > 1 ? buf.getChannelData(1) : d0;
+  const hop = 512, nf = Math.floor(n / hop), fps = sr / hop, env = new Float32Array(nf);
+  for (let i = 0; i < nf; i++) { let s = 0; const o = i * hop; for (let j = 0; j < hop; j += 2) { const x = (d0[o + j] + d1[o + j]) * .5; s += x * x; } env[i] = Math.pow(s / (hop / 2), .25); }
+  const on = new Float32Array(nf); let mx = 0;
+  for (let i = 1; i < nf; i++) { on[i] = Math.max(0, env[i] - env[i - 1]); if (on[i] > mx) mx = on[i]; }
+  if (!mx || nf < fps * 3) return false;
+  for (let i = 0; i < nf; i++) on[i] /= mx;
+  // tempo: özilişki, 100-130 civarını hafifçe tercih eder
+  const lo = Math.round(fps * 60 / 180), hi = Math.round(fps * 60 / 60);
+  let bestL = lo, bestS = -1;
+  for (let L = lo; L <= hi; L++) {
+    let s = 0; for (let i = L; i < nf; i++) s += on[i] * on[i - L];
+    s /= (nf - L); s *= Math.exp(-.5 * Math.pow(Math.log2(fps * 60 / L / 115) / .7, 2));
+    if (s > bestS) { bestS = s; bestL = L; }
+  }
+  // ince ayar: periyodu ve vuruş fazını birlikte ara (sapma birikmesin)
+  let best = { s: -1, p: bestL, off: 0 };
+  for (let p = bestL * .96; p <= bestL * 1.04; p += bestL * .0015) {
+    for (let off = 0; off < p; off += 1) {
+      let s = 0, c = 0;
+      for (let t = off; t < nf - 1; t += p) { const k = Math.round(t); s += Math.max(on[k - 1] || 0, on[k], on[k + 1] || 0); c++; }
+      s /= c; if (s > best.s) best = { s, p, off };
+    }
+  }
+  beats = []; for (let t = best.off; t < nf; t += best.p) beats.push((t + .5) * hop / sr);
+  bpm = fps * 60 / best.p;
+  return true;
+}
+
+// ---------- zaman çizelgesi ----------
+['fmt', 'bpp', 'trans', 'dur', 'start', 'zoom', 'flash'].forEach(id => $(id).onchange = () => { if (id === 'fmt') size(); build(); });
+$('shift').oninput = () => { $('shv').textContent = $('shift').value + ' ms'; build(); };
+function size() { const [w, h] = $('fmt').value.split('x').map(Number); cv.width = w; cv.height = h; }
+
+function build() {
+  stop(); tl = []; BS = [];
+  const ok = imgs.length && buf && beats.length;
+  $('play').disabled = $('rec').disabled = !ok;
+  if (!ok) { clearView(); return; }
+  const st = Math.max(0, +$('start').value || 0), dur = +$('dur').value || 0;
+  endT = dur > 0 ? Math.min(buf.duration, st + dur) : buf.duration;
+  const sh = $('shift').value / 1000;
+  BS = beats.map(b => b + sh).filter(b => b >= st && b < endT);
+  if (BS.length < 2) { $('play').disabled = $('rec').disabled = true; return say('Seçilen aralıkta yeterli vuruş yok.', 'err'); }
+  let bpp = +$('bpp').value;
+  if (!bpp) { const raw = Math.max(1, BS.length / imgs.length); bpp = [1, 2, 4, 8].reduce((a, b) => Math.abs(b - raw) < Math.abs(a - raw) ? b : a); }
+  const starts = BS.filter((_, i) => i % bpp === 0);
+  startT = st;
+  starts.forEach((t, i) => tl.push({ t0: i === 0 ? st : t, t1: i + 1 < starts.length ? starts[i + 1] : endT, img: i % imgs.length }));
+  say(imgs.length + ' fotoğraf → ' + tl.length + ' kare · her biri ' + bpp + ' vuruş · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · fotoğraflar tekrar eder' : ''));
+  draw(st); drawTL(st);
+}
+function clearView() { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height); drawTL(-1); }
+
+function lastBeat(t) {
+  let lo = 0, hi = BS.length - 1, r = null;
+  while (lo <= hi) { const m = (lo + hi) >> 1; if (BS[m] <= t) { r = BS[m]; lo = m + 1; } else hi = m - 1; }
+  return r;
+}
+function put(i, sc, dx, al) {
+  const b = imgs[i].bmp, W = cv.width, H = cv.height, r = Math.max(W / b.width, H / b.height) * sc;
+  ctx.globalAlpha = al; ctx.drawImage(b, (W - b.width * r) / 2 + dx, (H - b.height * r) / 2, b.width * r, b.height * r); ctx.globalAlpha = 1;
+}
+function draw(t) {
+  const W = cv.width; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, cv.height);
+  let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
+  const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), tr = $('trans').value, lb = lastBeat(t);
+  const pulse = $('zoom').checked && lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0;
+  const kb = 1.02 + .05 * Math.min(1, since / dur) + pulse, F = .2;
+  if (k > 0 && since < F) {
+    const p = since / F, e = 1 - Math.pow(1 - p, 3), prev = tl[k - 1].img;
+    if (tr === 'soft') { put(prev, 1.07, 0, 1); put(s.img, kb, 0, e); }
+    else if (tr === 'slide') { put(prev, 1.07, -W * e, 1); put(s.img, kb, W * (1 - e), 1); }
+    else put(s.img, kb, 0, 1);
+  } else put(s.img, kb, 0, 1);
+  if ($('flash').checked && lb != null) { const a = Math.max(0, 1 - (t - lb) / .12) * .18; if (a > 0) { ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fillRect(0, 0, W, cv.height); } }
+}
+function drawTL(t) {
+  const dpr = devicePixelRatio || 1, w = tlc.clientWidth, h = tlc.clientHeight;
+  if (tlc.width !== Math.round(w * dpr)) { tlc.width = Math.round(w * dpr); tlc.height = Math.round(h * dpr); }
+  tctx.setTransform(dpr, 0, 0, dpr, 0, 0); tctx.clearRect(0, 0, w, h);
+  if (!tl.length) return;
+  const a = startT, b = endT, X = v => (v - a) / (b - a) * w;
+  tl.forEach((s, i) => { tctx.fillStyle = i % 2 ? '#232744' : '#2d3256'; tctx.fillRect(X(s.t0), 18, Math.max(1, X(s.t1) - X(s.t0) - 1), h - 24); });
+  tctx.fillStyle = '#9aa0c0'; BS.forEach(v => tctx.fillRect(X(v), 6, 1, 10));
+  tctx.fillStyle = '#ec4899'; tl.forEach(s => tctx.fillRect(X(s.t0), 2, 2, 16));
+  if (t >= 0) { tctx.fillStyle = '#5eead4'; tctx.fillRect(X(Math.min(t, b)) - 1, 0, 2, h); }
+}
+addEventListener('resize', () => { if (!playing) drawTL(startT); });
+
+// ---------- oynatma ve kayıt ----------
+$('play').onclick = () => playing && !recMode ? (stop(), draw(startT), drawTL(startT)) : start(false);
+$('rec').onclick = () => start(true);
+
+function start(rec) {
+  if (!tl.length) return; stop();
+  AC.resume(); $('out').textContent = '';
+  src = AC.createBufferSource(); src.buffer = buf; src.connect(AC.destination);
+  let dest = null;
+  if (rec) {
+    const types = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+    const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
+    if (!mt) { say('Bu tarayıcı video kaydını desteklemiyor. Chrome veya Edge kullan.', 'err'); return; }
+    dest = AC.createMediaStreamDestination(); src.connect(dest);
+    draw(startT);
+    const stream = cv.captureStream(30); dest.stream.getAudioTracks().forEach(x => stream.addTrack(x));
+    chunks = []; finishing = false;
+    mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: 5e6, audioBitsPerSecond: 192e3 });
+    mr.ondataavailable = e => e.data.size && chunks.push(e.data);
+    mr.onstop = () => {
+      if (!finishing) return;
+      const ext = mt.startsWith('video/mp4') ? 'mp4' : 'webm', url = URL.createObjectURL(new Blob(chunks, { type: mt.split(';')[0] }));
+      const a = document.createElement('a'); a.href = url; a.download = 'foto-ritim.' + ext; a.className = 'btn main'; a.textContent = 'Videoyu indir (' + ext.toUpperCase() + ')';
+      const o = $('out'); o.textContent = ''; o.appendChild(a);
+      if (ext === 'webm') { const p = document.createElement('p'); p.className = 'note'; p.textContent = 'Bu tarayıcı MP4 kaydetmedi, WebM üretildi. Güncel Chrome veya Edge MP4 verir.'; o.appendChild(p); }
+      say('Hazır ✓', 'ok'); $('rec').disabled = $('play').disabled = false;
+    };
+    mr.start(250); $('rec').disabled = true; say('Kaydediliyor… müzik bitene kadar bekle.');
+  }
+  ctx0 = AC.currentTime + .1; src.start(ctx0, startT, endT - startT);
+  src.onended = () => { if (playing) finish(); };
+  playing = true; recMode = rec; $('play').textContent = 'Durdur';
+  raf = requestAnimationFrame(frame);
+}
+function frame() {
+  if (!playing) return;
+  const t = startT + Math.max(0, AC.currentTime - ctx0);
+  if (t >= endT - .02) return finish();
+  draw(t); drawTL(t); raf = requestAnimationFrame(frame);
+}
+function finish() {
+  playing = false; cancelAnimationFrame(raf); $('play').textContent = 'Önizle';
+  draw(Math.max(startT, endT - .03)); drawTL(endT);
+  if (recMode && mr && mr.state !== 'inactive') { finishing = true; setTimeout(() => mr.stop(), 400); }
+}
+function stop() {
+  const wasRec = recMode && playing;
+  playing = false; cancelAnimationFrame(raf);
+  try { src && src.stop(); } catch (x) { }
+  if (wasRec && mr && mr.state !== 'inactive') { finishing = false; mr.stop(); $('rec').disabled = !tl.length; say('Kayıt iptal edildi.'); }
+  $('play').textContent = 'Önizle';
+}
+
+size(); clearView();
+</script>
+</body>
+</html>
