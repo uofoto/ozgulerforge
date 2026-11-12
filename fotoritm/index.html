@@ -188,8 +188,48 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
 <div>© 2026 Özgüler Forge. Tüm hakları saklıdır.</div></footer>
 </main>
 <dialog id="dlg"><div class="pick" style="justify-content:space-between"><h2 style="margin:0">Bilgi ve yasal metinler</h2><button id="x" class="main">Kapat</button></div>
-<details id="nasil"><summary>Nasıl kullanılır?</summary><ol><li><b>Fotoğraf / video ekle:</b> bir veya çok fotoğraf ya da video seç; ikisini karıştırabilirsin. Videolar kendi slaytlarında sessiz oynar, ses olarak müzik kullanılır; slayttan kısa videolar baştan döner. Küçük ⬇ düğmesi orijinal dosyayı hiç değiştirmeden indirir. Sırayı sürükleyerek veya ‹ › düğmeleriyle değiştir.</li><li><b>Müzik seç:</b> MP3/M4A seç; uygulama vuruşları otomatik bulur.</li><li><b>Ayarlar:</b> biçim, çözünürlük (4K’ya kadar), kadraj ve geçiş efektini seç. “Karışık” her fotoğrafta farklı efekt kullanır. Vuruş kaydırma ile ritmi ince ayarla. “Yumuşak giriş/çıkış” videonun başında ve sonunda görüntüyü ve sesi yavaşça açıp kapatır.</li><li><b>Önizle</b> ile dene; vuruş çizelgesine dokunursan önizleme o noktadan başlar. <b>MP4 kaydet</b> ile videoyu üret: kayıt müzik süresince gerçek zamanlı sürer, ilerleme çubuğu kalan süreyi gösterir. Ekranı kapatma, başka sekmeye geçme; “Kaydı iptal et” ile durdurabilirsin.</li><li><b>İndir veya paylaş:</b> hazır videoyu indir ya da telefondan doğrudan paylaş.</li><li><b>Telefona yükle:</b> Android Chrome’da “Uygulamayı yükle”; iPhone Safari’de Paylaş → Ana Ekrana Ekle. Yüklendikten sonra internetsiz çalışır.</li></ol>
-<p><b>Kalite notu:</b> Fotoğraflar sunucuya gitmez, yeniden sıkıştırılmaz ve dosyaları değiştirilmez. “Orijinal, kırpmasız” kadrajda fotoğrafın tamamı görünür. Video, seçtiğin çözünürlükte yüksek bit hızıyla kodlanır; MP4 doğası gereği sıkıştırmalıdır, kaliteyi korumak için 1080p/4K seç.</p></details>
+<details id="nasil"><summary>Nasıl kullanılır?</summary>
+<h3>Geçiş Efektleri (Üst Butonlar)</h3>
+<ul>
+<li><b>Siyaha erime:</b> Fotoğraflar arasında geçerken görüntüyü önce karartır, ardından yeni fotoğrafı gösterir (fade to black).</li>
+<li><b>Hafif dönüş:</b> Geçiş sırasında fotoğrafa hafif bir dönme animasyonu ekler.</li>
+<li><b>Çevirme:</b> Fotoğrafı kart veya sayfa gibi döndürerek diğer fotoğrafa geçer (flip).</li>
+<li><b>Kesme:</b> Animasyon kullanmadan, geçiş noktasında doğrudan diğer fotoğrafa geçer.</li>
+<li><b>Karışık (otomatik):</b> Geçiş efektini ritim vurgusuna göre seçer. Diğer efekt düğmeleri belirli bir efekti sabit seçmek içindir.</li>
+</ul>
+<h3>Zamanlama Ayarları</h3>
+<ul>
+<li><b>Süre (sn, 0 = tamamı):</b> Videonun süresini belirler. 0 bırakılırsa yüklenen müziğin tamamı kullanılır.</li>
+<li><b>Başlangıç (sn):</b> Müziğin hangi saniyesinden başlayacağını belirler; örneğin nakarat bölümünden başlamak için kullanabilirsiniz.</li>
+<li><b>Fotoğraf / video başına vuruş:</b> Otomatik seçiliyken geçişler müzik vurgularına göre değişken aralıklarla planlanır. Sayı seçerseniz öğe, seçilen vuruş sayısı kadar ekranda kalır.</li>
+</ul>
+<h3>Ritim ve Vuruş (Beat) Hassasiyeti</h3>
+<ul>
+<li><b>Vuruş kaydırma:</b> Geçiş noktalarını vuruşa göre milisaniye cinsinden erkene veya geçe alır. Ses ve görüntü arasındaki olası senkron kaymasını dengelemek için kullanılır.</li>
+<li><b>Ritim algılama hassasiyeti:</b> Otomatik zamanlamanın daha hafif vurguları da dikkate almasını sağlar. Değer yükseldikçe daha çok vuruş geçiş adayı olabilir; düşürüldüğünde yalnızca daha belirgin vurgular kullanılır.</li>
+<li><b>Vurgu eşiği:</b> Otomatik zamanlamada bir vuruşun geçiş adayı sayılması için gereken göreli vurgu düzeyini ayarlar. Daha düşük eşik daha fazla vuruşu, daha yüksek eşik daha seçici algılamayı sağlar.</li>
+</ul>
+<h3>Efekt Eşikleri</h3>
+<ul>
+<li><b>Güçlü vuruş efekti eşiği (%):</b> Vuruş şiddeti bu göreli düzeye ulaştığında Karışık mod güçlü vuruş efektini seçer.</li>
+<li><b>Orta vuruş efekti eşiği (%):</b> Orta şiddetteki vuruşlarda kullanılacak ikincil efektin sınırını belirler. Dengeli sonuç için bu değeri güçlü vuruş eşiğinden düşük tutun; orta eşik daha yüksek olursa orta şiddet aralığı oluşmayabilir.</li>
+</ul>
+<p><b>Not:</b> Eşik yüzdeleri analiz edilen parçanın kendi vuruş güçlerine göre değerlendirilir; bunlar ses düzeyi ya da fiziksel desibel ölçümü değildir. Efekt eşikleri yalnızca “Karışık (otomatik)” modunda kullanılır.</p>
+<h3>Ek Görsel ve Ses Seçenekleri</h3>
+<ul>
+<li><b>Vuruşta yakınlaşma (kenarları az kırpar):</b> Algılanan vuruşlarda fotoğrafı hafifçe büyütür (zoom/pulse).</li>
+<li><b>Vuruşta ışık çakması:</b> Vuruş anlarında kısa süreli beyaz parlama ekler.</li>
+<li><b>Başta ve sonda yumuşak giriş/çıkış (görüntü ve ses):</b> Videonun başında ses ve görüntüyü yavaşça açar; sonunda yumuşakça kısıp karartır.</li>
+</ul>
+<h3>Fotoğraf ve video oluşturma</h3>
+<ol>
+<li>Fotoğraf veya video ekleyin. Müzik analiz edildiğinde önerilen fotoğraf sayısını kontrol edin; eksik ya da fazla öğe varsa ekrandaki uyarıyı dikkate alın.</li>
+<li>Müziği seçin. Uygulama tahmini BPM’yi ve ritim belirginliğini gösterir. Dalga formu ile vuruş işaretçilerini görsel olarak karşılaştırabilir, gerekirse vuruş kaydırmayı ayarlayabilirsiniz.</li>
+<li>Biçim, çözünürlük, kadraj, zamanlama ve geçiş ayarlarını seçin; ardından <b>Önizle</b> ile sonucu kontrol edin.</li>
+<li><b>MP4 kaydet</b> ile videoyu oluşturun. Kayıt gerçek zamanlı sürdüğünden mobil cihazda ekranı açık tutun ve uygulamadan çıkmayın. iPhone/iPad’de indirme başlamazsa <b>Paylaş</b> → <b>Dosyalara Kaydet</b> yolunu kullanın.</li>
+</ol>
+<p><b>Kalite ve gizlilik:</b> Fotoğraf ve müzik dosyaları cihazda işlenir. Mobil cihazda kayıt sorunu yaşarsanız çözünürlüğü 720p veya 1080p seçip yeniden deneyin.</p>
+</details>
 <details id="kur"><summary>Telefona yükleme</summary><p><b>Android (Chrome):</b> sayfayı https ile açıp birkaç saniye bekle, “⤓ Yükle”ye bas. Çıkmazsa Chrome menüsü (⋮) → “Uygulamayı yükle” / “Ana ekrana ekle”.</p><p><b>iPhone (Safari):</b> Paylaş düğmesi → “Ana Ekrana Ekle”. (Chrome’dan yüklenmez.)</p><p><b>Bilgisayar:</b> Chrome/Edge adres çubuğundaki yükle simgesi.</p></details>
 <details id="gizlilik"><summary>Gizlilik Politikası ve KVKK Aydınlatma Metni</summary><p>Veri sorumlusu: Özgüler Forge (iletisim@ozgulerforge.com.tr). Uygulama tamamen cihazında çalışır; fotoğraf, müzik ve oluşturulan videolar cihazından çıkmaz, sunucuya yüklenmez. Hesap, reklam, analiz veya takip aracı yoktur. Bu nedenle 6698 sayılı KVKK kapsamında uygulama içinde kişisel veri işlenmez.</p><p>Bize e-posta yazarsan e-posta adresin ve mesajın yalnızca yanıtlamak ve destek vermek için (meşru menfaat/sözleşme ilişkisi) işlenir, gerekli süre sonunda silinir. KVKK md. 11 kapsamındaki bilgi, düzeltme, silme ve itiraz haklarını iletisim@ozgulerforge.com.tr adresine başvurarak kullanabilirsin.</p></details>
 <details id="sartlar"><summary>Kullanım Şartları</summary><p>Uygulamayı kullanarak bu şartları kabul edersin. Uygulama “olduğu gibi” sunulur; kesintisiz veya hatasız çalışacağı garanti edilmez. Yasalara aykırı, başkalarının haklarını ihlal eden içerik üretmek yasaktır. Yazılımın ve arayüzün hakları Özgüler Forge’a aittir; kopyalanamaz, izinsiz dağıtılamaz. Şartlar güncellenebilir; güncel sürüm uygulamada yayınlanır. Türk hukuku uygulanır, Türkiye mahkemeleri yetkilidir.</p></details>
