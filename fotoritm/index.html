@@ -3,255 +3,1268 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Foto Ritim</title>
-<meta name="description" content="Fotoğraflarını müziğin ritmine göre videoya çevir. Çevrimdışı çalışır, dosyalar cihazından çıkmaz.">
-<meta name="theme-color" content="#fbf8f4">
+<title>Foto Ritim – Özgüler Forge (v3.5 Studio)</title>
+<meta name="description" content="Fotoğraflarını müziğin ritmine göre sinematik videoya çevir. Orijinal kalite, çevrimdışı çalışır.">
+<meta name="theme-color" content="#fbf8f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141210" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Foto Ritim">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
-:root{--bg:#fbf8f4;--panel:#fff;--line:#e6ddd1;--tx:#241f1c;--mu:#7c7167;--ac:#b8864b;--ac-bg:#f6ecdf;color-scheme:light}
-@media(prefers-color-scheme:dark){:root{--bg:#141210;--panel:#1d1a17;--line:#332d27;--tx:#f2ece4;--mu:#9e9285;--ac:#d4a05c;--ac-bg:#2e251b;color-scheme:dark}}
+:root{
+  --bg:#fbf8f4;
+  --panel:#ffffff;
+  --panel-alt:#f6f1ea;
+  --line:#e6ddd1;
+  --tx:#241f1c;
+  --mu:#7c7167;
+  --pk:#241f1c;
+  --pk-tx:#ffffff;
+  --cy:#b8864b;
+  --cy-bg:#f6ecdf;
+  --shadow:0 1px 2px rgba(36,31,28,.04), 0 14px 34px -16px rgba(36,31,28,.16);
+  --cv-shadow:0 24px 54px -20px rgba(36,31,28,.45);
+  color-scheme:light;
+}
+html.dark{
+  --bg:#141210;
+  --panel:#1d1a17;
+  --panel-alt:#26221e;
+  --line:#332d27;
+  --tx:#f2ece4;
+  --mu:#9e9285;
+  --pk:#d4a05c;
+  --pk-tx:#141210;
+  --cy:#d4a05c;
+  --cy-bg:#2e251b;
+  --shadow:0 1px 3px rgba(0,0,0,.3), 0 16px 36px -16px rgba(0,0,0,.6);
+  --cv-shadow:0 24px 54px -16px rgba(0,0,0,.85);
+  color-scheme:dark;
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:max(16px,env(safe-area-inset-top)) 16px max(24px,env(safe-area-inset-bottom))}
-main{max-width:960px;margin:0 auto;display:grid;gap:16px}
-@media(min-width:820px){main{grid-template-columns:1fr 1fr;align-items:start}header,footer{grid-column:1/-1}.stage{position:sticky;top:16px}}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-h1{font:500 1.5rem Georgia,serif;margin:0}
-h2{font:500 1.05rem Georgia,serif;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
-.stage{display:grid;gap:10px;justify-items:center}
-#cv{max-width:100%;max-height:60vh;background:#000;border-radius:14px;display:block}
-#tl{width:100%;height:44px;border-radius:8px;background:var(--panel);border:1px solid var(--line);cursor:pointer;display:block}
-.box{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-button,.btn,select{font:inherit;color:var(--tx);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 14px;cursor:pointer;font-weight:600}
-select{font-weight:400;width:100%}
-button:disabled{opacity:.4;cursor:default}
-button:focus-visible,select:focus-visible,.btn:focus-within{outline:2px solid var(--ac);outline-offset:2px}
-.main{background:var(--tx);color:var(--bg);border-color:var(--tx)}
-.gold{background:var(--ac);border-color:var(--ac);color:#fff}
-.btn{position:relative;overflow:hidden;display:inline-block}
-.btn input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:100px}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--tx);
+  font:15px/1.48 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding:max(16px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));
+  transition:background .25s ease, color .25s ease;
+}
+main{max-width:1080px;margin:0 auto;display:grid;gap:20px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:880px){
+  main{grid-template-columns:minmax(0,5.2fr) minmax(0,4.3fr);align-items:start}
+  header{grid-column:1/-1}
+}
+.eb{letter-spacing:.28em;font-size:.68rem;color:var(--cy);font-weight:700;text-transform:uppercase}
+h1{font-family:Georgia,"Times New Roman",serif;font-weight:500;font-size:1.65rem;letter-spacing:-.02em;margin:0;color:var(--tx)}
+.sub{margin:0;color:var(--mu);max-width:72ch;font-size:.92rem}
+.stage{display:grid;gap:12px;justify-items:center}
+#cv{max-width:100%;max-height:66vh;background:#000;border-radius:16px;display:block;box-shadow:var(--cv-shadow);transition:box-shadow .3s}
+#tlc{width:100%;height:102px;display:block;cursor:pointer;border-radius:10px;background:var(--panel);border:1px solid var(--line)}
+#eq{width:100%;height:52px;display:block}
+.ctl{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:18px;
+  display:grid;
+  gap:13px;
+  box-shadow:var(--shadow);
+  transition:background .25s ease, border-color .25s ease;
+}
+.ctl,.stage{animation:in .5s both}
+.ctl:nth-child(2){animation-delay:.07s}
+.ctl:nth-child(3){animation-delay:.14s}
+@keyframes in{from{opacity:0;transform:translateY(12px)}}
+.ctl h2{font-family:Georgia,serif;font-weight:500;font-size:1.12rem;margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.badge{font-family:system-ui,sans-serif;font-size:.7rem;font-weight:700;letter-spacing:.04em;padding:2px 8px;border-radius:999px;background:var(--cy-bg);color:var(--cy)}
+.pick{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button,.btn,select,input[type=number],input[type=text]{
+  font:inherit;
+  color:var(--tx);
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  padding:9px 13px;
+  transition:transform .12s, border-color .15s, background .15s, box-shadow .15s;
+}
+button,.btn{cursor:pointer;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+button:hover:not(:disabled),.btn:hover{border-color:var(--cy)}
+button:active:not(:disabled),.btn:active{transform:scale(.97)}
+.btn.main,button.main,.main{background:var(--pk);border-color:var(--pk);color:var(--pk-tx)}
+.btn.gold,button.gold{background:var(--cy);border-color:var(--cy);color:#fff}
+button:disabled{opacity:.42;cursor:default}
+:is(button,.btn,select,input,summary):focus-visible{outline:2px solid var(--cy);outline-offset:2px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 label.f{display:grid;gap:4px;font-size:.82rem;color:var(--mu)}
-label.c{display:flex;gap:8px;align-items:center;margin-top:10px;cursor:pointer}
-label.c input{accent-color:var(--ac);width:16px;height:16px}
-.note{font-size:.85rem;color:var(--mu);margin:8px 0 0}
-#th{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.t{position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
-.t img{width:100%;height:100%;object-fit:cover}
-.t button{position:absolute;top:0;right:0;padding:0 6px;border:0;border-radius:0 0 0 8px;background:rgba(0,0,0,.7);color:#fff;font-size:.8rem}
-.badge{font:700 .7rem system-ui;background:var(--ac-bg);color:var(--ac);padding:2px 8px;border-radius:99px}
-progress{width:100%;height:6px;accent-color:var(--ac)}progress[hidden]{display:none}
-#st{text-align:center;font-size:.9rem;min-height:1.3em}.err{color:#dc2626}.ok{color:#16a34a}
-#out{text-align:center;width:100%}#out video{display:block;width:min(100%,360px);max-height:50vh;margin:10px auto;border-radius:10px;background:#000}
-footer{text-align:center;color:var(--mu);font-size:.8rem}footer a{color:var(--ac)}
-#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--ac);border-radius:12px;padding:10px 16px;display:none;gap:10px;align-items:center;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+label.f select,label.f input{width:100%;color:var(--tx)}
+label.c{display:flex;gap:9px;align-items:center;font-size:.9rem;cursor:pointer;user-select:none}
+label.c input[type=checkbox]{width:16px;height:16px;accent-color:var(--cy);cursor:pointer}
+.file-wrap{position:relative;display:inline-flex;overflow:hidden;border-radius:12px}
+.file-wrap input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;font-size:100px}
+#thumbs{display:flex;gap:7px;flex-wrap:wrap}
+.th{position:relative;width:66px;height:66px;border-radius:8px;overflow:hidden;background:var(--panel-alt);border:1px solid var(--line);cursor:grab;transition:transform .15s}
+.th:hover{transform:translateY(-2px)}
+.th.over{outline:2px dashed var(--cy)}
+.th img{width:100%;height:100%;object-fit:cover}
+.th button{position:absolute;top:0;right:0;padding:1px 6px;line-height:1.2;font-size:.78rem;border:0;border-radius:0 0 0 7px;background:rgba(0,0,0,.72);color:#fff}
+.th .dl{top:auto;bottom:0;right:auto;left:0;border-radius:0 7px 0 0}
+.th .mv{top:50%;bottom:auto;transform:translateY(-50%);min-width:22px;height:28px;font-size:1rem;padding:0 4px;line-height:1}
+.th .ml{left:0;right:auto;border-radius:0 6px 6px 0}
+.th .mr{right:0;left:auto;border-radius:6px 0 0 6px}
+.th .vb{position:absolute;top:3px;left:3px;font-size:.6rem;line-height:1.35;background:rgba(0,0,0,.75);color:#fff;border-radius:4px;padding:0 4px;pointer-events:none}
+.note{font-size:.84rem;color:var(--mu);margin:0}
+#st{min-height:0;font-size:.9rem;font-weight:500;text-align:center}
+#st:empty,#out:empty{display:none}
+.err{color:#dc2626}
+.ok{color:#16a34a}
+input[type=range]{width:100%;accent-color:var(--cy)}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(106px,1fr));gap:8px}
+.tg button{padding:9px 6px;font-weight:500;font-size:.8rem;text-align:center;background:var(--panel-alt)}
+.tg button.on{border-color:var(--cy);background:var(--cy-bg);color:var(--tx);font-weight:700;box-shadow:inset 0 0 0 1px var(--cy)}
+.presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(124px,1fr));gap:8px}
+.presets button{padding:9px 10px;font-size:.82rem;background:var(--panel-alt)}
+.presets button.on{border-color:var(--cy);background:var(--cy-bg);font-weight:700;box-shadow:inset 0 0 0 1px var(--cy)}
+header.bar{display:grid;gap:12px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:12px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.acts button{border-radius:999px;padding:8px 14px;font-size:.82rem;font-weight:600;white-space:nowrap}
+@media(min-width:720px){
+  header.bar{grid-template-columns:1fr auto;align-items:center}
+  .bar .sub{grid-column:1/-1}
+}
+#sectionInfo{line-height:1.5}
+.wf-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:.74rem;color:var(--mu)}
+.wf-key{display:inline-flex;gap:5px;align-items:center}
+.wf-swatch{display:inline-block;width:14px;height:4px;border-radius:2px}
+.wf-swatch.wave{background:#cdbfae}
+.wf-swatch.beat{width:2px;height:13px;background:#7c8b86}
+.wf-swatch.strong{width:3px;height:15px;background:#b8864b}
+progress{width:100%;height:8px;accent-color:var(--cy);border-radius:999px}
+progress[hidden]{display:none}
+.pgw:has(progress[hidden]){display:none}
+.tcl{font-variant-numeric:tabular-nums}
+.view{display:grid;justify-items:center;width:100%}
+.tools{display:grid;gap:10px;justify-items:center;width:100%}
+footer{grid-column:1/-1;text-align:center;color:var(--mu);font-size:.82rem;display:grid;gap:8px;padding-top:10px}
+footer nav{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center}
+footer a,footer nav button{color:var(--cy);background:none;border:0;padding:0;font-weight:500;text-decoration:underline;cursor:pointer}
+dialog{max-width:min(740px,94vw);max-height:88vh;background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(4px)}
+dialog details{border-top:1px solid var(--line);padding:10px 0}
+dialog summary{cursor:pointer;font-weight:700}
+dialog p,dialog li{color:var(--mu);font-size:.9rem;line-height:1.55}
+#out{text-align:center;width:100%}
+#out video{display:block;width:min(100%,420px);max-height:55vh;margin:12px auto;border-radius:12px;background:#000}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--cy);color:var(--tx);border-radius:12px;padding:10px 16px;display:none;gap:10px;align-items:center;z-index:99;box-shadow:0 12px 32px rgba(0,0,0,.28);font-size:.88rem}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+@media(max-width:879px){
+  main{display:flex;flex-direction:column;gap:14px}
+  .stage{display:contents}
+  #cv{max-height:38vh;max-height:38dvh}
+  body.hm .view{position:sticky;top:0;z-index:20;background:var(--bg);margin:0 -16px;width:auto;padding:max(8px,env(safe-area-inset-top)) 16px 8px;box-shadow:0 10px 14px -12px rgba(0,0,0,.25)}
+}
 </style>
 </head>
 <body>
+<noscript><p style="padding:16px">Foto Ritim çalışmak için JavaScript gerektirir.</p></noscript>
 <main>
-<header>
-  <h1>Foto Ritim</h1>
-  <div class="row"><span id="net" class="note" style="margin:0"></span><button id="inst" hidden>⤓ Yükle</button></div>
+<header class="bar">
+  <div class="brand">
+    <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+      <rect width="44" height="44" rx="12" fill="#241f1c"/>
+      <g fill="#d4a05c">
+        <rect x="9" y="18" width="4" height="8" rx="2"/>
+        <rect x="16" y="12" width="4" height="20" rx="2"/>
+        <rect x="23" y="8" width="4" height="28" rx="2"/>
+        <rect x="30" y="15" width="4" height="14" rx="2"/>
+      </g>
+    </svg>
+    <div>
+      <div class="eb">ÖZGÜLER FORGE · STUDIO</div>
+      <h1>Foto Ritim</h1>
+    </div>
+  </div>
+  <div class="acts">
+    <button id="restoreDraft" type="button" hidden>↺ Taslağı geri yükle</button>
+    <button id="themeBtn" type="button" title="Açık / Koyu Tema">🌓 Tema</button>
+    <button id="inst" class="main" type="button">⤓ Yükle</button>
+    <button id="upd" type="button">↻ Güncelle</button>
+    <button id="info" type="button">ⓘ Kılavuz</button>
+    <span id="net" class="note"></span>
+  </div>
+  <p id="ios" class="note" hidden>iPhone/iPad: Uygulamayı yüklemek için Safari’de Paylaş → Ana Ekrana Ekle’yi seçin. Video dosyasını kaydetmek için Paylaş → Dosyalara Kaydet yolunu kullanın.</p>
+  <p class="sub">Fotoğrafları ve müziği seç. Çok bantlı ritim analiziyle geçişler bas ve vurgulara oturur; sinematik renk profilleri ve ses efektleriyle sonucu MP4 olarak kaydet.</p>
 </header>
 
-<section class="stage">
-  <canvas id="cv" width="1080" height="1920"></canvas>
-  <canvas id="tl" aria-label="Zaman çizelgesi"></canvas>
-  <progress id="pg" value="0" max="1" hidden></progress>
-  <div class="row">
-    <button id="play" class="main" disabled>▶ Önizle</button>
-    <button id="rec" class="gold" disabled>🎬 Videoyu kaydet</button>
+<section class="stage" aria-label="Önizleme">
+  <div class="view"><canvas id="cv" width="720" height="1280"></canvas></div>
+  <div class="tools">
+    <canvas id="eq" aria-label="Canlı ses ekolayzırı"></canvas>
+    <div class="wf-legend" aria-label="Dalga formu göstergesi">
+      <span class="wf-key"><i class="wf-swatch wave"></i>Ses dalga formu</span>
+      <span class="wf-key"><i class="wf-swatch beat"></i>Algılanan vuruş</span>
+      <span class="wf-key"><i class="wf-swatch strong"></i>Güçlü bas/vurgu</span>
+      <span class="wf-key"><i class="wf-swatch strong" style="height:9px"></i>Ölçü başı (4 vuruş)</span>
+    </div>
+    <canvas id="tlc" aria-label="Ses dalga formu, algılanan vuruş işaretçileri ve oynatma konumu"></canvas>
+    <div class="pgw" style="width:100%;display:grid;gap:4px">
+      <progress id="pg" value="0" max="1" hidden></progress>
+      <span id="tc" class="note tcl" aria-live="off"></span>
+    </div>
+    <p class="note" style="margin:0;text-align:center">Üstteki altın tutamaçları sürükleyin (vuruşlara mıknatıs gibi yapışır). Çizelgeye <b>çift tıklayarak</b> yeni kesim ekleyin, tutamaca <b>sağ tıklayarak</b> silin.</p>
+    <div class="pick">
+      <button id="play" class="main" disabled>▶ Önizle (Boşluk)</button>
+      <button id="shortPrev" disabled>⚡ 10 sn önizle</button>
+      <button id="resetMarkers" type="button" disabled title="Elle eklenen/kaydırılan kesimleri sıfırla">↺ Kesimleri sıfırla</button>
+      <button id="rec" class="gold" disabled>🎬 MP4 kaydet</button>
+    </div>
+    <div id="st" role="status"></div>
+    <div id="out"></div>
   </div>
-  <div id="st" role="status"></div>
-  <div id="out"></div>
 </section>
 
-<section>
-  <div class="box">
-    <h2>1. Fotoğraflar <span id="cnt" class="badge">0</span></h2>
-    <div class="row">
-      <label class="btn main">+ Fotoğraf ekle<input id="pics" type="file" accept="image/*" multiple></label>
+<section style="display:grid;gap:14px">
+  <div class="ctl">
+    <h2>1. Fotoğraflar ve videolar <span id="mediaCount" class="badge">0 öğe</span></h2>
+    <div class="pick">
+      <div class="file-wrap">
+        <label class="btn main" for="pics" tabindex="0">+ Fotoğraf / video ekle</label>
+        <input id="pics" type="file" accept="image/*,video/*" multiple>
+      </div>
       <button id="shuf" disabled>🔀 Karıştır</button>
-      <button id="clr" disabled>Temizle</button>
+      <button id="smartSort" disabled>🎨 Akıllı sırala</button>
+      <button id="clearMedia" disabled>🗑️ Temizle</button>
     </div>
-    <div id="th"></div>
+    <div id="thumbs"></div>
+    <p id="photoAdvice" class="note" aria-live="polite">Müzik yüklendiğinde bölüm yapısına göre önerilen fotoğraf aralığı burada gösterilir.</p>
+    <p class="note">Sırayı değiştirmek için sürükle ya da ‹ › düğmelerini kullan. Videolar kendi slaytlarında sessiz oynar.</p>
   </div>
 
-  <div class="box">
+  <div class="ctl">
     <h2>2. Müzik</h2>
-    <div class="row"><label class="btn main">🎵 Müzik seç<input id="aud" type="file" accept="audio/*"></label></div>
-    <p id="ainfo" class="note">MP3, M4A, WAV, OGG. Dosyaları sayfaya sürükleyip de bırakabilirsin.</p>
+    <div class="pick">
+      <div class="file-wrap">
+        <label class="btn main" for="aud" tabindex="0">🎵 Müzik seç</label>
+        <input id="aud" type="file" accept="audio/*">
+      </div>
+      <button id="findDrop" class="gold" type="button" disabled title="Şarkının en yüksek enerjili 15 saniyesini otomatik bulur">🔥 En Hareketli 15 sn (Drop)</button>
+      <button id="resetTrim" type="button" disabled title="Tüm şarkıyı kullan">↺ Tamamı</button>
+    </div>
+    <p class="note">MP3, M4A, WAV, FLAC veya OGG ses dosyası seçin (dosyaları sayfaya sürükleyip bırakabilirsiniz).</p>
+    <p id="ainfo" class="note"></p>
+    <p id="sectionInfo" class="note"></p>
   </div>
 
-  <div class="box">
-    <h2>3. Ayarlar</h2>
+  <div class="ctl">
+    <h2>3. Hızlı Şablonlar (Presets)</h2>
+    <div class="presets" id="presetBar">
+      <button type="button" data-p="reels">🔥 Viral Reels</button>
+      <button type="button" data-p="nostalgia">🎞️ Nostaljik Anılar</button>
+      <button type="button" data-p="phonk">⚡ Phonk / Edits</button>
+      <button type="button" data-p="cinema">🎬 Sinema Filmi</button>
+      <button type="button" data-p="minimal">✨ Sade Akış</button>
+    </div>
+  </div>
+
+  <div class="ctl">
+    <h2>4. Stüdyo & Efekt Ayarları</h2>
     <div class="grid">
       <label class="f">Biçim
-        <select id="fmt"><option value="9x16">Dikey 9:16 (Reels / TikTok)</option><option value="1x1">Kare 1:1</option><option value="16x9">Yatay 16:9</option></select></label>
-      <label class="f">Kalite
-        <select id="q"><option value="720">720p</option><option value="1080" selected>1080p</option></select></label>
-      <label class="f">Kadraj
-        <select id="fit"><option value="blur">Kırpmadan (bulanık dolgu)</option><option value="fill">Doldur (ortadan kırp)</option></select></label>
-      <label class="f">Geçiş
-        <select id="tr"><option value="mix">Karışık</option><option value="fade">Yumuşak</option><option value="zoom">Yakınlaş</option><option value="slide">Kaydır</option><option value="cut">Sert kesme</option></select></label>
-      <label class="f">Kesim hızı
-        <select id="pace"><option value="1.5">Hızlı (~1.5 sn)</option><option value="2.5" selected>Dengeli (~2.5 sn)</option><option value="4">Sakin (~4 sn)</option></select></label>
-      <label class="f">Süre
-        <select id="dur"><option value="0">Tüm şarkı</option><option value="15">En hareketli 15 sn</option><option value="30">En hareketli 30 sn</option><option value="60">En hareketli 60 sn</option></select></label>
+        <select id="fmt">
+          <option value="9x16">Dikey 9:16 (Reel / TikTok)</option>
+          <option value="1x1">Kare 1:1 (Instagram)</option>
+          <option value="4x5">Dikey 4:5 (Portre)</option>
+          <option value="16x9">Yatay 16:9 (YouTube)</option>
+        </select>
+      </label>
+      <label class="f">Çözünürlük
+        <select id="q">
+          <option value="720">HD 720p</option>
+          <option value="1080" selected>Full HD 1080p</option>
+          <option value="1440">2K 1440p</option>
+          <option value="2160">4K 2160p</option>
+        </select>
+      </label>
+      <label class="f">Kadraj ve Akıllı Odak
+        <select id="fit">
+          <option value="blur">Orijinal, kırpmasız (bulanık dolgu)</option>
+          <option value="black">Orijinal, kırpmasız (siyah)</option>
+          <option value="fill">Doldur (Akıllı yüz/odak kırpma)</option>
+        </select>
+      </label>
+      <label class="f">Renk Profili (LUT)
+        <select id="lut">
+          <option value="none">Doğal (Orijinal)</option>
+          <option value="warm">Warm Film (Sıcak)</option>
+          <option value="kodak">Kodak Gold (Altın)</option>
+          <option value="teal">Teal & Orange (Blockbuster)</option>
+          <option value="moody">Moody Dark (Dramatik)</option>
+          <option value="bw">Sinematik Siyah-Beyaz</option>
+        </select>
+      </label>
+      <label class="f">Kurgu stili
+        <select id="editStyle">
+          <option value="balanced">Dengeli</option>
+          <option value="calm">Sakin</option>
+          <option value="energetic">Enerjik</option>
+        </select>
+      </label>
+      <label class="f">Ritim Odağı (Frekans)
+        <select id="freqFocus">
+          <option value="all">Tam Spektrum (Dengeli)</option>
+          <option value="bass">Bas & Kick Odaklı (20-150 Hz)</option>
+          <option value="high">Vokal & Snare Odaklı (2-8 kHz)</option>
+        </select>
+      </label>
+      <label class="f">Fotoğraf / video başına vuruş
+        <select id="bpp">
+          <option value="0">Otomatik (Vurguya Göre)</option>
+          <option>1</option>
+          <option>2</option>
+          <option>4</option>
+          <option>8</option>
+          <option>16</option>
+        </select>
+      </label>
+      <label class="f">En kısa slayt süresi
+        <select id="minS">
+          <option value="0">Sınırsız</option>
+          <option value="1">1 sn</option>
+          <option value="2">2 sn</option>
+          <option value="3" selected>3 sn</option>
+          <option value="4">4 sn</option>
+          <option value="5">5 sn</option>
+        </select>
+      </label>
+      <div class="f" style="grid-column:1/-1">
+        <span>Geçiş efekti — üzerine gel: önizle, tıkla: seç</span>
+        <div id="trg" class="tg"></div>
+        <select id="trans" hidden>
+          <option value="mix">Karışık (otomatik)</option>
+          <option value="fade">Yumuşak sinematik</option>
+          <option value="par">Derinlikli kaydırma</option>
+          <option value="iris">Yumuşak iris</option>
+          <option value="sil">Yumuşak silme</option>
+          <option value="per">Yukarı perde</option>
+          <option value="blr">Bulanık geçiş</option>
+          <option value="dol">İçine dalış</option>
+          <option value="isi">Altın ışık sızıntısı</option>
+          <option value="siy">Siyaha erime</option>
+          <option value="don">Hafif dönüş</option>
+          <option value="flip">Çevirme</option>
+          <option value="rgb">RGB Kayması (Glitch)</option>
+          <option value="cut">Kesme</option>
+        </select>
+      </div>
+      <label class="f" style="grid-column:1/-1">Açılış Başlığı (isteğe bağlı, ritimle nabız atar)
+        <input id="titleText" type="text" maxlength="44" placeholder="Örn: Yaz Anıları 2026">
+      </label>
+      <label class="f" style="grid-column:1/-1">Köşe İmza / Filigran (isteğe bağlı, videonun sağ alt köşesinde görünür)
+        <input id="watermarkText" type="text" maxlength="32" placeholder="Örn: @ozgulerforge">
+      </label>
+      <label class="f">Süre (sn, 0 = tamamı)
+        <input id="dur" type="number" min="0" max="600" value="0">
+      </label>
+      <label class="f">Başlangıç (sn)
+        <input id="start" type="number" min="0" max="600" value="0">
+      </label>
+      <label class="f" style="grid-column:1/-1">Vuruş kaydırma: <span id="shv">0 ms</span>
+        <input id="shift" type="range" min="-250" max="250" step="5" value="0">
+      </label>
+      <label class="f" style="grid-column:1/-1">Ritim algılama hassasiyeti: <span id="sensv">60</span>
+        <input id="sens" type="range" min="0" max="100" step="1" value="60">
+      </label>
+      <label class="f" style="grid-column:1/-1">Vurgu eşiği: <span id="thrv">80</span>
+        <input id="beatThreshold" type="range" min="0" max="100" step="1" value="80">
+      </label>
+      <label class="f">Güçlü vuruş efekti eşiği: <span id="fxsv">68%</span>
+        <input id="fxStrong" type="range" min="20" max="100" step="1" value="68">
+      </label>
+      <label class="f">Orta vuruş efekti eşiği: <span id="fxmv">36%</span>
+        <input id="fxMedium" type="range" min="5" max="80" step="1" value="36">
+      </label>
     </div>
-    <label class="c"><input id="kb" type="checkbox" checked> Yavaş kayma / yakınlaşma</label>
-    <label class="c"><input id="zm" type="checkbox" checked> Vuruşta hafif nabız</label>
-    <label class="c"><input id="fd" type="checkbox" checked> Başta ve sonda yumuşak giriş/çıkış</label>
+    <label class="c"><input id="snapBeats" type="checkbox" checked> 🧲 Manyetik Vuruş Mıknatısı (Çizelgede kesimleri en yakın vuruşa yapıştır)</label>
+    <label class="c"><input id="sfxTransitions" type="checkbox"> 🔊 Otomatik Geçiş Ses Efektleri (Güçlü geçişlerde Whoosh & Sub-Bass SFX)</label>
+    <label class="c"><input id="kenBurns" type="checkbox" checked> Canlı fotoğraf hareketi (Ken Burns yavaş kaydırma)</label>
+    <label class="c"><input id="zoom" type="checkbox" checked> Vuruşta yakınlaşma (bas vuruşunda nabız)</label>
+    <label class="c"><input id="vignette" type="checkbox" checked> Sinematik kenar karartma (Vinyet)</label>
+    <label class="c"><input id="letterbox" type="checkbox"> 2.35:1 Anamorfik sinema şeritleri (Yatay biçimde)</label>
+    <label class="c"><input id="grain" type="checkbox"> 35mm Film greni (Nostaljik doku)</label>
+    <label class="c"><input id="flash" type="checkbox"> Vuruşta ışık çakması</label>
+    <label class="c"><input id="shake" type="checkbox"> Güçlü bas vuruşunda kamera sarsıntısı</label>
+    <label class="c"><input id="fade" type="checkbox" checked> Başta ve sonda yumuşak giriş/çıkış (görüntü ve ses)</label>
   </div>
 </section>
 
 <footer>
-  Tüm işlemler cihazında yapılır; hiçbir dosya sunucuya gönderilmez. Yüklediğin içeriklerin telif sorumluluğu sana aittir.<br>
-  <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Özgüler Forge</a> · <span id="ver"></span>
+  <div><b>Foto Ritim</b> · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr</a> · <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></div>
+  <nav>
+    <button data-s="nasil">Nasıl kullanılır</button>
+    <button data-s="gizlilik">Gizlilik ve KVKK</button>
+    <button data-s="sartlar">Kullanım şartları</button>
+    <button data-s="telif">Telif ve sorumluluk</button>
+    <button data-s="yerel">Yerel depolama</button>
+  </nav>
+  <div>Foto Ritim <span id="appVersion" class="note"></span> · © 2026 Özgüler Forge. Tüm hakları saklıdır.</div>
 </footer>
 </main>
-<div id="toast"><span id="tm"></span></div>
+
+<dialog id="dlg">
+  <div class="pick" style="justify-content:space-between;margin-bottom:8px">
+    <h2 style="margin:0">Kullanım Kılavuzu ve Bilgiler</h2>
+    <button id="x" class="main">Kapat</button>
+  </div>
+  <details id="nasil" open><summary>Nasıl kullanılır?</summary>
+    <ol>
+      <li><b>Medya Ekleme:</b> Fotoğraf veya videolarınızı seçin ya da doğrudan pencereye sürükleyin. Renk tonlarına göre akıcı geçiş için <b>Akıllı sırala</b> düğmesini kullanın.</li>
+      <li><b>Müzik & Ritim Analizi:</b> Ses dosyanızı yükleyin. Uygulama BPM değerini, güven oranını ve enerji bölümlerini (Giriş, Drop, Sakin) otomatik çıkarır. İsterseniz <b>En Hareketli 15 sn (Drop)</b> ile nakaratı otomatik kesebilirsiniz.</li>
+      <li><b>Zaman Çizelgesi Düzenleme:</b> Altın tutamaçları sürükleyerek geçiş anlarını değiştirin, çift tıklayarak yeni kesim ekleyin, sağ tıklayarak silin.</li>
+      <li><b>MP4 Kaydet:</b> Yüksek kaliteli videonuzu cihazınıza indirin veya doğrudan paylaşın.</li>
+    </ol>
+  </details>
+  <details id="kur"><summary>Telefona yükleme (PWA)</summary>
+    <p><b>Android (Chrome):</b> Sayfayı HTTPS ile açıp “⤓ Yükle” düğmesine basın.</p>
+    <p><b>iPhone (Safari):</b> Paylaş düğmesi → “Ana Ekrana Ekle”.</p>
+  </details>
+  <details id="gizlilik"><summary>Gizlilik Politikası ve KVKK</summary>
+    <p>Veri sorumlusu: Özgüler Forge (iletisim@ozgulerforge.com.tr). Tüm işlemler %100 cihazınızda (tarayıcı içinde) gerçekleşir; hiçbir fotoğraf, video veya ses dosyası dış sunuculara gönderilmez.</p>
+  </details>
+  <details id="sartlar"><summary>Kullanım Şartları</summary>
+    <p>Uygulama “olduğu gibi” sunulur. Yüklediğiniz medya ve müziklerin telif haklarından kullanıcı sorumludur.</p>
+  </details>
+  <details id="telif"><summary>Telif Hakkı ve Sorumluluk Reddi</summary>
+    <p>Yüklediğin fotoğraf ve müziklerin telif ve kişilik haklarından kullanıcı sorumludur.</p>
+  </details>
+  <details id="yerel"><summary>Yerel Depolama</summary>
+    <p>Ayarlarınız ve tema tercihiniz <code>localStorage</code> üzerinde, çalışma taslağınız ise tarayıcınızın <code>IndexedDB</code> deposunda saklanır.</p>
+  </details>
+</dialog>
+
+<div id="toast"><span id="tm"></span><button id="tb" class="main">Tamam</button></div>
 
 <script>
-const VER = 'v4.0';
+const APP_VERSION = 'v3.5.0 Studio';
 const $ = id => document.getElementById(id);
-const cv = $('cv'), cx = cv.getContext('2d'), tl = $('tl'), tx = tl.getContext('2d');
-let imgs = [], buf = null, AC = null, beats = [], bpm = 0, env = null, ON = null, fps = 0;
-let segs = [], BS = [], t0 = 0, t1 = 0, pf = 0, ctx0 = 0, src = null, raf = 0;
-let playing = false, recMode = false, mr = null, chunks = [], fin = false, url = null, wl = null;
+const cv = $('cv'), main = cv.getContext('2d'), tlc = $('tlc'), tctx = tlc.getContext('2d');
+let ctx = main, mc = null, bc = null, wfCache = null, grainCanvas = null, imgs = [], AC = null, buf = null, audFile = null, beats = [], bpm = 0;
+let tl = [], BS = [], barBeats = [], startT = 0, endT = 0, beatPeak = 0, sections = [], manualStarts = new Map(), runEndT = 0;
+let vlive = false;
+let pf = 0, lastUrl = null, dragI = -1, lastSec = -1, src = null, ctx0 = 0, playing = false, recMode = false, raf = 0, mr = null, chunks = [], finishing = false;
 
-const say = (m, c) => { const s = $('st'); s.textContent = m || ''; s.className = c || ''; };
+// ---------- Tema Yönetimi ----------
+function applyTheme(dark) {
+  document.documentElement.classList.toggle('dark', dark);
+  try { localStorage.frTheme = dark ? 'dark' : 'light'; } catch (e) { }
+}
+$('themeBtn').onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
+try {
+  if (localStorage.frTheme === 'dark' || (!localStorage.frTheme && matchMedia('(prefers-color-scheme: dark)').matches)) {
+    applyTheme(true);
+  }
+} catch (e) { }
+
+function say(m, c) { const s = $('st'); s.textContent = m || ''; s.className = c || ''; }
 const mmss = v => { v = Math.max(0, Math.round(v)); return (v / 60 | 0) + ':' + String(v % 60).padStart(2, '0'); };
-let tt; const toast = m => { clearTimeout(tt); $('tm').textContent = m; $('toast').style.display = 'flex'; tt = setTimeout(() => $('toast').style.display = 'none', 3000); };
+function mv(a, b) {
+  if (a === b || a < 0 || b < 0 || a >= imgs.length || b >= imgs.length) return;
+  manualStarts.clear(); stop();
+  const [x] = imgs.splice(a, 1);
+  imgs.splice(b, 0, x);
+  thumbs(); build(); saveDraft();
+}
 
-// ---------- Ayarlar (otomatik hatırlanır) ----------
-const SEL = ['fmt', 'q', 'fit', 'tr', 'pace', 'dur'], CHK = ['kb', 'zm', 'fd'];
-function save() { try { localStorage.fr4 = JSON.stringify([...SEL.map(i => $(i).value), ...CHK.map(i => $(i).checked)]); } catch (e) { } }
-function load() {
+// ---------- IndexedDB Taslak Hafızası ----------
+const DB_NAME = 'FotoRitimDraftDB', DB_VER = 1;
+function openDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(DB_NAME, DB_VER);
+    req.onupgradeneeded = () => req.result.createObjectStore('draft');
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+async function saveDraft() {
   try {
-    const a = JSON.parse(localStorage.fr4 || 'null'); if (!a) return;
-    SEL.forEach((i, n) => { if (a[n] != null) $(i).value = a[n]; });
-    CHK.forEach((i, n) => { if (a[SEL.length + n] != null) $(i).checked = a[SEL.length + n]; });
+    const db = await openDB();
+    const tx = db.transaction('draft', 'readwrite');
+    tx.objectStore('draft').put({
+      files: imgs.map(x => x.f),
+      audio: audFile,
+      ts: Date.now()
+    }, 'current');
   } catch (e) { }
 }
-function size() {
-  const [a, b] = $('fmt').value.split('x').map(Number), q = +$('q').value, e = v => Math.round(v / 2) * 2;
-  cv.width = a > b ? e(q * a / b) : q; cv.height = a < b ? e(q * b / a) : q;
+async function checkDraft() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction('draft', 'readonly');
+    const req = tx.objectStore('draft').get('current');
+    req.onsuccess = () => {
+      const d = req.result;
+      if (d && ((d.files && d.files.length) || d.audio)) {
+        $('restoreDraft').hidden = false;
+      }
+    };
+  } catch (e) { }
 }
-[...SEL, ...CHK].forEach(id => $(id).onchange = () => { if (id === 'fmt' || id === 'q') size(); save(); build(); });
+$('restoreDraft').onclick = async () => {
+  try {
+    const db = await openDB();
+    const tx = db.transaction('draft', 'readonly');
+    const req = tx.objectStore('draft').get('current');
+    req.onsuccess = async () => {
+      const d = req.result;
+      if (!d) return;
+      $('restoreDraft').hidden = true;
+      say('Taslak geri yükleniyor…');
+      if (d.files && d.files.length) {
+        for (const it of imgs) drop(it);
+        imgs = [];
+        for (const f of d.files) {
+          try { imgs.push({ ...await (isVid(f) ? loadVid(f) : loadImg(f)), f }); } catch (x) { }
+        }
+        thumbs();
+      }
+      if (d.audio) {
+        await loadAudioFile(d.audio, false);
+      } else {
+        updatePhotoAdvice(); build();
+      }
+      say('Önceki çalışma taslağı geri yüklendi ✓', 'ok');
+    };
+  } catch (e) { toast('Taslak yüklenemedi.'); }
+};
 
-// ---------- Fotoğraflar ----------
-async function addFiles(files) {
-  const list = [...files].filter(f => f.type.startsWith('image/')); if (!list.length) return;
-  say('Fotoğraflar yükleniyor…'); let bad = 0;
-  for (const f of list) {
+// ---------- Akıllı Yüz / Odak Tespiti (Smart Crop) ----------
+const faceDet = 'FaceDetector' in window ? new window.FaceDetector({ fastMode: true, maxDetectedFaces: 3 }) : null;
+async function detectFocus(bmp) {
+  if (faceDet) {
     try {
-      let b = await createImageBitmap(f); const m = Math.max(b.width, b.height);
-      if (m > 3072) { const r = 3072 / m, c = document.createElement('canvas'); c.width = Math.round(b.width * r); c.height = Math.round(b.height * r); c.getContext('2d').drawImage(b, 0, 0, c.width, c.height); b.close(); b = await createImageBitmap(c); }
-      const g = document.createElement('canvas'), z = 40 / Math.max(b.width, b.height);
-      g.width = Math.max(1, Math.round(b.width * z)); g.height = Math.max(1, Math.round(b.height * z)); g.getContext('2d').drawImage(b, 0, 0, g.width, g.height);
-      imgs.push({ b, g, u: URL.createObjectURL(f) });
-    } catch (e) { bad++; }
+      const faces = await faceDet.detect(bmp);
+      if (faces && faces.length) {
+        let sx = 0, sy = 0;
+        for (const f of faces) {
+          sx += (f.boundingBox.x + f.boundingBox.width / 2) / bmp.width;
+          sy += (f.boundingBox.y + f.boundingBox.height * .42) / bmp.height;
+        }
+        return { fx: sx / faces.length, fy: sy / faces.length };
+      }
+    } catch (e) { }
   }
-  thumbs(); build();
-  if (bad) say(bad + ' dosya açılamadı.', 'err');
+  try {
+    const c = document.createElement('canvas'); c.width = 32; c.height = 32;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    x.drawImage(bmp, 0, 0, 32, 32);
+    const d = x.getImageData(0, 0, 32, 32).data;
+    let wx = 0, wy = 0, wt = 0;
+    for (let y = 1; y < 31; y++) {
+      for (let col = 1; col < 31; col++) {
+        const i = (y * 32 + col) * 4;
+        const lum = d[i] * .3 + d[i + 1] * .59 + d[i + 2] * .11;
+        const lumR = d[i + 4] * .3 + d[i + 5] * .59 + d[i + 6] * .11;
+        const lumD = d[i + 128] * .3 + d[i + 129] * .59 + d[i + 130] * .11;
+        const edge = Math.abs(lum - lumR) + Math.abs(lum - lumD);
+        const bias = (y < 20 ? 1.25 : 0.85);
+        const w = edge * bias;
+        wx += (col / 32) * w;
+        wy += (y / 32) * w;
+        wt += w;
+      }
+    }
+    if (wt > 0) return { fx: Math.max(.2, Math.min(.8, wx / wt)), fy: Math.max(.18, Math.min(.75, wy / wt)) };
+  } catch (e) { }
+  return { fx: 0.5, fy: 0.42 };
 }
-function thumbs() {
-  const t = $('th'); t.textContent = ''; $('cnt').textContent = imgs.length;
-  imgs.forEach((it, i) => {
-    const d = document.createElement('div'), g = document.createElement('img'), x = document.createElement('button');
-    d.className = 't'; g.src = it.u; g.alt = 'Fotoğraf ' + (i + 1); x.textContent = '×'; x.title = 'Kaldır';
-    x.onclick = () => { stop(); const r = imgs.splice(i, 1)[0]; r.b.close(); URL.revokeObjectURL(r.u); thumbs(); build(); };
-    d.append(g, x); t.appendChild(d);
-  });
-  $('shuf').disabled = imgs.length < 2; $('clr').disabled = !imgs.length;
-}
-$('pics').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
-$('shuf').onclick = () => { stop(); for (let i = imgs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0;[imgs[i], imgs[j]] = [imgs[j], imgs[i]]; } thumbs(); build(); };
-$('clr').onclick = () => { stop(); imgs.forEach(r => { r.b.close(); URL.revokeObjectURL(r.u); }); imgs = []; thumbs(); build(); };
 
-// ---------- Müzik ve ritim analizi ----------
-async function loadAudio(f) {
-  stop(); say('Müzik çözülüyor ve ritim aranıyor…');
-  AC = AC || new (window.AudioContext || window.webkitAudioContext)();
-  try { buf = await AC.decodeAudioData(await f.arrayBuffer()); } catch (e) { buf = null; return say('Ses dosyası okunamadı.', 'err'); }
-  await new Promise(r => setTimeout(r, 20));
-  if (!analyze()) { beats = []; $('ainfo').textContent = ''; build(); return say('Ritim çıkarılamadı. Başka bir şarkı dene.', 'err'); }
-  $('ainfo').textContent = f.name + ' · ' + mmss(buf.duration) + ' · ~' + bpm.toFixed(0) + ' BPM';
-  say('Ritim bulundu ✓', 'ok'); build();
+// ---------- Fotoğraflar ve Videolar ----------
+async function loadImg(f) {
+  let bmp;
+  try { bmp = await createImageBitmap(f); }
+  catch (e) {
+    const u = URL.createObjectURL(f), im = new Image(); im.src = u;
+    try { await im.decode(); bmp = await createImageBitmap(im); } finally { URL.revokeObjectURL(u); }
+  }
+  const m = Math.max(bmp.width, bmp.height);
+  if (m > 4096) {
+    const r = 4096 / m, c = document.createElement('canvas'); c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
+    c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); bmp.close(); bmp = await createImageBitmap(c);
+  }
+  const focus = await detectFocus(bmp);
+  return { ...pack(bmp), focus };
 }
-$('aud').onchange = e => { if (e.target.files[0]) loadAudio(e.target.files[0]); };
+
+function pack(bmp) {
+  const t = document.createElement('canvas'), q = 144 / Math.max(bmp.width, bmp.height);
+  t.width = Math.max(1, Math.round(bmp.width * q)); t.height = Math.max(1, Math.round(bmp.height * q));
+  t.getContext('2d').drawImage(bmp, 0, 0, t.width, t.height);
+  const g = document.createElement('canvas'), z = 40 / Math.max(bmp.width, bmp.height);
+  g.width = Math.max(1, Math.round(bmp.width * z)); g.height = Math.max(1, Math.round(bmp.height * z));
+  g.getContext('2d').drawImage(bmp, 0, 0, g.width, g.height);
+  return { bmp, bg: g, url: t.toDataURL('image/jpeg', .85) };
+}
+
+async function loadVid(f) {
+  const u = URL.createObjectURL(f), v = document.createElement('video');
+  v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+  v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
+  const wait = (ev, ms) => new Promise((ok, no) => {
+    const t = setTimeout(() => no(new Error(ev)), ms);
+    v.addEventListener(ev, () => { clearTimeout(t); ok(); }, { once: true });
+    v.addEventListener('error', () => { clearTimeout(t); no(new Error('video')); }, { once: true });
+  });
+  try {
+    const w = wait('loadedmetadata', 20000); v.src = u; await w;
+    if (!v.videoWidth || !v.videoHeight) throw new Error('boyut');
+    const d = v.duration;
+    if (isFinite(d) && d > 0) { const s = wait('seeked', 4000); v.currentTime = Math.min(.1, d / 2); try { await s; } catch (x) { } }
+    const k = Math.min(1, 1920 / Math.max(v.videoWidth, v.videoHeight)), c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(v.videoWidth * k)); c.height = Math.max(1, Math.round(v.videoHeight * k));
+    c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+    const bmp = await createImageBitmap(c);
+    const focus = await detectFocus(bmp);
+    return { ...pack(bmp), focus, v, vu: u, dur: isFinite(d) ? d : 0 };
+  } catch (e) { URL.revokeObjectURL(u); throw e; }
+}
+
+const isVid = f => /^video\//.test(f.type) || /\.(mp4|m4v|mov|webm|mkv|3gp)$/i.test(f.name);
+function drop(it) {
+  try { it.bmp.close(); } catch (x) { }
+  if (it.v) { try { it.v.pause(); it.v.removeAttribute('src'); it.v.load(); } catch (x) { } URL.revokeObjectURL(it.vu); }
+}
+
+let recommendedPhotos = 0, recommendedRange = [0, 0];
+function estimatePhotoRange(durationSeconds, tempoBpm, parts = sections, style = $('editStyle')?.value || 'balanced') {
+  const styleFactor = style === 'calm' ? 1.25 : style === 'energetic' ? .78 : 1;
+  if (!parts.length) {
+    const gap = Math.max(2.5, Math.min(5, (60 / Math.max(1, tempoBpm)) * 4)) * styleFactor;
+    const n = Math.max(1, Math.ceil(durationSeconds / gap)); return [Math.max(1, Math.floor(n * .9)), Math.max(1, Math.ceil(n * 1.1))];
+  }
+  let expected = 0;
+  for (const part of parts) {
+    const gap = (part.energy < .32 ? 4.8 : part.energy > .68 ? 2.7 : 3.7) * styleFactor;
+    expected += (part.end - part.start) / gap;
+  }
+  const mid = Math.max(1, Math.round(expected));
+  return [Math.max(1, Math.floor(mid * .9)), Math.max(1, Math.ceil(mid * 1.1))];
+}
+
+function updatePhotoAdvice() {
+  const el = $('photoAdvice'); if (!el) return;
+  const rangeText = recommendedRange[0] ? recommendedRange[0] + '–' + recommendedRange[1] : '—';
+  if (!recommendedPhotos) { el.textContent = 'Müzik yüklendiğinde bölüm yapısına göre önerilen fotoğraf aralığı burada gösterilir.'; return; }
+  const diff = imgs.length - recommendedPhotos;
+  el.textContent = 'Bölüm ve kurgu stiline göre öneri: yaklaşık ' + rangeText + ' fotoğraf · yüklü: ' + imgs.length + (diff < 0 ? ' — öğeler eksik bölümlerde tekrar kullanılabilir.' : diff > 0 ? ' — bazı fotoğraflar gösterilmeyebilir.' : ' — tam ideal sayıda.');
+}
+
+$('pics').onchange = async e => {
+  const rawFiles = e.target && e.target.files ? Array.from(e.target.files) : [];
+  if (!rawFiles.length) return;
+  manualStarts.clear();
+  const bad = [];
+  let added = 0;
+  say('Dosyalar yükleniyor ve odak analizi yapılıyor… (' + rawFiles.length + ')');
+  for (const f of rawFiles) {
+    try {
+      const item = await (isVid(f) ? loadVid(f) : loadImg(f));
+      imgs.push({ ...item, f });
+      added++;
+      thumbs();
+    } catch (x) {
+      console.error('Medya yükleme hatası:', f.name, x);
+      bad.push(f.name);
+    }
+  }
+  try { e.target.value = ''; } catch (x) { }
+  updatePhotoAdvice(); build(); saveDraft();
+  if (bad.length) {
+    say(bad.length + ' dosya açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : ''), 'err');
+  } else if (added > 0) {
+    say(added + ' medya başarıyla eklendi ✓', 'ok');
+    toast(added + ' fotoğraf/video eklendi');
+  }
+};
+
+$('clearMedia').onclick = () => {
+  stop();
+  for (const it of imgs) drop(it);
+  imgs = [];
+  manualStarts.clear();
+  thumbs(); updatePhotoAdvice(); build(); saveDraft();
+  say('Medya listesi temizlendi.');
+};
+
+$('shuf').onclick = () => {
+  stop();
+  for (let i = imgs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [imgs[i], imgs[j]] = [imgs[j], imgs[i]]; }
+  manualStarts.clear(); thumbs(); updatePhotoAdvice(); build(); saveDraft();
+};
+
+function getVisualSignature(it) {
+  if (it.sig) return it.sig;
+  const c = document.createElement('canvas'); c.width = 8; c.height = 8; const x = c.getContext('2d', { willReadFrequently: true });
+  try {
+    x.drawImage(it.bmp, 0, 0, 8, 8);
+    const d = x.getImageData(0, 0, 8, 8).data;
+    let r = 0, g = 0, b = 0;
+    for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; }
+    const den = 64 * 255;
+    it.sig = [r / den, g / den, b / den, Math.log((it.bmp.width || 1) / (it.bmp.height || 1)), it.v ? 1 : 0];
+  } catch (e) { it.sig = [.5, .5, .5, 0, it.v ? 1 : 0]; }
+  return it.sig;
+}
+
+$('smartSort').onclick = () => {
+  if (imgs.length < 3) return;
+  const left = imgs.slice(), ordered = [left.shift()];
+  while (left.length) {
+    const a = getVisualSignature(ordered[ordered.length - 1]);
+    let bi = 0, bs = Infinity;
+    left.forEach((it, i) => {
+      const b = getVisualSignature(it);
+      const color = Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+      const aspect = Math.min(.25, Math.abs(a[3] - b[3]) * .08);
+      const type = a[4] === b[4] ? .03 : 0;
+      const score = color + aspect + type;
+      if (score < bs) { bs = score; bi = i; }
+    });
+    ordered.push(left.splice(bi, 1)[0]);
+  }
+  stop(); imgs = ordered; manualStarts.clear(); thumbs(); updatePhotoAdvice(); build(); saveDraft();
+  say('Renk ve kadraj uyumuna göre akıllı sıralama uygulandı.', 'ok');
+};
+
+function thumbs() {
+  const t = $('thumbs'); t.textContent = '';
+  $('mediaCount').textContent = imgs.length + ' öğe';
+  imgs.forEach((im, i) => {
+    const d = document.createElement('div'); d.className = 'th';
+    const g = document.createElement('img'); g.src = im.url; g.alt = 'Fotoğraf ' + (i + 1);
+    const b = document.createElement('button'); b.textContent = '×'; b.title = 'Kaldır';
+    b.onclick = () => { stop(); const r = imgs.splice(i, 1)[0]; drop(r); thumbs(); updatePhotoAdvice(); build(); saveDraft(); };
+    const dl = document.createElement('button'); dl.textContent = '⬇'; dl.title = 'Orijinal dosyayı indir'; dl.className = 'dl';
+    dl.onclick = () => { const u = URL.createObjectURL(im.f), a = document.createElement('a'); a.href = u; a.download = im.f.name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 4e3); };
+    d.draggable = true;
+    d.ondragstart = e => { dragI = i; try { e.dataTransfer.setData('text/plain', 'foto'); e.dataTransfer.effectAllowed = 'move'; } catch (x) { } };
+    d.ondragover = e => { if (dragI >= 0) { e.preventDefault(); d.classList.add('over'); } };
+    d.ondragleave = () => d.classList.remove('over');
+    d.ondrop = e => { if (dragI < 0) return; e.preventDefault(); e.stopPropagation(); d.classList.remove('over'); const a = dragI; dragI = -1; mv(a, i); };
+    d.ondragend = () => { dragI = -1; };
+    d.append(g, b, dl);
+    if (im.v) { const vb = document.createElement('span'); vb.className = 'vb'; vb.textContent = '▶ ' + (im.dur ? mmss(im.dur) : 'video'); d.appendChild(vb); }
+    if (imgs.length > 1) {
+      if (i > 0) { const l = document.createElement('button'); l.textContent = '‹'; l.className = 'mv ml'; l.onclick = () => mv(i, i - 1); d.appendChild(l); }
+      if (i < imgs.length - 1) { const r = document.createElement('button'); r.textContent = '›'; r.className = 'mv mr'; r.onclick = () => mv(i, i + 1); d.appendChild(r); }
+    }
+    t.appendChild(d);
+  });
+  $('shuf').disabled = imgs.length < 2;
+  $('smartSort').disabled = imgs.length < 3;
+  $('clearMedia').disabled = imgs.length === 0;
+  document.body.classList.toggle('hm', imgs.length > 0);
+}
+
+for (const l of document.querySelectorAll('label.btn')) {
+  l.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); l.click(); } };
+}
+
+// ---------- Çok Bantlı (Bas/Mid/Tiz) Müzik + Ritim Analizi ----------
+let ON = null, ON_BASS = null, ON_HIGH = null, WV = null, WF = 0, WMIN = null, WMAX = null, bpmConfidence = 0;
+
+async function loadAudioFile(f, persist = true) {
+  stop(); manualStarts.clear(); audFile = f;
+  say('Müzik çözülüyor ve çok bantlı (Bas/Vokal) ritim aranıyor…');
+  AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+  try { buf = await AC.decodeAudioData(await f.arrayBuffer()); } catch (x) { buf = null; return say('Ses dosyası okunamadı.', 'err'); }
+  await new Promise(r => setTimeout(r, 20));
+  if (!analyze()) {
+    beats = []; sections = [];
+    $('findDrop').disabled = $('resetTrim').disabled = true;
+    say('Ritmi güvenilir biçimde çıkaramadım. Yine de görsel olarak düzenleyebilirsin.', 'err');
+    $('ainfo').textContent = ''; $('sectionInfo').textContent = '';
+    return build();
+  }
+  $('findDrop').disabled = $('resetTrim').disabled = false;
+  recommendedRange = estimatePhotoRange(buf.duration, bpm, sections, $('editStyle').value);
+  recommendedPhotos = Math.round((recommendedRange[0] + recommendedRange[1]) / 2);
+  $('ainfo').textContent = f.name + ' · ' + mmss(buf.duration) + ' · ~' + bpm.toFixed(1) + ' BPM · güven %' + bpmConfidence;
+  $('sectionInfo').textContent = 'Enerji bölümleri: ' + sections.map(x => x.name + ' (' + mmss(x.start) + '–' + mmss(x.end) + ')').join(' · ');
+  updatePhotoAdvice();
+  say('Çok bantlı ritim analizi tamamlandı ✓', 'ok');
+  build();
+  if (persist) saveDraft();
+}
+
+$('aud').onchange = async e => {
+  const f = e.target.files[0];
+  if (f) await loadAudioFile(f, true);
+};
 
 function analyze() {
-  const sr = buf.sampleRate, d = buf.getChannelData(0), hop = Math.round(sr / 50), nf = Math.floor(d.length / hop);
-  fps = sr / hop; if (nf < fps * 4) return false;
-  env = new Float32Array(nf); const raw = new Float32Array(nf), a = Math.exp(-2 * Math.PI * 150 / sr);
-  let lp = 0, pe = 0, pb = 0;
+  const sr = buf.sampleRate, n = buf.length, d0 = buf.getChannelData(0), d1 = buf.numberOfChannels > 1 ? buf.getChannelData(1) : d0;
+  const rate = 22050, N = 1024, hop = 512, fps = rate / hop;
+  const duration = n / sr, nf = Math.floor(duration * fps);
+  if (nf < fps * 4) return false;
+
+  const env = new Float32Array(nf), waveMin = new Float32Array(nf), waveMax = new Float32Array(nf);
+  const hann = new Float32Array(N), re = new Float64Array(N), im = new Float64Array(N), prev = new Float32Array(N / 2 + 1);
+  const fluxAll = new Float32Array(nf), fluxBass = new Float32Array(nf), fluxHigh = new Float32Array(nf);
+
+  for (let i = 0; i < N; i++) hann[i] = .5 - .5 * Math.cos(2 * Math.PI * i / (N - 1));
+  const step = sr / rate, mid = Math.floor(N / 2);
+
   for (let f = 0; f < nf; f++) {
-    let e = 0, b = 0;
-    for (let i = f * hop, j = i + hop; i < j; i++) { const v = d[i]; lp = a * lp + (1 - a) * v; e += v * v; b += lp * lp; }
-    e = Math.sqrt(e / hop); b = Math.sqrt(b / hop);
-    env[f] = e; raw[f] = Math.max(0, e - pe) + 1.5 * Math.max(0, b - pb); pe = e; pb = b;
+    const center = f * hop, start = center - mid;
+    let energy = 0, lo = 1, hi = -1;
+    for (let j = 0; j < N; j++) {
+      const pos = start + j * step, idx = Math.floor(pos), frac = pos - idx;
+      let a = 0, b = 0;
+      if (idx >= 0 && idx < n) { a = (d0[idx] + d1[idx]) * .5; b = idx + 1 < n ? (d0[idx + 1] + d1[idx + 1]) * .5 : a; }
+      const v = a + (b - a) * frac;
+      if (j >= mid - hop / 2 && j < mid + hop / 2) { if (v < lo) lo = v; if (v > hi) hi = v; energy += v * v; }
+      re[j] = v * hann[j]; im[j] = 0;
+    }
+    waveMin[f] = lo; waveMax[f] = hi; env[f] = Math.sqrt(energy / hop);
+
+    for (let i = 1, j = 0; i < N; i++) {
+      let bit = N >> 1;
+      for (; j & bit; bit >>= 1) j ^= bit;
+      j ^= bit;
+      if (i < j) { let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; }
+    }
+    for (let len = 2; len <= N; len <<= 1) {
+      const ang = -2 * Math.PI / len, wr0 = Math.cos(ang), wi0 = Math.sin(ang);
+      for (let base = 0; base < N; base += len) {
+        let wr = 1, wi = 0;
+        for (let j = 0; j < len / 2; j++) {
+          const u = base + j, v = u + len / 2, tr = wr * re[v] - wi * im[v], ti = wr * im[v] + wi * re[v];
+          re[v] = re[u] - tr; im[v] = im[u] - ti; re[u] += tr; im[u] += ti;
+          const nw = wr * wr0 - wi * wi0; wi = wr * wi0 + wi * wr0; wr = nw;
+        }
+      }
+    }
+
+    let sum = 0;
+    for (let k = 1; k <= N / 2; k++) {
+      const mag = Math.log1p(Math.hypot(re[k], im[k]));
+      const rise = Math.max(0, mag - prev[k]);
+      prev[k] = mag;
+      sum += mag;
+
+      if (k <= 7) fluxBass[f] += rise * 1.5;
+      else if (k >= 91 && k <= 380) fluxHigh[f] += rise * 1.1;
+
+      const weight = k < 8 ? .65 : k < 80 ? 1 : .85;
+      fluxAll[f] += rise * weight;
+    }
+    const norm = Math.max(.15, sum / (N / 2));
+    fluxAll[f] /= norm;
+    fluxBass[f] /= norm;
+    fluxHigh[f] /= norm;
   }
-  ON = new Float32Array(nf); let mx = 0;
-  for (let i = 0; i < nf; i++) {
-    let s = 0, c = 0; for (let j = Math.max(0, i - 9); j <= Math.min(nf - 1, i + 9); j++) { s += raw[j]; c++; }
-    ON[i] = Math.max(0, raw[i] - s / c); if (ON[i] > mx) mx = ON[i];
+
+  WMIN = waveMin; WMAX = waveMax;
+  const normalizeFlux = raw => {
+    const out = new Float32Array(nf);
+    let mx = 0;
+    const win = Math.max(2, Math.round(fps * .18));
+    for (let i = 0; i < nf; i++) {
+      let base = 0, count = 0;
+      for (let j = Math.max(0, i - win); j <= Math.min(nf - 1, i + win); j += 2) { base += raw[j]; count++; }
+      out[i] = Math.max(0, raw[i] - (count ? base / count : 0));
+      if (out[i] > mx) mx = out[i];
+    }
+    if (mx > 0) for (let i = 0; i < nf; i++) out[i] /= mx;
+    return { out, mx };
+  };
+
+  const nAll = normalizeFlux(fluxAll);
+  if (!nAll.mx) return false;
+  ON = nAll.out;
+  ON_BASS = normalizeFlux(fluxBass).out;
+  ON_HIGH = normalizeFlux(fluxHigh).out;
+
+  let em = 0; for (let i = 0; i < nf; i++) if (env[i] > em) em = env[i];
+  WV = env.map(v => v / (em || 1)); WF = fps;
+
+  const blockSec = 6, blocks = [];
+  for (let st = 0; st < duration; st += blockSec) {
+    const i0 = Math.floor(st * fps), i1 = Math.min(nf, Math.ceil((st + blockSec) * fps));
+    let sum = 0, count = 0;
+    for (let i = i0; i < i1; i++) { sum += env[i]; count++; }
+    blocks.push({ start: st, end: Math.min(duration, st + blockSec), energy: count ? sum / count : 0 });
   }
-  if (!mx) return false; for (let i = 0; i < nf; i++) ON[i] /= mx;
-  const corr = lag => { const L = Math.round(lag); let c = 0, a2 = 0, b2 = 0; for (let i = L; i < nf; i++) { c += ON[i] * ON[i - L]; a2 += ON[i] ** 2; b2 += ON[i - L] ** 2; } return c / Math.sqrt(Math.max(1e-12, a2 * b2)); };
-  let best = 0, bs = -1;
-  for (let lag = fps * 60 / 165; lag <= fps * 60 / 75; lag += .25) {
-    const tempo = fps * 60 / lag, s = corr(lag) * (.9 + .1 * Math.exp(-.12 * Math.log2(tempo / 115) ** 2));
-    if (s > bs) { bs = s; best = lag; }
+  const emax = Math.max(1e-9, ...blocks.map(x => x.energy));
+  blocks.forEach(x => x.energy /= emax);
+  sections = [];
+  for (const b of blocks) {
+    const prev = sections[sections.length - 1];
+    if (prev && Math.abs(prev.energy - b.energy) < .2 && b.start - prev.start < 30) {
+      prev.end = b.end; prev.energy = (prev.energy + b.energy) / 2;
+    } else {
+      sections.push({ start: b.start, end: b.end, energy: b.energy });
+    }
   }
-  if (!best) return false;
-  let ph = 0, ps = -1;
-  for (let o = 0; o < best; o += .25) {
-    let s = 0, c = 0;
-    for (let t = o; t < nf; t += best) { const k = Math.round(t); let p = 0; for (let j = Math.max(0, k - 1); j <= Math.min(nf - 1, k + 1); j++) p = Math.max(p, ON[j]); s += p; c++; }
-    s /= Math.max(1, c); if (s > ps) { ps = s; ph = o; }
+  sections = sections.map((x, i) => ({
+    ...x,
+    name: i === 0 ? 'Giriş' : i === sections.length - 1 ? 'Kapanış' : x.energy < .06 ? 'Sessizlik' : x.energy > .68 ? 'Drop / Yüksek' : x.energy < .32 ? 'Sakin' : 'Orta'
+  }));
+
+  const minLag = Math.max(1, Math.floor(fps * 60 / 200)), maxLag = Math.ceil(fps * 60 / 60);
+  let bestLag = 0, bestScore = -Infinity;
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    let cross = 0, aa = 0, bb = 0;
+    for (let i = lag; i < nf; i++) { const a = ON[i], b = ON[i - lag]; cross += a * b; aa += a * a; bb += b * b; }
+    const corr = cross / Math.sqrt(Math.max(1e-12, aa * bb));
+    const tempo = fps * 60 / lag, prior = Math.exp(-.10 * Math.pow(Math.log2(tempo / 112), 2));
+    const score = corr * (.92 + .08 * prior);
+    if (score > bestScore) { bestScore = score; bestLag = lag; }
   }
-  beats = []; for (let t = ph; t < nf; t += best) beats.push(t / fps);
-  bpm = fps * 60 / best; return true;
+  if (!bestLag) return false;
+
+  const corrAt = lag => {
+    let c = 0, a2 = 0, b2 = 0;
+    for (let i = lag; i < nf; i++) { const a = ON[i], b = ON[i - lag]; c += a * b; a2 += a * a; b2 += b * b; }
+    return c / Math.sqrt(Math.max(1e-12, a2 * b2));
+  };
+  const baseCorr = corrAt(bestLag);
+  const fasterLag = Math.round(bestLag / 2), slowerLag = Math.round(bestLag * 2);
+  if (fasterLag >= minLag && fasterLag <= maxLag && corrAt(fasterLag) >= baseCorr * .35) bestLag = fasterLag;
+  if (slowerLag >= minLag && slowerLag <= maxLag && corrAt(slowerLag) > corrAt(bestLag) * 1.25) bestLag = slowerLag;
+
+  const period = bestLag;
+  let refined = period, refinedScore = -Infinity;
+  for (let p = Math.max(minLag, period - 2); p <= Math.min(maxLag, period + 2); p += .125) {
+    let c = 0, a2 = 0, b2 = 0; const lag = Math.round(p);
+    for (let i = lag; i < nf; i++) { const a = ON[i], b = ON[i - lag]; c += a * b; a2 += a * a; b2 += b * b; }
+    const score = c / Math.sqrt(Math.max(1e-12, a2 * b2));
+    if (score > refinedScore) { refinedScore = score; refined = p; }
+  }
+
+  let phase = 0, phaseScore = -1;
+  for (let off = 0; off < refined; off += .25) {
+    let score = 0, count = 0;
+    for (let t = off; t < nf; t += refined) {
+      const k = Math.round(t); let peak = 0;
+      for (let j = Math.max(0, k - 2); j <= Math.min(nf - 1, k + 2); j++) if (ON[j] > peak) peak = ON[j];
+      score += peak; count++;
+    }
+    score /= Math.max(1, count);
+    if (score > phaseScore) { phaseScore = score; phase = off; }
+  }
+
+  beats = [];
+  for (let t = phase; t < nf; t += refined) beats.push(t / fps);
+  barBeats = beats.filter((_, i) => i % 4 === 0);
+  bpm = fps * 60 / refined;
+  bpmConfidence = Math.max(0, Math.min(100, Math.round(corrAt(Math.max(1, Math.round(refined))) * 100)));
+  return true;
 }
 
-// En hareketli bölümün başlangıcı
-function loudStart(len) {
-  const w = Math.floor(len * fps), n = env.length; if (w >= n) return 0;
-  let cur = 0, bestS = -1, bi = 0;
-  for (let i = 0; i < n; i++) {
-    cur += env[i] + ON[i] * .3; if (i >= w) cur -= env[i - w] + ON[i - w] * .3;
-    if (i >= w - 1 && cur > bestS) { bestS = cur; bi = i - w + 1; }
+// ---------- Tek Tıkla En Hareketli 15 Saniye (Drop / Nakarat Bulucu) ----------
+$('findDrop').onclick = () => {
+  if (!buf || !WV || !WF) return;
+  const clipLen = Math.min(15, buf.duration);
+  if (buf.duration <= 15.5) {
+    $('start').value = 0;
+    $('dur').value = 0;
+    manualStarts.clear();
+    save(); build();
+    return toast('Şarkı zaten 15 saniye veya daha kısa.');
   }
-  let t = bi / fps, nb = beats.reduce((p, b) => Math.abs(b - t) < Math.abs(p - t) ? b : p, beats[0]);
-  if (Math.abs(nb - t) < .6) t = nb;
-  return Math.min(t, Math.max(0, buf.duration - len));
+  const winFrames = Math.floor(clipLen * WF);
+  let bestFrame = 0, bestSum = -1, curSum = 0;
+  for (let i = 0; i < WV.length; i++) {
+    curSum += WV[i] + (ON ? ON[i] * 0.45 : 0);
+    if (i >= winFrames) curSum -= WV[i - winFrames] + (ON ? ON[i - winFrames] * 0.45 : 0);
+    if (i >= winFrames - 1 && curSum > bestSum) {
+      bestSum = curSum;
+      bestFrame = i - winFrames + 1;
+    }
+  }
+  let bestSec = Math.max(0, bestFrame / WF);
+  if (beats.length) {
+    let nearest = beats[0], minDist = Infinity;
+    for (const b of beats) {
+      const d = Math.abs(b - bestSec);
+      if (d < minDist) { minDist = d; nearest = b; }
+    }
+    if (minDist < 0.6) bestSec = nearest;
+  }
+  bestSec = Math.min(bestSec, Math.max(0, buf.duration - clipLen));
+  $('start').value = bestSec.toFixed(1);
+  $('dur').value = clipLen.toFixed(1);
+  manualStarts.clear();
+  save(); build();
+  toast('🔥 En yüksek enerjili ' + clipLen.toFixed(0) + ' sn seçildi (' + mmss(bestSec) + ' – ' + mmss(bestSec + clipLen) + ')');
+};
+
+$('resetTrim').onclick = () => {
+  $('start').value = 0;
+  $('dur').value = 0;
+  manualStarts.clear();
+  save(); build();
+  toast('Şarkının tamamı seçildi.');
+};
+
+// ---------- Hazır Şablonlar (Presets) ----------
+const PRESETS = {
+  reels: {
+    editStyle: 'energetic', freqFocus: 'bass', trans: 'mix', lut: 'warm',
+    minS: '1', sens: '72', beatThreshold: '68', fxStrong: '60', fxMedium: '32',
+    kenBurns: true, zoom: true, flash: true, shake: false, vignette: true, letterbox: false, grain: false, sfxTransitions: true
+  },
+  nostalgia: {
+    editStyle: 'calm', freqFocus: 'all', trans: 'isi', lut: 'kodak',
+    minS: '4', sens: '45', beatThreshold: '85', fxStrong: '78', fxMedium: '45',
+    kenBurns: true, zoom: false, flash: false, shake: false, vignette: true, letterbox: false, grain: true, sfxTransitions: false
+  },
+  phonk: {
+    editStyle: 'energetic', freqFocus: 'bass', trans: 'rgb', lut: 'moody',
+    minS: '1', sens: '85', beatThreshold: '55', fxStrong: '50', fxMedium: '25',
+    kenBurns: false, zoom: true, flash: true, shake: true, vignette: true, letterbox: false, grain: false, sfxTransitions: true
+  },
+  cinema: {
+    editStyle: 'balanced', freqFocus: 'all', trans: 'fade', lut: 'teal',
+    minS: '3', sens: '60', beatThreshold: '78', fxStrong: '70', fxMedium: '40',
+    kenBurns: true, zoom: false, flash: false, shake: false, vignette: true, letterbox: true, grain: true, sfxTransitions: true
+  },
+  minimal: {
+    editStyle: 'balanced', freqFocus: 'all', trans: 'fade', lut: 'none',
+    minS: '3', sens: '60', beatThreshold: '80', fxStrong: '70', fxMedium: '40',
+    kenBurns: true, zoom: false, flash: false, shake: false, vignette: false, letterbox: false, grain: false, sfxTransitions: false
+  }
+};
+
+document.querySelectorAll('#presetBar button').forEach(btn => {
+  btn.onclick = () => {
+    const p = PRESETS[btn.dataset.p];
+    if (!p) return;
+    document.querySelectorAll('#presetBar button').forEach(b => b.classList.toggle('on', b === btn));
+    $('editStyle').value = p.editStyle;
+    $('freqFocus').value = p.freqFocus;
+    $('trans').value = p.trans;
+    $('lut').value = p.lut;
+    $('minS').value = p.minS;
+    $('sens').value = p.sens; $('sensv').textContent = p.sens;
+    $('beatThreshold').value = p.beatThreshold; $('thrv').textContent = p.beatThreshold;
+    $('fxStrong').value = p.fxStrong;
+    $('fxMedium').value = p.fxMedium;
+    syncEffectThresholds();
+    $('kenBurns').checked = p.kenBurns;
+    $('zoom').checked = p.zoom;
+    $('flash').checked = p.flash;
+    $('shake').checked = p.shake;
+    $('vignette').checked = p.vignette;
+    $('letterbox').checked = p.letterbox;
+    $('grain').checked = p.grain;
+    $('sfxTransitions').checked = p.sfxTransitions;
+    manualStarts.clear();
+    mark();
+    if (buf) {
+      recommendedRange = estimatePhotoRange(buf.duration, bpm, sections, $('editStyle').value);
+      recommendedPhotos = Math.round((recommendedRange[0] + recommendedRange[1]) / 2);
+      updatePhotoAdvice();
+    }
+    save(); build();
+    toast('"' + btn.textContent.trim() + '" şablonu uygulandı');
+  };
+});
+
+// ---------- Zaman Çizelgesi ve Ayarlar ----------
+['fmt', 'q', 'fit', 'lut', 'freqFocus', 'bpp', 'minS', 'trans', 'dur', 'start', 'zoom', 'flash', 'fade', 'kenBurns', 'shake', 'vignette', 'letterbox', 'grain', 'snapBeats', 'sfxTransitions', 'editStyle'].forEach(id => {
+  $(id).onchange = () => {
+    if (id === 'fmt' || id === 'q') size();
+    if (id === 'editStyle') {
+      manualStarts.clear();
+      if (buf) {
+        recommendedRange = estimatePhotoRange(buf.duration, bpm, sections, $('editStyle').value);
+        recommendedPhotos = Math.round((recommendedRange[0] + recommendedRange[1]) / 2);
+        updatePhotoAdvice();
+      }
+    }
+    save(); build();
+  };
+});
+
+$('titleText').oninput = () => { save(); if (!playing && tl.length) draw(startT); };
+$('watermarkText').oninput = () => { save(); if (!playing && tl.length) draw(startT); };
+$('shift').oninput = () => { $('shv').textContent = $('shift').value + ' ms'; save(); build(); };
+
+function syncEffectThresholds() {
+  const strong = $('fxStrong'), medium = $('fxMedium');
+  medium.max = String(Math.max(5, +strong.value - 1));
+  if (+medium.value > +medium.max) medium.value = medium.max;
+  $('fxsv').textContent = strong.value + '%';
+  $('fxmv').textContent = medium.value + '%';
 }
 
-// ---------- Kurgu ----------
+$('fxStrong').addEventListener('input', syncEffectThresholds);
+$('fxStrong').addEventListener('change', () => { syncEffectThresholds(); save(); build(); });
+$('fxMedium').addEventListener('input', syncEffectThresholds);
+
+for (const [id, label, suffix] of [['sens','sensv',''], ['beatThreshold','thrv',''], ['fxStrong','fxsv','%'], ['fxMedium','fxmv','%']]) {
+  $(id).oninput = () => { $(label).textContent = $(id).value + suffix; };
+  $(id).onchange = () => { save(); build(); };
+}
+
+const SV = ['fmt', 'q', 'fit', 'lut', 'freqFocus', 'bpp', 'trans', 'dur', 'start', 'minS', 'sens', 'beatThreshold', 'fxStrong', 'fxMedium', 'editStyle', 'shift', 'titleText', 'watermarkText'];
+function save() {
+  try {
+    localStorage.fs5 = JSON.stringify([
+      ...SV.map(i => $(i).value),
+      $('zoom').checked, $('flash').checked, $('fade').checked, $('kenBurns').checked, $('shake').checked,
+      $('vignette').checked, $('letterbox').checked, $('grain').checked,
+      $('snapBeats').checked, $('sfxTransitions').checked
+    ]);
+  } catch (x) { }
+}
+function load() {
+  try {
+    const raw = localStorage.fs5 || localStorage.fs4 || localStorage.fs3;
+    if (!raw) return;
+    const a = JSON.parse(raw);
+    if (!Array.isArray(a)) return;
+    SV.forEach((i, n) => { if (a[n] != null) $(i).value = a[n]; });
+    $('zoom').checked = !!a[SV.length];
+    $('flash').checked = !!a[SV.length + 1];
+    $('fade').checked = a[SV.length + 2] !== false;
+    $('kenBurns').checked = a[SV.length + 3] !== false;
+    $('shake').checked = !!a[SV.length + 4];
+    if (a[SV.length + 5] != null) $('vignette').checked = !!a[SV.length + 5];
+    if (a[SV.length + 6] != null) $('letterbox').checked = !!a[SV.length + 6];
+    if (a[SV.length + 7] != null) $('grain').checked = !!a[SV.length + 7];
+    if (a[SV.length + 8] != null) $('snapBeats').checked = !!a[SV.length + 8];
+    if (a[SV.length + 9] != null) $('sfxTransitions').checked = !!a[SV.length + 9];
+  } catch (x) { }
+}
+
+function size() {
+  const [a, b] = $('fmt').value.split('x').map(Number), q = +$('q').value, e = v => Math.round(v / 2) * 2;
+  let w = q, h = q;
+  if (a < b) h = e(q * b / a); else if (a > b) w = e(q * a / b);
+  cv.width = w; cv.height = h;
+}
+
+function getActiveOnsetArray() {
+  const f = $('freqFocus').value;
+  if (f === 'bass' && ON_BASS) return ON_BASS;
+  if (f === 'high' && ON_HIGH) return ON_HIGH;
+  return ON;
+}
+
+$('resetMarkers').onclick = () => {
+  manualStarts.clear();
+  $('resetMarkers').disabled = true;
+  build();
+  toast('Tüm kesim noktaları otomatik ritme sıfırlandı.');
+};
+
 function build() {
-  stop(); segs = []; BS = [];
+  stop(); tl = []; BS = []; wfCache = null;
   const ok = imgs.length && buf && beats.length;
-  $('play').disabled = $('rec').disabled = !ok;
+  if (buf && beats.length) {
+    const st0 = Math.max(0, +$('start').value || 0), d0 = +$('dur').value || 0;
+    startT = st0; endT = d0 > 0 ? Math.min(buf.duration, st0 + d0) : buf.duration;
+    BS = beats.filter(x => x >= startT && x < endT);
+  }
+  $('play').disabled = $('rec').disabled = $('shortPrev').disabled = !ok;
+  $('resetMarkers').disabled = manualStarts.size === 0;
   if (!ok) { clearView(); return; }
-  const len = +$('dur').value;
-  t0 = len ? loudStart(len) : 0; t1 = len ? Math.min(buf.duration, t0 + len) : buf.duration;
-  BS = beats.filter(b => b >= t0 && b < t1 - .3);
+
+  const st = Math.max(0, +$('start').value || 0), dur = +$('dur').value || 0;
+  endT = dur > 0 ? Math.min(buf.duration, st + dur) : buf.duration;
+  const sh = $('shift').value / 1000;
+  BS = beats.map(b => b + sh).filter(b => b >= st && b < endT);
   if (BS.length < 2) { $('play').disabled = $('rec').disabled = true; return say('Seçilen aralıkta yeterli vuruş yok.', 'err'); }
-  const iv = 60 / bpm, minS = +$('pace').value, bpp = [1, 2, 4, 8, 16].find(v => v * iv >= minS) || 16;
-  const st = BS.filter((_, i) => i % bpp === 0);
-  segs = st.map((t, i) => ({ a: i ? t : t0, b: i + 1 < st.length ? st[i + 1] : t1, img: i % imgs.length }));
-  if (segs.length > 1 && segs.at(-1).b - segs.at(-1).a < .8) { segs.at(-2).b = t1; segs.pop(); }
-  say(imgs.length + ' fotoğraf → ' + segs.length + ' kesim · ' + (t1 - t0).toFixed(0) + ' sn' + (imgs.length < segs.length ? ' (fotoğraflar tekrar eder)' : imgs.length > segs.length ? ' (bazı fotoğraflar gösterilmez)' : ''));
-  draw(t0); drawTL(t0);
+
+  const activeON = getActiveOnsetArray();
+  let bpp = +$('bpp').value;
+  const iv = (endT - st) / BS.length, mn = +$('minS').value;
+  let starts = [], beatLevels = [];
+
+  if (manualStarts.has('custom')) {
+    const custom = manualStarts.get('custom').filter(t => t > st + .3 && t < endT - .3).sort((a, b) => a - b);
+    starts = [st, ...custom];
+    beatLevels = starts.map(t => {
+      const k = Math.round(t * WF);
+      return Math.max(0, ...activeON.slice(Math.max(0, k - 3), k + 4));
+    });
+  } else if (bpp) {
+    if (mn > 0 && bpp * iv < mn) bpp = [1, 2, 4, 8, 16, 32, 64].find(v => v >= mn / iv) || 64;
+    starts = BS.filter((_, i) => i % bpp === 0);
+    beatLevels = starts.map(t => {
+      const i = BS.indexOf(t);
+      return i >= 0 ? Math.max(0, ...BS.slice(Math.max(0, i - 1), i + 2).map(x => {
+        const k = Math.round(x * WF);
+        return Math.max(0, ...activeON.slice(Math.max(0, k - 3), k + 4));
+      })) : 0;
+    });
+  } else {
+    const strengths = BS.map(t => {
+      const k = Math.round(t * WF), radius = Math.max(1, Math.round(WF * .06));
+      let peak = 0;
+      for (let j = Math.max(0, k - radius); j <= Math.min(activeON.length - 1, k + radius); j++) peak = Math.max(peak, activeON[j] || 0);
+      return peak;
+    });
+    const sorted = strengths.slice().sort((a, b) => a - b);
+    const p75 = sorted[Math.floor((sorted.length - 1) * .75)] || 0;
+    const sensitivity = +$('sens').value / 100, thresholdControl = +$('beatThreshold').value / 100;
+    const threshold = Math.max(.025, p75 * (1.25 - sensitivity * .008) * (1.35 - thresholdControl * .006));
+    const style = $('editStyle').value, styleFactor = style === 'calm' ? 1.35 : style === 'energetic' ? .78 : 1;
+    const minGap = mn > 0 ? mn : iv * .72 * styleFactor;
+
+    starts = [BS[0]];
+    beatLevels = [strengths[0] || 0];
+    let last = BS[0], lastIndex = 0;
+
+    for (let i = 1; i < BS.length; i++) {
+      const elapsed = BS[i] - last;
+      const maxBeatGap = style === 'calm' ? 6 : style === 'energetic' ? 2 : 4;
+      const forced = i - lastIndex >= maxBeatGap;
+      const accent = strengths[i] >= threshold;
+      if (elapsed >= minGap && (accent || forced)) {
+        starts.push(BS[i]); beatLevels.push(strengths[i]); last = BS[i]; lastIndex = i;
+      }
+    }
+
+    for (const sec of sections.slice(1)) {
+      const t = sec.start;
+      if (t <= st + .2 || t >= endT - .2) continue;
+      if (starts.every(x => Math.abs(x - t) > .35)) {
+        starts.push(t);
+        const k = Math.round(t * WF);
+        beatLevels.push(Math.max(0, ...activeON.slice(Math.max(0, k - 2), k + 3)));
+      }
+    }
+    const paired = starts.map((t, i) => ({ t, level: beatLevels[i] || 0 })).sort((a, b) => a.t - b.t);
+    starts = paired.map(x => x.t);
+    beatLevels = paired.map(x => x.level);
+    bpp = 0;
+  }
+
+  startT = st;
+  beatPeak = Math.max(0, ...beatLevels);
+  starts.forEach((t, i) => tl.push({
+    t0: i === 0 ? st : t,
+    t1: i + 1 < starts.length ? starts[i + 1] : endT,
+    img: i % imgs.length,
+    beat: beatLevels[i] || 0,
+    sectionStart: i > 0 && sections.some(x => Math.abs(x.start - t) < .2),
+    kbDir: i % 4
+  }));
+
+  const timingLabel = manualStarts.has('custom') ? 'özel kesimler aktif' : bpp ? 'her biri ' + bpp + ' vuruş (≈' + (bpp * iv).toFixed(1) + ' sn)' : 'çok bantlı vurgulara göre · geçişler vuruşta';
+  say(imgs.length + ' öğe → ' + tl.length + ' kare · ' + timingLabel + ' · ' + (endT - st).toFixed(1) + ' sn');
+  draw(st); drawTL(st);
 }
-function clearView() { cx.fillStyle = '#000'; cx.fillRect(0, 0, cv.width, cv.height); if (imgs.length) put(0); drawTL(-1); }
+
+function clearView() { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height); if (imgs.length) put(0); drawTL(-1); }
 
 function lastBeat(t) {
   let lo = 0, hi = BS.length - 1, r = null;
@@ -259,147 +1272,766 @@ function lastBeat(t) {
   return r;
 }
 
+const LUT_FILTERS = {
+  none: 'none',
+  warm: 'contrast(1.06) saturate(1.18) sepia(0.14)',
+  kodak: 'contrast(1.1) saturate(1.25) sepia(0.22) brightness(1.03)',
+  teal: 'contrast(1.15) saturate(1.2) hue-rotate(-8deg) brightness(0.98)',
+  moody: 'contrast(1.22) saturate(0.82) brightness(0.92)',
+  bw: 'grayscale(1) contrast(1.25) brightness(0.98)'
+};
+
+const TR = ['fade', 'par', 'iris', 'sil', 'per', 'blr', 'dol', 'isi', 'siy', 'don', 'flip', 'rgb'];
 function put(i, o = {}) {
-  const it = imgs[i], W = cv.width, H = cv.height, fill = $('fit').value === 'fill', bw = it.b.width, bh = it.b.height;
-  const r = (fill ? Math.max : Math.min)(W / bw, H / bh);
-  cx.save(); cx.globalAlpha = o.al ?? 1; cx.translate(W / 2 + (o.dx || 0), H / 2); cx.scale(o.sc || 1, o.sc || 1);
-  if (!fill) {
-    const k = Math.max(W / it.g.width, H / it.g.height);
-    cx.drawImage(it.g, -it.g.width * k / 2, -it.g.height * k / 2, it.g.width * k, it.g.height * k);
-    cx.fillStyle = 'rgba(0,0,0,.35)'; cx.fillRect(-W / 2, -H / 2, W, H);
+  const it = imgs[i], W = cv.width, H = cv.height, f = $('fit').value, lut = $('lut').value;
+  let b = it.bmp, bw = b.width, bh = b.height, g = it.bg;
+  if (it.v && vlive && it.v.readyState >= 2 && it.v.videoWidth) {
+    b = it.v; bw = b.videoWidth; bh = b.videoHeight;
+    if (f === 'blur') {
+      g = it.bgl || (it.bgl = Object.assign(document.createElement('canvas'), { width: it.bg.width, height: it.bg.height }));
+      g.getContext('2d').drawImage(b, 0, 0, g.width, g.height);
+    }
   }
-  cx.imageSmoothingQuality = 'high'; cx.drawImage(it.b, -bw * r / 2, -bh * r / 2, bw * r, bh * r); cx.restore();
+  const r = (f === 'fill' ? Math.max : Math.min)(W / bw, H / bh);
+  ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.globalAlpha = o.al ?? 1;
+  if (o.comp) ctx.globalCompositeOperation = o.comp;
+  if (lut && lut !== 'none' && 'filter' in ctx) ctx.filter = LUT_FILTERS[lut] || 'none';
+
+  ctx.translate(W / 2 + (o.dx || 0), H / 2 + (o.dy || 0));
+  ctx.rotate(o.rot || 0);
+  ctx.scale((o.sc || 1) * (o.sx ?? 1), o.sc || 1);
+
+  if (f === 'blur' && !o.noBg) {
+    const k = Math.max(W / g.width, H / g.height);
+    ctx.drawImage(g, -g.width * k / 2, -g.height * k / 2, g.width * k, g.height * k);
+    ctx.fillStyle = 'rgba(0,0,0,.35)';
+    ctx.fillRect(-W / 2, -H / 2, W, H);
+  }
+
+  let focusOffsetX = 0, focusOffsetY = 0;
+  if (f === 'fill' && it.focus) {
+    const scaledW = bw * r, scaledH = bh * r;
+    const overflowX = Math.max(0, scaledW - W);
+    const overflowY = Math.max(0, scaledH - H);
+    focusOffsetX = (0.5 - it.focus.fx) * overflowX;
+    focusOffsetY = (0.5 - it.focus.fy) * overflowY;
+  }
+
+  ctx.drawImage(b, -bw * r / 2 + focusOffsetX, -bh * r / 2 + focusOffsetY, bw * r, bh * r);
+
+  if (o.tint) {
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.fillStyle = o.tint;
+    ctx.fillRect(-W / 2, -H / 2, W, H);
+  }
+  ctx.restore();
 }
 
-const MIX = ['fade', 'zoom', 'slide'];
+function vsync(it, rel) {
+  const v = it.v, d = it.dur, tg = d > .2 ? rel % d : rel;
+  if (v.paused) {
+    if (Math.abs(v.currentTime - tg) > .05) { try { v.currentTime = tg; } catch (x) { } }
+    const p = v.play(); if (p) p.catch(() => { });
+  } else {
+    const df = Math.abs(v.currentTime - tg);
+    if (df > .35 && (!d || df < d - .35)) { try { v.currentTime = tg; } catch (x) { } }
+  }
+}
+
+function syncVids(t) {
+  if (!tl.length || !imgs.some(x => x.v)) return;
+  let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
+  const want = {}; want[tl[k].img] = t - tl[k].t0;
+  if (k > 0 && t - tl[k].t0 < 1.3 && !(tl[k - 1].img in want)) want[tl[k - 1].img] = t - tl[k - 1].t0;
+  imgs.forEach((it, i) => {
+    if (!it.v) return;
+    if (i in want) vsync(it, want[i]);
+    else if (!it.v.paused) { it.v.pause(); try { it.v.currentTime = 0; } catch (x) { } }
+  });
+}
+
+function vstop() {
+  vlive = false;
+  for (const it of imgs) if (it.v) { try { if (!it.v.paused) it.v.pause(); if (it.v.currentTime > .05) it.v.currentTime = 0; } catch (x) { } }
+}
+
+function soft(b, mk) {
+  const W = cv.width, H = cv.height;
+  if (!mc || mc.width !== W || mc.height !== H) { mc = document.createElement('canvas'); mc.width = W; mc.height = H; }
+  const m = mc.getContext('2d'); m.globalCompositeOperation = 'source-over'; m.clearRect(0, 0, W, H);
+  ctx = m; put(b); m.globalCompositeOperation = 'destination-in'; m.fillStyle = mk(m); m.fillRect(0, 0, W, H); ctx = main; ctx.drawImage(mc, 0, 0);
+}
+
+const ramp = (g, s, f) => {
+  const A = Math.min(1, Math.max(0, s - f)), B = Math.min(1, Math.max(s, A + .001));
+  g.addColorStop(0, '#000'); g.addColorStop(A, '#000'); g.addColorStop(B, 'rgba(0,0,0,0)');
+  return g;
+};
+
 function trans(k, p, a, b) {
-  const W = cv.width, e = p * p * (3 - 2 * p);
-  if (k === 'zoom') { put(a, { sc: 1 + .35 * e }); put(b, { sc: .85 + .15 * e, al: e }); }
-  else if (k === 'slide') { put(a, { dx: -W * .25 * e }); put(b, { dx: W * (1 - e) }); }
-  else { put(a); put(b, { al: e }); }
+  const W = cv.width, H = cv.height, e = p * p * p * (p * (p * 6 - 15) + 10), q = p < .5 ? 8 * p * p * p * p : 1 - Math.pow(-2 * p + 2, 4) / 2, S = Math.sin(p * Math.PI);
+  const dark = al => { ctx.fillStyle = 'rgba(0,0,0,' + al + ')'; ctx.fillRect(0, 0, W, H); };
+  switch (k) {
+    case 'par': {
+      put(a, { dx: -W * .3 * q, sc: 1 - .05 * q }); dark(.5 * q);
+      const gx = W * (1 - q), g = ctx.createLinearGradient(gx - W * .14, 0, gx, 0);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.4)');
+      ctx.fillStyle = g; ctx.fillRect(gx - W * .14, 0, W * .14, H);
+      put(b, { dx: gx }); break;
+    }
+    case 'iris': put(a); soft(b, m => ramp(m.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) / 2), e * 1.35, .35)); break;
+    case 'sil': put(a); soft(b, m => ramp(m.createLinearGradient(0, 0, W, H), e * 1.4, .4)); break;
+    case 'per': put(a); soft(b, m => ramp(m.createLinearGradient(0, H, 0, 0), e * 1.45, .45)); break;
+    case 'blr': {
+      put(a); put(b, { al: e });
+      bc = bc || document.createElement('canvas'); bc.width = Math.max(8, W >> 3); bc.height = Math.max(8, H >> 3);
+      bc.getContext('2d').drawImage(cv, 0, 0, bc.width, bc.height);
+      ctx.save(); ctx.globalAlpha = S * .9; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bc, 0, 0, W, H); ctx.restore();
+      break;
+    }
+    case 'dol': put(a, { sc: 1 + e * .5 }); put(b, { sc: .8 + .2 * e, al: e }); break;
+    case 'isi': {
+      put(a); put(b, { al: e });
+      const cx = W * (-.1 + 1.2 * p), g = ctx.createRadialGradient(cx, H * .4, 0, cx, H * .4, Math.max(W, H) * .75);
+      g.addColorStop(0, 'rgba(255,214,150,' + .85 * S + ')');
+      g.addColorStop(.5, 'rgba(255,150,90,' + .35 * S + ')');
+      g.addColorStop(1, 'rgba(255,120,80,0)');
+      ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore();
+      break;
+    }
+    case 'siy': if (e < .5) { put(a); dark(e * 2); } else { put(b); dark((1 - e) * 2); } break;
+    case 'don': put(a, { sc: 1 + .15 * e, rot: -.05 * e }); put(b, { sc: 1.15 - .15 * e, rot: .05 * (1 - e), al: e }); break;
+    case 'flip': e < .5 ? put(a, { sx: Math.cos(e * Math.PI) }) : put(b, { sx: -Math.cos(e * Math.PI) }); dark(.4 * S); break;
+    case 'rgb': {
+      const target = p < .5 ? a : b;
+      const shift = Math.sin(p * Math.PI) * W * 0.042;
+      const sc = p < .5 ? (1 + p * .12) : (1.08 - (p - .5) * .16);
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+      put(target, { dx: -shift, sc: sc * 1.03, tint: 'rgb(255, 40, 40)', comp: 'screen', noBg: true });
+      put(target, { dx: shift, sc: sc * 1.03, tint: 'rgb(40, 255, 255)', comp: 'screen', noBg: true });
+      break;
+    }
+    default: put(a, { sc: 1 + .03 * e }); put(b, { sc: 1.03 - .03 * e, al: e });
+  }
 }
 
-function draw(t, last) {
-  cx.fillStyle = '#000'; cx.fillRect(0, 0, cv.width, cv.height);
-  let k = 0; for (let i = 0; i < segs.length; i++) { if (t >= segs[i].a) k = i; else break; }
-  const s = segs[k], since = t - s.a, dur = Math.max(.1, s.b - s.a), prog = Math.min(1, since / dur);
-  let kind = $('tr').value; if (kind === 'mix') kind = MIX[k % MIX.length];
-  const F = kind === 'cut' ? 0 : Math.min(.55, dur * .4);
-  if (k > 0 && since < F) trans(kind, since / F, segs[k - 1].img, s.img);
-  else {
-    const lb = lastBeat(t), age = lb == null ? 9 : t - lb, imp = age < .22 ? 1 - age / .22 : 0;
-    let sc = 1; if ($('kb').checked) sc += .06 * (k % 2 ? 1 - prog : prog); if ($('zm').checked) sc += .04 * imp;
-    put(s.img, { sc, dx: $('kb').checked ? (prog - .5) * cv.width * .02 * (k % 2 ? -1 : 1) : 0 });
+function getGrainPattern() {
+  if (grainCanvas) return grainCanvas;
+  grainCanvas = document.createElement('canvas');
+  grainCanvas.width = 128; grainCanvas.height = 128;
+  const gx = grainCanvas.getContext('2d');
+  const imgData = gx.createImageData(128, 128);
+  const d = imgData.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = (Math.random() * 255) | 0;
+    d[i] = d[i + 1] = d[i + 2] = v;
+    d[i + 3] = 18;
   }
-  if ($('fd').checked) {
-    const fd = Math.min(1.2, (t1 - t0) / 3), fi = Math.min(.6, fd);
-    const a = Math.max(0, 1 - (t - t0) / fi, 1 - (t1 - t) / fd);
-    if (a > 0) { cx.fillStyle = 'rgba(0,0,0,' + Math.min(1, a) + ')'; cx.fillRect(0, 0, cv.width, cv.height); }
+  gx.putImageData(imgData, 0, 0);
+  return grainCanvas;
+}
+
+function draw(t, fx) {
+  const W = cv.width, H = cv.height;
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
+  const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), prog = Math.min(1, since / dur);
+  const tv = $('trans').value, lb = lastBeat(t), z = $('zoom').checked, kb = $('kenBurns').checked, sh = $('shake').checked;
+
+  const strongEdge = +$('fxStrong').value / 100, mediumEdge = +$('fxMedium').value / 100;
+  const autoFx = s.sectionStart ? 'siy' : s.beat >= beatPeak * strongEdge ? 'cut' : s.beat >= beatPeak * mediumEdge ? 'isi' : 'fade';
+  const kd = tv === 'mix' ? autoFx : tv;
+  const F = (kd === 'cut' || kd === 'rgb') ? (kd === 'rgb' ? Math.min(.24, dur * .3) : 0) : Math.min(kd === 'fade' ? 1.2 : .95, dur * (kd === 'fade' ? .9 : .8));
+
+  const beatAge = lb != null ? (t - lb) : 99;
+  const beatImpulse = beatAge < .25 ? Math.max(0, 1 - beatAge / .25) : 0;
+
+  let sc = 1;
+  if (kb) sc += 0.06 * (s.kbDir % 2 === 0 ? prog : (1 - prog));
+  if (z) sc += 0.055 * beatImpulse;
+
+  let dx = 0, dy = 0, rot = 0;
+  if (kb) {
+    const pan = (prog - 0.5) * W * 0.025;
+    if (s.kbDir === 0) dx = pan;
+    else if (s.kbDir === 1) dx = -pan;
+    else if (s.kbDir === 2) dy = pan;
+    else dy = -pan;
+  }
+  if (sh && beatImpulse > 0 && s.beat >= beatPeak * strongEdge) {
+    dx += Math.sin(t * 95) * W * 0.014 * beatImpulse;
+    dy += Math.cos(t * 82) * H * 0.014 * beatImpulse;
+    rot = Math.sin(t * 70) * 0.018 * beatImpulse;
+  }
+
+  if (k > 0 && since < F) trans(kd, since / F, tl[k - 1].img, s.img);
+  else put(s.img, { sc, dx, dy, rot });
+
+  // 35mm Film Greni
+  if ($('grain').checked) {
+    const gp = getGrainPattern();
+    ctx.save();
+    ctx.translate((Math.random() * 64) | 0, (Math.random() * 64) | 0);
+    const pat = ctx.createPattern(gp, 'repeat');
+    ctx.fillStyle = pat;
+    ctx.fillRect(-64, -64, W + 128, H + 128);
+    ctx.restore();
+  }
+
+  // Sinematik Kenar Karartma (Vinyet)
+  if ($('vignette').checked) {
+    const rad = Math.hypot(W, H) * 0.55;
+    const vg = ctx.createRadialGradient(W / 2, H / 2, rad * 0.42, W / 2, H / 2, rad);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.48)');
+    ctx.fillStyle = vg;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // 2.35:1 Anamorfik Sinema Şeritleri
+  if ($('letterbox').checked && W > H) {
+    const targetH = W / 2.35;
+    const barH = Math.max(0, (H - targetH) / 2);
+    if (barH > 2) {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, W, barH);
+      ctx.fillRect(0, H - barH, W, barH);
+    }
+  }
+
+  // Ritimle Senkronize Açılış Başlığı
+  const title = ($('titleText').value || '').trim();
+  if (title && t - startT < 4.5) {
+    const tAge = t - startT;
+    const tAlpha = tAge < 0.5 ? tAge / 0.5 : tAge > 3.7 ? Math.max(0, (4.5 - tAge) / 0.8) : 1;
+    const tScale = 1 + beatImpulse * 0.08;
+    ctx.save();
+    ctx.globalAlpha = tAlpha;
+    ctx.translate(W / 2, H * 0.5);
+    ctx.scale(tScale, tScale);
+    const fontSize = Math.round(W * 0.068);
+    ctx.font = '700 ' + fontSize + 'px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0,0,0,0.75)';
+    ctx.shadowBlur = Math.round(W * 0.03);
+    ctx.shadowOffsetY = Math.round(W * 0.008);
+    ctx.fillStyle = '#fff';
+    ctx.fillText(title, 0, 0, W * 0.86);
+    ctx.restore();
+  }
+
+  // Vuruşta ışık çakması
+  if ($('flash').checked && lb != null) {
+    const a = Math.max(0, 1 - (t - lb) / .12) * .20;
+    if (a > 0) { ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fillRect(0, 0, W, H); }
+  }
+
+  // Köşe İmza / Filigran Katmanı
+  const wm = ($('watermarkText').value || '').trim();
+  if (wm) {
+    ctx.save();
+    const wmSize = Math.max(14, Math.round(W * 0.024));
+    ctx.font = '600 ' + wmSize + 'px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    const padX = Math.round(W * 0.04);
+    const padY = ($('letterbox').checked && W > H) ? Math.round((H - W / 2.35) / 2 + H * 0.025) : Math.round(H * 0.032);
+    ctx.shadowColor = 'rgba(0,0,0,0.65)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = 'rgba(255,255,255,0.62)';
+    ctx.fillText(wm, W - padX, H - padY);
+    ctx.restore();
+  }
+
+  // Başta ve sonda yumuşak giriş/çıkış
+  if (fx && $('fade').checked) {
+    const fd = Math.min(1.2, (endT - pf) / 3), fi = Math.min(.6, fd);
+    const a = Math.max(Math.max(0, 1 - (t - pf) / fi), Math.max(0, 1 - (endT - t) / fd));
+    if (a > 0) { ctx.fillStyle = 'rgba(0,0,0,' + Math.min(1, a) + ')'; ctx.fillRect(0, 0, W, H); }
   }
 }
 
 function drawTL(t) {
-  const dpr = devicePixelRatio || 1, w = tl.clientWidth, h = tl.clientHeight;
-  if (tl.width !== Math.round(w * dpr)) { tl.width = Math.round(w * dpr); tl.height = Math.round(h * dpr); }
-  tx.setTransform(dpr, 0, 0, dpr, 0, 0); tx.clearRect(0, 0, w, h);
-  if (!(t1 > t0) || !segs.length) return;
-  const X = v => (v - t0) / (t1 - t0) * w, dark = matchMedia('(prefers-color-scheme:dark)').matches;
-  segs.forEach((s, i) => { tx.fillStyle = dark ? (i % 2 ? '#2a2520' : '#221e1a') : (i % 2 ? '#f3ede5' : '#e9dfd1'); tx.fillRect(X(s.a), 0, Math.max(1, X(s.b) - X(s.a) - 1), h); });
-  tx.fillStyle = '#b8864b'; segs.slice(1).forEach(s => tx.fillRect(X(s.a) - 1, 0, 2, h));
-  if (t >= 0) { tx.fillStyle = dark ? '#f2ece4' : '#241f1c'; tx.fillRect(X(Math.min(t, t1)) - 1, 0, 2, h); }
-}
-addEventListener('resize', () => { if (!playing) drawTL(t0); });
-tl.onclick = e => { if (!segs.length || (playing && recMode)) return; const r = tl.getBoundingClientRect(); start(false, Math.min(t1 - .5, t0 + (e.clientX - r.left) / r.width * (t1 - t0))); };
+  const dpr = devicePixelRatio || 1, w = tlc.clientWidth, h = tlc.clientHeight;
+  const targetW = Math.round(w * dpr), targetH = Math.round(h * dpr);
+  if (tlc.width !== targetW || tlc.height !== targetH) {
+    tlc.width = targetW; tlc.height = targetH;
+    wfCache = null;
+  }
+  tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  tctx.clearRect(0, 0, w, h);
+  const a = startT, b = endT;
+  if (!(b > a)) return;
+  const X = v => (v - a) / (b - a) * w;
 
-// ---------- Oynatma ve kayıt ----------
-$('play').onclick = () => playing ? (stop(), draw(t0), drawTL(t0)) : start(false);
+  if (!wfCache || wfCache.width !== targetW || wfCache.height !== targetH) {
+    wfCache = document.createElement('canvas');
+    wfCache.width = targetW; wfCache.height = targetH;
+    const wc = wfCache.getContext('2d');
+    wc.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const isDark = document.documentElement.classList.contains('dark');
+    tl.forEach((s, i) => {
+      wc.fillStyle = isDark ? (i % 2 ? '#25211d' : '#1e1a17') : (i % 2 ? '#f3ede5' : '#ebe2d6');
+      wc.fillRect(X(s.t0), 18, Math.max(1, X(s.t1) - X(s.t0) - 1), h - 24);
+    });
+
+    if (WMIN && WMAX) {
+      const mid = 58, amp = Math.min(30, (h - 30) / 2);
+      wc.strokeStyle = isDark ? '#4a423a' : '#b9a993'; wc.lineWidth = 1; wc.beginPath(); wc.moveTo(0, mid); wc.lineTo(w, mid); wc.stroke();
+      wc.strokeStyle = isDark ? '#6e6256' : '#cdbfae'; wc.lineWidth = 1;
+      for (let x = 0; x < w; x++) {
+        const i0 = Math.max(0, Math.floor((a + (b - a) * x / w) * WF));
+        const i1 = Math.min(WMIN.length, Math.max(i0 + 1, Math.ceil((a + (b - a) * (x + 1) / w) * WF)));
+        let lo = 0, hi = 0;
+        for (let i = i0; i < i1; i++) { if (WMIN[i] < lo) lo = WMIN[i]; if (WMAX[i] > hi) hi = WMAX[i]; }
+        wc.beginPath(); wc.moveTo(x + .5, mid - hi * amp); wc.lineTo(x + .5, mid - lo * amp); wc.stroke();
+      }
+    }
+
+    sections.forEach(sec => {
+      if (sec.start > a && sec.start < b) {
+        const x = X(sec.start);
+        wc.save(); wc.setLineDash([3, 3]); wc.strokeStyle = '#8b8076';
+        wc.beginPath(); wc.moveTo(x, 0); wc.lineTo(x, h); wc.stroke(); wc.restore();
+        wc.fillStyle = isDark ? '#b5a898' : '#6b625a'; wc.font = '10px system-ui';
+        wc.fillText(sec.name.slice(0, 12), Math.min(w - 70, x + 3), 15);
+      }
+    });
+
+    barBeats.forEach(v => { if (v >= a && v <= b) { const x = X(v); wc.fillStyle = isDark ? '#d4a05c' : '#6f4f29'; wc.fillRect(x - 1, 4, 2, 8); } });
+
+    const activeON = getActiveOnsetArray();
+    BS.forEach(v => {
+      const x = X(v), k = Math.round(v * WF), radius = Math.max(1, Math.round(WF * .06));
+      let strength = 0;
+      for (let j = Math.max(0, k - radius); j <= Math.min(activeON.length - 1, k + radius); j++) strength = Math.max(strength, activeON[j] || 0);
+      const strong = strength >= Math.max(.12, beatPeak * .55);
+      wc.fillStyle = strong ? '#b8864b' : '#71827c';
+      wc.fillRect(x - (strong ? 1.5 : .5), 7, strong ? 3 : 1, h - 14);
+    });
+
+    wc.fillStyle = '#b8864b';
+    tl.slice(1).forEach(s => wc.fillRect(X(s.t0) - 3, 2, 6, 11));
+  }
+
+  tctx.drawImage(wfCache, 0, 0, w, h);
+  if (t >= 0) {
+    tctx.fillStyle = document.documentElement.classList.contains('dark') ? '#f2ece4' : '#241f1c';
+    tctx.fillRect(X(Math.min(t, b)) - 1, 0, 2, h);
+  }
+}
+
+addEventListener('resize', () => { wfCache = null; if (!playing) drawTL(startT); });
+
+// ---------- Oynatma, Kayıt ve Zaman Çizelgesi Etkileşimi ----------
+$('play').onclick = () => playing ? (stop(), draw(startT), drawTL(startT)) : start(false);
+$('shortPrev').onclick = () => start(false, startT, true);
 $('rec').onclick = () => start(true);
 
-async function start(r, from) {
-  if (!segs.length) return; stop(); await AC.resume();
-  pf = r || from == null ? t0 : Math.max(t0, from);
-  src = AC.createBufferSource(); src.buffer = buf;
-  const g = AC.createGain(); src.connect(g); g.connect(AC.destination);
-  if (r) {
-    const types = ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm'];
-    const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
-    if (!mt) return say('Bu tarayıcı video kaydını desteklemiyor. Chrome, Edge veya Safari kullan.', 'err');
-    if (url) { URL.revokeObjectURL(url); url = null; } $('out').textContent = '';
-    const dest = AC.createMediaStreamDestination(); g.connect(dest); draw(pf);
-    let stream; try { stream = cv.captureStream(30); } catch (e) { return say('Video akışı başlatılamadı.', 'err'); }
-    dest.stream.getAudioTracks().forEach(x => stream.addTrack(x));
-    chunks = []; fin = false; const type = mt.split(';')[0], ext = type.includes('mp4') ? 'mp4' : 'webm';
-    mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: Math.min(1e7, Math.max(4e6, cv.width * cv.height * 5)), audioBitsPerSecond: 192e3 });
-    mr.ondataavailable = e => e.data.size && chunks.push(e.data);
-    mr.onstop = () => { if (fin) done(new Blob(chunks, { type }), ext); };
-    mr.start(1000); lock(true); say('Kaydediliyor… ekranı açık tut.');
+tlc.onclick = e => {
+  if (justDraggedMarker) { justDraggedMarker = false; return; }
+  if (!tl.length || (playing && recMode)) return;
+  const r = tlc.getBoundingClientRect(), t = startT + Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * (endT - startT);
+  start(false, Math.min(t, endT - .5));
+};
+
+function snapTimeToBeat(rawT) {
+  if (!$('snapBeats')?.checked || !BS.length) return rawT;
+  let nearest = rawT, bestDist = 0.22;
+  for (const b of BS) {
+    const d = Math.abs(b - rawT);
+    if (d < bestDist) { bestDist = d; nearest = b; }
   }
-  ctx0 = AC.currentTime + .1; src.start(ctx0, pf, t1 - pf);
-  if ($('fd').checked) { const tot = t1 - pf, fd = Math.min(1.2, tot / 3), fi = Math.min(.6, fd); g.gain.setValueAtTime(0, ctx0); g.gain.linearRampToValueAtTime(1, ctx0 + fi); g.gain.setValueAtTime(1, ctx0 + tot - fd); g.gain.linearRampToValueAtTime(0, ctx0 + tot); }
-  playing = true; recMode = r; $('play').textContent = r ? '⏹ Kaydı iptal et' : '⏹ Durdur'; $('rec').disabled = r;
-  $('pg').value = 0; $('pg').hidden = false; raf = requestAnimationFrame(frame);
+  return nearest;
+}
+
+tlc.ondblclick = e => {
+  if (!tl.length || (playing && recMode)) return;
+  const r = tlc.getBoundingClientRect();
+  const rawT = startT + Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * (endT - startT);
+  const t = snapTimeToBeat(rawT);
+  if (t <= startT + 0.35 || t >= endT - 0.35) return;
+  if (tl.some(s => Math.abs(s.t0 - t) < 0.3)) return toast('Bu noktaya çok yakın bir kesim zaten var.');
+  const currentStarts = tl.slice(1).map(s => s.t0);
+  currentStarts.push(t);
+  manualStarts.set('custom', currentStarts);
+  build();
+  toast(($('snapBeats').checked && t !== rawT ? '🧲 Vuruşa kenetlendi: ' : 'Yeni sahne kesimi eklendi: ') + mmss(t));
+};
+
+tlc.oncontextmenu = e => {
+  if (!tl.length || tl.length < 2) return;
+  const r = tlc.getBoundingClientRect(), x = e.clientX - r.left;
+  let best = 18, hit = -1;
+  for (let i = 1; i < tl.length; i++) {
+    const px = (tl[i].t0 - startT) / (endT - startT) * r.width, d = Math.abs(px - x);
+    if (d < best) { best = d; hit = i; }
+  }
+  if (hit >= 1) {
+    e.preventDefault();
+    const currentStarts = tl.slice(1).map(s => s.t0);
+    currentStarts.splice(hit - 1, 1);
+    manualStarts.set('custom', currentStarts);
+    build();
+    toast('Sahne kesimi silindi.');
+  }
+};
+
+let movingMarker = -1, justDraggedMarker = false;
+tlc.onpointerdown = e => {
+  if (e.button !== 0 || !tl.length || tl.length < 2) return;
+  const r = tlc.getBoundingClientRect(), x = e.clientX - r.left;
+  let best = 18; movingMarker = -1;
+  for (let i = 1; i < tl.length; i++) {
+    const px = (tl[i].t0 - startT) / (endT - startT) * r.width, d = Math.abs(px - x);
+    if (d < best) { best = d; movingMarker = i; }
+  }
+  if (movingMarker >= 1) { tlc.setPointerCapture(e.pointerId); e.preventDefault(); }
+};
+tlc.onpointermove = e => {
+  if (movingMarker < 1) return;
+  const r = tlc.getBoundingClientRect(), raw = startT + Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * (endT - startT), i = movingMarker;
+  const snapped = snapTimeToBeat(raw);
+  const t = Math.max(tl[i - 1].t0 + .35, Math.min(snapped, (tl[i + 1]?.t0 || endT) - .35));
+  tl[i].t0 = t;
+  for (let j = 0; j < tl.length; j++) tl[j].t1 = j + 1 < tl.length ? tl[j + 1].t0 : endT;
+  manualStarts.set('custom', tl.slice(1).map(s => s.t0));
+  $('resetMarkers').disabled = false;
+  justDraggedMarker = true;
+  wfCache = null;
+  drawTL(-1);
+  say(($('snapBeats').checked && snapped !== raw ? '🧲 Vuruşa kenetlendi · ' : 'Geçiş noktası ') + mmss(t));
+};
+tlc.onpointerup = tlc.onpointercancel = () => { movingMarker = -1; };
+
+// ---------- Web Audio API Sentezlenmiş Geçiş Ses Efektleri (Whoosh & Sub-Bass Drop) ----------
+let sfxNodes = [];
+function stopSfx() {
+  for (const n of sfxNodes) { try { n.stop(); n.disconnect(); } catch (x) { } }
+  sfxNodes = [];
+}
+function scheduleTransitionSFX(ctxStartTime, offsetSec, limitSec, destNodes) {
+  stopSfx();
+  if (!$('sfxTransitions')?.checked || !AC || tl.length < 2) return;
+  const strongEdge = +$('fxStrong').value / 100;
+
+  const noiseLen = Math.floor(AC.sampleRate * 0.45);
+  const noiseBuf = AC.createBuffer(1, noiseLen, AC.sampleRate);
+  const ch = noiseBuf.getChannelData(0);
+  for (let i = 0; i < noiseLen; i++) ch[i] = (Math.random() * 2 - 1) * Math.sin((i / noiseLen) * Math.PI);
+
+  for (let i = 1; i < tl.length; i++) {
+    const s = tl[i];
+    if (s.t0 < offsetSec + 0.15 || s.t0 > limitSec - 0.1) continue;
+    const isStrong = s.sectionStart || s.beat >= beatPeak * strongEdge;
+    if (!isStrong) continue;
+
+    const when = ctxStartTime + (s.t0 - offsetSec);
+
+    const osc = AC.createOscillator();
+    const oscGain = AC.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(92, when);
+    osc.frequency.exponentialRampToValueAtTime(30, when + 0.28);
+    oscGain.gain.setValueAtTime(0.001, when);
+    oscGain.gain.linearRampToValueAtTime(0.32, when + 0.02);
+    oscGain.gain.exponentialRampToValueAtTime(0.001, when + 0.32);
+    osc.connect(oscGain);
+    for (const d of destNodes) oscGain.connect(d);
+    osc.start(when);
+    osc.stop(when + 0.34);
+    sfxNodes.push(osc);
+
+    const wStart = Math.max(ctxStartTime, when - 0.22);
+    const noise = AC.createBufferSource();
+    noise.buffer = noiseBuf;
+    const filter = AC.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.Q.value = 2.4;
+    filter.frequency.setValueAtTime(280, wStart);
+    filter.frequency.exponentialRampToValueAtTime(1900, when);
+    filter.frequency.exponentialRampToValueAtTime(420, when + 0.18);
+
+    const nGain = AC.createGain();
+    nGain.gain.setValueAtTime(0.001, wStart);
+    nGain.gain.linearRampToValueAtTime(0.16, when);
+    nGain.gain.exponentialRampToValueAtTime(0.001, when + 0.2);
+
+    noise.connect(filter);
+    filter.connect(nGain);
+    for (const d of destNodes) nGain.connect(d);
+    noise.start(wStart);
+    noise.stop(when + 0.22);
+    sfxNodes.push(noise);
+  }
+}
+
+async function start(rec, from, shortPreview = false) {
+  if (!tl.length) return;
+  stop();
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (rec && isMobile && +$('q').value > 720) {
+    $('q').value = '720'; size(); save(); say('Mobil kayıt için çözünürlük 720p’ye düşürüldü.');
+  }
+  pf = rec || from == null ? startT : Math.max(startT, from);
+  runEndT = shortPreview ? Math.min(endT, pf + 10) : endT;
+  lastSec = -1;
+  AC.resume();
+  if (rec) {
+    if (lastUrl) { URL.revokeObjectURL(lastUrl); lastUrl = null; }
+    $('out').textContent = ''; lock(1);
+  }
+  src = AC.createBufferSource(); src.buffer = buf;
+  const gn = AC.createGain(); src.connect(gn); gn.connect(AC.destination);
+  if (!an) { an = AC.createAnalyser(); an.fftSize = 256; an.smoothingTimeConstant = .72; }
+  gn.connect(an);
+
+  let dest = null;
+  if (rec) {
+    const types = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+      ? ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4']
+      : ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4', 'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'];
+    const mt = window.MediaRecorder && types.find(t => MediaRecorder.isTypeSupported(t));
+    if (!mt) { lock(0); say('Bu tarayıcı video kaydını desteklemiyor. Chrome veya Edge kullan.', 'err'); return; }
+
+    let outputHandle = null, outputWriter = null, writeQueue = Promise.resolve();
+    const fileExt = mt.startsWith('video/mp4') ? 'mp4' : 'webm';
+    if (/Android/i.test(navigator.userAgent) && typeof window.showSaveFilePicker === 'function') {
+      try {
+        outputHandle = await window.showSaveFilePicker({
+          suggestedName: 'foto-ritim-' + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '') + '.' + fileExt,
+          types: [{ description: fileExt.toUpperCase() + ' video', accept: { [mt.split(';')[0]]: ['.' + fileExt] } }]
+        });
+        outputWriter = await outputHandle.createWritable();
+      } catch (e) {
+        if (e && e.name === 'AbortError') { lock(0); say('Dosya kaydetme iptal edildi.'); return; }
+        outputHandle = outputWriter = null;
+      }
+    }
+
+    dest = AC.createMediaStreamDestination(); gn.connect(dest);
+    draw(pf, 1);
+    let stream;
+    try { stream = cv.captureStream(isMobile ? 24 : 30); }
+    catch (x) { lock(0); say('Video akışı başlatılamadı.', 'err'); return; }
+    const videoTrack = stream.getVideoTracks()[0];
+    if (!videoTrack) { lock(0); say('Video kare akışı oluşturulamadı.', 'err'); return; }
+    dest.stream.getAudioTracks().forEach(x => stream.addTrack(x));
+
+    chunks = []; finishing = false;
+    const videoBitrate = isMobile ? 4.5e6 : Math.round(Math.min(8e7, Math.max(1e7, cv.width * cv.height * 10)));
+    mr = new MediaRecorder(stream, { mimeType: mt, videoBitsPerSecond: videoBitrate, audioBitsPerSecond: 192e3 });
+    mr.ondataavailable = e => {
+      if (!e.data || !e.data.size) return;
+      if (outputWriter) writeQueue = writeQueue.then(() => outputWriter.write(e.data));
+      else chunks.push(e.data);
+    };
+    mr.onerror = () => { stop(); lock(0); say('Kayıt sırasında bir hata oluştu. Tekrar dene.', 'err'); };
+    mr.onstop = async () => {
+      if (!finishing) return;
+      let outputBlob;
+      try {
+        if (outputWriter) { await writeQueue; await outputWriter.close(); outputBlob = await outputHandle.getFile(); }
+        else if (chunks.length) outputBlob = new Blob(chunks, { type: mt.split(';')[0] });
+      } catch (e) { lock(0); say('Dosya yazma tamamlanamadı.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
+      if (!outputBlob || outputBlob.size < 40000) { lock(0); $('pg').hidden = true; say('Kayıt boş çıktı. 720p ile deneyin.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
+
+      const ext = fileExt, url = URL.createObjectURL(outputBlob);
+      lastUrl = url;
+      const stamp = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '');
+      const a = document.createElement('a'); a.href = url; a.download = 'foto-ritim-' + stamp + '.' + ext; a.className = 'btn gold'; a.textContent = '⬇️ Videoyu İndir (' + ext.toUpperCase() + ' · ' + (outputBlob.size / 1048576).toFixed(1) + ' MB)';
+      const o = $('out'); o.textContent = ''; o.appendChild(a);
+      const preview = document.createElement('video'); preview.controls = true; preview.playsInline = true; preview.setAttribute('playsinline', ''); preview.preload = 'metadata'; preview.src = url; o.appendChild(preview);
+
+      const fl = new File([outputBlob], a.download, { type: mt.split(';')[0] });
+      if (navigator.canShare && navigator.canShare({ files: [fl] })) {
+        const sb = document.createElement('button'); sb.textContent = '📤 Paylaş'; sb.style.marginLeft = '8px'; sb.onclick = () => navigator.share({ files: [fl] }).catch(() => { }); o.appendChild(sb);
+      }
+      lock(0);
+      say('Video başarıyla oluşturuldu ✓', 'ok'); $('pg').hidden = true; $('tc').textContent = ''; draw(startT); drawTL(startT); $('rec').disabled = $('play').disabled = false;
+    };
+    mr.start(1000); $('rec').disabled = true; say('Kaydediliyor… ekranı açık tut ve uygulamadan çıkma.');
+  }
+
+  ctx0 = AC.currentTime + .1;
+  src.start(ctx0, pf, runEndT - pf);
+  const sfxTargets = dest ? [AC.destination, dest] : [AC.destination];
+  scheduleTransitionSFX(ctx0, pf, runEndT, sfxTargets);
+  if ($('fade').checked) {
+    const tot = endT - pf, fd = Math.min(1.2, tot / 3), fi = Math.min(.6, fd), g = gn.gain;
+    g.setValueAtTime(0, ctx0); g.linearRampToValueAtTime(1, ctx0 + fi); g.setValueAtTime(1, ctx0 + tot - fd); g.linearRampToValueAtTime(0, ctx0 + tot);
+  }
+  src.onended = () => { if (playing) finish(); };
+  playing = true; vlive = true; syncVids(pf); recMode = rec;
+  $('play').textContent = rec ? '⏹ Kaydı İptal Et' : '⏹ Durdur';
+  $('pg').value = 0; $('pg').hidden = false;
+  raf = requestAnimationFrame(frame);
 }
 
 function frame() {
   if (!playing) return;
-  const t = pf + Math.max(0, AC.currentTime - ctx0); if (t >= t1 - .02) return finish();
-  draw(t); drawTL(t); const tot = t1 - pf, el = Math.min(tot, t - pf); $('pg').value = el / tot;
-  if (recMode) say('Kaydediliyor… %' + Math.round(el / tot * 100) + ' · kalan ≈ ' + mmss(tot - el));
-  raf = requestAnimationFrame(frame);
+  const t = pf + Math.max(0, AC.currentTime - ctx0);
+  if (t >= runEndT - .02) return finish();
+  syncVids(t); draw(t, 1); drawTL(t); drawEQ(); raf = requestAnimationFrame(frame);
+  const tot = runEndT - pf, el = Math.min(tot, t - pf); $('pg').value = el / tot;
+  const sec = Math.floor(el);
+  if (sec !== lastSec) {
+    lastSec = sec;
+    $('tc').textContent = mmss(el) + ' / ' + mmss(tot);
+    if (recMode) say('Kaydediliyor… %' + Math.round(el / tot * 100) + ' · kalan ≈ ' + mmss(tot - el));
+  }
 }
 
 function finish() {
-  playing = false; cancelAnimationFrame(raf); $('play').textContent = '▶ Önizle'; draw(t1 - .03); drawTL(t1);
-  if (recMode && mr && mr.state !== 'inactive') { fin = true; $('play').disabled = true; say('Video hazırlanıyor…'); setTimeout(() => mr.stop(), 500); }
-  else $('pg').hidden = true;
+  playing = false; cancelAnimationFrame(raf); $('play').textContent = '▶ Önizle (Boşluk)';
+  if (recMode) $('play').disabled = true; else { $('pg').hidden = true; $('tc').textContent = ''; }
+  draw(Math.max(startT, runEndT - .03), recMode); vstop(); drawTL(endT); drawEQ(1);
+  if (recMode && mr && mr.state !== 'inactive') {
+    finishing = true;
+    try { const track = mr.stream && mr.stream.getVideoTracks()[0]; if (track && typeof track.requestFrame === 'function') track.requestFrame(); } catch (x) { }
+    setTimeout(() => mr.stop(), 1000);
+  }
 }
 
 function stop() {
-  const wasRec = recMode && playing; playing = false; cancelAnimationFrame(raf);
-  try { src && src.stop(); } catch (e) { }
-  if (wasRec && mr && mr.state !== 'inactive') { fin = false; try { mr.stop(); } catch (e) { } lock(false); say('Kayıt iptal edildi.'); }
-  $('play').textContent = '▶ Önizle'; $('pg').hidden = true; $('rec').disabled = !segs.length;
+  const wasRec = recMode && playing;
+  playing = false; cancelAnimationFrame(raf); vstop(); stopSfx();
+  try { src && src.stop(); } catch (x) { }
+  if (wasRec && mr && mr.state !== 'inactive') {
+    finishing = false; try { mr.stop(); } catch (x) { } lock(0); $('rec').disabled = !tl.length; say('Kayıt iptal edildi.');
+  }
+  $('play').textContent = '▶ Önizle (Boşluk)'; $('pg').hidden = true; $('tc').textContent = ''; drawEQ(1);
 }
 
-function done(blob, ext) {
-  lock(false); $('pg').hidden = true; $('play').disabled = $('rec').disabled = false;
-  if (blob.size < 40000) return say('Kayıt boş çıktı. 720p ile tekrar dene.', 'err');
-  url = URL.createObjectURL(blob);
-  const name = 'foto-ritim-' + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '') + '.' + ext;
-  const o = $('out'); o.textContent = '';
-  const a = document.createElement('a'); a.href = url; a.download = name; a.className = 'btn gold'; a.textContent = '⬇ İndir (' + ext.toUpperCase() + ' · ' + (blob.size / 1048576).toFixed(1) + ' MB)'; o.appendChild(a);
-  const f = new File([blob], name, { type: blob.type });
-  if (navigator.canShare && navigator.canShare({ files: [f] })) { const s = document.createElement('button'); s.textContent = '📤 Paylaş'; s.style.marginLeft = '8px'; s.onclick = () => navigator.share({ files: [f] }).catch(() => { }); o.appendChild(s); }
-  const v = document.createElement('video'); v.controls = true; v.playsInline = true; v.src = url; o.appendChild(v);
-  say('Video hazır ✓', 'ok'); draw(t0); drawTL(t0);
+let an = null, eqData = null, pv = 0;
+const eq = $('eq'), ec = eq.getContext('2d');
+function drawEQ(clr) {
+  const w = eq.clientWidth, h = eq.clientHeight, d = devicePixelRatio || 1;
+  if (eq.width !== Math.round(w * d)) { eq.width = Math.round(w * d); eq.height = Math.round(h * d); }
+  ec.setTransform(d, 0, 0, d, 0, 0); ec.clearRect(0, 0, w, h); if (clr || !an) return;
+  if (!eqData || eqData.length !== an.frequencyBinCount) eqData = new Uint8Array(an.frequencyBinCount);
+  an.getByteFrequencyData(eqData);
+  const n = 40, bw = w / n, lb = lastBeat(pf + AC.currentTime - ctx0), hit = lb != null && pf + AC.currentTime - ctx0 - lb < .12;
+  for (let i = 0; i < n; i++) {
+    const v = eqData[Math.floor(Math.pow(i / n, 1.7) * 110) + 1] / 255, bh = Math.max(2, v * h);
+    ec.fillStyle = hit ? '#b8864b' : '#9c8b76';
+    ec.beginPath();
+    if (ec.roundRect) ec.roundRect(i * bw + 1, h - bh, bw - 2, bh, 2);
+    else ec.rect(i * bw + 1, h - bh, bw - 2, bh);
+    ec.fill();
+  }
 }
 
-async function lock(on) { try { if (on) wl = await navigator.wakeLock.request('screen'); else if (wl) { wl.release(); wl = null; } } catch (e) { } }
-document.addEventListener('visibilitychange', () => { if (document.hidden && playing && recMode) say('Uygulama arka plana geçti; kayıt bozulabilir. Geri dön.', 'err'); });
-addEventListener('beforeunload', e => { if (playing && recMode) { e.preventDefault(); e.returnValue = ''; } });
+function prev(kind) {
+  cancelAnimationFrame(pv); if (playing) return;
+  if (imgs.length < 2) { say('Efekt önizlemesi için en az 2 fotoğraf/video ekle.', 'err'); return toast('Efekt önizlemesi için en az 2 fotoğraf/video ekle.'); }
+  if (kind === 'mix') kind = TR[Math.random() * TR.length | 0];
+  const D = kind === 'fade' ? 1.2 : kind === 'rgb' ? .35 : .95, T = D + .9, t0 = performance.now();
+  (function f(now) {
+    const x = (now - t0) / 1000;
+    if (x >= T) { tl.length ? draw(startT) : (ctx.fillStyle = '#000', ctx.fillRect(0, 0, cv.width, cv.height), put(0)); return; }
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
+    if (x < .35) put(0); else if (x >= .35 + D || kind === 'cut') put(1); else trans(kind, (x - .35) / D, 0, 1);
+    pv = requestAnimationFrame(f);
+  })(t0);
+}
 
-// ---------- Sürükle-bırak, kısayol, PWA ----------
-document.body.addEventListener('dragover', e => e.preventDefault());
-document.body.addEventListener('drop', e => {
-  e.preventDefault(); const f = [...e.dataTransfer.files], au = f.find(x => x.type.startsWith('audio/'));
-  addFiles(f); if (au) loadAudio(au);
+const mark = () => document.querySelectorAll('#trg button').forEach(b => b.classList.toggle('on', b.dataset.v === $('trans').value));
+[...$('trans').options].forEach(o => {
+  const b = document.createElement('button'); b.textContent = o.text; b.dataset.v = o.value; b.type = 'button';
+  b.onpointerenter = b.onfocus = () => prev(o.value);
+  b.onclick = () => { $('trans').value = o.value; $('trans').onchange(); mark(); prev(o.value); };
+  $('trg').appendChild(b);
 });
-addEventListener('keydown', e => { if (e.code === 'Space' && !/INPUT|SELECT|BUTTON/.test(e.target.tagName) && !$('play').disabled) { e.preventDefault(); $('play').click(); } });
+
+let wl = null;
+async function lock(on) { try { if (on) wl = await navigator.wakeLock.request('screen'); else if (wl) { wl.release(); wl = null; } } catch (x) { } }
+addEventListener('beforeunload', e => { if (playing && recMode) { e.preventDefault(); e.returnValue = ''; } });
+document.addEventListener('visibilitychange', () => { if (document.hidden && playing && recMode) say('Uygulama arka plana geçti; kayıt bozulabilir. Geri dön.', 'err'); });
+
+const dlg = $('dlg'), openD = id => { dlg.showModal(); document.querySelectorAll('dialog details').forEach(d => d.open = d.id === id); };
+document.querySelectorAll('footer [data-s]').forEach(b => b.onclick = () => openD(b.dataset.s));
+$('info').onclick = () => openD('nasil'); $('x').onclick = () => dlg.close();
+
+let tt;
+function toast(m, f) {
+  clearTimeout(tt); $('tm').textContent = m; $('tb').onclick = f || (() => $('toast').style.display = 'none'); $('tb').style.display = f ? '' : 'none'; $('toast').style.display = 'flex';
+  if (!f) tt = setTimeout(() => $('toast').style.display = 'none', 3800);
+}
 
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('sw.js').then(r => {
-    r.onupdatefound = () => { const w = r.installing; w.onstatechange = () => { if (w.state === 'installed' && navigator.serviceWorker.controller) w.postMessage('skip'); }; };
+    r.onupdatefound = () => {
+      const w = r.installing;
+      w.onstatechange = () => { if (w.state === 'installed' && navigator.serviceWorker.controller) toast('Yeni sürüm hazır', () => w.postMessage('skip')); };
+    };
   }).catch(() => { });
-  let rl = false; const had = !!navigator.serviceWorker.controller;
-  navigator.serviceWorker.addEventListener('controllerchange', () => { if (had && !rl && !playing) { rl = true; location.reload(); } });
+  let rl; const hadCtl = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadCtl && !rl && !playing) { rl = 1; location.reload(); } });
 }
-let dp; addEventListener('beforeinstallprompt', e => { e.preventDefault(); dp = e; $('inst').hidden = false; });
-$('inst').onclick = async () => { if (dp) { dp.prompt(); await dp.userChoice; dp = null; $('inst').hidden = true; } };
-addEventListener('appinstalled', () => $('inst').hidden = true);
-const net = () => $('net').textContent = navigator.onLine ? '' : '● Çevrimdışı';
-addEventListener('online', net); addEventListener('offline', net); net();
 
-load(); size(); $('ver').textContent = VER; clearView();
+let dp; addEventListener('beforeinstallprompt', e => { e.preventDefault(); dp = e; $('inst').hidden = false; });
+$('inst').onclick = async () => {
+  if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) return toast('Uygulama zaten yüklü.');
+  if (dp) { dp.prompt(); await dp.userChoice; dp = null; } else openD('kur');
+};
+
+$('upd').onclick = async () => {
+  if (!('serviceWorker' in navigator) || location.protocol === 'file:') return toast('Güncelleme yalnızca yayındaki (https) sürümde çalışır.');
+  try {
+    const r = await navigator.serviceWorker.getRegistration();
+    if (!r) return toast('Kayıt henüz hazır değil.');
+    toast('Kontrol ediliyor…'); await r.update();
+    setTimeout(() => {
+      if (r.waiting) toast('Yeni sürüm hazır', () => r.waiting.postMessage('skip'));
+      else if (r.installing) toast('Yeni sürüm indiriliyor…');
+      else toast('Güncel sürümdesin (' + APP_VERSION + ')');
+    }, 1500);
+  } catch (x) { toast('Kontrol edilemedi.'); }
+};
+
+addEventListener('appinstalled', () => $('inst').hidden = true);
+if (/iphone|ipad/i.test(navigator.userAgent) && !navigator.standalone) $('ios').hidden = false;
+const net = () => $('net').textContent = navigator.onLine ? '' : '● Çevrimdışı mod';
+addEventListener('online', net); addEventListener('offline', net); net();
+navigator.storage?.persist?.();
+
+document.body.addEventListener('dragover', e => e.preventDefault());
+document.body.addEventListener('drop', e => {
+  e.preventDefault();
+  const f = [...e.dataTransfer.files];
+  const im = f.filter(x => /^(image|video)\//.test(x.type)), au = f.find(x => x.type.startsWith('audio/'));
+  const p = $('pics'), dt = new DataTransfer();
+  if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); }
+  if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); }
+});
+
+addEventListener('keydown', e => {
+  if (/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.code === 'Space' && !$('play').disabled) {
+    e.preventDefault(); $('play').click();
+  } else if (e.code === 'ArrowRight' && tl.length && !recMode) {
+    e.preventDefault();
+    const cur = playing ? (pf + AC.currentTime - ctx0) : startT;
+    const next = tl.find(s => s.t0 > cur + 0.15);
+    if (next) start(false, next.t0);
+  } else if (e.code === 'ArrowLeft' && tl.length && !recMode) {
+    e.preventDefault();
+    const cur = playing ? (pf + AC.currentTime - ctx0) : startT;
+    const prevS = [...tl].reverse().find(s => s.t0 < cur - 0.5);
+    start(false, prevS ? prevS.t0 : startT);
+  }
+});
+
+load(); syncEffectThresholds(); $('appVersion').textContent = APP_VERSION; $('shv').textContent = $('shift').value + ' ms';
+updatePhotoAdvice(); $('sensv').textContent = $('sens').value; $('thrv').textContent = $('beatThreshold').value;
+$('fxsv').textContent = $('fxStrong').value + '%'; $('fxmv').textContent = $('fxMedium').value + '%';
+mark(); size(); clearView(); checkDraft();
 </script>
 </body>
 </html>
