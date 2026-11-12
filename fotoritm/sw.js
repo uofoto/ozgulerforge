@@ -1,4 +1,4 @@
-const V = 'foto-ritim-v2.1.0';
+const V = 'foto-ritim-v3.0.0';
 const A = [
   './',
   'index.html',
