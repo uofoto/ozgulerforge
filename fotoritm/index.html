@@ -122,7 +122,7 @@ footer a,footer nav button{color:var(--cy)}
         <select id="fit"><option value="blur">Orijinal, kırpmasız (bulanık dolgu)</option><option value="black">Orijinal, kırpmasız (siyah)</option><option value="fill">Doldur (kırpar)</option></select></label>
       <label class="f">Fotoğraf başına vuruş
         <select id="bpp"><option value="0">Otomatik</option><option>1</option><option>2</option><option>4</option><option>8</option></select></label>
-      <div class="f" style="grid-column:1/-1"><span>Geçiş efekti — üzerine gel veya dokun: önizle, tıkla: seç</span><div id="trg" class="tg"></div><select id="trans" hidden><option value="mix">Karışık (otomatik)</option><option value="fade">Yumuşak (sinematik)</option><option value="slide">Kaydırma</option><option value="up">Yukarı itme</option><option value="zoom">Yakınlaşarak erime</option><option value="flip">Çevirme</option><option value="circle">Daire açılış</option><option value="wipe">Silme</option><option value="blinds">Jaluzi</option><option value="mosaic">Mozaik</option><option value="spin">Dönerek giriş</option><option value="cut">Kesme</option></select></div>
+      <div class="f" style="grid-column:1/-1"><span>Geçiş efekti — üzerine gel veya dokun: önizle, tıkla: seç</span><div id="trg" class="tg"></div><select id="trans" hidden><option value="mix">Karışık (otomatik)</option><option value="fade">Yumuşak sinematik</option><option value="par">Derinlikli kaydırma</option><option value="iris">Yumuşak iris</option><option value="sil">Yumuşak silme</option><option value="per">Yukarı perde</option><option value="blr">Bulanık geçiş</option><option value="dol">İçine dalış</option><option value="isi">Altın ışık sızıntısı</option><option value="siy">Siyaha erime</option><option value="don">Hafif dönüş</option><option value="flip">Çevirme</option><option value="cut">Kesme</option></select></div>
       <label class="f">Süre (sn, 0 = tamamı)
         <input id="dur" type="number" min="0" max="600" value="0"></label>
       <label class="f">Başlangıç (sn)
@@ -149,8 +149,8 @@ footer a,footer nav button{color:var(--cy)}
 
 <script>
 const $ = id => document.getElementById(id);
-const cv = $('cv'), ctx = cv.getContext('2d'), tlc = $('tlc'), tctx = tlc.getContext('2d');
-let imgs = [], AC = null, buf = null, beats = [], bpm = 0;
+const cv = $('cv'), main = cv.getContext('2d'), tlc = $('tlc'), tctx = tlc.getContext('2d');
+let ctx = main, mc = null, bc = null, imgs = [], AC = null, buf = null, beats = [], bpm = 0;
 let tl = [], BS = [], startT = 0, endT = 0;
 let src = null, ctx0 = 0, playing = false, recMode = false, raf = 0, mr = null, chunks = [], finishing = false;
 
@@ -278,7 +278,7 @@ function lastBeat(t) {
   while (lo <= hi) { const m = (lo + hi) >> 1; if (BS[m] <= t) { r = BS[m]; lo = m + 1; } else hi = m - 1; }
   return r;
 }
-const TR = ['fade', 'slide', 'up', 'zoom', 'flip', 'circle', 'wipe', 'blinds', 'mosaic', 'spin'];
+const TR = ['fade', 'par', 'iris', 'sil', 'per', 'blr', 'dol', 'isi', 'siy', 'don', 'flip'];
 function put(i, o = {}) {
   const b = imgs[i].bmp, W = cv.width, H = cv.height, f = $('fit').value, r = (f === 'fill' ? Math.max : Math.min)(W / b.width, H / b.height);
   ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.globalAlpha = o.al ?? 1;
@@ -286,26 +286,34 @@ function put(i, o = {}) {
   if (f === 'blur') { const g = imgs[i].bg, k = Math.max(W / g.width, H / g.height); ctx.drawImage(g, -g.width * k / 2, -g.height * k / 2, g.width * k, g.height * k); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(-W / 2, -H / 2, W, H); }
   ctx.drawImage(b, -b.width * r / 2, -b.height * r / 2, b.width * r, b.height * r); ctx.restore();
 }
+function soft(b, mk) {
+  const W = cv.width, H = cv.height;
+  if (!mc || mc.width !== W || mc.height !== H) { mc = document.createElement('canvas'); mc.width = W; mc.height = H; }
+  const m = mc.getContext('2d'); m.globalCompositeOperation = 'source-over'; m.clearRect(0, 0, W, H);
+  ctx = m; put(b); m.globalCompositeOperation = 'destination-in'; m.fillStyle = mk(m); m.fillRect(0, 0, W, H); ctx = main; ctx.drawImage(mc, 0, 0);
+}
+const ramp = (g, s, f) => { const A = Math.min(1, Math.max(0, s - f)), B = Math.min(1, Math.max(s, A + .001)); g.addColorStop(0, '#000'); g.addColorStop(A, '#000'); g.addColorStop(B, 'rgba(0,0,0,0)'); return g; };
 function trans(k, p, a, b) {
-  const W = cv.width, H = cv.height, e = p * p * p * (p * (p * 6 - 15) + 10), clip = f => { ctx.save(); ctx.beginPath(); f(); ctx.clip(); put(b); ctx.restore(); };
+  const W = cv.width, H = cv.height, e = p * p * p * (p * (p * 6 - 15) + 10), q = p < .5 ? 8 * p * p * p * p : 1 - Math.pow(-2 * p + 2, 4) / 2, S = Math.sin(p * Math.PI), dark = al => { ctx.fillStyle = 'rgba(0,0,0,' + al + ')'; ctx.fillRect(0, 0, W, H); };
   switch (k) {
-    case 'slide': put(a, { dx: -W * e }); put(b, { dx: W * (1 - e) }); break;
-    case 'up': put(a, { dy: -H * e }); put(b, { dy: H * (1 - e) }); break;
-    case 'zoom': put(a, { sc: 1 + e * .35, al: 1 - e }); put(b, { sc: .7 + .3 * e, al: e }); break;
-    case 'flip': e < .5 ? put(a, { sx: Math.cos(e * Math.PI) }) : put(b, { sx: -Math.cos(e * Math.PI) }); break;
-    case 'circle': put(a); clip(() => ctx.arc(W / 2, H / 2, e * Math.hypot(W, H) / 2, 0, 7)); break;
-    case 'wipe': put(a); clip(() => ctx.rect(0, 0, W * e, H)); break;
-    case 'blinds': put(a); clip(() => { for (let i = 0; i < 10; i++) ctx.rect(i * W / 10, 0, W / 10 * e, H); }); break;
-    case 'mosaic': put(a); clip(() => { const s = W / 8; for (let y = 0; y * s < H; y++) for (let x = 0; x < 8; x++) if (((x * 7 + y * 13) % 11) / 11 < e * 1.1) ctx.rect(x * s, y * s, s + 1, s + 1); }); break;
-    case 'spin': put(a, { al: 1 - e }); put(b, { sc: .6 + .4 * e, rot: (1 - e) * .6, al: e }); break;
-    default: put(a); put(b, { al: e });
+    case 'par': { put(a, { dx: -W * .3 * q, sc: 1 - .05 * q }); dark(.5 * q); const gx = W * (1 - q), g = ctx.createLinearGradient(gx - W * .14, 0, gx, 0); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.4)'); ctx.fillStyle = g; ctx.fillRect(gx - W * .14, 0, W * .14, H); put(b, { dx: gx }); break; }
+    case 'iris': put(a); soft(b, m => ramp(m.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) / 2), e * 1.35, .35)); break;
+    case 'sil': put(a); soft(b, m => ramp(m.createLinearGradient(0, 0, W, H), e * 1.4, .4)); break;
+    case 'per': put(a); soft(b, m => ramp(m.createLinearGradient(0, H, 0, 0), e * 1.45, .45)); break;
+    case 'blr': { put(a); put(b, { al: e }); bc = bc || document.createElement('canvas'); bc.width = Math.max(8, W >> 3); bc.height = Math.max(8, H >> 3); bc.getContext('2d').drawImage(cv, 0, 0, bc.width, bc.height); ctx.save(); ctx.globalAlpha = S * .9; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(bc, 0, 0, W, H); ctx.restore(); break; }
+    case 'dol': put(a, { sc: 1 + e * .5 }); put(b, { sc: .8 + .2 * e, al: e }); break;
+    case 'isi': { put(a); put(b, { al: e }); const cx = W * (-.1 + 1.2 * p), g = ctx.createRadialGradient(cx, H * .4, 0, cx, H * .4, Math.max(W, H) * .75); g.addColorStop(0, 'rgba(255,214,150,' + .85 * S + ')'); g.addColorStop(.5, 'rgba(255,150,90,' + .35 * S + ')'); g.addColorStop(1, 'rgba(255,120,80,0)'); ctx.save(); ctx.globalCompositeOperation = 'screen'; ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); ctx.restore(); break; }
+    case 'siy': if (e < .5) { put(a); dark(e * 2); } else { put(b); dark((1 - e) * 2); } break;
+    case 'don': put(a, { sc: 1 + .15 * e, rot: -.05 * e }); put(b, { sc: 1.15 - .15 * e, rot: .05 * (1 - e), al: e }); break;
+    case 'flip': e < .5 ? put(a, { sx: Math.cos(e * Math.PI) }) : put(b, { sx: -Math.cos(e * Math.PI) }); dark(.4 * S); break;
+    default: put(a, { sc: 1 + .03 * e }); put(b, { sc: 1.03 - .03 * e, al: e });
   }
 }
 function draw(t) {
   const W = cv.width; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, cv.height);
   let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
   const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), tv = $('trans').value, lb = lastBeat(t), z = $('zoom').checked;
-  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), kd = tv === 'mix' ? TR[k % TR.length] : tv, F = kd === 'cut' ? 0 : Math.min(kd === 'fade' ? 1.2 : .65, dur * (kd === 'fade' ? .9 : .6));
+  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), kd = tv === 'mix' ? TR[k % TR.length] : tv, F = kd === 'cut' ? 0 : Math.min(kd === 'fade' ? 1.2 : .95, dur * (kd === 'fade' ? .9 : .8));
   if (k > 0 && since < F) trans(kd, since / F, tl[k - 1].img, s.img); else put(s.img, { sc });
   if ($('flash').checked && lb != null) { const a = Math.max(0, 1 - (t - lb) / .12) * .18; if (a > 0) { ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fillRect(0, 0, W, cv.height); } }
 }
@@ -399,7 +407,7 @@ function prev(kind) {
   cancelAnimationFrame(pv); if (playing) return;
   if (imgs.length < 2) return say('Efekt önizlemesi için en az 2 fotoğraf ekle.', 'err');
   if (kind === 'mix') kind = TR[Math.random() * TR.length | 0];
-  const D = kind === 'fade' ? 1.2 : .65, T = D + .9, t0 = performance.now();
+  const D = kind === 'fade' ? 1.2 : .95, T = D + .9, t0 = performance.now();
   (function f(now) {
     const x = (now - t0) / 1000;
     if (x >= T) { tl.length ? draw(startT) : (ctx.fillStyle = '#000', ctx.fillRect(0, 0, cv.width, cv.height), put(0)); return; }
