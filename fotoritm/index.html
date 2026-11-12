@@ -66,14 +66,19 @@ input[type=range]{accent-color:var(--cy)}
 .tg button{padding:10px 6px;font-weight:500;font-size:.82rem;text-align:center}.tg button.on{border-color:var(--cy);background:#f6ecdf;box-shadow:inset 0 0 0 1px var(--cy)}
 dialog{background:#fff;color:var(--tx)}dialog p,dialog li{color:#4b433c}#toast{background:#fff;border-color:var(--cy);color:var(--tx);box-shadow:0 10px 30px #0002}
 footer a,footer nav button{color:var(--cy)}
+header.bar{display:grid;gap:10px;padding:16px;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 1px 2px #2a252108,0 12px 32px -18px #2a25212e}
+.brand{display:flex;align-items:center;gap:12px}.brand h1{margin:0;font-size:1.6rem}.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.acts button{border-radius:999px;padding:9px 15px;font-size:.84rem;font-weight:600;white-space:nowrap}.bar .sub{margin:0;color:var(--mu)}
+@media(min-width:700px){header.bar{grid-template-columns:1fr auto;align-items:center}.bar .sub{grid-column:1/-1}}
 </style>
 </head>
 <body>
 <main>
-<header>
-  <div class="eb">ÖZGÜLER FORGE</div><h1>Foto Ritim</h1>
-  <div class="pick" style="margin-top:8px"><button id="inst" class="main" hidden>Uygulamayı yükle</button><button id="info">Nasıl kullanılır?</button><span id="net" class="note"></span></div>
-  <p id="ios" class="note" hidden>iPhone: Safari’de Paylaş → “Ana Ekrana Ekle”.</p>
+<header class="bar">
+  <div class="brand"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="12" fill="#2a2521"/><g fill="#b8864b"><rect x="9" y="18" width="4" height="8" rx="2"/><rect x="16" y="12" width="4" height="20" rx="2"/><rect x="23" y="8" width="4" height="28" rx="2"/><rect x="30" y="15" width="4" height="14" rx="2"/></g></svg>
+    <div><div class="eb">ÖZGÜLER FORGE</div><h1>Foto Ritim</h1></div></div>
+  <div class="acts"><button id="inst" class="main" type="button">⤓ Yükle</button><button id="upd" type="button">↻ Güncellemeleri kontrol et</button><button id="info" type="button">ⓘ Kılavuz</button><span id="net" class="note"></span></div>
+  <p id="ios" class="note" hidden></p>
   <p class="sub">Fotoğrafları ve müziği seç. Geçişler müziğin vuruşuna oturur; sonucu MP4 olarak kaydet.</p>
 </header>
 
@@ -121,7 +126,9 @@ footer a,footer nav button{color:var(--cy)}
       <label class="f">Kadraj
         <select id="fit"><option value="blur">Orijinal, kırpmasız (bulanık dolgu)</option><option value="black">Orijinal, kırpmasız (siyah)</option><option value="fill">Doldur (kırpar)</option></select></label>
       <label class="f">Fotoğraf başına vuruş
-        <select id="bpp"><option value="0">Otomatik</option><option>1</option><option>2</option><option>4</option><option>8</option></select></label>
+        <select id="bpp"><option value="0">Otomatik</option><option>1</option><option>2</option><option>4</option><option>8</option><option>16</option></select></label>
+      <label class="f">En kısa slayt süresi
+        <select id="minS"><option value="0">Sınırsız</option><option value="2">2 sn</option><option value="3" selected>3 sn</option><option value="4">4 sn</option><option value="5">5 sn</option><option value="6">6 sn</option></select></label>
       <div class="f" style="grid-column:1/-1"><span>Geçiş efekti — üzerine gel veya dokun: önizle, tıkla: seç</span><div id="trg" class="tg"></div><select id="trans" hidden><option value="mix">Karışık (otomatik)</option><option value="fade">Yumuşak sinematik</option><option value="par">Derinlikli kaydırma</option><option value="iris">Yumuşak iris</option><option value="sil">Yumuşak silme</option><option value="per">Yukarı perde</option><option value="blr">Bulanık geçiş</option><option value="dol">İçine dalış</option><option value="isi">Altın ışık sızıntısı</option><option value="siy">Siyaha erime</option><option value="don">Hafif dönüş</option><option value="flip">Çevirme</option><option value="cut">Kesme</option></select></div>
       <label class="f">Süre (sn, 0 = tamamı)
         <input id="dur" type="number" min="0" max="600" value="0"></label>
@@ -140,6 +147,7 @@ footer a,footer nav button{color:var(--cy)}
 <dialog id="dlg"><div class="pick" style="justify-content:space-between"><h2 style="margin:0">Bilgi ve yasal metinler</h2><button id="x" class="main">Kapat</button></div>
 <details id="nasil"><summary>Nasıl kullanılır?</summary><ol><li><b>Fotoğraf ekle:</b> bir veya çok fotoğraf seç. Küçük ⬇ düğmesi orijinal dosyayı hiç değiştirmeden indirir.</li><li><b>Müzik seç:</b> MP3/M4A seç; uygulama vuruşları otomatik bulur.</li><li><b>Ayarlar:</b> biçim, çözünürlük (4K’ya kadar), kadraj ve geçiş efektini seç. “Karışık” her fotoğrafta farklı efekt kullanır. Vuruş kaydırma ile ritmi ince ayarla.</li><li><b>Önizle</b> ile dene, <b>MP4 kaydet</b> ile videoyu üret. Kayıt müzik süresince gerçek zamanlı sürer: ekranı kapatma, başka sekmeye geçme.</li><li><b>İndir veya paylaş:</b> hazır videoyu indir ya da telefondan doğrudan paylaş.</li><li><b>Telefona yükle:</b> Android Chrome’da “Uygulamayı yükle”; iPhone Safari’de Paylaş → Ana Ekrana Ekle. Yüklendikten sonra internetsiz çalışır.</li></ol>
 <p><b>Kalite notu:</b> Fotoğraflar sunucuya gitmez, yeniden sıkıştırılmaz ve dosyaları değiştirilmez. “Orijinal, kırpmasız” kadrajda fotoğrafın tamamı görünür. Video, seçtiğin çözünürlükte yüksek bit hızıyla kodlanır; MP4 doğası gereği sıkıştırmalıdır, kaliteyi korumak için 1080p/4K seç.</p></details>
+<details id="kur"><summary>Telefona yükleme</summary><p><b>Android (Chrome):</b> sayfayı https ile açıp birkaç saniye bekle, “⤓ Yükle”ye bas. Çıkmazsa Chrome menüsü (⋮) → “Uygulamayı yükle” / “Ana ekrana ekle”.</p><p><b>iPhone (Safari):</b> Paylaş düğmesi → “Ana Ekrana Ekle”. (Chrome’dan yüklenmez.)</p><p><b>Bilgisayar:</b> Chrome/Edge adres çubuğundaki yükle simgesi.</p></details>
 <details id="gizlilik"><summary>Gizlilik Politikası ve KVKK Aydınlatma Metni</summary><p>Veri sorumlusu: Özgüler Forge (iletisim@ozgulerforge.com.tr). Uygulama tamamen cihazında çalışır; fotoğraf, müzik ve oluşturulan videolar cihazından çıkmaz, sunucuya yüklenmez. Hesap, reklam, analiz veya takip aracı yoktur. Bu nedenle 6698 sayılı KVKK kapsamında uygulama içinde kişisel veri işlenmez.</p><p>Bize e-posta yazarsan e-posta adresin ve mesajın yalnızca yanıtlamak ve destek vermek için (meşru menfaat/sözleşme ilişkisi) işlenir, gerekli süre sonunda silinir. KVKK md. 11 kapsamındaki bilgi, düzeltme, silme ve itiraz haklarını iletisim@ozgulerforge.com.tr adresine başvurarak kullanabilirsin.</p></details>
 <details id="sartlar"><summary>Kullanım Şartları</summary><p>Uygulamayı kullanarak bu şartları kabul edersin. Uygulama “olduğu gibi” sunulur; kesintisiz veya hatasız çalışacağı garanti edilmez. Yasalara aykırı, başkalarının haklarını ihlal eden içerik üretmek yasaktır. Yazılımın ve arayüzün hakları Özgüler Forge’a aittir; kopyalanamaz, izinsiz dağıtılamaz. Şartlar güncellenebilir; güncel sürüm uygulamada yayınlanır. Türk hukuku uygulanır, Türkiye mahkemeleri yetkilidir.</p></details>
 <details id="telif"><summary>Telif Hakkı ve Sorumluluk Reddi</summary><p>Yüklediğin fotoğraf ve müziklerin telif ve kişilik haklarından sen sorumlusun. Müziği yalnızca kullanma hakkın varsa kullan; sosyal platformlarda telifli müzik nedeniyle videon kısıtlanabilir. Üretilen videoların kullanımından doğan sorumluluk kullanıcıya aittir. Özgüler Forge, veri kaybı veya dolaylı zararlardan yasaların izin verdiği ölçüde sorumlu değildir. Hak ihlali bildirimleri: iletisim@ozgulerforge.com.tr</p></details>
@@ -246,11 +254,11 @@ function analyze() {
 }
 
 // ---------- zaman çizelgesi ----------
-['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start', 'zoom', 'flash'].forEach(id => $(id).onchange = () => { if (id === 'fmt' || id === 'q') size(); save(); build(); });
+['fmt', 'q', 'fit', 'bpp', 'minS', 'trans', 'dur', 'start', 'zoom', 'flash'].forEach(id => $(id).onchange = () => { if (id === 'fmt' || id === 'q') size(); save(); build(); });
 $('shift').oninput = () => { $('shv').textContent = $('shift').value + ' ms'; build(); };
-const SV = ['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start'];
-function save() { try { localStorage.fs = JSON.stringify([...SV.map(i => $(i).value), $('zoom').checked, $('flash').checked]); } catch (x) { } }
-function load() { try { const a = JSON.parse(localStorage.fs); SV.forEach((i, n) => { if (a[n] != null) $(i).value = a[n]; }); $('zoom').checked = !!a[SV.length]; $('flash').checked = !!a[SV.length + 1]; } catch (x) { } }
+const SV = ['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start', 'minS'];
+function save() { try { localStorage.fs2 = JSON.stringify([...SV.map(i => $(i).value), $('zoom').checked, $('flash').checked]); } catch (x) { } }
+function load() { try { const a = JSON.parse(localStorage.fs2); SV.forEach((i, n) => { if (a[n] != null) $(i).value = a[n]; }); $('zoom').checked = !!a[SV.length]; $('flash').checked = !!a[SV.length + 1]; } catch (x) { } }
 function size() { const [a, b] = $('fmt').value.split('x').map(Number), q = +$('q').value, e = v => Math.round(v / 2) * 2; let w = q, h = q; if (a < b) h = e(q * b / a); else if (a > b) w = e(q * a / b); cv.width = w; cv.height = h; }
 
 function build() {
@@ -265,10 +273,12 @@ function build() {
   if (BS.length < 2) { $('play').disabled = $('rec').disabled = true; return say('Seçilen aralıkta yeterli vuruş yok.', 'err'); }
   let bpp = +$('bpp').value;
   if (!bpp) { const raw = Math.max(1, BS.length / imgs.length); bpp = [1, 2, 4, 8].reduce((a, b) => Math.abs(b - raw) < Math.abs(a - raw) ? b : a); }
+  const iv = (endT - st) / BS.length, mn = +$('minS').value;
+  if (mn > 0 && bpp * iv < mn) bpp = [1, 2, 4, 8, 16, 32, 64].find(v => v >= mn / iv) || 64;
   const starts = BS.filter((_, i) => i % bpp === 0);
   startT = st;
   starts.forEach((t, i) => tl.push({ t0: i === 0 ? st : t, t1: i + 1 < starts.length ? starts[i + 1] : endT, img: i % imgs.length }));
-  say(imgs.length + ' fotoğraf → ' + tl.length + ' kare · her biri ' + bpp + ' vuruş · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · fotoğraflar tekrar eder' : ''));
+  say(imgs.length + ' fotoğraf → ' + tl.length + ' kare · her biri ' + bpp + ' vuruş (≈' + (bpp * iv).toFixed(1) + ' sn) · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · fotoğraflar tekrar eder' : '') + (tl.length < imgs.length ? ' · ' + (imgs.length - tl.length) + ' fotoğraf sığmadı: en kısa süreyi düşür' : ''));
   draw(st); drawTL(st);
 }
 function clearView() { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height); drawTL(-1); }
@@ -425,13 +435,19 @@ document.addEventListener('visibilitychange', () => { if (document.hidden && pla
 const dlg = $('dlg'), openD = id => { dlg.showModal(); document.querySelectorAll('dialog details').forEach(d => d.open = d.id === id); };
 document.querySelectorAll('footer [data-s]').forEach(b => b.onclick = () => openD(b.dataset.s)); $('info').onclick = () => openD('nasil'); $('x').onclick = () => dlg.close();
 try { if (!localStorage.fr) { localStorage.fr = 1; openD('nasil'); } } catch (x) { }
-function toast(m, f) { $('tm').textContent = m; $('tb').onclick = f; $('toast').style.display = 'flex'; }
+let tt; function toast(m, f) { clearTimeout(tt); $('tm').textContent = m; $('tb').onclick = f; $('tb').style.display = f ? '' : 'none'; $('toast').style.display = 'flex'; if (!f) tt = setTimeout(() => $('toast').style.display = 'none', 3500); }
 if ('serviceWorker' in navigator && location.protocol !== 'file:') {
   navigator.serviceWorker.register('sw.js').then(r => { r.onupdatefound = () => { const w = r.installing; w.onstatechange = () => { if (w.state === 'installed' && navigator.serviceWorker.controller) toast('Yeni sürüm hazır', () => w.postMessage('skip')); }; }; }).catch(() => { });
   let rl; navigator.serviceWorker.addEventListener('controllerchange', () => { if (!rl && !playing) { rl = 1; location.reload(); } });
 }
 let dp; addEventListener('beforeinstallprompt', e => { e.preventDefault(); dp = e; $('inst').hidden = false; });
-$('inst').onclick = async () => { dp.prompt(); await dp.userChoice; $('inst').hidden = true; };
+$('inst').onclick = async () => { if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) return toast('Uygulama zaten yüklü.'); if (dp) { dp.prompt(); await dp.userChoice; dp = null; } else openD('kur'); };
+$('upd').onclick = async () => {
+  if (!('serviceWorker' in navigator) || location.protocol === 'file:') return toast('Güncelleme yalnızca yayındaki (https) sürümde çalışır.');
+  try { const r = await navigator.serviceWorker.getRegistration(); if (!r) return toast('Kayıt henüz hazır değil; sayfayı yenileyip tekrar dene.'); toast('Kontrol ediliyor…'); await r.update();
+    setTimeout(() => { if (r.waiting) toast('Yeni sürüm hazır', () => r.waiting.postMessage('skip')); else if (r.installing) toast('Yeni sürüm indiriliyor…'); else toast('Güncel sürümdesin (v6)'); }, 1500);
+  } catch (x) { toast('Kontrol edilemedi. İnternet bağlantını kontrol et.'); }
+};
 addEventListener('appinstalled', () => $('inst').hidden = true);
 if (/iphone|ipad/i.test(navigator.userAgent) && !navigator.standalone) $('ios').hidden = false;
 const net = () => $('net').textContent = navigator.onLine ? '' : '● Çevrimdışı mod'; addEventListener('online', net); addEventListener('offline', net); net();
