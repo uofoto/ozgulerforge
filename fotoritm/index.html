@@ -102,7 +102,7 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
   <div class="brand"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="12" fill="#2a2521"/><g fill="#b8864b"><rect x="9" y="18" width="4" height="8" rx="2"/><rect x="16" y="12" width="4" height="20" rx="2"/><rect x="23" y="8" width="4" height="28" rx="2"/><rect x="30" y="15" width="4" height="14" rx="2"/></g></svg>
     <div><div class="eb">ÖZGÜLER FORGE</div><h1>Foto Ritim</h1></div></div>
   <div class="acts"><button id="inst" class="main" type="button">⤓ Yükle</button><button id="upd" type="button">↻ Güncellemeleri kontrol et</button><button id="info" type="button">ⓘ Kılavuz</button><span id="net" class="note"></span></div>
-  <p id="ios" class="note" hidden></p>
+  <p id="ios" class="note" hidden>iPhone/iPad: Uygulamayı yüklemek için Safari’de Paylaş → Ana Ekrana Ekle’yi seçin. Video dosyasını kaydetmek için Paylaş → Dosyalara Kaydet yolunu kullanın.</p>
   <p class="sub">Fotoğrafları ve müziği seç. Geçişler müziğin vuruşuna oturur; sonucu MP4 olarak kaydet.</p>
 </header>
 
@@ -189,7 +189,7 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
   </div>
 <footer><div><b>Foto Ritim</b> · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr</a> · <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></div>
 <nav><button data-s="nasil">Nasıl kullanılır</button><button data-s="gizlilik">Gizlilik ve KVKK</button><button data-s="sartlar">Kullanım şartları</button><button data-s="telif">Telif ve sorumluluk</button><button data-s="yerel">Çerez ve yerel depolama</button></nav>
-<div>Foto Ritim <span class="note">v2.0.0</span> · © 2026 Özgüler Forge. Tüm hakları saklıdır.</div></footer>
+<div>Foto Ritim <span id="appVersion" class="note"></span> · © 2026 Özgüler Forge. Tüm hakları saklıdır.</div></footer>
 </main>
 <dialog id="dlg"><div class="pick" style="justify-content:space-between"><h2 style="margin:0">Bilgi ve yasal metinler</h2><button id="x" class="main">Kapat</button></div>
 <details id="nasil"><summary>Nasıl kullanılır?</summary>
@@ -243,6 +243,7 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
 <div id="toast"><span id="tm"></span><button id="tb" class="main">Yenile</button></div>
 
 <script>
+const APP_VERSION = 'v2.0.1';
 const $ = id => document.getElementById(id);
 const cv = $('cv'), main = cv.getContext('2d'), tlc = $('tlc'), tctx = tlc.getContext('2d');
 let ctx = main, mc = null, bc = null, imgs = [], AC = null, buf = null, beats = [], bpm = 0;
@@ -521,15 +522,24 @@ function analyze() {
 
 // ---------- zaman çizelgesi ----------
 ['fmt', 'q', 'fit', 'bpp', 'minS', 'trans', 'dur', 'start', 'zoom', 'flash', 'fade', 'editStyle'].forEach(id => $(id).onchange = () => { if (id === 'fmt' || id === 'q') size(); save(); build(); });
-$('shift').oninput = () => { $('shv').textContent = $('shift').value + ' ms'; build(); };
+$('shift').oninput = () => { $('shv').textContent = $('shift').value + ' ms'; save(); build(); };
 $('editStyle').onchange = () => { manualStarts.clear(); if (buf) { recommendedRange = estimatePhotoRange(buf.duration, bpm, sections, $('editStyle').value); recommendedPhotos = Math.round((recommendedRange[0] + recommendedRange[1]) / 2); updatePhotoAdvice(); } save(); build(); };
+function syncEffectThresholds() {
+  const strong = $('fxStrong'), medium = $('fxMedium');
+  medium.max = String(Math.max(5, +strong.value - 1));
+  if (+medium.value > +medium.max) medium.value = medium.max;
+  $('fxsv').textContent = strong.value + '%'; $('fxmv').textContent = medium.value + '%';
+}
+$('fxStrong').addEventListener('input', syncEffectThresholds);
+$('fxStrong').addEventListener('change', () => { syncEffectThresholds(); save(); build(); });
+$('fxMedium').addEventListener('input', syncEffectThresholds);
 for (const [id, label, suffix] of [['sens','sensv',''], ['beatThreshold','thrv',''], ['fxStrong','fxsv','%'], ['fxMedium','fxmv','%']]) {
   $(id).oninput = () => { $(label).textContent = $(id).value + suffix; };
   $(id).onchange = () => { save(); build(); };
 }
-const SV = ['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start', 'minS', 'sens', 'beatThreshold', 'fxStrong', 'fxMedium', 'editStyle'];
+const SV = ['fmt', 'q', 'fit', 'bpp', 'trans', 'dur', 'start', 'minS', 'sens', 'beatThreshold', 'fxStrong', 'fxMedium', 'editStyle', 'shift'];
 function save() { try { localStorage.fs2 = JSON.stringify([...SV.map(i => $(i).value), $('zoom').checked, $('flash').checked, $('fade').checked]); } catch (x) { } }
-function load() { try { const a = JSON.parse(localStorage.fs2); SV.forEach((i, n) => { if (a[n] != null) $(i).value = a[n]; }); $('zoom').checked = !!a[SV.length]; $('flash').checked = !!a[SV.length + 1]; $('fade').checked = a[SV.length + 2] !== false; } catch (x) { } }
+function load() { try { const a = JSON.parse(localStorage.fs2); const legacyCount = SV.length - 1, savedCount = a.length >= SV.length + 3 ? SV.length : legacyCount; SV.slice(0, savedCount).forEach((i, n) => { if (a[n] != null) $(i).value = a[n]; }); if (savedCount === legacyCount) $('shift').value = '0'; $('zoom').checked = !!a[savedCount]; $('flash').checked = !!a[savedCount + 1]; $('fade').checked = a[savedCount + 2] !== false; } catch (x) { } }
 function size() { const [a, b] = $('fmt').value.split('x').map(Number), q = +$('q').value, e = v => Math.round(v / 2) * 2; let w = q, h = q; if (a < b) h = e(q * b / a); else if (a > b) w = e(q * a / b); cv.width = w; cv.height = h; }
 
 function build() {
@@ -710,6 +720,8 @@ tlc.onpointerup = tlc.onpointercancel = () => { movingMarker=-1; };
 
 async function start(rec, from, shortPreview = false) {
   if (!tl.length) return; stop();
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (rec && isMobile && +$('q').value > 720) { $('q').value = '720'; size(); save(); say('Mobil kayıt için çözünürlük 720p’ye düşürüldü.'); }
   pf = rec || from == null ? startT : Math.max(startT, from); runEndT = shortPreview ? Math.min(endT, pf + 10) : endT; lastSec = -1;
   AC.resume(); if (rec) { if (lastUrl) { URL.revokeObjectURL(lastUrl); lastUrl = null; } $('out').textContent = ''; lock(1); }
   src = AC.createBufferSource(); src.buffer = buf;
@@ -736,8 +748,6 @@ async function start(rec, from, shortPreview = false) {
     }
     dest = AC.createMediaStreamDestination(); gn.connect(dest);
     // Mobilde 720p/24fps, canvas encoder belleğini ve ısınmayı azaltır.
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    if (isMobile && +$('q').value > 720) { $('q').value = '720'; size(); save(); build(); }
     draw(pf, 1);
     let stream;
     try { stream = cv.captureStream(isMobile ? 24 : 30); }
@@ -805,15 +815,16 @@ function stop() {
   $('play').textContent = 'Önizle'; $('pg').hidden = true; $('tc').textContent = ''; drawEQ(1);
 }
 
-let WV = null, WF = 0, ON = null, WMIN = null, WMAX = null, an = null, pv = 0, bpmConfidence = 0;
+let WV = null, WF = 0, ON = null, WMIN = null, WMAX = null, an = null, eqData = null, pv = 0, bpmConfidence = 0;
 const eq = $('eq'), ec = eq.getContext('2d');
 function drawEQ(clr) {
   const w = eq.clientWidth, h = eq.clientHeight, d = devicePixelRatio || 1;
   if (eq.width !== Math.round(w * d)) { eq.width = Math.round(w * d); eq.height = Math.round(h * d); }
   ec.setTransform(d, 0, 0, d, 0, 0); ec.clearRect(0, 0, w, h); if (clr || !an) return;
-  const a = new Uint8Array(an.frequencyBinCount); an.getByteFrequencyData(a);
+  if (!eqData || eqData.length !== an.frequencyBinCount) eqData = new Uint8Array(an.frequencyBinCount);
+  an.getByteFrequencyData(eqData);
   const n = 40, bw = w / n, lb = lastBeat(pf + AC.currentTime - ctx0), hit = lb != null && pf + AC.currentTime - ctx0 - lb < .12;
-  for (let i = 0; i < n; i++) { const v = a[Math.floor(Math.pow(i / n, 1.7) * 110) + 1] / 255, bh = Math.max(2, v * h);
+  for (let i = 0; i < n; i++) { const v = eqData[Math.floor(Math.pow(i / n, 1.7) * 110) + 1] / 255, bh = Math.max(2, v * h);
     ec.fillStyle = hit ? '#b8864b' : '#d9c9b2'; ec.beginPath(); if (ec.roundRect) ec.roundRect(i * bw + 1, h - bh, bw - 2, bh, 2); else ec.rect(i * bw + 1, h - bh, bw - 2, bh); ec.fill(); }
 }
 function prev(kind) {
@@ -849,7 +860,7 @@ $('inst').onclick = async () => { if (matchMedia('(display-mode: standalone)').m
 $('upd').onclick = async () => {
   if (!('serviceWorker' in navigator) || location.protocol === 'file:') return toast('Güncelleme yalnızca yayındaki (https) sürümde çalışır.');
   try { const r = await navigator.serviceWorker.getRegistration(); if (!r) return toast('Kayıt henüz hazır değil; sayfayı yenileyip tekrar dene.'); toast('Kontrol ediliyor…'); await r.update();
-    setTimeout(() => { if (r.waiting) toast('Yeni sürüm hazır', () => r.waiting.postMessage('skip')); else if (r.installing) toast('Yeni sürüm indiriliyor…'); else toast('Güncel sürümdesin (v8)'); }, 1500);
+    setTimeout(() => { if (r.waiting) toast('Yeni sürüm hazır', () => r.waiting.postMessage('skip')); else if (r.installing) toast('Yeni sürüm indiriliyor…'); else toast('Güncel sürümdesin (' + APP_VERSION + ')'); }, 1500);
   } catch (x) { toast('Kontrol edilemedi. İnternet bağlantını kontrol et.'); }
 };
 addEventListener('appinstalled', () => $('inst').hidden = true);
@@ -859,7 +870,7 @@ navigator.storage?.persist?.();
 document.body.addEventListener('dragover', e => e.preventDefault());
 document.body.addEventListener('drop', e => { e.preventDefault(); const f = [...e.dataTransfer.files]; const im = f.filter(x => /^(image|video)\//.test(x.type)), au = f.find(x => x.type.startsWith('audio/')); const p = $('pics'), dt = new DataTransfer(); if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); } if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); } });
 addEventListener('keydown', e => { if (e.code === 'Space' && !/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName) && !$('play').disabled) { e.preventDefault(); $('play').click(); } });
-load(); updatePhotoAdvice(); $('sensv').textContent = $('sens').value; $('thrv').textContent = $('beatThreshold').value; $('fxsv').textContent = $('fxStrong').value + '%'; $('fxmv').textContent = $('fxMedium').value + '%'; mark(); size(); clearView();
+load(); syncEffectThresholds(); $('appVersion').textContent = APP_VERSION; $('shv').textContent = $('shift').value + ' ms'; updatePhotoAdvice(); $('sensv').textContent = $('sens').value; $('thrv').textContent = $('beatThreshold').value; $('fxsv').textContent = $('fxStrong').value + '%'; $('fxmv').textContent = $('fxMedium').value + '%'; mark(); size(); clearView();
 </script>
 </body>
 </html>
