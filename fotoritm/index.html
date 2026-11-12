@@ -70,6 +70,9 @@ header.bar{display:grid;gap:10px;padding:16px;background:#fff;border:1px solid v
 .brand{display:flex;align-items:center;gap:12px}.brand h1{margin:0;font-size:1.6rem}.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .acts button{border-radius:999px;padding:9px 15px;font-size:.84rem;font-weight:600;white-space:nowrap}.bar .sub{margin:0;color:var(--mu)}
 @media(min-width:700px){header.bar{grid-template-columns:1fr auto;align-items:center}.bar .sub{grid-column:1/-1}}
+.tg button.nw{background:#1c1814;color:#f3e3c7;border-color:#1c1814}.tg button.nw:hover:not(:disabled){border-color:#b8864b}.tg button.nw.on{background:#2a2521;box-shadow:inset 0 0 0 2px #b8864b}
+.th{cursor:grab}.th.sl{outline:3px solid var(--cy);outline-offset:1px}.th i{position:absolute;left:0;top:0;background:#2a2521;color:#fff;font:700 .7rem/1.3 system-ui;padding:0 5px;border-radius:0 0 6px 0}
+.pick button.on{background:var(--pk);color:#fff;border-color:var(--pk)}
 </style>
 </head>
 <body>
@@ -77,7 +80,7 @@ header.bar{display:grid;gap:10px;padding:16px;background:#fff;border:1px solid v
 <header class="bar">
   <div class="brand"><svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true"><rect width="44" height="44" rx="12" fill="#2a2521"/><g fill="#b8864b"><rect x="9" y="18" width="4" height="8" rx="2"/><rect x="16" y="12" width="4" height="20" rx="2"/><rect x="23" y="8" width="4" height="28" rx="2"/><rect x="30" y="15" width="4" height="14" rx="2"/></g></svg>
     <div><div class="eb">ÖZGÜLER FORGE</div><h1>Foto Ritim</h1></div></div>
-  <div class="acts"><button id="inst" class="main" type="button">⤓ Yükle</button><button id="upd" type="button">↻ Güncellemeleri kontrol et</button><button id="info" type="button">ⓘ Kılavuz</button><span id="net" class="note"></span></div>
+  <div class="acts"><button id="inst" class="main" type="button">⤓ Yükle</button><button id="upd" type="button">↻ Güncellemeleri kontrol et</button><button id="res" type="button" hidden>⟲ Önceki projeyi aç</button><button id="info" type="button">ⓘ Kılavuz</button><span id="net" class="note"></span></div>
   <p id="ios" class="note" hidden></p>
   <p class="sub">Fotoğrafları ve müziği seç. Geçişler müziğin vuruşuna oturur; sonucu MP4 olarak kaydet.</p>
 </header>
@@ -101,9 +104,11 @@ header.bar{display:grid;gap:10px;padding:16px;background:#fff;border:1px solid v
     <div class="pick">
       <label class="btn main" for="pics" tabindex="0">Fotoğraf ekle</label>
       <input id="pics" type="file" accept="image/*" multiple hidden>
-      <button id="shuf" disabled>Karıştır</button>
+      <button id="shuf" disabled>Karıştır</button><button id="und" disabled>↶ Geri al</button><button id="clr">Temizle</button>
     </div>
     <div id="thumbs"></div>
+    <div id="ph" class="pick" hidden><span class="note" id="phs"></span><button id="ml" aria-label="Sola al">◀</button><button id="mr2" aria-label="Sağa al">▶</button><button id="hd">Bekleme 1×</button></div>
+    <p class="note">Fotoğrafa dokun: seç. Sürükle veya ◀ ▶ ile sırala; “Bekleme” fotoğrafı daha uzun gösterir.</p>
   </div>
 
   <div class="ctl">
@@ -129,7 +134,8 @@ header.bar{display:grid;gap:10px;padding:16px;background:#fff;border:1px solid v
         <select id="bpp"><option value="0">Otomatik</option><option>1</option><option>2</option><option>4</option><option>8</option><option>16</option></select></label>
       <label class="f">En kısa slayt süresi
         <select id="minS"><option value="0">Sınırsız</option><option value="2">2 sn</option><option value="3" selected>3 sn</option><option value="4">4 sn</option><option value="5">5 sn</option><option value="6">6 sn</option></select></label>
-      <div class="f" style="grid-column:1/-1"><span>Geçiş efekti — üzerine gel veya dokun: önizle, tıkla: seç</span><div id="trg" class="tg"></div><select id="trans" hidden><option value="mix">Karışık (otomatik)</option><option value="fade">Yumuşak sinematik</option><option value="par">Derinlikli kaydırma</option><option value="iris">Yumuşak iris</option><option value="sil">Yumuşak silme</option><option value="per">Yukarı perde</option><option value="blr">Bulanık geçiş</option><option value="dol">İçine dalış</option><option value="isi">Altın ışık sızıntısı</option><option value="siy">Siyaha erime</option><option value="don">Hafif dönüş</option><option value="flip">Çevirme</option><option value="cut">Kesme</option></select></div>
+      <div class="f" style="grid-column:1/-1"><span>Geçiş efekti — üzerine gel veya dokun: önizle, tıkla: seç</span><div id="trg" class="tg"></div><select id="trans" hidden><option value="ote">✦ Zamanın ötesi (karışık)</option><option value="warp">✦ Hiperuzay sıçraması</option><option value="rift">✦ Zaman çatlağı</option><option value="clk">✦ Kronos kadranı</option><option value="port">✦ Solucan deliği</option><option value="sand">✦ Kum saati</option><option value="glt">✦ Zaman kayması</option><option value="ech">✦ Zaman tarayıcı</option><option value="mix">Karışık (klasik)</option><option value="fade">Yumuşak sinematik</option><option value="par">Derinlikli kaydırma</option><option value="iris">Yumuşak iris</option><option value="sil">Yumuşak silme</option><option value="per">Yukarı perde</option><option value="blr">Bulanık geçiş</option><option value="dol">İçine dalış</option><option value="isi">Altın ışık sızıntısı</option><option value="siy">Siyaha erime</option><option value="don">Hafif dönüş</option><option value="flip">Çevirme</option><option value="cut">Kesme</option></select></div>
+      <div class="f" style="grid-column:1/-1"><span>Vuruş sıklığı (ritim yanlış bulunduysa düzelt)</span><div class="pick" id="tmp"><button type="button" data-m="0.5">Yarıya indir</button><button type="button" data-m="1" class="on">Olduğu gibi</button><button type="button" data-m="2">İkiye katla</button></div></div>
       <label class="f">Süre (sn, 0 = tamamı)
         <input id="dur" type="number" min="0" max="600" value="0"></label>
       <label class="f">Başlangıç (sn)
@@ -151,7 +157,7 @@ header.bar{display:grid;gap:10px;padding:16px;background:#fff;border:1px solid v
 <details id="gizlilik"><summary>Gizlilik Politikası ve KVKK Aydınlatma Metni</summary><p>Veri sorumlusu: Özgüler Forge (iletisim@ozgulerforge.com.tr). Uygulama tamamen cihazında çalışır; fotoğraf, müzik ve oluşturulan videolar cihazından çıkmaz, sunucuya yüklenmez. Hesap, reklam, analiz veya takip aracı yoktur. Bu nedenle 6698 sayılı KVKK kapsamında uygulama içinde kişisel veri işlenmez.</p><p>Bize e-posta yazarsan e-posta adresin ve mesajın yalnızca yanıtlamak ve destek vermek için (meşru menfaat/sözleşme ilişkisi) işlenir, gerekli süre sonunda silinir. KVKK md. 11 kapsamındaki bilgi, düzeltme, silme ve itiraz haklarını iletisim@ozgulerforge.com.tr adresine başvurarak kullanabilirsin.</p></details>
 <details id="sartlar"><summary>Kullanım Şartları</summary><p>Uygulamayı kullanarak bu şartları kabul edersin. Uygulama “olduğu gibi” sunulur; kesintisiz veya hatasız çalışacağı garanti edilmez. Yasalara aykırı, başkalarının haklarını ihlal eden içerik üretmek yasaktır. Yazılımın ve arayüzün hakları Özgüler Forge’a aittir; kopyalanamaz, izinsiz dağıtılamaz. Şartlar güncellenebilir; güncel sürüm uygulamada yayınlanır. Türk hukuku uygulanır, Türkiye mahkemeleri yetkilidir.</p></details>
 <details id="telif"><summary>Telif Hakkı ve Sorumluluk Reddi</summary><p>Yüklediğin fotoğraf ve müziklerin telif ve kişilik haklarından sen sorumlusun. Müziği yalnızca kullanma hakkın varsa kullan; sosyal platformlarda telifli müzik nedeniyle videon kısıtlanabilir. Üretilen videoların kullanımından doğan sorumluluk kullanıcıya aittir. Özgüler Forge, veri kaybı veya dolaylı zararlardan yasaların izin verdiği ölçüde sorumlu değildir. Hak ihlali bildirimleri: iletisim@ozgulerforge.com.tr</p></details>
-<details id="yerel"><summary>Çerez ve Yerel Depolama</summary><p>Çerez kullanılmaz. Tarayıcıda yalnızca ayarların (çözünürlük, geçiş vb.) ve çevrimdışı çalışma için uygulama dosyalarının önbelleği saklanır. Tarayıcı ayarlarından istediğin zaman silebilirsin.</p></details>
+<details id="yerel"><summary>Çerez ve Yerel Depolama</summary><p>Çerez kullanılmaz. Tarayıcıda ayarların, çevrimdışı çalışma için uygulama dosyalarının önbelleği ve projeni sürdürebilmen için son fotoğraf ve müzik dosyaların (yalnızca cihazındaki IndexedDB’de) saklanır. “Temizle” düğmesi veya tarayıcı ayarları ile silebilirsin. Tarayıcı ayarlarından istediğin zaman silebilirsin.</p></details>
 <p class="note" style="margin-top:10px">Özgüler Forge · ozgulerforge.com.tr · iletisim@ozgulerforge.com.tr</p></dialog>
 <div id="toast"><span id="tm"></span><button id="tb" class="main">Yenile</button></div>
 
@@ -162,6 +168,10 @@ let ctx = main, mc = null, bc = null, imgs = [], AC = null, buf = null, beats = 
 let tl = [], BS = [], startT = 0, endT = 0;
 let src = null, ctx0 = 0, playing = false, recMode = false, raf = 0, mr = null, chunks = [], finishing = false;
 
+let tmu = 1, sel = -1, audF = null; const U = [];
+function snapU() { U.push(imgs.map(x => [x, x.w || 1])); if (U.length > 20) U.shift(); }
+function mv(a, b) { snapU(); const [x] = imgs.splice(a, 1); imgs.splice(b, 0, x); sel = b; thumbs(); build(); }
+function tmx() { return tmu === 2 ? beats.flatMap((b, i) => i + 1 < beats.length ? [b, (b + beats[i + 1]) / 2] : [b]) : tmu === .5 ? beats.filter((_, i) => i % 2 === 0) : beats; }
 function say(m, c) { const s = $('st'); s.textContent = m || ''; s.className = c || ''; }
 
 // ---------- fotoğraflar ----------
@@ -185,7 +195,7 @@ async function loadImg(f) {
   return { bmp, bg: g, url: t.toDataURL('image/jpeg', .85) };
 }
 $('pics').onchange = async e => {
-  const files = Array.from(e.target.files), bad = [];
+  const files = Array.from(e.target.files), bad = []; snapU();
   if (e.target.value !== undefined) try { e.target.value = ''; } catch (x) { }
   say('Fotoğraflar yükleniyor… (' + files.length + ')');
   for (const f of files) {
@@ -194,25 +204,34 @@ $('pics').onchange = async e => {
   thumbs(); build();
   if (bad.length) say(bad.length + ' fotoğraf açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : '') + ' (HEIC/HEIF ise JPG olarak kaydedip tekrar ekle)', 'err');
 };
-$('shuf').onclick = () => { for (let i = imgs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [imgs[i], imgs[j]] = [imgs[j], imgs[i]]; } thumbs(); build(); };
+$('shuf').onclick = () => { snapU(); for (let i = imgs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [imgs[i], imgs[j]] = [imgs[j], imgs[i]]; } thumbs(); build(); };
 function thumbs() {
+  if (sel >= imgs.length) sel = -1;
   const t = $('thumbs'); t.textContent = '';
   imgs.forEach((im, i) => {
-    const d = document.createElement('div'); d.className = 'th';
-    const g = document.createElement('img'); g.src = im.url; g.alt = 'Fotoğraf ' + (i + 1);
+    const d = document.createElement('div'); d.className = 'th' + (i === sel ? ' sl' : ''); d.draggable = true;
+    const g = document.createElement('img'); g.src = im.url; g.alt = 'Fotoğraf ' + (i + 1); g.draggable = false;
     const b = document.createElement('button'); b.textContent = '×'; b.title = 'Kaldır'; b.setAttribute('aria-label', 'Fotoğraf ' + (i + 1) + ' kaldır');
-    b.onclick = () => { imgs.splice(i, 1); thumbs(); build(); };
+    b.onclick = () => { snapU(); imgs.splice(i, 1); thumbs(); build(); };
     const dl = document.createElement('button'); dl.textContent = '⬇'; dl.title = 'Orijinal dosyayı indir'; dl.className = 'dl'; dl.setAttribute('aria-label', 'Orijinali indir');
     dl.onclick = () => { const u = URL.createObjectURL(im.f), a = document.createElement('a'); a.href = u; a.download = im.f.name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 4e3); };
-    d.append(g, b, dl); t.appendChild(d);
+    d.onclick = e => { if (e.target.tagName === 'BUTTON') return; sel = sel === i ? -1 : i; thumbs(); };
+    d.ondragstart = e => e.dataTransfer.setData('text/plain', 'th' + i);
+    d.ondragover = e => e.preventDefault();
+    d.ondrop = e => { const x = e.dataTransfer.getData('text/plain'); if (x.startsWith('th')) { e.preventDefault(); e.stopPropagation(); mv(+x.slice(2), i); } };
+    d.append(g, b, dl);
+    if ((im.w || 1) > 1) { const w = document.createElement('i'); w.textContent = '×' + im.w; d.appendChild(w); }
+    t.appendChild(d);
   });
-  $('shuf').disabled = imgs.length < 2;
+  $('shuf').disabled = imgs.length < 2; $('und').disabled = !U.length;
+  const ph = $('ph'); ph.hidden = sel < 0; if (sel >= 0) { $('phs').textContent = 'Fotoğraf ' + (sel + 1) + ' seçili'; $('hd').textContent = 'Bekleme ' + (imgs[sel].w || 1) + '×'; }
 }
 for (const l of document.querySelectorAll('label.btn')) l.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); l.click(); } };
 
 // ---------- müzik + ritim analizi ----------
-$('aud').onchange = async e => {
-  const f = e.target.files[0]; if (!f) return;
+$('aud').onchange = e => setAudio(e.target.files[0]);
+async function setAudio(f) {
+  if (!f) return; audF = f;
   stop(); say('Müzik çözülüyor ve ritim aranıyor…');
   AC = AC || new (window.AudioContext || window.webkitAudioContext)();
   try { buf = await AC.decodeAudioData(await f.arrayBuffer()); } catch (x) { buf = null; return say('Ses dosyası okunamadı.', 'err'); }
@@ -220,7 +239,7 @@ $('aud').onchange = async e => {
   if (!analyze()) { beats = []; say('Müzikte belirgin bir ritim bulunamadı.', 'err'); $('ainfo').textContent = ''; return build(); }
   $('ainfo').textContent = f.name + ' · ' + buf.duration.toFixed(1) + ' sn · yaklaşık ' + bpm.toFixed(0) + ' vuruş/dk';
   say(''); build();
-};
+}
 
 function analyze() {
   const sr = buf.sampleRate, n = buf.length, d0 = buf.getChannelData(0), d1 = buf.numberOfChannels > 1 ? buf.getChannelData(1) : d0;
@@ -262,14 +281,14 @@ function load() { try { const a = JSON.parse(localStorage.fs2); SV.forEach((i, n
 function size() { const [a, b] = $('fmt').value.split('x').map(Number), q = +$('q').value, e = v => Math.round(v / 2) * 2; let w = q, h = q; if (a < b) h = e(q * b / a); else if (a > b) w = e(q * a / b); cv.width = w; cv.height = h; }
 
 function build() {
-  stop(); tl = []; BS = [];
+  stop(); tl = []; BS = []; persist();
   const ok = imgs.length && buf && beats.length;
   $('play').disabled = $('rec').disabled = !ok;
   if (!ok) { clearView(); return; }
   const st = Math.max(0, +$('start').value || 0), dur = +$('dur').value || 0;
   endT = dur > 0 ? Math.min(buf.duration, st + dur) : buf.duration;
   const sh = $('shift').value / 1000;
-  BS = beats.map(b => b + sh).filter(b => b >= st && b < endT);
+  BS = tmx().map(b => b + sh).filter(b => b >= st && b < endT);
   if (BS.length < 2) { $('play').disabled = $('rec').disabled = true; return say('Seçilen aralıkta yeterli vuruş yok.', 'err'); }
   let bpp = +$('bpp').value;
   if (!bpp) { const raw = Math.max(1, BS.length / imgs.length); bpp = [1, 2, 4, 8].reduce((a, b) => Math.abs(b - raw) < Math.abs(a - raw) ? b : a); }
@@ -277,7 +296,7 @@ function build() {
   if (mn > 0 && bpp * iv < mn) bpp = [1, 2, 4, 8, 16, 32, 64].find(v => v >= mn / iv) || 64;
   const starts = BS.filter((_, i) => i % bpp === 0);
   startT = st;
-  starts.forEach((t, i) => tl.push({ t0: i === 0 ? st : t, t1: i + 1 < starts.length ? starts[i + 1] : endT, img: i % imgs.length }));
+  for (let gi = 0, n = 0; gi < starts.length; n++) { const im = n % imgs.length, w = Math.min(imgs[im].w || 1, starts.length - gi); tl.push({ t0: gi === 0 ? st : starts[gi], t1: gi + w < starts.length ? starts[gi + w] : endT, img: im }); gi += w; }
   say(imgs.length + ' fotoğraf → ' + tl.length + ' kare · her biri ' + bpp + ' vuruş (≈' + (bpp * iv).toFixed(1) + ' sn) · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · fotoğraflar tekrar eder' : '') + (tl.length < imgs.length ? ' · ' + (imgs.length - tl.length) + ' fotoğraf sığmadı: en kısa süreyi düşür' : ''));
   draw(st); drawTL(st);
 }
@@ -288,6 +307,7 @@ function lastBeat(t) {
   while (lo <= hi) { const m = (lo + hi) >> 1; if (BS[m] <= t) { r = BS[m]; lo = m + 1; } else hi = m - 1; }
   return r;
 }
+const OTE = ['warp', 'rift', 'clk', 'port', 'sand', 'glt', 'ech'], LONG = { warp: 1.15, rift: 1.1, clk: 1.2, port: 1.1, sand: 1.2, glt: .9, ech: .95 };
 const TR = ['fade', 'par', 'iris', 'sil', 'per', 'blr', 'dol', 'isi', 'siy', 'don', 'flip'];
 function put(i, o = {}) {
   const b = imgs[i].bmp, W = cv.width, H = cv.height, f = $('fit').value, r = (f === 'fill' ? Math.max : Math.min)(W / b.width, H / b.height);
@@ -303,6 +323,8 @@ function soft(b, mk) {
   ctx = m; put(b); m.globalCompositeOperation = 'destination-in'; m.fillStyle = mk(m); m.fillRect(0, 0, W, H); ctx = main; ctx.drawImage(mc, 0, 0);
 }
 const ramp = (g, s, f) => { const A = Math.min(1, Math.max(0, s - f)), B = Math.min(1, Math.max(s, A + .001)); g.addColorStop(0, '#000'); g.addColorStop(A, '#000'); g.addColorStop(B, 'rgba(0,0,0,0)'); return g; };
+const T2 = [null, null], rnd = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+function snap(i, o, k) { const W = cv.width, H = cv.height; let c = T2[k]; if (!c || c.width !== W || c.height !== H) { c = T2[k] = document.createElement('canvas'); c.width = W; c.height = H; } const m = c.getContext('2d'); m.clearRect(0, 0, W, H); ctx = m; put(i, o); ctx = main; return c; }
 function trans(k, p, a, b) {
   const W = cv.width, H = cv.height, e = p * p * p * (p * (p * 6 - 15) + 10), q = p < .5 ? 8 * p * p * p * p : 1 - Math.pow(-2 * p + 2, 4) / 2, S = Math.sin(p * Math.PI), dark = al => { ctx.fillStyle = 'rgba(0,0,0,' + al + ')'; ctx.fillRect(0, 0, W, H); };
   switch (k) {
@@ -316,6 +338,13 @@ function trans(k, p, a, b) {
     case 'siy': if (e < .5) { put(a); dark(e * 2); } else { put(b); dark((1 - e) * 2); } break;
     case 'don': put(a, { sc: 1 + .15 * e, rot: -.05 * e }); put(b, { sc: 1.15 - .15 * e, rot: .05 * (1 - e), al: e }); break;
     case 'flip': e < .5 ? put(a, { sx: Math.cos(e * Math.PI) }) : put(b, { sx: -Math.cos(e * Math.PI) }); dark(.4 * S); break;
+    case 'warp': { const sa = snap(a, { sc: 1 + e * .6 }, 0), sb = snap(b, { sc: 1.6 - e * .6 }, 1), sc = e < .5 ? sa : sb, k2 = e < .5 ? e * 2 : (1 - e) * 2; ctx.drawImage(sc, 0, 0); ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let n = 1; n <= 7; n++) { const z = 1 + n * .05 * k2; ctx.globalAlpha = .16 * k2 * (1 - n / 9); ctx.drawImage(sc, W / 2 * (1 - z), H / 2 * (1 - z), W * z, H * z); } ctx.restore(); const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.hypot(W, H) / 2); g.addColorStop(0, 'rgba(255,255,255,' + .55 * S * S + ')'); g.addColorStop(.35, 'rgba(160,220,255,' + .12 * S + ')'); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); break; }
+    case 'rift': { const pts = [], N = 14; for (let n = 0; n <= N; n++) pts.push([W * (.5 + (rnd(n * 3.1) - .5) * .16), H * n / N]); put(b, { sc: 1.12 - .12 * e }); const gap = W * .56 * q; ctx.save(); ctx.globalCompositeOperation = 'lighter'; const gl = ctx.createLinearGradient(W / 2 - gap - W * .05, 0, W / 2 + gap + W * .05, 0); gl.addColorStop(0, 'rgba(255,170,90,0)'); gl.addColorStop(.5, 'rgba(255,230,190,' + .9 * Math.min(1, S * 1.6) + ')'); gl.addColorStop(1, 'rgba(255,170,90,0)'); ctx.fillStyle = gl; ctx.fillRect(W / 2 - gap - W * .05, 0, gap * 2 + W * .1, H); ctx.restore(); for (const sd of [-1, 1]) { ctx.save(); ctx.translate(sd * gap, 0); ctx.beginPath(); ctx.moveTo(sd < 0 ? -W : 2 * W, 0); pts.forEach(pt => ctx.lineTo(pt[0], pt[1])); ctx.lineTo(sd < 0 ? -W : 2 * W, H); ctx.closePath(); ctx.clip(); put(a, { sc: 1 + .02 * q }); ctx.restore(); } break; }
+    case 'clk': { const R = Math.hypot(W, H), an = -Math.PI / 2 + e * Math.PI * 2, m = Math.min(W, H); put(a, { sc: 1 + .04 * e }); ctx.save(); ctx.beginPath(); ctx.moveTo(W / 2, H / 2); ctx.arc(W / 2, H / 2, R, -Math.PI / 2, an); ctx.closePath(); ctx.clip(); put(b, { sc: 1.04 - .04 * e }); ctx.restore(); ctx.save(); ctx.translate(W / 2, H / 2); ctx.strokeStyle = 'rgba(255,214,150,' + S + ')'; ctx.lineWidth = Math.max(2, W / 300); ctx.shadowColor = '#ffb347'; ctx.shadowBlur = W / 40; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(an) * R, Math.sin(an) * R); ctx.stroke(); ctx.shadowBlur = 0; ctx.lineWidth = Math.max(1.5, W / 500); for (let n = 0; n < 60; n++) { const g = n / 60 * Math.PI * 2 - Math.PI / 2, l = n % 5 ? .015 : .04, r0 = m * .42; ctx.strokeStyle = 'rgba(255,230,190,' + .6 * S * (g <= an ? 1 : .35) + ')'; ctx.beginPath(); ctx.moveTo(Math.cos(g) * r0, Math.sin(g) * r0); ctx.lineTo(Math.cos(g) * (r0 + m * l), Math.sin(g) * (r0 + m * l)); ctx.stroke(); } ctx.restore(); break; }
+    case 'port': { const R = Math.hypot(W, H) / 2 * e * 1.15, cx = W / 2, cy = H / 2; put(a, { sc: 1 + .35 * e, rot: -.08 * e }); dark(.45 * e); if (R > 1) { ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.clip(); put(b, { sc: 1.5 - .5 * e, rot: .25 * (1 - e) }); ctx.restore(); ctx.save(); ctx.globalCompositeOperation = 'lighter'; for (let n = 0; n < 3; n++) { ctx.strokeStyle = 'rgba(' + (n ? '94,234,212' : '255,200,120') + ',' + .7 * S + ')'; ctx.lineWidth = Math.max(2, W / (120 + n * 80)); ctx.beginPath(); ctx.arc(cx, cy, R + n * W * .012, 0, 7); ctx.stroke(); } ctx.restore(); } break; }
+    case 'sand': { put(b, { sc: 1.05 - .05 * e }); const sa = snap(a, {}, 0), n = 40, cw = W / n; for (let i = 0; i < n; i++) { const d = rnd(i + 7.3) * .45, u = Math.min(1, Math.max(0, (p - d) / .55)); if (u >= 1) continue; ctx.globalAlpha = 1 - u; ctx.drawImage(sa, i * cw, 0, cw, H, i * cw + Math.sin(i * 5 + p * 9) * u * cw * .6, u * u * H * .9, cw + .5, H); } ctx.globalAlpha = 1; break; }
+    case 'glt': { const sa = snap(a, {}, 0), sb = snap(b, {}, 1), n = 24, hh = H / n, fr = Math.floor(p * 14); for (let i = 0; i < n; i++) { const r = rnd(i * 1.7 + fr * 9.1), sh = (r - .5) * W * .5 * S * S * (r > .55 ? 1 : .2); ctx.drawImage(p > .25 + rnd(i * 2.3) * .5 ? sb : sa, 0, i * hh, W, hh + .5, sh, i * hh, W, hh + .5); } for (let i = 0; i < 5; i++) { ctx.fillStyle = i % 2 ? 'rgba(94,234,212,' + .35 * S + ')' : 'rgba(255,70,170,' + .3 * S + ')'; ctx.fillRect(0, rnd(i + fr * 3.3) * H, W, H * .012 * (1 + i % 3)); } break; }
+    case 'ech': { const x = W * (1.15 * e - .075); put(a); ctx.save(); ctx.beginPath(); ctx.rect(0, 0, x, H); ctx.clip(); put(b, { sc: 1.06 - .06 * e }); ctx.restore(); const g = ctx.createLinearGradient(x - W * .22, 0, x, 0); g.addColorStop(0, 'rgba(255,214,150,0)'); g.addColorStop(1, 'rgba(255,214,150,' + .45 * S + ')'); ctx.fillStyle = g; ctx.fillRect(x - W * .22, 0, W * .22, H); ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,240,215,' + S + ')'; ctx.fillRect(x - 1.5, 0, 3 + W / 400, H); ctx.restore(); break; }
     default: put(a, { sc: 1 + .03 * e }); put(b, { sc: 1.03 - .03 * e, al: e });
   }
 }
@@ -323,7 +352,7 @@ function draw(t) {
   const W = cv.width; ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, cv.height);
   let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
   const s = tl[k], since = t - s.t0, dur = Math.max(.1, s.t1 - s.t0), tv = $('trans').value, lb = lastBeat(t), z = $('zoom').checked;
-  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), kd = tv === 'mix' ? TR[k % TR.length] : tv, F = kd === 'cut' ? 0 : Math.min(kd === 'fade' ? 1.2 : .95, dur * (kd === 'fade' ? .9 : .8));
+  const sc = 1 + (z ? .05 * Math.min(1, since / dur) + (lb != null ? Math.max(0, 1 - (t - lb) / .28) * .045 : 0) : 0), kd = tv === 'mix' ? TR[k % TR.length] : tv === 'ote' ? OTE[k % OTE.length] : tv, F = kd === 'cut' ? 0 : Math.min(LONG[kd] || (kd === 'fade' ? 1.2 : .95), dur * (kd === 'fade' ? .9 : .8));
   if (k > 0 && since < F) trans(kd, since / F, tl[k - 1].img, s.img); else put(s.img, { sc });
   if ($('flash').checked && lb != null) { const a = Math.max(0, 1 - (t - lb) / .12) * .18; if (a > 0) { ctx.fillStyle = 'rgba(255,255,255,' + a + ')'; ctx.fillRect(0, 0, W, cv.height); } }
 }
@@ -416,8 +445,8 @@ function drawEQ(clr) {
 function prev(kind) {
   cancelAnimationFrame(pv); if (playing) return;
   if (imgs.length < 2) return say('Efekt önizlemesi için en az 2 fotoğraf ekle.', 'err');
-  if (kind === 'mix') kind = TR[Math.random() * TR.length | 0];
-  const D = kind === 'fade' ? 1.2 : .95, T = D + .9, t0 = performance.now();
+  if (kind === 'mix') kind = TR[Math.random() * TR.length | 0]; else if (kind === 'ote') kind = OTE[Math.random() * OTE.length | 0];
+  const D = LONG[kind] || (kind === 'fade' ? 1.2 : .95), T = D + .9, t0 = performance.now();
   (function f(now) {
     const x = (now - t0) / 1000;
     if (x >= T) { tl.length ? draw(startT) : (ctx.fillStyle = '#000', ctx.fillRect(0, 0, cv.width, cv.height), put(0)); return; }
@@ -427,7 +456,7 @@ function prev(kind) {
   })(t0);
 }
 const mark = () => document.querySelectorAll('#trg button').forEach(b => b.classList.toggle('on', b.dataset.v === $('trans').value));
-[...$('trans').options].forEach(o => { const b = document.createElement('button'); b.textContent = o.text; b.dataset.v = o.value; b.type = 'button';
+[...$('trans').options].forEach(o => { const b = document.createElement('button'); b.textContent = o.text; b.dataset.v = o.value; b.type = 'button'; if (o.text.startsWith('✦')) b.className = 'nw';
   b.onpointerenter = b.onfocus = () => prev(o.value); b.onclick = () => { $('trans').value = o.value; $('trans').onchange(); mark(); prev(o.value); }; $('trg').appendChild(b); });
 let wl = null;
 async function lock(on) { try { if (on) wl = await navigator.wakeLock.request('screen'); else if (wl) { wl.release(); wl = null; } } catch (x) { } }
@@ -445,7 +474,7 @@ $('inst').onclick = async () => { if (matchMedia('(display-mode: standalone)').m
 $('upd').onclick = async () => {
   if (!('serviceWorker' in navigator) || location.protocol === 'file:') return toast('Güncelleme yalnızca yayındaki (https) sürümde çalışır.');
   try { const r = await navigator.serviceWorker.getRegistration(); if (!r) return toast('Kayıt henüz hazır değil; sayfayı yenileyip tekrar dene.'); toast('Kontrol ediliyor…'); await r.update();
-    setTimeout(() => { if (r.waiting) toast('Yeni sürüm hazır', () => r.waiting.postMessage('skip')); else if (r.installing) toast('Yeni sürüm indiriliyor…'); else toast('Güncel sürümdesin (v6)'); }, 1500);
+    setTimeout(() => { if (r.waiting) toast('Yeni sürüm hazır', () => r.waiting.postMessage('skip')); else if (r.installing) toast('Yeni sürüm indiriliyor…'); else toast('Güncel sürümdesin (v7)'); }, 1500);
   } catch (x) { toast('Kontrol edilemedi. İnternet bağlantını kontrol et.'); }
 };
 addEventListener('appinstalled', () => $('inst').hidden = true);
@@ -455,6 +484,16 @@ navigator.storage?.persist?.();
 document.body.addEventListener('dragover', e => e.preventDefault());
 document.body.addEventListener('drop', e => { e.preventDefault(); const f = [...e.dataTransfer.files]; const im = f.filter(x => x.type.startsWith('image/')), au = f.find(x => x.type.startsWith('audio/')); const p = $('pics'), dt = new DataTransfer(); if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); } if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); } });
 addEventListener('keydown', e => { if (e.code === 'Space' && !/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName) && !$('play').disabled) { e.preventDefault(); $('play').click(); } });
+document.querySelectorAll('#tmp button').forEach(b => b.onclick = () => { tmu = +b.dataset.m; document.querySelectorAll('#tmp button').forEach(x => x.classList.toggle('on', x === b)); build(); });
+$('ml').onclick = () => sel > 0 && mv(sel, sel - 1);
+$('mr2').onclick = () => sel >= 0 && sel < imgs.length - 1 && mv(sel, sel + 1);
+$('hd').onclick = () => { if (sel < 0) return; snapU(); imgs[sel].w = (imgs[sel].w || 1) % 3 + 1; thumbs(); build(); };
+$('und').onclick = () => { const x = U.pop(); if (!x) return; imgs = x.map(([o, w]) => (o.w = w, o)); thumbs(); build(); };
+$('clr').onclick = () => { if (!imgs.length) return; snapU(); imgs = []; sel = -1; thumbs(); build(); };
+const DB = () => new Promise((ok, no) => { const r = indexedDB.open('fr', 1); r.onupgradeneeded = () => r.result.createObjectStore('p'); r.onsuccess = () => ok(r.result); r.onerror = () => no(); });
+let svT;
+function persist() { clearTimeout(svT); svT = setTimeout(async () => { try { const d = await DB(); d.transaction('p', 'readwrite').objectStore('p').put(imgs.length || audF ? { f: imgs.map(x => [x.f, x.w || 1]), a: audF, tm: tmu, sh: $('shift').value } : null, 'cur'); } catch (x) { } }, 800); }
+DB().then(d => { const q = d.transaction('p').objectStore('p').get('cur'); q.onsuccess = () => { const p = q.result; if (!p || !(p.f && p.f.length)) return; $('res').hidden = false; $('res').onclick = async () => { $('res').hidden = true; say('Proje açılıyor…'); for (const [f, w] of p.f) { try { const o = { ...await loadImg(f), f }; o.w = w; imgs.push(o); } catch (x) { } } $('shift').value = p.sh || 0; $('shv').textContent = $('shift').value + ' ms'; thumbs(); const tb = document.querySelector('#tmp [data-m="' + (p.tm || 1) + '"]'); if (p.a) { await setAudio(p.a); } if (tb) tb.click(); else build(); }; }; }).catch(() => { });
 load(); mark(); size(); clearView();
 </script>
 </body>
