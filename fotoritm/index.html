@@ -104,130 +104,17 @@ label.f{display:grid;gap:4px;font-size:.82rem;color:var(--mu)}
 label.f select,label.f input{width:100%;color:var(--tx)}
 label.c{display:flex;gap:9px;align-items:center;font-size:.9rem;cursor:pointer;user-select:none}
 label.c input[type=checkbox]{width:16px;height:16px;accent-color:var(--cy);cursor:pointer}
+.file-wrap{position:relative;display:inline-flex;overflow:hidden;border-radius:12px}
+.file-wrap input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;font-size:100px}
 #thumbs{display:flex;gap:7px;flex-wrap:wrap}
-.th{position:relative;width:68px;height:68px;border-radius:8px;overflow:hidden;background:var(--panel-alt);cursor:grab;border:1px solid var(--line)}
-.th.over{outline:2px dashed var(--cy);outline-offset:1px}
-.th img{width:100%;height:100%;object-fit:cover;display:block}
-.th button{position:absolute;top:0;right:0;padding:1px 6px;line-height:1.2;font-size:.8rem;border:0;border-radius:0 0 0 6px;background:rgba(0,0,0,.72);color:#fff}
-.th .dl{top:auto;bottom:0;right:auto;left:0;border-radius:0 6px 0 0}
-.th .mv{top:50%;bottom:auto;transform:translateY(-50%);min-width:22px;height:28px;font-size:1rem;padding:0 4px;line-height:1}
-.th .ml{left:0;right:auto;border-radius:0 6px 6px 0}
-.th .mr{right:0;left:auto;border-radius:6px 0 0 6px}
-.th .vb{position:absolute;top:3px;left:3px;font-size:.62rem;line-height:1.4;background:rgba(0,0,0,.75);color:#fff;border-radius:4px;padding:0 4px;pointer-events:none}
-.note{font-size:.84rem;color:var(--mu);margin:0}
-#st{min-height:0;font-size:.9rem;font-weight:500;text-align:center}
-#st:empty,#out:empty{display:none}
-.err{color:#d93829}
-.ok{color:#1b873f}
-input[type=range]{width:100%;accent-color:var(--cy);cursor:pointer}
-.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:7px}
-.tg button{padding:9px 6px;font-weight:500;font-size:.81rem;text-align:center;background:var(--panel-alt)}
-.tg button.on{border-color:var(--cy);background:var(--cy-bg);color:var(--tx);box-shadow:inset 0 0 0 1px var(--cy);font-weight:600}
-.presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(122px,1fr));gap:8px}
-.presets button{padding:9px 10px;font-size:.82rem;background:var(--panel-alt)}
-.presets button.on{border-color:var(--cy);background:var(--cy-bg);box-shadow:inset 0 0 0 1px var(--cy)}
-header.bar{display:grid;gap:10px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
-.brand{display:flex;align-items:center;gap:12px}
-.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.acts button{border-radius:999px;padding:8px 14px;font-size:.83rem;font-weight:600;white-space:nowrap}
-@media(min-width:720px){
-  header.bar{grid-template-columns:1fr auto;align-items:center}
-  .bar .sub{grid-column:1/-1}
-}
-#sectionInfo{line-height:1.5}
-.wf-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:.75rem;color:var(--mu)}
-.wf-key{display:inline-flex;gap:5px;align-items:center}
-.wf-swatch{display:inline-block;width:14px;height:4px;border-radius:2px}
-.wf-swatch.wave{background:#cdbfae}
-.wf-swatch.beat{width:2px;height:13px;background:#7c8b86}
-.wf-swatch.strong{width:3px;height:15px;background:#b8864b}
-progress{width:100%;height:8px;accent-color:var(--cy);border-radius:99px}
-progress[hidden]{display:none}
-.pgw:has(progress[hidden]){display:none}
-.tcl{font-variant-numeric:tabular-nums;text-align:center}
-.view{display:grid;justify-items:center;width:100%}
-.tools{display:grid;gap:10px;justify-items:center;width:100%}
-footer{grid-column:1/-1;text-align:center;color:var(--mu);font-size:.82rem;display:grid;gap:8px;padding-top:10px}
-footer nav{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center}
-footer a,footer nav button{color:var(--cy);background:none;border:0;padding:0;font-weight:500;text-decoration:underline;cursor:pointer}
-dialog{max-width:min(740px,94vw);max-height:88vh;background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
-dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(4px)}
-dialog details{border-top:1px solid var(--line);padding:10px 0}
-dialog summary{cursor:pointer;font-weight:700}
-dialog p,dialog li{color:var(--mu);font-size:.9rem;line-height:1.55}
-#out{display:grid;justify-items:center;width:100%}
-#out video{display:block;width:min(100%,420px);max-height:52vh;margin:12px auto;border-radius:12px;background:#000;border:1px solid var(--line)}
-#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--cy);color:var(--tx);border-radius:12px;padding:10px 16px;display:none;gap:10px;align-items:center;z-index:50;box-shadow:0 12px 32px rgba(0,0,0,.25);font-size:.88rem}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
-@media(max-width:879px){
-  main{display:flex;flex-direction:column;gap:14px}
-  .stage{display:contents}
-  #cv{max-height:38vh;max-height:38dvh}
-  body.hm .view{position:sticky;top:0;z-index:20;background:var(--bg);margin:0 -16px;width:auto;padding:max(8px,env(safe-area-inset-top)) 16px 8px;box-shadow:0 10px 14px -12px rgba(0,0,0,.35)}
-}
-</style>
-</head>
-<body>
-<noscript><p style="padding:16px">Foto Ritim çalışmak için JavaScript gerektirir.</p></noscript>
-<main>
-<header class="bar">
-  <div class="brand">
-    <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
-      <rect width="44" height="44" rx="12" fill="#241f1c"/>
-      <g fill="#b8864b">
-        <rect x="9" y="18" width="4" height="8" rx="2"/>
-        <rect x="16" y="12" width="4" height="20" rx="2"/>
-        <rect x="23" y="8" width="4" height="28" rx="2"/>
-        <rect x="30" y="15" width="4" height="14" rx="2"/>
-      </g>
-    </svg>
-    <div><div class="eb">ÖZGÜLER FORGE</div><h1>Foto Ritim <span class="badge">v3.5 STUDIO</span></h1></div>
-  </div>
-  <div class="acts">
-    <button id="themeBtn" type="button" title="Karanlık / Aydınlık Tema">🌓 Tema</button>
-    <button id="restoreDraft" type="button" hidden>↺ Taslağı geri yükle</button>
-    <button id="inst" class="main" type="button">⤓ Yükle</button>
-    <button id="upd" type="button">↻ Güncelleme</button>
-    <button id="info" type="button">ⓘ Kılavuz</button>
-    <span id="net" class="note"></span>
-  </div>
-  <p id="ios" class="note" hidden>iPhone/iPad: Uygulamayı yüklemek için Safari’de Paylaş → Ana Ekrana Ekle’yi seçin. Video dosyasını kaydetmek için Paylaş → Dosyalara Kaydet yolunu kullanın.</p>
-  <p class="sub">Fotoğrafları ve müziği seç. Çok bantlı ritim analiziyle geçişler bas ve vurgulara oturur; sinematik renk profilleri, 2.35:1 anamorfik şeritler ve vinyet ile sonucu MP4 olarak kaydet.</p>
-</header>
-
-<section class="stage" aria-label="Önizleme">
-  <div class="view"><canvas id="cv" width="720" height="1280"></canvas></div>
-  <div class="tools">
-    <canvas id="eq" aria-label="Canlı ses ekolayzırı"></canvas>
-    <div class="wf-legend" aria-label="Dalga formu göstergesi">
-      <span class="wf-key"><i class="wf-swatch wave"></i>Ses dalga formu</span>
-      <span class="wf-key"><i class="wf-swatch beat"></i>Algılanan vuruş</span>
-      <span class="wf-key"><i class="wf-swatch strong"></i>Güçlü bas/vurgu</span>
-      <span class="wf-key"><i class="wf-swatch strong" style="height:9px"></i>Ölçü başı (4 vuruş)</span>
-    </div>
-    <canvas id="tlc" aria-label="Ses dalga formu, algılanan vuruş işaretçileri ve oynatma konumu"></canvas>
-    <div class="pgw" style="width:100%;display:grid;gap:4px">
-      <progress id="pg" value="0" max="1" hidden></progress>
-      <span id="tc" class="note tcl" aria-live="off"></span>
-    </div>
-    <p class="note" style="margin:0;text-align:center">Çizelgeye tıklayarak önizleyin · Üstteki altın tutamaçları sürükleyin · <b>Çift tıklayarak</b> yeni kesim noktası ekleyin, tutamaca <b>sağ tıklayarak</b> kesimi silin.</p>
-    <div class="pick">
-      <button id="play" class="main" disabled>▶ Önizle (Boşluk)</button>
-      <button id="shortPrev" disabled>⚡ 10 sn önizle</button>
-      <button id="resetMarkers" disabled title="Elle kaydırılan kesimleri sıfırla">↺ Kesimleri sıfırla</button>
-      <button id="rec" class="gold" disabled>🎬 MP4 Kaydet</button>
-    </div>
-    <div id="st" role="status"></div>
-    <div id="out"></div>
-  </div>
-</section>
-
-<section style="display:grid;gap:14px">
+/* ... existing code ... -->
   <div class="ctl">
     <h2>1. Fotoğraflar ve videolar <span id="mediaCount" class="badge">0 öğe</span></h2>
     <div class="pick">
-      <label class="btn main" for="pics" tabindex="0">+ Fotoğraf / video ekle</label>
-      <input id="pics" type="file" accept="image/*,video/*" multiple hidden>
+      <div class="file-wrap">
+        <label class="btn main" for="pics" tabindex="0">+ Fotoğraf / video ekle</label>
+        <input id="pics" type="file" accept="image/*,video/*" multiple>
+      </div>
       <button id="shuf" disabled>🔀 Karıştır</button>
       <button id="smartSort" disabled>🎨 Akıllı sırala</button>
       <button id="clearMedia" disabled>🗑️ Temizle</button>
@@ -240,8 +127,10 @@ dialog p,dialog li{color:var(--mu);font-size:.9rem;line-height:1.55}
   <div class="ctl">
     <h2>2. Müzik</h2>
     <div class="pick">
-      <label class="btn main" for="aud" tabindex="0">🎵 Müzik seç</label>
-      <input id="aud" type="file" accept="audio/*" hidden>
+      <div class="file-wrap">
+        <label class="btn main" for="aud" tabindex="0">🎵 Müzik seç</label>
+        <input id="aud" type="file" accept="audio/*">
+      </div>
       <button id="findDrop" class="gold" type="button" disabled title="Şarkının en yüksek enerjili 15 saniyesini otomatik bulur">🔥 En Hareketli 15 sn (Drop)</button>
       <button id="resetTrim" type="button" disabled title="Tüm şarkıyı kullan">↺ Tamamı</button>
     </div>
@@ -653,15 +542,31 @@ function updatePhotoAdvice() {
 }
 
 $('pics').onchange = async e => {
+  const rawFiles = e.target && e.target.files ? Array.from(e.target.files) : [];
+  if (!rawFiles.length) return;
   manualStarts.clear();
-  const files = Array.from(e.target.files), bad = [];
-  if (e.target.value !== undefined) try { e.target.value = ''; } catch (x) { }
-  say('Dosyalar yükleniyor ve odak analizi yapılıyor… (' + files.length + ')');
-  for (const f of files) {
-    try { imgs.push({ ...await (isVid(f) ? loadVid(f) : loadImg(f)), f }); } catch (x) { bad.push(f.name); }
+  const bad = [];
+  let added = 0;
+  say('Dosyalar yükleniyor ve odak analizi yapılıyor… (' + rawFiles.length + ')');
+  for (const f of rawFiles) {
+    try {
+      const item = await (isVid(f) ? loadVid(f) : loadImg(f));
+      imgs.push({ ...item, f });
+      added++;
+      thumbs();
+    } catch (x) {
+      console.error('Medya yükleme hatası:', f.name, x);
+      bad.push(f.name);
+    }
   }
-  thumbs(); updatePhotoAdvice(); build(); saveDraft();
-  if (bad.length) say(bad.length + ' dosya açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : ''), 'err');
+  try { e.target.value = ''; } catch (x) { }
+  updatePhotoAdvice(); build(); saveDraft();
+  if (bad.length) {
+    say(bad.length + ' dosya açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : ''), 'err');
+  } else if (added > 0) {
+    say(added + ' medya başarıyla eklendi ✓', 'ok');
+    toast(added + ' fotoğraf/video eklendi');
+  }
 };
 
 $('clearMedia').onclick = () => {
