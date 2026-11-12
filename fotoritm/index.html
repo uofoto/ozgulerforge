@@ -76,6 +76,22 @@ header.bar{display:grid;gap:10px;padding:16px;background:#fff;border:1px solid v
 #tlc{cursor:pointer}
 progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:none}
 .tcl{font-variant-numeric:tabular-nums}
+/* görünüm alanı + araçlar */
+.view{display:grid;justify-items:center;width:100%}
+.tools{display:grid;gap:10px;justify-items:center;width:100%}
+/* boş alanlar boşluk bırakmasın */
+#st{min-height:0}
+#st:empty,#out:empty{display:none}
+.pgw:has(progress[hidden]){display:none}
+/* video rozeti */
+.th .vb{position:absolute;top:3px;left:3px;font-size:.62rem;line-height:1.4;background:#000b;color:#fff;border-radius:4px;padding:0 4px;pointer-events:none}
+/* mobil: önizleme sabit kalır, efekt seçerken etkisi görülür */
+@media(max-width:859px){
+  main{display:flex;flex-direction:column;gap:14px}
+  .stage{display:contents}
+  #cv{max-height:38vh;max-height:38dvh}
+  body.hm .view{position:sticky;top:0;z-index:20;background:var(--bg);margin:0 -16px;width:auto;padding:max(8px,env(safe-area-inset-top)) 16px 8px;box-shadow:0 10px 14px -12px #2a252155}
+}
 </style>
 </head>
 <body>
@@ -90,10 +106,11 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
 </header>
 
 <section class="stage" aria-label="Önizleme">
-  <canvas id="cv" width="720" height="1280"></canvas>
+  <div class="view"><canvas id="cv" width="720" height="1280"></canvas></div>
+  <div class="tools">
   <canvas id="eq" aria-label="Canlı ses ekolayzırı"></canvas>
   <canvas id="tlc" aria-label="Vuruş çizelgesi"></canvas>
-  <div style="width:100%;display:grid;gap:4px"><progress id="pg" value="0" max="1" hidden></progress><span id="tc" class="note tcl" aria-live="off"></span></div>
+  <div class="pgw" style="width:100%;display:grid;gap:4px"><progress id="pg" value="0" max="1" hidden></progress><span id="tc" class="note tcl" aria-live="off"></span></div>
   <p class="note" style="margin:0">Dalga biçiminde altın sütunlar müzikteki vurguları, çizgiler vuruş noktalarını gösterir. Çizelgeye dokunarak önizlemeyi o noktadan başlat.</p>
   <div class="pick">
     <button id="play" class="main" disabled>Önizle</button>
@@ -101,18 +118,19 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
   </div>
   <div id="st" role="status"></div>
   <div id="out"></div>
+  </div>
 </section>
 
 <section style="display:grid;gap:14px">
   <div class="ctl">
-    <h2>Fotoğraflar</h2>
+    <h2>Fotoğraflar ve videolar</h2>
     <div class="pick">
-      <label class="btn main" for="pics" tabindex="0">Fotoğraf ekle</label>
-      <input id="pics" type="file" accept="image/*" multiple hidden>
+      <label class="btn main" for="pics" tabindex="0">Fotoğraf / video ekle</label>
+      <input id="pics" type="file" accept="image/*,video/*" multiple hidden>
       <button id="shuf" disabled>Karıştır</button>
     </div>
     <div id="thumbs"></div>
-    <p class="note">Sırayı değiştirmek için sürükle ya da ‹ › düğmelerini kullan. İlk fotoğraf videoyu açar.</p>
+    <p class="note">Sırayı değiştirmek için sürükle ya da ‹ › düğmelerini kullan. İlk öğe videoyu açar. Videolar kendi slaytlarında sessiz oynar (ses olarak müzik duyulur); slayttan kısa videolar baştan döner.</p>
   </div>
 
   <div class="ctl">
@@ -134,7 +152,7 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
         <select id="q"><option value="720">HD 720p</option><option value="1080" selected>Full HD 1080p</option><option value="1440">2K 1440p</option><option value="2160">4K 2160p</option></select></label>
       <label class="f">Kadraj
         <select id="fit"><option value="blur">Orijinal, kırpmasız (bulanık dolgu)</option><option value="black">Orijinal, kırpmasız (siyah)</option><option value="fill">Doldur (kırpar)</option></select></label>
-      <label class="f">Fotoğraf başına vuruş
+      <label class="f">Fotoğraf / video başına vuruş
         <select id="bpp"><option value="0">Otomatik</option><option>1</option><option>2</option><option>4</option><option>8</option><option>16</option></select></label>
       <label class="f">En kısa slayt süresi
         <select id="minS"><option value="0">Sınırsız</option><option value="2">2 sn</option><option value="3" selected>3 sn</option><option value="4">4 sn</option><option value="5">5 sn</option><option value="6">6 sn</option></select></label>
@@ -155,7 +173,7 @@ progress{width:100%;height:8px;accent-color:var(--cy)}progress[hidden]{display:n
 <div>© 2026 Özgüler Forge. Tüm hakları saklıdır.</div></footer>
 </main>
 <dialog id="dlg"><div class="pick" style="justify-content:space-between"><h2 style="margin:0">Bilgi ve yasal metinler</h2><button id="x" class="main">Kapat</button></div>
-<details id="nasil"><summary>Nasıl kullanılır?</summary><ol><li><b>Fotoğraf ekle:</b> bir veya çok fotoğraf seç. Küçük ⬇ düğmesi orijinal dosyayı hiç değiştirmeden indirir. Sırayı sürükleyerek veya ‹ › düğmeleriyle değiştir.</li><li><b>Müzik seç:</b> MP3/M4A seç; uygulama vuruşları otomatik bulur.</li><li><b>Ayarlar:</b> biçim, çözünürlük (4K’ya kadar), kadraj ve geçiş efektini seç. “Karışık” her fotoğrafta farklı efekt kullanır. Vuruş kaydırma ile ritmi ince ayarla. “Yumuşak giriş/çıkış” videonun başında ve sonunda görüntüyü ve sesi yavaşça açıp kapatır.</li><li><b>Önizle</b> ile dene; vuruş çizelgesine dokunursan önizleme o noktadan başlar. <b>MP4 kaydet</b> ile videoyu üret: kayıt müzik süresince gerçek zamanlı sürer, ilerleme çubuğu kalan süreyi gösterir. Ekranı kapatma, başka sekmeye geçme; “Kaydı iptal et” ile durdurabilirsin.</li><li><b>İndir veya paylaş:</b> hazır videoyu indir ya da telefondan doğrudan paylaş.</li><li><b>Telefona yükle:</b> Android Chrome’da “Uygulamayı yükle”; iPhone Safari’de Paylaş → Ana Ekrana Ekle. Yüklendikten sonra internetsiz çalışır.</li></ol>
+<details id="nasil"><summary>Nasıl kullanılır?</summary><ol><li><b>Fotoğraf / video ekle:</b> bir veya çok fotoğraf ya da video seç; ikisini karıştırabilirsin. Videolar kendi slaytlarında sessiz oynar, ses olarak müzik kullanılır; slayttan kısa videolar baştan döner. Küçük ⬇ düğmesi orijinal dosyayı hiç değiştirmeden indirir. Sırayı sürükleyerek veya ‹ › düğmeleriyle değiştir.</li><li><b>Müzik seç:</b> MP3/M4A seç; uygulama vuruşları otomatik bulur.</li><li><b>Ayarlar:</b> biçim, çözünürlük (4K’ya kadar), kadraj ve geçiş efektini seç. “Karışık” her fotoğrafta farklı efekt kullanır. Vuruş kaydırma ile ritmi ince ayarla. “Yumuşak giriş/çıkış” videonun başında ve sonunda görüntüyü ve sesi yavaşça açıp kapatır.</li><li><b>Önizle</b> ile dene; vuruş çizelgesine dokunursan önizleme o noktadan başlar. <b>MP4 kaydet</b> ile videoyu üret: kayıt müzik süresince gerçek zamanlı sürer, ilerleme çubuğu kalan süreyi gösterir. Ekranı kapatma, başka sekmeye geçme; “Kaydı iptal et” ile durdurabilirsin.</li><li><b>İndir veya paylaş:</b> hazır videoyu indir ya da telefondan doğrudan paylaş.</li><li><b>Telefona yükle:</b> Android Chrome’da “Uygulamayı yükle”; iPhone Safari’de Paylaş → Ana Ekrana Ekle. Yüklendikten sonra internetsiz çalışır.</li></ol>
 <p><b>Kalite notu:</b> Fotoğraflar sunucuya gitmez, yeniden sıkıştırılmaz ve dosyaları değiştirilmez. “Orijinal, kırpmasız” kadrajda fotoğrafın tamamı görünür. Video, seçtiğin çözünürlükte yüksek bit hızıyla kodlanır; MP4 doğası gereği sıkıştırmalıdır, kaliteyi korumak için 1080p/4K seç.</p></details>
 <details id="kur"><summary>Telefona yükleme</summary><p><b>Android (Chrome):</b> sayfayı https ile açıp birkaç saniye bekle, “⤓ Yükle”ye bas. Çıkmazsa Chrome menüsü (⋮) → “Uygulamayı yükle” / “Ana ekrana ekle”.</p><p><b>iPhone (Safari):</b> Paylaş düğmesi → “Ana Ekrana Ekle”. (Chrome’dan yüklenmez.)</p><p><b>Bilgisayar:</b> Chrome/Edge adres çubuğundaki yükle simgesi.</p></details>
 <details id="gizlilik"><summary>Gizlilik Politikası ve KVKK Aydınlatma Metni</summary><p>Veri sorumlusu: Özgüler Forge (iletisim@ozgulerforge.com.tr). Uygulama tamamen cihazında çalışır; fotoğraf, müzik ve oluşturulan videolar cihazından çıkmaz, sunucuya yüklenmez. Hesap, reklam, analiz veya takip aracı yoktur. Bu nedenle 6698 sayılı KVKK kapsamında uygulama içinde kişisel veri işlenmez.</p><p>Bize e-posta yazarsan e-posta adresin ve mesajın yalnızca yanıtlamak ve destek vermek için (meşru menfaat/sözleşme ilişkisi) işlenir, gerekli süre sonunda silinir. KVKK md. 11 kapsamındaki bilgi, düzeltme, silme ve itiraz haklarını iletisim@ozgulerforge.com.tr adresine başvurarak kullanabilirsin.</p></details>
@@ -170,6 +188,7 @@ const $ = id => document.getElementById(id);
 const cv = $('cv'), main = cv.getContext('2d'), tlc = $('tlc'), tctx = tlc.getContext('2d');
 let ctx = main, mc = null, bc = null, imgs = [], AC = null, buf = null, beats = [], bpm = 0;
 let tl = [], BS = [], startT = 0, endT = 0;
+let vlive = false;
 let pf = 0, lastUrl = null, dragI = -1, lastSec = -1, src = null, ctx0 = 0, playing = false, recMode = false, raf = 0, mr = null, chunks = [], finishing = false;
 
 function say(m, c) { const s = $('st'); s.textContent = m || ''; s.className = c || ''; }
@@ -190,21 +209,50 @@ async function loadImg(f) {
     const r = 4096 / m, c = document.createElement('canvas'); c.width = Math.round(bmp.width * r); c.height = Math.round(bmp.height * r);
     c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height); bmp.close(); bmp = await createImageBitmap(c);
   }
+  return pack(bmp);
+}
+function pack(bmp) {
   const t = document.createElement('canvas'), q = 144 / Math.max(bmp.width, bmp.height);
   t.width = Math.max(1, Math.round(bmp.width * q)); t.height = Math.max(1, Math.round(bmp.height * q));
   t.getContext('2d').drawImage(bmp, 0, 0, t.width, t.height);
   const g = document.createElement('canvas'), z = 40 / Math.max(bmp.width, bmp.height); g.width = Math.max(1, Math.round(bmp.width * z)); g.height = Math.max(1, Math.round(bmp.height * z)); g.getContext('2d').drawImage(bmp, 0, 0, g.width, g.height);
   return { bmp, bg: g, url: t.toDataURL('image/jpeg', .85) };
 }
+// Videoyu açar: ilk kareyi küçük resim/kapak olarak alır; oynatma sırasında <video> elemanı kullanılır
+async function loadVid(f) {
+  const u = URL.createObjectURL(f), v = document.createElement('video');
+  v.muted = true; v.defaultMuted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+  v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
+  const wait = (ev, ms) => new Promise((ok, no) => {
+    const t = setTimeout(() => no(new Error(ev)), ms);
+    v.addEventListener(ev, () => { clearTimeout(t); ok(); }, { once: true });
+    v.addEventListener('error', () => { clearTimeout(t); no(new Error('video')); }, { once: true });
+  });
+  try {
+    const w = wait('loadedmetadata', 20000); v.src = u; await w;
+    if (!v.videoWidth || !v.videoHeight) throw new Error('boyut');
+    const d = v.duration;
+    if (isFinite(d) && d > 0) { const s = wait('seeked', 4000); v.currentTime = Math.min(.1, d / 2); try { await s; } catch (x) { } }
+    const k = Math.min(1, 1920 / Math.max(v.videoWidth, v.videoHeight)), c = document.createElement('canvas');
+    c.width = Math.max(1, Math.round(v.videoWidth * k)); c.height = Math.max(1, Math.round(v.videoHeight * k));
+    c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+    return { ...pack(await createImageBitmap(c)), v, vu: u, dur: isFinite(d) ? d : 0 };
+  } catch (e) { URL.revokeObjectURL(u); throw e; }
+}
+const isVid = f => /^video\//.test(f.type) || /\.(mp4|m4v|mov|webm|mkv|3gp)$/i.test(f.name);
+function drop(it) {
+  try { it.bmp.close(); } catch (x) { }
+  if (it.v) { try { it.v.pause(); it.v.removeAttribute('src'); it.v.load(); } catch (x) { } URL.revokeObjectURL(it.vu); }
+}
 $('pics').onchange = async e => {
   const files = Array.from(e.target.files), bad = [];
   if (e.target.value !== undefined) try { e.target.value = ''; } catch (x) { }
-  say('Fotoğraflar yükleniyor… (' + files.length + ')');
+  say('Dosyalar yükleniyor… (' + files.length + ')');
   for (const f of files) {
-    try { imgs.push({ ...await loadImg(f), f }); } catch (x) { bad.push(f.name); }
+    try { imgs.push({ ...await (isVid(f) ? loadVid(f) : loadImg(f)), f }); } catch (x) { bad.push(f.name); }
   }
   thumbs(); build();
-  if (bad.length) say(bad.length + ' fotoğraf açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : '') + ' (HEIC/HEIF ise JPG olarak kaydedip tekrar ekle)', 'err');
+  if (bad.length) say(bad.length + ' dosya açılamadı: ' + bad.slice(0, 3).join(', ') + (bad.length > 3 ? '…' : '') + ' (HEIC/HEIF fotoğrafı JPG, videoyu MP4/H.264 olarak kaydedip tekrar ekle)', 'err');
 };
 $('shuf').onclick = () => { stop(); for (let i = imgs.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [imgs[i], imgs[j]] = [imgs[j], imgs[i]]; } thumbs(); build(); };
 function thumbs() {
@@ -213,7 +261,7 @@ function thumbs() {
     const d = document.createElement('div'); d.className = 'th';
     const g = document.createElement('img'); g.src = im.url; g.alt = 'Fotoğraf ' + (i + 1);
     const b = document.createElement('button'); b.textContent = '×'; b.title = 'Kaldır'; b.setAttribute('aria-label', 'Fotoğraf ' + (i + 1) + ' kaldır');
-    b.onclick = () => { stop(); const r = imgs.splice(i, 1)[0]; try { r.bmp.close(); } catch (x) { } thumbs(); build(); };
+    b.onclick = () => { stop(); const r = imgs.splice(i, 1)[0]; drop(r); thumbs(); build(); };
     const dl = document.createElement('button'); dl.textContent = '⬇'; dl.title = 'Orijinal dosyayı indir'; dl.className = 'dl'; dl.setAttribute('aria-label', 'Orijinali indir');
     dl.onclick = () => { const u = URL.createObjectURL(im.f), a = document.createElement('a'); a.href = u; a.download = im.f.name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 4e3); };
     d.draggable = true;
@@ -223,6 +271,7 @@ function thumbs() {
     d.ondrop = e => { if (dragI < 0) return; e.preventDefault(); e.stopPropagation(); d.classList.remove('over'); const a = dragI; dragI = -1; mv(a, i); };
     d.ondragend = () => { dragI = -1; };
     d.append(g, b, dl);
+    if (im.v) { const vb = document.createElement('span'); vb.className = 'vb'; vb.textContent = '▶ ' + (im.dur ? mmss(im.dur) : 'video'); d.appendChild(vb); }
     if (imgs.length > 1) {
       if (i > 0) { const l = document.createElement('button'); l.textContent = '‹'; l.className = 'mv ml'; l.title = 'Sola taşı'; l.setAttribute('aria-label', 'Fotoğraf ' + (i + 1) + ' sola taşı'); l.onclick = () => mv(i, i - 1); d.appendChild(l); }
       if (i < imgs.length - 1) { const r = document.createElement('button'); r.textContent = '›'; r.className = 'mv mr'; r.title = 'Sağa taşı'; r.setAttribute('aria-label', 'Fotoğraf ' + (i + 1) + ' sağa taşı'); r.onclick = () => mv(i, i + 1); d.appendChild(r); }
@@ -230,6 +279,7 @@ function thumbs() {
     t.appendChild(d);
   });
   $('shuf').disabled = imgs.length < 2;
+  document.body.classList.toggle('hm', imgs.length > 0);
 }
 for (const l of document.querySelectorAll('label.btn')) l.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); l.click(); } };
 
@@ -301,7 +351,7 @@ function build() {
   const starts = BS.filter((_, i) => i % bpp === 0);
   startT = st;
   starts.forEach((t, i) => tl.push({ t0: i === 0 ? st : t, t1: i + 1 < starts.length ? starts[i + 1] : endT, img: i % imgs.length }));
-  say(imgs.length + ' fotoğraf → ' + tl.length + ' kare · her biri ' + bpp + ' vuruş (≈' + (bpp * iv).toFixed(1) + ' sn) · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · fotoğraflar tekrar eder' : '') + (tl.length < imgs.length ? ' · ' + (imgs.length - tl.length) + ' fotoğraf sığmadı: en kısa süreyi düşür' : ''));
+  say(imgs.length + ' öğe → ' + tl.length + ' kare · her biri ' + bpp + ' vuruş (≈' + (bpp * iv).toFixed(1) + ' sn) · ' + (endT - st).toFixed(1) + ' sn' + (tl.length > imgs.length ? ' · öğeler tekrar eder' : '') + (tl.length < imgs.length ? ' · ' + (imgs.length - tl.length) + ' öğe sığmadı: en kısa süreyi düşür' : ''));
   draw(st); drawTL(st);
 }
 function clearView() { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height); if (imgs.length) put(0); drawTL(-1); }
@@ -313,11 +363,34 @@ function lastBeat(t) {
 }
 const TR = ['fade', 'par', 'iris', 'sil', 'per', 'blr', 'dol', 'isi', 'siy', 'don', 'flip'];
 function put(i, o = {}) {
-  const b = imgs[i].bmp, W = cv.width, H = cv.height, f = $('fit').value, r = (f === 'fill' ? Math.max : Math.min)(W / b.width, H / b.height);
+  const it = imgs[i], W = cv.width, H = cv.height, f = $('fit').value;
+  let b = it.bmp, bw = b.width, bh = b.height, g = it.bg;
+  if (it.v && vlive && it.v.readyState >= 2 && it.v.videoWidth) {
+    b = it.v; bw = b.videoWidth; bh = b.videoHeight;
+    if (f === 'blur') { g = it.bgl || (it.bgl = Object.assign(document.createElement('canvas'), { width: it.bg.width, height: it.bg.height })); g.getContext('2d').drawImage(b, 0, 0, g.width, g.height); }
+  }
+  const r = (f === 'fill' ? Math.max : Math.min)(W / bw, H / bh);
   ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high'; ctx.globalAlpha = o.al ?? 1;
   ctx.translate(W / 2 + (o.dx || 0), H / 2 + (o.dy || 0)); ctx.rotate(o.rot || 0); ctx.scale((o.sc || 1) * (o.sx ?? 1), o.sc || 1);
-  if (f === 'blur') { const g = imgs[i].bg, k = Math.max(W / g.width, H / g.height); ctx.drawImage(g, -g.width * k / 2, -g.height * k / 2, g.width * k, g.height * k); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(-W / 2, -H / 2, W, H); }
-  ctx.drawImage(b, -b.width * r / 2, -b.height * r / 2, b.width * r, b.height * r); ctx.restore();
+  if (f === 'blur') { const k = Math.max(W / g.width, H / g.height); ctx.drawImage(g, -g.width * k / 2, -g.height * k / 2, g.width * k, g.height * k); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(-W / 2, -H / 2, W, H); }
+  ctx.drawImage(b, -bw * r / 2, -bh * r / 2, bw * r, bh * r); ctx.restore();
+}
+// Oynatma sırasında etkin slayttaki (ve geçişteki önceki slayttaki) videoları zamanlamaya göre oynatır
+function vsync(it, rel) {
+  const v = it.v, d = it.dur, tg = d > .2 ? rel % d : rel;
+  if (v.paused) { if (Math.abs(v.currentTime - tg) > .05) { try { v.currentTime = tg; } catch (x) { } } const p = v.play(); if (p) p.catch(() => { }); }
+  else { const df = Math.abs(v.currentTime - tg); if (df > .35 && (!d || df < d - .35)) { try { v.currentTime = tg; } catch (x) { } } }
+}
+function syncVids(t) {
+  if (!tl.length || !imgs.some(x => x.v)) return;
+  let k = 0; for (let i = 0; i < tl.length; i++) { if (t >= tl[i].t0) k = i; else break; }
+  const want = {}; want[tl[k].img] = t - tl[k].t0;
+  if (k > 0 && t - tl[k].t0 < 1.3 && !(tl[k - 1].img in want)) want[tl[k - 1].img] = t - tl[k - 1].t0;
+  imgs.forEach((it, i) => { if (!it.v) return; if (i in want) vsync(it, want[i]); else if (!it.v.paused) { it.v.pause(); try { it.v.currentTime = 0; } catch (x) { } } });
+}
+function vstop() {
+  vlive = false;
+  for (const it of imgs) if (it.v) { try { if (!it.v.paused) it.v.pause(); if (it.v.currentTime > .05) it.v.currentTime = 0; } catch (x) { } }
 }
 function soft(b, mk) {
   const W = cv.width, H = cv.height;
@@ -410,14 +483,14 @@ function start(rec, from) {
   ctx0 = AC.currentTime + .1; src.start(ctx0, pf, endT - pf);
   if ($('fade').checked) { const tot = endT - pf, fd = Math.min(1.2, tot / 3), fi = Math.min(.6, fd), g = gn.gain; g.setValueAtTime(0, ctx0); g.linearRampToValueAtTime(1, ctx0 + fi); g.setValueAtTime(1, ctx0 + tot - fd); g.linearRampToValueAtTime(0, ctx0 + tot); }
   src.onended = () => { if (playing) finish(); };
-  playing = true; recMode = rec; $('play').textContent = rec ? 'Kaydı iptal et' : 'Durdur'; $('pg').value = 0; $('pg').hidden = false;
+  playing = true; vlive = true; syncVids(pf); recMode = rec; $('play').textContent = rec ? 'Kaydı iptal et' : 'Durdur'; $('pg').value = 0; $('pg').hidden = false;
   raf = requestAnimationFrame(frame);
 }
 function frame() {
   if (!playing) return;
   const t = pf + Math.max(0, AC.currentTime - ctx0);
   if (t >= endT - .02) return finish();
-  draw(t, 1); drawTL(t); drawEQ(); raf = requestAnimationFrame(frame);
+  syncVids(t); draw(t, 1); drawTL(t); drawEQ(); raf = requestAnimationFrame(frame);
   const tot = endT - pf, el = Math.min(tot, t - pf); $('pg').value = el / tot;
   const sec = Math.floor(el);
   if (sec !== lastSec) { lastSec = sec; $('tc').textContent = mmss(el) + ' / ' + mmss(tot); if (recMode) say('Kaydediliyor… %' + Math.round(el / tot * 100) + ' · kalan ≈ ' + mmss(tot - el) + ' · ekranı kapatma'); }
@@ -425,12 +498,12 @@ function frame() {
 function finish() {
   playing = false; cancelAnimationFrame(raf); $('play').textContent = 'Önizle';
   if (recMode) $('play').disabled = true; else { $('pg').hidden = true; $('tc').textContent = ''; }
-  draw(Math.max(startT, endT - .03), recMode); drawTL(endT); drawEQ(1);
+  draw(Math.max(startT, endT - .03), recMode); vstop(); drawTL(endT); drawEQ(1);
   if (recMode && mr && mr.state !== 'inactive') { finishing = true; setTimeout(() => mr.stop(), 400); }
 }
 function stop() {
   const wasRec = recMode && playing;
-  playing = false; cancelAnimationFrame(raf);
+  playing = false; cancelAnimationFrame(raf); vstop();
   try { src && src.stop(); } catch (x) { }
   if (wasRec && mr && mr.state !== 'inactive') { finishing = false; try { mr.stop(); } catch (x) { } lock(0); $('rec').disabled = !tl.length; say('Kayıt iptal edildi.'); }
   $('play').textContent = 'Önizle'; $('pg').hidden = true; $('tc').textContent = ''; drawEQ(1);
@@ -449,7 +522,7 @@ function drawEQ(clr) {
 }
 function prev(kind) {
   cancelAnimationFrame(pv); if (playing) return;
-  if (imgs.length < 2) return say('Efekt önizlemesi için en az 2 fotoğraf ekle.', 'err');
+  if (imgs.length < 2) { say('Efekt önizlemesi için en az 2 fotoğraf/video ekle.', 'err'); return toast('Efekt önizlemesi için en az 2 fotoğraf/video ekle.'); }
   if (kind === 'mix') kind = TR[Math.random() * TR.length | 0];
   const D = kind === 'fade' ? 1.2 : .95, T = D + .9, t0 = performance.now();
   (function f(now) {
@@ -480,7 +553,7 @@ $('inst').onclick = async () => { if (matchMedia('(display-mode: standalone)').m
 $('upd').onclick = async () => {
   if (!('serviceWorker' in navigator) || location.protocol === 'file:') return toast('Güncelleme yalnızca yayındaki (https) sürümde çalışır.');
   try { const r = await navigator.serviceWorker.getRegistration(); if (!r) return toast('Kayıt henüz hazır değil; sayfayı yenileyip tekrar dene.'); toast('Kontrol ediliyor…'); await r.update();
-    setTimeout(() => { if (r.waiting) toast('Yeni sürüm hazır', () => r.waiting.postMessage('skip')); else if (r.installing) toast('Yeni sürüm indiriliyor…'); else toast('Güncel sürümdesin (v7)'); }, 1500);
+    setTimeout(() => { if (r.waiting) toast('Yeni sürüm hazır', () => r.waiting.postMessage('skip')); else if (r.installing) toast('Yeni sürüm indiriliyor…'); else toast('Güncel sürümdesin (v8)'); }, 1500);
   } catch (x) { toast('Kontrol edilemedi. İnternet bağlantını kontrol et.'); }
 };
 addEventListener('appinstalled', () => $('inst').hidden = true);
@@ -488,7 +561,7 @@ if (/iphone|ipad/i.test(navigator.userAgent) && !navigator.standalone) $('ios').
 const net = () => $('net').textContent = navigator.onLine ? '' : '● Çevrimdışı mod'; addEventListener('online', net); addEventListener('offline', net); net();
 navigator.storage?.persist?.();
 document.body.addEventListener('dragover', e => e.preventDefault());
-document.body.addEventListener('drop', e => { e.preventDefault(); const f = [...e.dataTransfer.files]; const im = f.filter(x => x.type.startsWith('image/')), au = f.find(x => x.type.startsWith('audio/')); const p = $('pics'), dt = new DataTransfer(); if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); } if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); } });
+document.body.addEventListener('drop', e => { e.preventDefault(); const f = [...e.dataTransfer.files]; const im = f.filter(x => /^(image|video)\//.test(x.type)), au = f.find(x => x.type.startsWith('audio/')); const p = $('pics'), dt = new DataTransfer(); if (im.length) { im.forEach(x => dt.items.add(x)); p.files = dt.files; p.onchange({ target: p }); } if (au) { const d2 = new DataTransfer(); d2.items.add(au); $('aud').files = d2.files; $('aud').onchange({ target: $('aud') }); } });
 addEventListener('keydown', e => { if (e.code === 'Space' && !/INPUT|SELECT|BUTTON|TEXTAREA/.test(e.target.tagName) && !$('play').disabled) { e.preventDefault(); $('play').click(); } });
 load(); mark(); size(); clearView();
 </script>
