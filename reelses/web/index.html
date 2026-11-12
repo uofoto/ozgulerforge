@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Reel Ses">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>Reel Ses</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0; min-height: 100vh; display: grid; place-items: center;
+    background: #111827; color: #f3f4f6;
+    font-family: system-ui, -apple-system, sans-serif;
+    padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  }
+  main { width: 100%; max-width: 420px; padding: 24px 0; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  p.sub { margin: 0 0 20px; color: #9ca3af; font-size: .9rem; }
+  input, button, textarea, select {
+    width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #374151;
+    font-size: 1rem; margin-bottom: 12px; font-family: inherit;
+  }
+  input, textarea, select { background: #1f2937; color: inherit; }
+  textarea { resize: vertical; min-height: 64px; }
+  button { background: #ec4899; border: 0; color: #fff; font-weight: 600; cursor: pointer; }
+  button.sec { background: #374151; font-weight: 500; }
+  button:disabled { opacity: .6; }
+  .row { display: flex; gap: 8px; align-items: flex-start; }
+  .row input { margin-bottom: 12px; }
+  .row button { width: auto; white-space: nowrap; margin-bottom: 12px; }
+  #status, #keyMsg { min-height: 1.5em; font-size: .9rem; margin-bottom: 8px; word-break: break-word; }
+  .err { color: #f87171; } .ok { color: #34d399; }
+  audio { width: 100%; margin: 4px 0 12px; }
+  video { width: 100%; max-height: 60vh; margin: 4px 0 12px; border-radius: 12px; background: #000; }
+  .seg { display: flex; gap: 8px; margin-bottom: 12px; }
+  .seg button { margin-bottom: 0; background: #1f2937; border: 1px solid #374151; font-weight: 500; }
+  .seg button[aria-pressed="true"] { background: #ec4899; border-color: #ec4899; font-weight: 600; }
+  a.link { color: #9ca3af; font-size: .85rem; }
+  .chk { display: flex; gap: 10px; align-items: flex-start; font-size: .82rem; color: #9ca3af; margin: 0 0 12px; line-height: 1.35; }
+  .chk input { width: auto; margin: 2px 0 0; padding: 0; flex: none; transform: scale(1.25); accent-color: #ec4899; }
+  #bar { height: 8px; background: #1f2937; border-radius: 6px; overflow: hidden; margin: 0 0 10px; }
+  #barFill { height: 100%; width: 0; background: #ec4899; transition: width .3s; }
+  #legal { background: #1f2937; border: 1px solid #374151; border-radius: 12px; padding: 12px 14px; font-size: .8rem; color: #d1d5db; margin: 0 0 12px; line-height: 1.45; }
+  details#adv { margin: 0 0 12px; font-size: .85rem; color: #9ca3af; }
+  details#adv summary { cursor: pointer; margin-bottom: 8px; }
+  .two { display: flex; gap: 8px; } .two input { margin-bottom: 8px; }
+  #lib { margin-top: 20px; }
+  #lib h2 { font-size: 1.05rem; margin: 0 0 2px; }
+  .item { background: #1f2937; border: 1px solid #374151; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; }
+  .item .nm { font-size: .88rem; word-break: break-word; }
+  .item .mt { font-size: .75rem; color: #9ca3af; margin: 2px 0 8px; }
+  .item .bt { display: flex; gap: 6px; }
+  .item button { margin: 0; padding: 8px; font-size: .85rem; background: #374151; font-weight: 500; }
+  #legal ul { margin: 6px 0 0; padding-left: 18px; } #legal li { margin-bottom: 4px; }
+  #fname { font-size: .85rem; color: #9ca3af; margin: 0 0 4px; word-break: break-word; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🎵 Reel Ses</h1>
+  <p class="sub">Instagram Reel linkini yapıştır, sesi (MP3) veya videoyu (MP4) indir.</p>
+
+  <section id="setup" hidden>
+    <p class="sub">Bilgisayardaki sunucu penceresinde yazan <b>anahtarı</b> bir kere gir.</p>
+    <input id="key" type="text" placeholder="Anahtar" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button id="keyBtn">Kaydet</button>
+    <div id="keyMsg"></div>
+  </section>
+
+  <section id="app" hidden>
+    <div class="row">
+      <textarea id="url" rows="2" placeholder="Reel linki (birden fazla olabilir, her satıra bir tane)" autocomplete="off" spellcheck="false"></textarea>
+      <button id="pasteBtn" class="sec" type="button">Yapıştır</button>
+    </div>
+    <div class="seg" role="group" aria-label="İndirme biçimi">
+      <button id="fmtAudio" type="button" aria-pressed="true">🎵 Ses (MP3)</button>
+      <button id="fmtVideo" type="button" aria-pressed="false">🎬 Video (MP4)</button>
+    </div>
+    <select id="opt" aria-label="Kalite / biçim"></select>
+    <details id="adv">
+      <summary>Gelişmiş: kırp / ses seviyesi</summary>
+      <div class="two">
+        <input id="tBas" type="text" inputmode="numeric" placeholder="Başlangıç (0:05)" autocomplete="off">
+        <input id="tBit" type="text" inputmode="numeric" placeholder="Bitiş (0:20)" autocomplete="off">
+      </div>
+      <label class="chk"><input id="norm" type="checkbox"><span>Ses seviyesini eşitle (yalnızca MP3)</span></label>
+    </details>
+    <label class="chk">
+      <input id="consent" type="checkbox">
+      <span>Bu içeriği indirme hakkım olduğunu ve yalnızca kişisel kullanım için indireceğimi onaylıyorum. <a id="legalLink" class="link" href="#">Kullanım notu</a></span>
+    </label>
+    <div id="legal" hidden>
+      <b>Kullanım notu</b>
+      <ul>
+        <li>Yalnızca kendi içeriğin, hak sahibinin izin verdiği veya indirmene izin veren lisanslı içerikler için kullan.</li>
+        <li>İndirdiğin içeriği izinsiz paylaşma, yeniden yükleme, düzenleyip yayınlama veya ticari amaçla kullanma.</li>
+        <li>Instagram'ın kullanım şartları otomatik indirmeyi genellikle kısıtlar; hesabında kısıtlama riski olabilir.</li>
+        <li>Yazılım “olduğu gibi” sunulur, garanti verilmez. Instagram/Meta ile bağlantısı yoktur.</li>
+        <li>Ayrıntılar bilgisayardaki YASAL-NOT.txt dosyasındadır. Hukuki danışmanlık değildir.</li>
+      </ul>
+    </div>
+    <button id="btn">İndir</button>
+  </section>
+
+  <div id="bar" hidden><div id="barFill"></div></div>
+  <div id="status"></div>
+
+  <section id="result" hidden>
+    <p id="fname"></p>
+    <audio id="player" controls></audio>
+    <video id="vplayer" controls playsinline hidden></video>
+    <button id="shareBtn" class="sec" hidden>Paylaş / Dosyalara kaydet</button>
+    <a id="saveLink" class="link">İndirme başlamadıysa buraya dokun</a>
+  </section>
+
+  <section id="lib" hidden>
+    <h2>📚 Kitaplık</h2>
+    <p class="sub" id="libInfo"></p>
+    <div id="libList"></div>
+    <a id="libClear" class="link" href="#">Kitaplığı temizle</a>
+  </section>
+
+  <p><a id="resetKey" class="link" href="#" hidden>Anahtarı değiştir</a></p>
+</main>
+
+<script>
+const RX = /https?:\/\/(?:www\.)?instagram\.com\/\S+/i;
+const RXG = /https?:\/\/(?:www\.)?instagram\.com\/\S+/gi;
+const KEY_NAME = 'reelses_key';
+const FMT_NAME = 'reelses_fmt';
+const CONSENT_NAME = 'reelses_onay';
+const CONSENT_VER = 'v1';
+const $ = id => document.getElementById(id);
+const S = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+  del(k) { try { localStorage.removeItem(k); } catch (e) {} }
+};
+
+let key = S.get(KEY_NAME) || '';
+let fmt = S.get(FMT_NAME) === 'video' ? 'video' : 'audio';
+let lastFile = null, lastUrl = null, busy = false;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function setBar(p) {
+  $('bar').hidden = (p === null);
+  if (p !== null) $('barFill').style.width = Math.max(0, Math.min(100, p)) + '%';
+}
+async function errDetail(r, fallback) {
+  try { const d = (await r.json()).detail; if (d) return d; } catch (e) {}
+  return fallback;
+}
+
+function say(msg, cls) { const s = $('status'); s.className = cls || ''; s.textContent = msg || ''; }
+function renderFmt() {
+  $('fmtAudio').setAttribute('aria-pressed', String(fmt === 'audio'));
+  $('fmtVideo').setAttribute('aria-pressed', String(fmt === 'video'));
+}
+function setFmt(f) { fmt = f; S.set(FMT_NAME, f); renderFmt(); renderOpt(); }
+function render() {
+  $('setup').hidden = !!key;
+  $('app').hidden = !key;
+  $('resetKey').hidden = !key;
+}
+
+// Paylaş menüsünden gelen link (?url=...&text=...)
+const q = new URLSearchParams(location.search);
+const shared = [q.get('url'), q.get('text'), q.get('title')].filter(Boolean).join(' ');
+const sm = shared.match(RX);
+if (sm) { $('url').value = sm[0]; history.replaceState(null, '', '/'); }
+
+async function saveKey() {
+  const k = $('key').value.trim();
+  if (!k) return;
+  $('keyMsg').className = ''; $('keyMsg').textContent = 'Kontrol ediliyor…';
+  try {
+    const r = await fetch('/api/ping', { headers: { 'X-Key': k } });
+    if (r.status === 401) throw new Error('Anahtar yanlış.');
+    if (!r.ok) throw new Error(await errDetail(r, 'Sunucu hatası (' + r.status + ').'));
+    key = k; S.set(KEY_NAME, k);
+    $('keyMsg').textContent = '';
+    render();
+    if ($('url').value) go();
+  } catch (e) {
+    $('keyMsg').className = 'err';
+    $('keyMsg').textContent = e instanceof TypeError ? 'Sunucuya ulaşılamıyor.' : e.message;
+  }
+}
+
+function fileName(cd) {
+  cd = cd || '';
+  let m = /filename\*=UTF-8''([^;]+)/i.exec(cd);
+  if (m) { try { return decodeURIComponent(m[1]); } catch (e) {} }
+  m = /filename="?([^";]+)/i.exec(cd);
+  return m ? m[1] : (fmt === 'video' ? 'reel.mp4' : 'reel.mp3');
+}
+
+function badKey() {
+  key = ''; S.del(KEY_NAME); render();
+  $('keyMsg').className = 'err'; $('keyMsg').textContent = 'Anahtar geçersiz, tekrar gir.';
+  say('');
+}
+
+// ---- seçenekler (ses biçimi / video kalitesi) ----
+let ses = S.get('reelses_ses') === 'm4a' ? 'm4a' : 'mp3';
+let hd = ['720', '1080'].includes(S.get('reelses_hd')) ? Number(S.get('reelses_hd')) : 0;
+function renderOpt() {
+  const o = $('opt'); o.textContent = '';
+  const add = (v, t) => { const e = document.createElement('option'); e.value = v; e.textContent = t; o.appendChild(e); };
+  if (fmt === 'video') {
+    add('0', 'En iyi kalite'); add('1080', 'En çok 1080p'); add('720', 'En çok 720p (küçük dosya)');
+    o.value = String(hd);
+  } else {
+    add('mp3', 'MP3'); add('m4a', 'M4A (daha hızlı, kayıpsız)');
+    o.value = ses;
+  }
+}
+function parseT(v) {
+  v = (v || '').trim(); if (!v) return 0;
+  let m;
+  if ((m = /^(\d{1,5})$/.exec(v))) return +m[1];
+  if ((m = /^(\d{1,3}):([0-5]?\d)$/.exec(v))) return +m[1] * 60 + +m[2];
+  if ((m = /^(\d{1,2}):([0-5]?\d):([0-5]?\d)$/.exec(v))) return +m[1] * 3600 + +m[2] * 60 + +m[3];
+  return NaN;
+}
+function curOpts() {
+  const bas = parseT($('tBas').value), bit = parseT($('tBit').value);
+  const norm = $('norm').checked && fmt === 'audio' && ses === 'mp3';
+  return { bas, bit, norm };
+}
+function kindNow() {
+  const o = curOpts();
+  let k = fmt === 'video' ? 'mp4-' + hd : ses;
+  if (o.bas > 0 || o.bit > 0) k += '-k' + o.bas + '_' + o.bit;
+  if (o.norm) k += '-n';
+  return k;
+}
+function igCode(u) { const m = /\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/.exec(u); return m ? m[1] : ''; }
+
+// ---- kitaplık (IndexedDB: dosyalar telefonda kalır, çevrimdışı dinlenir) ----
+let dbp = null;
+function db() {
+  if (!dbp) dbp = new Promise((res, rej) => {
+    try {
+      const r = indexedDB.open('reelses', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('files', { keyPath: 'key' });
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    } catch (e) { rej(e); }
+  });
+  return dbp;
+}
+async function tx(mode, fn) {
+  const d = await db();
+  return new Promise((res, rej) => {
+    const t = d.transaction('files', mode), st = t.objectStore('files'), rq = fn(st);
+    t.oncomplete = () => res(rq ? rq.result : undefined);
+    t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+  });
+}
+const libGet = k => tx('readonly', st => st.get(k)).catch(() => null);
+const libAll = () => tx('readonly', st => st.getAll());
+const libPut = r => tx('readwrite', st => st.put(r));
+const libDel = k => tx('readwrite', st => st.delete(k));
+const libClr = () => tx('readwrite', st => st.clear());
+const mb = n => (n / 1048576).toFixed(1) + ' MB';
+
+async function renderLib() {
+  let items = [];
+  try { items = await libAll(); } catch (e) { $('lib').hidden = true; return; }
+  items.sort((a, b) => b.date - a.date);
+  $('lib').hidden = items.length === 0;
+  $('libInfo').textContent = items.length + ' dosya · ' + mb(items.reduce((s, r) => s + r.size, 0)) + ' · bu telefonda saklanır';
+  const list = $('libList'); list.textContent = '';
+  for (const rec of items) {
+    const d = document.createElement('div'); d.className = 'item';
+    const nm = document.createElement('div'); nm.className = 'nm'; nm.textContent = rec.name;
+    const mt = document.createElement('div'); mt.className = 'mt';
+    mt.textContent = rec.kind.toUpperCase().replace('-', ' ') + ' · ' + mb(rec.size) + ' · ' + new Date(rec.date).toLocaleDateString('tr-TR');
+    const bt = document.createElement('div'); bt.className = 'bt';
+    const mk = (t, f) => { const b = document.createElement('button'); b.textContent = t; b.addEventListener('click', f); bt.appendChild(b); };
+    mk('▶ Aç', () => { show(rec); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    mk('💾 Kaydet', async () => {
+      const f = new File([rec.blob], rec.name, { type: rec.mime });
+      if (navigator.canShare && navigator.canShare({ files: [f] })) { try { await navigator.share({ files: [f], title: rec.name }); } catch (e) {} }
+      else saveBlob(rec.blob, rec.name);
+    });
+    mk('🗑 Sil', async () => { if (confirm('Kitaplıktan silinsin mi?\n' + rec.name)) { await libDel(rec.key); renderLib(); } });
+    d.append(nm, mt, bt); list.appendChild(d);
+  }
+}
+function saveBlob(blob, name) {
+  const u = URL.createObjectURL(blob), a = document.createElement('a');
+  a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 60000);
+}
+
+// Sonucu (oynatıcı + kaydet bağlantısı) gösterir
+function show(rec) {
+  const isVideo = rec.mime.startsWith('video/');
+  lastFile = new File([rec.blob], rec.name, { type: rec.mime });
+  if (lastUrl) URL.revokeObjectURL(lastUrl);
+  lastUrl = URL.createObjectURL(rec.blob);
+  $('fname').textContent = rec.name;
+  const pa = $('player'), pv = $('vplayer');
+  pa.pause(); pv.pause();
+  pa.hidden = isVideo; pv.hidden = !isVideo;
+  (isVideo ? pv : pa).src = lastUrl;
+  (isVideo ? pa : pv).removeAttribute('src');
+  $('saveLink').href = lastUrl; $('saveLink').download = rec.name;
+  $('shareBtn').hidden = !(navigator.canShare && navigator.canShare({ files: [lastFile] }));
+  $('result').hidden = false;
+}
+
+// İşi bitene kadar sorar (sıra / yüzde / dönüştürme)
+async function waitJob(id, pre) {
+  let fails = 0;
+  while (true) {
+    await sleep(700);
+    let r;
+    try {
+      r = await fetch('/api/job/' + id, { headers: { 'X-Key': key } });
+      fails = 0;
+    } catch (e) {
+      if (++fails > 8) throw new Error('Sunucuya ulaşılamıyor. Bilgisayarda Telefon-Sunucu açık mı?');
+      continue;
+    }
+    if (r.status === 401) { const e = new Error('401'); e.code = 401; throw e; }
+    if (r.status === 429) { await sleep(2000); continue; }
+    if (!r.ok) throw new Error(await errDetail(r, 'Hata (' + r.status + ').'));
+    const j = await r.json();
+    if (j.state === 'queued') { setBar(0); say(pre + 'Sırada: ' + j.position + '. sıra'); }
+    else if (j.state === 'running') {
+      setBar(j.percent);
+      say(pre + j.phase + (j.phase.startsWith('İndiriliyor') ? ' %' + j.percent : '…'));
+    }
+    else if (j.state === 'done') return;
+    else throw new Error(j.message || 'İndirilemedi.');
+  }
+}
+
+// Tek link: kitaplıkta varsa tekrar indirmez. 'ok' | 'skip' döner.
+async function fetchOne(url, i, n) {
+  const pre = n > 1 ? '(' + (i + 1) + '/' + n + ') ' : '';
+  const code = igCode(url), kind = kindNow(), k = code + '|' + kind;
+  if (code) {
+    const ex = await libGet(k);
+    if (ex) { show(ex); say(pre + 'Kitaplıkta zaten var, tekrar indirilmedi.', 'ok'); return 'skip'; }
+  }
+  say(pre + 'Sunucuya gönderiliyor…');
+  let r;
+  try {
+    r = await fetch('/api/download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Key': key },
+      body: JSON.stringify({ url, format: fmt, ses, hd, bas: curOpts().bas, bit: curOpts().bit, norm: curOpts().norm, onay: true })
+    });
+  } catch (e) {
+    throw new Error('Sunucuya ulaşılamıyor. Bilgisayarda Telefon-Sunucu açık mı, aynı ağda mısın?');
+  }
+  if (r.status === 401) { const e = new Error('401'); e.code = 401; throw e; }
+  if (!r.ok) throw new Error(await errDetail(r, 'Hata (' + r.status + ').'));
+  const { id } = await r.json();
+  await waitJob(id, pre);
+
+  say(pre + 'Dosya alınıyor…'); setBar(100);
+  let f;
+  try { f = await fetch('/api/file/' + id, { headers: { 'X-Key': key } }); }
+  catch (e) { throw new Error('Dosya alınırken bağlantı koptu.'); }
+  if (f.status === 401) { const e = new Error('401'); e.code = 401; throw e; }
+  if (!f.ok) throw new Error(await errDetail(f, 'Dosya alınamadı (' + f.status + ').'));
+  const name = fileName(f.headers.get('Content-Disposition'));
+  const mime = (f.headers.get('Content-Type') || (fmt === 'video' ? 'video/mp4' : 'audio/mpeg')).split(';')[0];
+  const blob = await f.blob();
+  const rec = { key: k, code, kind, name, mime, size: blob.size, date: Date.now(), blob };
+  try {
+    if (code) { await libPut(rec); if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }
+  } catch (e) { /* depolama dolu/kapalı olabilir; indirme yine de çalışır */ }
+  show(rec);
+  saveBlob(blob, name);
+  say(pre + 'Hazır ✓', 'ok');
+  return 'ok';
+}
+
+async function go() {
+  if (busy) return;
+  const links = [...new Set(($('url').value.match(RXG) || []))];
+  if (!links.length) return say('Geçerli bir Instagram linki yapıştır.', 'err');
+  if (!$('consent').checked) return say('Devam etmek için onay kutusunu işaretle.', 'err');
+  const co = curOpts();
+  if (isNaN(co.bas) || isNaN(co.bit)) return say('Kırpma süresi biçimi: 90 veya 1:30 (dakika:saniye).', 'err');
+  if (co.bit > 0 && co.bit <= co.bas) return say('Kırpma bitişi, başlangıçtan büyük olmalı.', 'err');
+  busy = true; $('btn').disabled = true; $('result').hidden = true; setBar(null);
+  let ok = 0, skip = 0, fail = 0, lastErr = '';
+  try {
+    for (let i = 0; i < links.length; i++) {
+      try {
+        (await fetchOne(links[i], i, links.length)) === 'skip' ? skip++ : ok++;
+      } catch (e) {
+        if (e && e.code === 401) return badKey();
+        fail++; lastErr = e.message;
+        if (links.length === 1) throw e;
+      }
+      await renderLib();
+    }
+    if (links.length > 1) {
+      const parts = [ok + ' indirildi'];
+      if (skip) parts.push(skip + ' zaten vardı');
+      if (fail) parts.push(fail + ' hata (' + lastErr + ')');
+      say('Bitti: ' + parts.join(', '), fail ? 'err' : 'ok');
+    }
+  } catch (e) {
+    say(e.message, 'err');
+  } finally {
+    busy = false; $('btn').disabled = false; setBar(null);
+    renderLib();
+  }
+}
+
+$('keyBtn').addEventListener('click', saveKey);
+$('key').addEventListener('keydown', e => e.key === 'Enter' && saveKey());
+$('fmtAudio').addEventListener('click', () => setFmt('audio'));
+$('fmtVideo').addEventListener('click', () => setFmt('video'));
+$('btn').addEventListener('click', go);
+$('url').addEventListener('keydown', e => e.key === 'Enter' && (e.ctrlKey || e.metaKey) && go());
+$('norm').checked = S.get('reelses_norm') === '1';
+$('norm').addEventListener('change', e => S.set('reelses_norm', e.target.checked ? '1' : '0'));
+$('opt').addEventListener('change', e => {
+  if (fmt === 'video') { hd = Number(e.target.value); S.set('reelses_hd', String(hd)); }
+  else { ses = e.target.value; S.set('reelses_ses', ses); }
+});
+$('libClear').addEventListener('click', async e => { e.preventDefault(); if (confirm('Kitaplıktaki tüm dosyalar silinsin mi?')) { await libClr(); renderLib(); } });
+$('pasteBtn').addEventListener('click', async () => {
+  try {
+    const t = await navigator.clipboard.readText();
+    const mm = t.match(RXG);
+    $('url').value = mm ? [...new Set(mm)].join('\n') : t.trim();
+  } catch (e) { say('Panoya erişilemedi, linki elle yapıştır.', 'err'); }
+});
+$('shareBtn').addEventListener('click', async () => {
+  try { await navigator.share({ files: [lastFile], title: lastFile.name }); } catch (e) {}
+});
+$('resetKey').addEventListener('click', e => {
+  e.preventDefault(); key = ''; S.del(KEY_NAME); $('key').value = ''; render();
+});
+
+$('consent').checked = S.get(CONSENT_NAME) === CONSENT_VER;
+$('consent').addEventListener('change', e => { if (e.target.checked) S.set(CONSENT_NAME, CONSENT_VER); else S.del(CONSENT_NAME); });
+$('legalLink').addEventListener('click', e => { e.preventDefault(); $('legal').hidden = !$('legal').hidden; });
+
+// Sunucu penceresindeki adres #anahtar=... ile açılırsa anahtarı otomatik gir (hash sunucuya gitmez)
+const hk = /[#&]anahtar=([A-Za-z0-9]+)/.exec(location.hash);
+if (hk) history.replaceState(null, '', location.pathname + location.search);
+
+renderFmt();
+renderOpt();
+render();
+renderLib();
+if (hk) { $('key').value = hk[1]; saveKey(); }
+if (sm && key) go();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(() => {});
+</script>
+</body>
+</html>
