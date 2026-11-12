@@ -107,7 +107,128 @@ label.c input[type=checkbox]{width:16px;height:16px;accent-color:var(--cy);curso
 .file-wrap{position:relative;display:inline-flex;overflow:hidden;border-radius:12px}
 .file-wrap input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;font-size:100px}
 #thumbs{display:flex;gap:7px;flex-wrap:wrap}
-/* ... existing code ... -->
+.th{position:relative;width:66px;height:66px;border-radius:8px;overflow:hidden;background:var(--panel-alt);border:1px solid var(--line);cursor:grab;transition:transform .15s}
+.th:hover{transform:translateY(-2px)}
+.th.over{outline:2px dashed var(--cy)}
+.th img{width:100%;height:100%;object-fit:cover}
+.th button{position:absolute;top:0;right:0;padding:1px 6px;line-height:1.2;font-size:.78rem;border:0;border-radius:0 0 0 7px;background:rgba(0,0,0,.72);color:#fff}
+.th .dl{top:auto;bottom:0;right:auto;left:0;border-radius:0 7px 0 0}
+.th .mv{top:50%;bottom:auto;transform:translateY(-50%);min-width:22px;height:28px;font-size:1rem;padding:0 4px;line-height:1}
+.th .ml{left:0;right:auto;border-radius:0 6px 6px 0}
+.th .mr{right:0;left:auto;border-radius:6px 0 0 6px}
+.th .vb{position:absolute;top:3px;left:3px;font-size:.6rem;line-height:1.35;background:rgba(0,0,0,.75);color:#fff;border-radius:4px;padding:0 4px;pointer-events:none}
+.note{font-size:.84rem;color:var(--mu);margin:0}
+#st{min-height:0;font-size:.9rem;font-weight:500;text-align:center}
+#st:empty,#out:empty{display:none}
+.err{color:#dc2626}
+.ok{color:#16a34a}
+input[type=range]{width:100%;accent-color:var(--cy)}
+.tg{display:grid;grid-template-columns:repeat(auto-fill,minmax(106px,1fr));gap:8px}
+.tg button{padding:9px 6px;font-weight:500;font-size:.8rem;text-align:center;background:var(--panel-alt)}
+.tg button.on{border-color:var(--cy);background:var(--cy-bg);color:var(--tx);font-weight:700;box-shadow:inset 0 0 0 1px var(--cy)}
+.presets{display:grid;grid-template-columns:repeat(auto-fit,minmax(124px,1fr));gap:8px}
+.presets button{padding:9px 10px;font-size:.82rem;background:var(--panel-alt)}
+.presets button.on{border-color:var(--cy);background:var(--cy-bg);font-weight:700;box-shadow:inset 0 0 0 1px var(--cy)}
+header.bar{display:grid;gap:12px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.brand{display:flex;align-items:center;gap:12px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.acts button{border-radius:999px;padding:8px 14px;font-size:.82rem;font-weight:600;white-space:nowrap}
+@media(min-width:720px){
+  header.bar{grid-template-columns:1fr auto;align-items:center}
+  .bar .sub{grid-column:1/-1}
+}
+#sectionInfo{line-height:1.5}
+.wf-legend{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;font-size:.74rem;color:var(--mu)}
+.wf-key{display:inline-flex;gap:5px;align-items:center}
+.wf-swatch{display:inline-block;width:14px;height:4px;border-radius:2px}
+.wf-swatch.wave{background:#cdbfae}
+.wf-swatch.beat{width:2px;height:13px;background:#7c8b86}
+.wf-swatch.strong{width:3px;height:15px;background:#b8864b}
+progress{width:100%;height:8px;accent-color:var(--cy);border-radius:999px}
+progress[hidden]{display:none}
+.pgw:has(progress[hidden]){display:none}
+.tcl{font-variant-numeric:tabular-nums}
+.view{display:grid;justify-items:center;width:100%}
+.tools{display:grid;gap:10px;justify-items:center;width:100%}
+footer{grid-column:1/-1;text-align:center;color:var(--mu);font-size:.82rem;display:grid;gap:8px;padding-top:10px}
+footer nav{display:flex;gap:6px 14px;flex-wrap:wrap;justify-content:center}
+footer a,footer nav button{color:var(--cy);background:none;border:0;padding:0;font-weight:500;text-decoration:underline;cursor:pointer}
+dialog{max-width:min(740px,94vw);max-height:88vh;background:var(--panel);color:var(--tx);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(4px)}
+dialog details{border-top:1px solid var(--line);padding:10px 0}
+dialog summary{cursor:pointer;font-weight:700}
+dialog p,dialog li{color:var(--mu);font-size:.9rem;line-height:1.55}
+#out{text-align:center;width:100%}
+#out video{display:block;width:min(100%,420px);max-height:55vh;margin:12px auto;border-radius:12px;background:#000}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--cy);color:var(--tx);border-radius:12px;padding:10px 16px;display:none;gap:10px;align-items:center;z-index:99;box-shadow:0 12px 32px rgba(0,0,0,.28);font-size:.88rem}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+@media(max-width:879px){
+  main{display:flex;flex-direction:column;gap:14px}
+  .stage{display:contents}
+  #cv{max-height:38vh;max-height:38dvh}
+  body.hm .view{position:sticky;top:0;z-index:20;background:var(--bg);margin:0 -16px;width:auto;padding:max(8px,env(safe-area-inset-top)) 16px 8px;box-shadow:0 10px 14px -12px rgba(0,0,0,.25)}
+}
+</style>
+</head>
+<body>
+<noscript><p style="padding:16px">Foto Ritim çalışmak için JavaScript gerektirir.</p></noscript>
+<main>
+<header class="bar">
+  <div class="brand">
+    <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+      <rect width="44" height="44" rx="12" fill="#241f1c"/>
+      <g fill="#d4a05c">
+        <rect x="9" y="18" width="4" height="8" rx="2"/>
+        <rect x="16" y="12" width="4" height="20" rx="2"/>
+        <rect x="23" y="8" width="4" height="28" rx="2"/>
+        <rect x="30" y="15" width="4" height="14" rx="2"/>
+      </g>
+    </svg>
+    <div>
+      <div class="eb">ÖZGÜLER FORGE · STUDIO</div>
+      <h1>Foto Ritim</h1>
+    </div>
+  </div>
+  <div class="acts">
+    <button id="restoreDraft" type="button" hidden>↺ Taslağı geri yükle</button>
+    <button id="themeBtn" type="button" title="Açık / Koyu Tema">🌓 Tema</button>
+    <button id="inst" class="main" type="button">⤓ Yükle</button>
+    <button id="upd" type="button">↻ Güncelle</button>
+    <button id="info" type="button">ⓘ Kılavuz</button>
+    <span id="net" class="note"></span>
+  </div>
+  <p id="ios" class="note" hidden>iPhone/iPad: Uygulamayı yüklemek için Safari’de Paylaş → Ana Ekrana Ekle’yi seçin. Video dosyasını kaydetmek için Paylaş → Dosyalara Kaydet yolunu kullanın.</p>
+  <p class="sub">Fotoğrafları ve müziği seç. Çok bantlı ritim analiziyle geçişler bas ve vurgulara oturur; sinematik renk profilleri ve ses efektleriyle sonucu MP4 olarak kaydet.</p>
+</header>
+
+<section class="stage" aria-label="Önizleme">
+  <div class="view"><canvas id="cv" width="720" height="1280"></canvas></div>
+  <div class="tools">
+    <canvas id="eq" aria-label="Canlı ses ekolayzırı"></canvas>
+    <div class="wf-legend" aria-label="Dalga formu göstergesi">
+      <span class="wf-key"><i class="wf-swatch wave"></i>Ses dalga formu</span>
+      <span class="wf-key"><i class="wf-swatch beat"></i>Algılanan vuruş</span>
+      <span class="wf-key"><i class="wf-swatch strong"></i>Güçlü bas/vurgu</span>
+      <span class="wf-key"><i class="wf-swatch strong" style="height:9px"></i>Ölçü başı (4 vuruş)</span>
+    </div>
+    <canvas id="tlc" aria-label="Ses dalga formu, algılanan vuruş işaretçileri ve oynatma konumu"></canvas>
+    <div class="pgw" style="width:100%;display:grid;gap:4px">
+      <progress id="pg" value="0" max="1" hidden></progress>
+      <span id="tc" class="note tcl" aria-live="off"></span>
+    </div>
+    <p class="note" style="margin:0;text-align:center">Üstteki altın tutamaçları sürükleyin (vuruşlara mıknatıs gibi yapışır). Çizelgeye <b>çift tıklayarak</b> yeni kesim ekleyin, tutamaca <b>sağ tıklayarak</b> silin.</p>
+    <div class="pick">
+      <button id="play" class="main" disabled>▶ Önizle (Boşluk)</button>
+      <button id="shortPrev" disabled>⚡ 10 sn önizle</button>
+      <button id="resetMarkers" type="button" disabled title="Elle eklenen/kaydırılan kesimleri sıfırla">↺ Kesimleri sıfırla</button>
+      <button id="rec" class="gold" disabled>🎬 MP4 kaydet</button>
+    </div>
+    <div id="st" role="status"></div>
+    <div id="out"></div>
+  </div>
+</section>
+
+<section style="display:grid;gap:14px">
   <div class="ctl">
     <h2>1. Fotoğraflar ve videolar <span id="mediaCount" class="badge">0 öğe</span></h2>
     <div class="pick">
