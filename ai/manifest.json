@@ -1,7 +1,7 @@
 {
   "name": "Forge AI | Ozguler Forge",
   "short_name": "Forge AI",
-  "description": "Ozguler Forge Yapay Zeka Çalışma Alanı",
+  "description": "Ozguler Forge Görsel ve Metin Yapay Zeka Çalışma Alanı",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#F8FAFC",
