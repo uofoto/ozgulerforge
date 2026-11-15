@@ -1,8 +1,10 @@
 {
-  "name": "Forge AI Studio | Ozguler Forge",
+  "id": "/ai/forge-ai-studio-v6",
+  "name": "Forge AI Studio",
   "short_name": "Forge AI",
-  "description": "Ozguler Forge - Forge AI Studio Yapay Zeka ve Fotoğraf Çalışma Alanı",
-  "start_url": "./index.html",
+  "description": "Ozguler Forge - Forge AI Studio Yapay Zeka Çalışma Alanı",
+  "start_url": "/ai/index.html",
+  "scope": "/ai/",
   "display": "standalone",
   "background_color": "#F8FAFC",
   "theme_color": "#ffffff",
@@ -11,12 +13,14 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/8637/8637099.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/8637/8637099.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
