@@ -1,0 +1,5 @@
+{
+  "routes": [
+    { "path": "/", "title": "FormatLab — Medya dönüştürme istasyonu" }
+  ]
+}
