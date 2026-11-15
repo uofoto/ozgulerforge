@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0F172A" />
-  <meta name="description" content="Forge AI - Ozguler Forge Çoklu Belge ve Fotoğraf Stüdyosu" />
+  <meta name="description" content="Forge AI - Ozguler Forge Çoklu Belge ve Fotoğraf Asistanı" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Forge AI Studio</title>
+  <title>Forge AI</title>
   <link rel="manifest" href="manifest.json" />
   
   <!-- Modern Tipografi: Plus Jakarta Sans & JetBrains Mono -->
@@ -162,7 +162,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span>v6.3 Studio</span>
+        <span>v6.5 PRO</span>
       </button>
     </div>
   </aside>
@@ -185,16 +185,6 @@
                 <option value="gemini-3.5-flash-lite">🚀 Forge AI Lite (Hızlı)</option>
               </select>
               <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-blue-600 absolute right-2 pointer-events-none"></i>
-            </div>
-
-            <div class="relative flex items-center min-w-0">
-              <select id="personaSelect" class="appearance-none bg-slate-100/80 hover:bg-slate-200/70 border border-slate-200/80 text-slate-700 font-medium text-xs rounded-xl pl-2.5 pr-7 py-1.5 focus:outline-none focus:border-blue-500 transition cursor-pointer truncate max-w-[140px] sm:max-w-[185px]">
-                <option value="general" selected>🧭 Genel Asistan</option>
-                <option value="photo">📸 Fotoğraf & Işık Uzmanı</option>
-                <option value="official">📄 Resmi Yazı & Rapor</option>
-                <option value="coder">💻 Web & Kod Mimarı</option>
-              </select>
-              <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 absolute right-2 pointer-events-none"></i>
             </div>
           </div>
         </div>
@@ -232,7 +222,7 @@
               <span class="font-mono font-bold text-blue-600">/ozetle</span>
               <span class="text-slate-600 truncate">Tüm Belgeleri Özetle & Karşılaştır</span>
             </button>
-            <button type="button" onclick="applySlashCmd('/resmi-yazi Kurumsal, resmi ve akıcı bir dille dilekçe / rapor taslağı oluştur: ')" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-blue-50 text-xs flex items-center gap-2 transition cursor-pointer">
+            <button type="button" onclick="applySlashCmd('/resmi-yazi Kurumsal, resmi ve akıcı bir dille dilekçe / proje teklif yazısı taslağı oluştur: ')" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-blue-50 text-xs flex items-center gap-2 transition cursor-pointer">
               <span class="font-mono font-bold text-blue-600">/resmi-yazi</span>
               <span class="text-slate-600 truncate">Resmi Yazı & Dilekçe Oluştur</span>
             </button>
@@ -255,7 +245,6 @@
             
             <div class="flex items-center justify-between pt-2 mt-1 border-t border-slate-100 px-1">
               <div class="flex items-center gap-1">
-                <!-- Çoklu Dosya Girişleri (multiple="true") -->
                 <input type="file" id="imageInput" class="hidden" accept="image/jpeg,image/png,image/webp,image/gif" multiple />
                 <button type="button" id="attachImageBtn" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Çoklu Fotoğraf Yükle">
                   <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
@@ -457,7 +446,7 @@
             <i data-lucide="cpu" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-slate-900">Forge AI Studio</h3>
+            <h3 class="text-base font-bold text-slate-900">Forge AI</h3>
             <p class="text-xs text-slate-500">Ozguler Forge Yapay Zeka Platformu</p>
           </div>
         </div>
@@ -467,7 +456,7 @@
       </div>
 
       <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-        <strong>Forge AI Studio</strong>; çoklu belge ve PDF analizi, anlık fotoğraf iyileştirme stüdyosu ve canlı önizleme özellikleriyle profesyonel yapay zeka çalışma alanıdır.
+        <strong>Forge AI</strong>; çoklu belge ve PDF analizi, anlık fotoğraf iyileştirme stüdyosu ve canlı önizleme özellikleriyle profesyonel yapay zeka asistanıdır.
       </p>
 
       <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 space-y-2.5 text-xs">
@@ -536,18 +525,10 @@
       TEMP: 'forge_ai_temperature',
       CHATS: 'forge_ai_chats',
       ACTIVE: 'forge_ai_active_chat',
-      MODEL: 'forge_ai_v63_model',
-      PERSONA: 'forge_ai_v63_persona'
+      MODEL: 'forge_ai_v65_model'
     };
 
     const BASE_IDENTITY = 'Sen Ozguler Forge tarafından geliştirilen Forge AI adlı yapay zeka asistanısın. Kendini her zaman Forge AI olarak tanıt. Yanıtların net, yapılandırılmış, profesyonel ve Türkçe olmalıdır.';
-
-    const PERSONA_PROMPTS = {
-      general: BASE_IDENTITY,
-      photo: BASE_IDENTITY + ' Şu an "Fotoğraf & Işık Uzmanı" modundasın. Yüklenen fotoğrafları kompozisyon, ışık yönü, dinamik aralık ve renk uyumu açısından profesyonel bir fotoğrafçı gözüyle analiz et; Adobe Lightroom ve Camera Raw için net sayısal ayar reçeteleri sun.',
-      official: BASE_IDENTITY + ' Şu an "Resmi Yazı & Rapor Uzmanı" modundasın. Kurumsal yazışma kurallarına uygun, resmi, saygılı dilekçe, proje teklifi, toplantı tutanağı ve rapor taslakları hazırla.',
-      coder: BASE_IDENTITY + ' Şu an "Web & Kod Mimarı" modundasın. Temiz, hatasız, modern ve doğrudan çalıştırılabilir kodlar üret.'
-    };
 
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
@@ -555,8 +536,8 @@
       temperature: parseFloat(localStorage.getItem(KEYS.TEMP) || '0.7'),
       chats: JSON.parse(localStorage.getItem(KEYS.CHATS) || '[]'),
       activeChatId: null,
-      attachedFiles: [], // Çoklu dosya dizisi: [{ id, name, type: 'pdf'|'text', content, base64Data, mimeType }]
-      attachedImages: [], // Çoklu fotoğraf dizisi: [{ id, name, dataUrl }]
+      attachedFiles: [],
+      attachedImages: [],
       isGenerating: false,
       abortController: null,
       currentArtifact: null,
@@ -575,7 +556,6 @@
       messagesContainer: document.getElementById('messagesContainer'),
       keyStatusBadge: document.getElementById('keyStatusBadge'),
       modelSelect: document.getElementById('modelSelect'),
-      personaSelect: document.getElementById('personaSelect'),
       chatForm: document.getElementById('chatForm'),
       userInput: document.getElementById('userInput'),
       slashMenu: document.getElementById('slashMenu'),
@@ -846,7 +826,7 @@
     document.getElementById('printPdfBtn').onclick = () => {
       if (!state.currentArtifact || state.currentArtifact.type !== 'document') return;
       const printArea = document.getElementById('printArea');
-      printArea.innerHTML = `<div style="border-bottom:2px solid #2563EB;padding-bottom:8px;margin-bottom:16px;font-family:sans-serif;"><strong>Forge AI Studio</strong> • Belge Çıktısı</div>` + parseMarkdownSafe(state.currentArtifact.content);
+      printArea.innerHTML = `<div style="border-bottom:2px solid #2563EB;padding-bottom:8px;margin-bottom:16px;font-family:sans-serif;"><strong>Forge AI</strong> • Belge Çıktısı</div>` + parseMarkdownSafe(state.currentArtifact.content);
       window.print();
     };
 
@@ -937,7 +917,6 @@
       if (warningEl) warningEl.classList.toggle('hidden', valid);
     }
 
-    // ÇOKLU DOSYA & FOTOĞRAF YÖNETİMİ
     function handleMultipleImages(files) {
       if (!files || files.length === 0) return;
       Array.from(files).forEach(file => {
@@ -974,7 +953,6 @@
             });
             renderAttachmentsBar();
 
-            // İlk yüklenen fotoğrafı stüdyoda aç
             if (state.attachedImages.length === 1) {
               openPhotoStudio(optimizedDataUrl, file.name);
             }
@@ -1035,7 +1013,6 @@
       const hasAny = state.attachedImages.length > 0 || state.attachedFiles.length > 0;
       bar.classList.toggle('hidden', !hasAny);
 
-      // Fotoğraf kartları
       state.attachedImages.forEach(img => {
         const card = document.createElement('div');
         card.className = 'relative group bg-white p-1.5 rounded-2xl border border-blue-200 shadow-xs flex items-center gap-2 pr-3';
@@ -1052,7 +1029,6 @@
         bar.appendChild(card);
       });
 
-      // Belge kartları
       state.attachedFiles.forEach(f => {
         const card = document.createElement('div');
         card.className = 'inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium';
@@ -1182,7 +1158,7 @@
           </div>
           
           <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
-            Forge AI Studio
+            Forge AI
           </h1>
           <p class="text-sm sm:text-base text-slate-500 max-w-lg mb-8 leading-relaxed">
             Çoklu PDF belgesi yükleme, karşılaştırmalı analiz, anlık fotoğraf stüdyosu ve canlı önizleme özellikleriyle profesyonel yapay zeka asistanınız.
@@ -1197,7 +1173,7 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
-            <button type="button" onclick="usePromptCard(this, 'general')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
               <div class="flex items-center gap-2 text-emerald-600 font-semibold text-xs mb-1">
                 <i data-lucide="files" class="w-4 h-4"></i>
                 <span>📕 Çoklu PDF Karşılaştırma & Özet</span>
@@ -1205,7 +1181,7 @@
               <p class="text-xs text-slate-600 group-hover:text-slate-900">Birden fazla PDF veya belge yükleyerek aralarındaki farkları karşılaştır ve kapsamlı bir sentez raporu hazırla.</p>
             </button>
 
-            <button type="button" onclick="usePromptCard(this, 'photo')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
               <div class="flex items-center gap-2 text-blue-600 font-semibold text-xs mb-1">
                 <i data-lucide="wand-2" class="w-4 h-4"></i>
                 <span>📸 Çoklu Fotoğraf & Işık Stüdyosu</span>
@@ -1213,7 +1189,7 @@
               <p class="text-xs text-slate-600 group-hover:text-slate-900">Birden fazla fotoğraf yükleyerek kompozisyon ve renk dengesini analiz et; Lightroom reçeteleri sun.</p>
             </button>
 
-            <button type="button" onclick="usePromptCard(this, 'official')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
               <div class="flex items-center gap-2 text-indigo-600 font-semibold text-xs mb-1">
                 <i data-lucide="scroll-text" class="w-4 h-4"></i>
                 <span>📄 Resmi Yazı & Dilekçe</span>
@@ -1221,7 +1197,7 @@
               <p class="text-xs text-slate-600 group-hover:text-slate-900">Kurumsal yazışma kurallarına uygun profesyonel dilekçe veya proje raporu taslağı oluştur.</p>
             </button>
 
-            <button type="button" onclick="usePromptCard(this, 'coder')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
               <div class="flex items-center gap-2 text-violet-600 font-semibold text-xs mb-1">
                 <i data-lucide="layout-template" class="w-4 h-4"></i>
                 <span>💻 Canlı Web Tasarımı</span>
@@ -1233,14 +1209,10 @@
       `;
     }
 
-    window.usePromptCard = function(btn, targetPersona) {
+    window.usePromptCard = function(btn) {
       const p = btn.querySelector('p');
       if (p) {
         els.userInput.value = p.textContent;
-        if (targetPersona) {
-          els.personaSelect.value = targetPersona;
-          localStorage.setItem(KEYS.PERSONA, targetPersona);
-        }
         els.userInput.focus();
       }
     };
@@ -1344,7 +1316,6 @@
         currentChat.title = (text || state.attachedFiles[0]?.name || state.attachedImages[0]?.name).slice(0, 40);
       }
 
-      // Dosyaları API içeriğine hazırla
       let apiTextPayload = text;
       const imagesPayload = [...state.attachedImages];
       const filesPayload = [...state.attachedFiles];
@@ -1388,7 +1359,6 @@
       const actionsEl = bubble.querySelector('.msg-actions');
 
       const selectedModel = els.modelSelect.value;
-      const activePersonaPrompt = PERSONA_PROMPTS[els.personaSelect.value] || state.systemPrompt;
 
       try {
         const apiContents = currentChat.messages.slice(0, -1).map(m => {
@@ -1397,7 +1367,6 @@
           if (msgText) {
             parts.push({ text: msgText });
           }
-          // Çoklu görselleri ekle
           if (m.imagesList && Array.isArray(m.imagesList)) {
             m.imagesList.forEach(img => {
               const match = img.dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
@@ -1411,7 +1380,6 @@
               }
             });
           }
-          // Çoklu PDF belgelerini ekle
           if (m.pdfList && Array.isArray(m.pdfList)) {
             m.pdfList.forEach(pdf => {
               parts.push({
@@ -1438,7 +1406,7 @@
           },
           body: JSON.stringify({
             systemInstruction: {
-              parts: [{ text: activePersonaPrompt }]
+              parts: [{ text: state.systemPrompt }]
             },
             contents: apiContents,
             generationConfig: {
@@ -1486,7 +1454,6 @@
           }
         }
 
-        // Bellek optimizasyonu
         currentChat.messages.forEach(m => {
           if (m.imagesList) delete m.imagesList;
           if (m.pdfList) delete m.pdfList;
@@ -1639,6 +1606,12 @@
       localStorage.setItem(KEYS.TEMP, state.temperature);
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
       updateApiBadge();
+      
+      // ANINDA GÜNCELLEME: Kaydedildiği an karşılama ekranını ve uyarı kutusunu yenile
+      const warningEl = document.getElementById('noKeyWarning');
+      if (warningEl) warningEl.classList.add('hidden');
+      renderMessages();
+
       els.settingsModal.classList.add('hidden');
     };
 
@@ -1654,12 +1627,6 @@
       els.modelSelect.value = savedModel;
     }
     els.modelSelect.onchange = () => localStorage.setItem(KEYS.MODEL, els.modelSelect.value);
-
-    const savedPersona = localStorage.getItem(KEYS.PERSONA);
-    if (savedPersona && [...els.personaSelect.options].some(o => o.value === savedPersona)) {
-      els.personaSelect.value = savedPersona;
-    }
-    els.personaSelect.onchange = () => localStorage.setItem(KEYS.PERSONA, els.personaSelect.value);
 
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
