@@ -42,7 +42,7 @@ app.innerHTML = `
       <section class="hero" aria-labelledby="hero-title">
         <div>
           <p class="eyebrow">Kişisel ses arşivin</p>
-          <h1 id="hero-title">Cep kasetlerin burada.</h1>
+          <h1 id="hero-title">Kaydet, kes, dinle.</h1>
           <p class="hero-copy">İzinli seslerini telefonunda sakla, çevrimdışı dinle. Küçük bir arşiv, her an yanında.</p>
         </div>
         <div class="tape-illustration" aria-hidden="true">
@@ -52,7 +52,7 @@ app.innerHTML = `
       </section>
 
       <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
-        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 13</span></div>
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 14</span></div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
           <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
@@ -1072,7 +1072,7 @@ audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); });
-const APP_VERSION = '13';
+const APP_VERSION = '14';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -1229,6 +1229,6 @@ async function init() {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=13', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=14', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();
