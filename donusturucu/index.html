@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kontak · kayıpsız resim ve video dönüştürücü</title>
+<meta name="description" content="Resim ve videoları cihazınızda, dosya yüklemeden, kayıpsız biçimler arasında dönüştürür ve sonucu bit-bit doğrular.">
+<meta name="theme-color" content="#e9edf2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10161d" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor"/><rect x="18" y="2" width="12" height="12" rx="2" fill="var(--accent)"/><rect x="2" y="18" width="12" height="12" rx="2" fill="var(--accent)"/><rect x="18" y="18" width="12" height="12" rx="2" fill="currentColor"/></svg>
+    <span>Kontak</span>
+  </div>
+  <div class="badges">
+    <span id="engine" class="badge" data-state="busy" role="status">Motor yükleniyor…</span>
+    <span id="offline" class="badge" data-state="wait"></span>
+    <button id="install" class="btn small" hidden>Uygulamayı yükle</button>
+    <button id="update" class="btn small" hidden>Yeni sürüm var · yenile</button>
+  </div>
+</header>
+
+<main>
+  <section class="intro">
+    <h1>Resim ve videoyu kayıpsız dönüştür.</h1>
+    <p>Dosyalar cihazından çıkmaz. Dönüştürme bittiğinde kaynak ile çıktının her karesi yeniden çözülüp karşılaştırılır; sonuç aşağıda gösterilir.</p>
+  </section>
+
+  <section id="drop" class="drop" tabindex="0" aria-label="Dosya ekle">
+    <p><strong>Dosyaları buraya bırak</strong> ya da yapıştır</p>
+    <label class="btn primary">Dosya seç<input id="file" type="file" multiple accept="image/*,video/*,.mkv,.avi,.mov,.ts,.mts,.m2ts,.flv,.wmv,.tif,.tiff,.bmp,.qoi,.tga,.pam,.ppm,.pgm,.pbm,.jp2,.j2k,.exr,.psd,.dds,.pcx,.avif,.heic,.heif,.jxl,.apng,.ico"></label>
+  </section>
+
+  <section class="panel" aria-labelledby="h-target">
+    <h2 id="h-target">Hedef biçim</h2>
+    <div id="targets"></div>
+    <p id="targetNote" class="note"></p>
+    <div class="opts">
+      <label>Sıkıştırma çabası
+        <select id="effort"><option value="fast">Hızlı (dosya büyük)</option><option value="balanced" selected>Dengeli</option><option value="small">En küçük (yavaş)</option></select>
+      </label>
+      <label class="check"><input id="verify" type="checkbox" checked> Sonucu bit-bit doğrula</label>
+    </div>
+  </section>
+
+  <section class="actions">
+    <button id="go" class="btn primary big" disabled>Dönüştür</button>
+    <button id="cancel" class="btn" hidden>İptal</button>
+    <button id="zipAll" class="btn" hidden>Hepsini ZIP indir</button>
+    <button id="clear" class="btn ghost" hidden>Listeyi temizle</button>
+  </section>
+
+  <p id="empty" class="empty">Henüz dosya yok. Bir resim ya da video ekleyince burada görünür.</p>
+  <ul id="list" class="list"></ul>
+
+  <details class="fine">
+    <summary>Kayıpsız ne demek, nelere dikkat etmeli?</summary>
+    <ul>
+      <li>Çıktı, kaynağın <em>çözülmüş</em> piksellerini birebir saklar. JPEG gibi kayıplı bir kaynağın kaybı geri gelmez, yalnızca yeni kayıp eklenmez.</li>
+      <li>Ses mümkünse olduğu gibi kopyalanır. Kapsayıcı izin vermezse kayıpsız ses (ALAC, PCM) seçilir. WebM yalnız Opus/Vorbis kabul ettiği için orada ses yeniden kodlanır.</li>
+      <li>ICC renk profili ve EXIF bilgisi resimlere taşınmaz; video üst verisi taşınır.</li>
+      <li>Kayıpsız H.264 (High 4:4:4 Predictive) her oynatıcıda açılmaz; VLC ve mpv açar. Evrensel uyum için FFV1 ya da PNG daha güvenlidir.</li>
+      <li>Çıktı tarayıcı belleğinde üretilir; yaklaşık 2 GB üstü işler başarısız olabilir.</li>
+      <li>HEIC, AVIF ve JPEG XL için tarayıcının kendi çözücüsü denenir (8 bit sRGB).</li>
+    </ul>
+  </details>
+</main>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
