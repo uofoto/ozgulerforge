@@ -1,4 +1,4 @@
-const CACHE_NAME = 'forge-ai-auto-v4.1';
+const CACHE_NAME = 'forge-ai-gemini-v5.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -21,7 +21,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET' || event.request.url.includes('openrouter.ai')) return;
+  if (event.request.method !== 'GET' || event.request.url.includes('googleapis.com')) return;
 
   event.respondWith(
     fetch(event.request)
