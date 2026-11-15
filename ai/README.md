@@ -1,12 +1,8 @@
-# Forge AI (v3.0) - Canlı Önizleme Stüdyolu PWA
+# Forge AI Studio (v4.0) - Gerçek Görsel Üretim & İyileştirme Destekli PWA
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
 
-## v3.0 Yenilikler ve Düzeltmeler
-1. **Her Zaman Görünür İndir Butonları:** Hem sol alt menüde hem de üst kontrol barında **İndir / Kur** butonları yer alır. Tarayıcı otomatik kurulum penceresi destekliyorsa doğrudan kurar, desteklemiyorsa adım adım kurulum rehberini açar.
-2. **Otomatik Güncelleme Mekanizması (`sw.js`):** Service Worker *Network-First* stratejisine geçirildi. Sunucuya yeni bir sürüm yüklediğinizde kullanıcıların cihazları otomatik olarak güncellenir.
-3. **Temiz Yeni Sohbet Geçişi:** **Yeni Sohbet** butonuna basıldığında aktif akış durdurulur, ekler temizlenir ve ekran tamamen sıfırlanır.
-4. **Sade Marka Başlığı:** Sol üst köşedeki *Forge AI* başlığının altındaki web adresi kaldırıldı.
-5. **Hatasız & Akıcı İşleme:** Markdown ve kod ayrıştırma motoru hata korumalı hale getirildi.
-6. **Canlı Çalışma Önizleme Stüdyosu:** Üretilen HTML web sayfaları, kod blokları ve belgeler sağ tarafta açılan bölünmüş ekranda **Canlı Görünüm / Kaynak Kod** sekmeleriyle önizlenebilir ve dosya olarak indirilebilir.
+## v4.0 Önemli Güncelleme
+* **Gerçek Fotoğraf Güzelleştirme & Görsel Üretim (`modalities: ["image", "text"]`):** Üst menüye **ByteDance Seedream 4.5**, **Gemini 2.5 Flash Image**, **GPT-5 Image Mini** ve **FLUX.2 Pro** modelleri eklendi. Fotoğraf yükleyip *"bu fotoğrafı güzelleştir"* yazdığınızda uygulama otomatik olarak görsel üretim motoruna geçer, iyileştirilmiş yeni fotoğrafı doğrudan sohbet ekranında oluşturur, tek tıkla indirme butonu sunar ve sağ panelde **Öncesi / Sonrası** karşılaştırması açar.
+* **Not:** OpenRouter üzerinde görsel üreten/düzenleyen modeller (Seedream, Gemini Image, FLUX) hesabınızda bakiye/kredi gerektirir; ücretsiz görsel analizi ve yorumlama için **Google Gemma 4 31B** kullanılabilir.

@@ -85,13 +85,13 @@
       </div>
       <h3 class="text-lg font-bold text-slate-900">Dosya veya Fotoğrafı Bırakın</h3>
       <p class="text-xs text-slate-500 leading-relaxed">
-        JPG, PNG, WEBP fotoğraflarınızı veya metin/kod belgelerinizi analiz ve düzenleme için buraya sürükleyip bırakabilirsiniz.
+        JPG, PNG, WEBP fotoğraflarınızı veya metin/kod belgelerinizi iyileştirme, düzenleme ve analiz için buraya sürükleyip bırakabilirsiniz.
       </p>
     </div>
   </div>
 
   <!-- FOTOĞRAF BÜYÜTME (LIGHTBOX) MODALI -->
-  <div id="imageLightbox" class="hidden fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4" onclick="this.classList.add('hidden')">
+  <div id="imageLightbox" class="hidden fixed inset-0 z-50 bg-slate-900/85 backdrop-blur-sm flex items-center justify-center p-4" onclick="this.classList.add('hidden')">
     <img id="lightboxImg" src="" alt="Önizleme" class="max-w-full max-h-[90vh] rounded-2xl shadow-2xl border border-white/20" />
   </div>
 
@@ -110,7 +110,7 @@
           </div>
           <div class="flex items-center gap-1.5">
             <span class="font-bold text-lg tracking-tight text-slate-900">Forge AI</span>
-            <span class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100">Pro</span>
+            <span class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100">Studio</span>
           </div>
         </div>
         <button id="closeSidebarBtn" class="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
@@ -153,7 +153,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span>v3.0</span>
+        <span>v4.0 Studio</span>
       </button>
     </div>
   </aside>
@@ -171,17 +171,27 @@
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
 
-          <!-- Model Seçici -->
+          <!-- Model Seçici (Görsel Üretim/Güzelleştirme + Görsel Analiz + Metin Modelleri) -->
           <div class="relative flex items-center min-w-0">
-            <select id="modelSelect" class="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-medium text-xs sm:text-sm rounded-xl pl-3 pr-8 py-1.5 focus:outline-none focus:border-blue-500 transition cursor-pointer max-w-[200px] sm:max-w-xs truncate">
-              <option value="google/gemma-4-31b-it:free">👁️ Google Gemma 4 31B (Fotoğraf + Metin)</option>
-              <option value="google/gemma-4-26b-a4b-it:free">👁️ Google Gemma 4 26B (Hızlı Görsel)</option>
-              <option value="nvidia/nemotron-nano-12b-v2-vl:free">👁️ NVIDIA Nemotron VL (Görsel Analiz)</option>
-              <option value="openrouter/free">⚡ Forge Auto (Otomatik Ücretsiz Model)</option>
-              <option value="nvidia/nemotron-3-ultra-550b-a55b:free">🧠 NVIDIA Nemotron 3 Ultra (Metin)</option>
-              <option value="cohere/north-mini-code:free">💻 Cohere North Mini Code (Yazılım)</option>
-              <option value="openai/gpt-4o-mini">GPT-4o Mini (Görsel + Metin / Kredi)</option>
-              <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Görsel + Metin / Kredi)</option>
+            <select id="modelSelect" class="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-medium text-xs sm:text-sm rounded-xl pl-3 pr-8 py-1.5 focus:outline-none focus:border-blue-500 transition cursor-pointer max-w-[215px] sm:max-w-sm truncate">
+              <optgroup label="🎨 Fotoğraf Güzelleştirme & Görsel Üretim">
+                <option value="bytedance-seed/seedream-4.5" data-mode="image-gen">🎨 ByteDance Seedream 4.5 (Fotoğraf Düzenle / Üret)</option>
+                <option value="google/gemini-2.5-flash-image-preview" data-mode="image-gen">🎨 Gemini 2.5 Flash Image (Fotoğraf İyileştirme)</option>
+                <option value="openai/gpt-5-image-mini" data-mode="image-gen">🎨 GPT-5 Image Mini (Görsel Üretim & Düzenleme)</option>
+                <option value="black-forest-labs/flux.2-pro" data-mode="image-gen">🎨 FLUX.2 Pro (Yüksek Kalite Görsel Üretim)</option>
+              </optgroup>
+              <optgroup label="👁️ Görsel Analiz & Sohbet (Ücretsiz)">
+                <option value="google/gemma-4-31b-it:free" data-mode="chat" selected>👁️ Google Gemma 4 31B (Fotoğraf Analizi + Metin / Ücretsiz)</option>
+                <option value="google/gemma-4-26b-a4b-it:free" data-mode="chat">👁️ Google Gemma 4 26B (Hızlı Görsel Analiz / Ücretsiz)</option>
+                <option value="nvidia/nemotron-nano-12b-v2-vl:free" data-mode="chat">👁️ NVIDIA Nemotron VL (Görsel Analiz / Ücretsiz)</option>
+                <option value="openrouter/free" data-mode="chat">⚡ Forge Auto (Otomatik Ücretsiz Model)</option>
+              </optgroup>
+              <optgroup label="🧠 Gelişmiş Metin & Kod Modelleri">
+                <option value="nvidia/nemotron-3-ultra-550b-a55b:free" data-mode="chat">🧠 NVIDIA Nemotron 3 Ultra (Ücretsiz)</option>
+                <option value="cohere/north-mini-code:free" data-mode="chat">💻 Cohere North Mini Code (Yazılım / Ücretsiz)</option>
+                <option value="openai/gpt-4o-mini" data-mode="chat">GPT-4o Mini (Kredi Gerektirir)</option>
+                <option value="anthropic/claude-3.5-sonnet" data-mode="chat">Claude 3.5 Sonnet (Kredi Gerektirir)</option>
+              </optgroup>
             </select>
             <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 pointer-events-none"></i>
           </div>
@@ -190,7 +200,7 @@
         <!-- Sağ Üst Aksiyonlar -->
         <div class="flex items-center gap-1.5 shrink-0">
           <!-- Canlı Önizleme Panelini Aç/Kapat -->
-          <button id="togglePreviewPaneBtn" type="button" class="px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-100/80 hover:bg-blue-50 border border-slate-200/80 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Çalışma Önizleme Panelini Aç/Kapat">
+          <button id="togglePreviewPaneBtn" type="button" class="px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-100/80 hover:bg-blue-50 border border-slate-200/80 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Çalışma ve Fotoğraf Önizleme Panelini Aç/Kapat">
             <i data-lucide="panel-right" class="w-3.5 h-3.5 text-blue-600"></i>
             <span class="hidden sm:inline">Önizleme</span>
           </button>
@@ -209,9 +219,7 @@
       </header>
 
       <!-- Mesaj Akış Alanı -->
-      <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 scroll-smooth">
-        <!-- Dinamik içerik renderMessages() tarafından yönetilir -->
-      </div>
+      <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 scroll-smooth"></div>
 
       <!-- ALT MESAJ GİRİŞ KONSOLU -->
       <div class="px-4 sm:px-6 pb-4 pt-2 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC] to-transparent shrink-0">
@@ -223,7 +231,7 @@
               <img id="imagePreviewThumb" src="" alt="Seçilen Fotoğraf" class="w-12 h-12 object-cover rounded-xl border border-slate-100" />
               <div class="text-xs">
                 <p id="imagePreviewName" class="font-semibold text-slate-800 max-w-[160px] truncate">foto.jpg</p>
-                <span class="text-[10px] text-blue-600 font-medium">Görsel Analize Hazır</span>
+                <span class="text-[10px] text-blue-600 font-medium">Fotoğraf Hazır (Güzelleştir veya Analiz Et)</span>
               </div>
               <button type="button" id="removeImageBtn" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition ml-1" title="Fotoğrafı Kaldır">
                 <i data-lucide="x" class="w-4 h-4"></i>
@@ -243,7 +251,7 @@
             <textarea
               id="userInput"
               rows="1"
-              placeholder="Bir soru yazın, kod/belge isteyin veya fotoğrafınızı sürükleyip bırakın..."
+              placeholder="Bir soru yazın, 'bu fotoğrafı güzelleştir' deyin veya görsel sürükleyip bırakın..."
               class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-sm sm:text-[15px] px-2 py-1 focus:outline-none resize-none max-h-44 leading-relaxed"
             ></textarea>
             
@@ -294,7 +302,7 @@
       </div>
     </main>
 
-    <!-- SAĞ PANEL: CANLI ÇALIŞMA STÜDYOSU & ÖNİZLEME (ARTIFACT / PREVIEW) -->
+    <!-- SAĞ PANEL: CANLI ÇALIŞMA & FOTOĞRAF İYİLEŞTİRME STÜDYOSU -->
     <section id="previewPane" class="hidden fixed inset-0 lg:static lg:w-[46%] xl:w-[48%] bg-white border-l border-slate-200/90 z-30 flex flex-col shadow-float lg:shadow-none">
       <!-- Önizleme Üst Barı -->
       <div class="h-14 border-b border-slate-200/80 px-4 flex items-center justify-between bg-slate-50/70 shrink-0">
@@ -304,7 +312,7 @@
           </div>
           <div class="min-w-0">
             <h2 id="previewTitle" class="text-xs sm:text-sm font-bold text-slate-900 truncate">Çalışma Önizlemesi</h2>
-            <span id="previewSubtitle" class="text-[10px] text-slate-400 block -mt-0.5">Canlı Görünüm & Kod Çıktısı</span>
+            <span id="previewSubtitle" class="text-[10px] text-slate-400 block -mt-0.5">Canlı Görünüm, Fotoğraf & Kod Çıktısı</span>
           </div>
         </div>
 
@@ -315,8 +323,9 @@
             <button type="button" id="tabSourceView" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition cursor-pointer">Kaynak</button>
           </div>
 
-          <button type="button" id="downloadArtifactBtn" class="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer" title="Çalışmayı Dosya Olarak İndir">
-            <i data-lucide="download" class="w-4 h-4"></i>
+          <button type="button" id="downloadArtifactBtn" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1 cursor-pointer" title="Çalışmayı veya Fotoğrafı İndir">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span>İndir</span>
           </button>
 
           <button type="button" id="copyArtifactBtn" class="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer" title="İçeriği Kopyala">
@@ -338,14 +347,17 @@
           </div>
           <p class="text-xs font-medium text-slate-600">Henüz Önizlenecek Çalışma Seçilmedi</p>
           <p class="text-[11px] max-w-xs leading-relaxed">
-            Yapay zeka bir web sayfası, kod bloğu, belge veya fotoğraf analizi ürettiğinde üzerindeki <strong>"Önizle"</strong> butonuna tıklayarak burada canlı olarak inceleyebilirsiniz.
+            Yapay zeka bir fotoğraf iyileştirdiğinde, görsel ürettiğinde veya web sayfası/kod hazırladığında burada canlı olarak görüntüleyip indirebilirsiniz.
           </p>
         </div>
 
         <!-- Canlı HTML / Web Önizleme Iframe -->
         <iframe id="previewIframe" class="hidden w-full h-full border-0 bg-white" sandbox="allow-scripts allow-same-origin"></iframe>
 
-        <!-- Zengin Metin / Belge / Fotoğraf Önizleme -->
+        <!-- Fotoğraf Karşılaştırma & İyileştirilmiş Görsel Önizleme -->
+        <div id="previewImageView" class="hidden p-6 flex flex-col items-center justify-center min-h-full bg-slate-50/60 space-y-4"></div>
+
+        <!-- Zengin Metin / Belge Önizleme -->
         <div id="previewDocumentView" class="hidden p-6 sm:p-8 prose max-w-none"></div>
 
         <!-- Kaynak Kod Önizleme -->
@@ -414,7 +426,7 @@
             <i data-lucide="cpu" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-slate-900">Forge AI</h3>
+            <h3 class="text-base font-bold text-slate-900">Forge AI Studio</h3>
             <p class="text-xs text-slate-500">Ozguler Forge Yapay Zeka Platformu</p>
           </div>
         </div>
@@ -424,7 +436,7 @@
       </div>
 
       <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-        <strong>Forge AI</strong>, görsel analiz, canlı önizleme stüdyosu ve gelişmiş dil modellerini tek bir güvenli arayüzde birleştiren yeni nesil yapay zeka çalışma ortamıdır. Verileriniz üçüncü taraf sunucularda depolanmaz; tüm oturum geçmişiniz kendi cihazınızda kalır.
+        <strong>Forge AI Studio</strong>; fotoğraf iyileştirme, görsel üretim, canlı web önizleme stüdyosu ve gelişmiş dil modellerini tek bir güvenli arayüzde birleştiren yeni nesil yapay zeka çalışma ortamıdır.
       </p>
 
       <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 space-y-2.5 text-xs">
@@ -448,7 +460,7 @@
     </div>
   </div>
 
-  <!-- MODAL 3: PWA KURULUM REHBERİ (Tarayıcı Otomatik Tetiklemezse) -->
+  <!-- MODAL 3: PWA KURULUM REHBERİ -->
   <div id="installGuideModal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-float">
       <div class="flex items-center justify-between">
@@ -484,7 +496,6 @@
   </div>
 
   <script>
-    // Güvenli İkon Yükleyici (CDN gecikirse bile hata vermez)
     function refreshIcons() {
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
         try { window.lucide.createIcons(); } catch (e) {}
@@ -501,7 +512,15 @@
       MODEL: 'forge_ai_model'
     };
 
-    const DEFAULT_SYSTEM = 'Sen Ozguler Forge tarafından geliştirilen Forge AI adlı üst düzey bir yapay zeka asistanısın. Yanıtların net, yapılandırılmış, hatasız ve Türkçe olmalıdır. Kullanıcı fotoğraf yüklediğinde kompozisyon, ışık, renk dengesi ve iyileştirme önerilerini detaylıca sunarsın.';
+    const DEFAULT_SYSTEM = 'Sen Ozguler Forge tarafından geliştirilen Forge AI adlı üst düzey bir yapay zeka asistanısın. Yanıtların net, yapılandırılmış, hatasız ve Türkçe olmalıdır.';
+
+    // Görsel üretim/düzenleme (Image-to-Image / Text-to-Image) modelleri listesi
+    const IMAGE_GEN_MODELS = [
+      'bytedance-seed/seedream-4.5',
+      'google/gemini-2.5-flash-image-preview',
+      'openai/gpt-5-image-mini',
+      'black-forest-labs/flux.2-pro'
+    ];
 
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
@@ -513,7 +532,7 @@
       attachedImage: null,
       isGenerating: false,
       abortController: null,
-      currentArtifact: null // { title, type: 'html'|'code'|'document', content, lang, ext }
+      currentArtifact: null
     };
 
     const els = {
@@ -525,7 +544,6 @@
       chatList: document.getElementById('chatList'),
       searchChatsInput: document.getElementById('searchChatsInput'),
       messagesContainer: document.getElementById('messagesContainer'),
-      noKeyWarning: document.getElementById('noKeyWarning'),
       keyStatusBadge: document.getElementById('keyStatusBadge'),
       modelSelect: document.getElementById('modelSelect'),
       chatForm: document.getElementById('chatForm'),
@@ -548,6 +566,7 @@
       tabSourceView: document.getElementById('tabSourceView'),
       previewEmptyState: document.getElementById('previewEmptyState'),
       previewIframe: document.getElementById('previewIframe'),
+      previewImageView: document.getElementById('previewImageView'),
       previewDocumentView: document.getElementById('previewDocumentView'),
       previewCodeView: document.getElementById('previewCodeView'),
       previewCodeContent: document.getElementById('previewCodeContent'),
@@ -560,20 +579,16 @@
       systemPromptInput: document.getElementById('systemPromptInput')
     };
 
-    // GÜVENLİ MARKDOWN YORUMLAYICI (Marked.js Sürüm Uyumluluğu Garantili)
     function parseMarkdownSafe(mdText) {
       if (!mdText) return '';
       try {
         if (window.marked && typeof window.marked.parse === 'function') {
           return window.marked.parse(mdText, { breaks: true });
         }
-      } catch (e) {
-        console.warn('Markdown ayrıştırma hatası:', e);
-      }
+      } catch (e) {}
       return escapeHtml(mdText).replace(/\n/g, '<br>');
     }
 
-    // Mesaj içindeki kod bloklarına otomatik "Önizle" ve "Kopyala" başlığı ekle
     function enhanceRenderedContent(container) {
       if (!container) return;
       const preBlocks = container.querySelectorAll('pre');
@@ -605,7 +620,6 @@
         const btnGroup = document.createElement('div');
         btnGroup.className = 'flex items-center gap-2';
 
-        // Önizle Butonu
         const previewBtn = document.createElement('button');
         previewBtn.type = 'button';
         previewBtn.className = 'px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 font-sans font-semibold text-[11px] transition cursor-pointer';
@@ -621,7 +635,6 @@
           });
         };
 
-        // Kopyala Butonu
         const copyBtn = document.createElement('button');
         copyBtn.type = 'button';
         copyBtn.className = 'text-slate-500 hover:text-blue-600 font-sans font-medium text-[11px] transition cursor-pointer';
@@ -654,23 +667,40 @@
       els.previewEmptyState.classList.add('hidden');
       els.previewTitle.textContent = artifact.title || 'Çalışma Önizlemesi';
 
-      if (artifact.type === 'html') {
+      // Tüm alt görünümleri gizle
+      els.previewIframe.classList.add('hidden');
+      els.previewImageView.classList.add('hidden');
+      els.previewDocumentView.classList.add('hidden');
+      els.previewCodeView.classList.add('hidden');
+      els.previewModeTabs.classList.add('hidden');
+
+      if (artifact.type === 'image') {
+        els.previewSubtitle.textContent = 'Yapay Zeka Fotoğraf Çıktısı';
+        els.previewImageView.classList.remove('hidden');
+        const originalHtml = artifact.originalUrl ? `
+          <div class="w-full max-w-md space-y-1.5">
+            <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Orijinal Fotoğraf</span>
+            <img src="${artifact.originalUrl}" onclick="openLightbox('${artifact.originalUrl}')" class="w-full rounded-2xl border border-slate-200 shadow-xs cursor-zoom-in" alt="Orijinal" />
+          </div>
+        ` : '';
+        els.previewImageView.innerHTML = `
+          <div class="w-full max-w-md space-y-1.5">
+            <span class="text-[11px] font-semibold text-blue-600 uppercase tracking-wider">✨ İyileştirilmiş / Üretilmiş Sonuç</span>
+            <img src="${artifact.imageUrl}" onclick="openLightbox('${artifact.imageUrl}')" class="w-full rounded-2xl border-2 border-blue-500/30 shadow-float cursor-zoom-in bg-white" alt="Sonuç Görsel" />
+          </div>
+          ${originalHtml}
+        `;
+      } else if (artifact.type === 'html') {
         els.previewSubtitle.textContent = 'Canlı İnteraktif Görünüm';
         els.previewModeTabs.classList.remove('hidden');
         showPreviewTab('live');
       } else if (artifact.type === 'document') {
         els.previewSubtitle.textContent = 'Belge & Çalışma Önizlemesi';
-        els.previewModeTabs.classList.add('hidden');
-        els.previewIframe.classList.add('hidden');
-        els.previewCodeView.classList.add('hidden');
         els.previewDocumentView.classList.remove('hidden');
         els.previewDocumentView.innerHTML = parseMarkdownSafe(artifact.content);
         enhanceRenderedContent(els.previewDocumentView);
       } else {
         els.previewSubtitle.textContent = `Kaynak Kod (${(artifact.lang || 'TXT').toUpperCase()})`;
-        els.previewModeTabs.classList.add('hidden');
-        els.previewIframe.classList.add('hidden');
-        els.previewDocumentView.classList.add('hidden');
         els.previewCodeView.classList.remove('hidden');
         els.previewCodeContent.textContent = artifact.content;
       }
@@ -699,23 +729,46 @@
     els.tabLiveView.onclick = () => showPreviewTab('live');
     els.tabSourceView.onclick = () => showPreviewTab('source');
     document.getElementById('closePreviewPaneBtn').onclick = () => els.previewPane.classList.add('hidden');
-    document.getElementById('togglePreviewPaneBtn').onclick = () => {
-      els.previewPane.classList.toggle('hidden');
-    };
+    document.getElementById('togglePreviewPaneBtn').onclick = () => els.previewPane.classList.toggle('hidden');
 
     document.getElementById('copyArtifactBtn').onclick = () => {
       if (!state.currentArtifact) return;
-      navigator.clipboard.writeText(state.currentArtifact.content);
+      navigator.clipboard.writeText(state.currentArtifact.imageUrl || state.currentArtifact.content || '');
     };
 
     document.getElementById('downloadArtifactBtn').onclick = () => {
       if (!state.currentArtifact) return;
+      if (state.currentArtifact.type === 'image' && state.currentArtifact.imageUrl) {
+        const a = document.createElement('a');
+        a.href = state.currentArtifact.imageUrl;
+        a.download = `forge-ai-gorsel-${Date.now()}.png`;
+        a.target = '_blank';
+        a.click();
+        return;
+      }
       const blob = new Blob([state.currentArtifact.content], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = `forge-ai-calisma.${state.currentArtifact.ext || 'txt'}`;
       a.click();
+    };
+
+    window.downloadImageDirect = function(url) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `forge-ai-iyilestirilmis-${Date.now()}.png`;
+      a.target = '_blank';
+      a.click();
+    };
+
+    window.previewImageArtifact = function(encodedResultUrl, encodedOrigUrl) {
+      openArtifactPreview({
+        title: 'Fotoğraf İyileştirme Önizlemesi',
+        type: 'image',
+        imageUrl: decodeURIComponent(encodedResultUrl),
+        originalUrl: encodedOrigUrl ? decodeURIComponent(encodedOrigUrl) : null
+      });
     };
 
     window.copyRawText = function(btn, encodedText) {
@@ -733,7 +786,6 @@
 
     window.previewFullResponse = function(encodedText) {
       const content = decodeURIComponent(encodedText);
-      // İçinde HTML kodu varsa doğrudan canlı web önizlemesi aç
       const htmlMatch = content.match(/```html\s*([\s\S]*?)```/i);
       if (htmlMatch && htmlMatch[1]) {
         openArtifactPreview({
@@ -793,7 +845,7 @@
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_DIM = 1600;
+          const MAX_DIM = 1536;
           let width = img.width;
           let height = img.height;
 
@@ -812,18 +864,12 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+          const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
           state.attachedImage = { name: file.name, dataUrl: optimizedDataUrl };
           els.imagePreviewThumb.src = optimizedDataUrl;
           els.imagePreviewName.textContent = file.name;
           els.imagePreviewCard.classList.remove('hidden');
           updatePreviewBarVisibility();
-
-          const currentModel = els.modelSelect.value;
-          if (!currentModel.includes('gemma-4') && !currentModel.includes('vl') && !currentModel.includes('gpt-4o') && !currentModel.includes('claude-3.5')) {
-            els.modelSelect.value = 'google/gemma-4-31b-it:free';
-            localStorage.setItem(KEYS.MODEL, els.modelSelect.value);
-          }
         };
         img.src = e.target.result;
       };
@@ -888,7 +934,6 @@
       else processTextFile(file);
     });
 
-    // PANODAN YAPIŞTIRMA (CTRL+V)
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData?.items;
       if (!items) return;
@@ -916,7 +961,6 @@
     document.getElementById('closeSidebarBtn').onclick = () => toggleSidebar(false);
     els.sidebarOverlay.onclick = () => toggleSidebar(false);
 
-    // SOHBET LİSTESİNİ ÇİZ
     function renderChatList(filter = '') {
       els.chatList.innerHTML = '';
       const filtered = state.chats.filter(c => c.title.toLowerCase().includes(filter.toLowerCase()));
@@ -961,7 +1005,6 @@
       refreshIcons();
     }
 
-    // KARŞILAMA EKRANI HTML ŞABLONU (Yeni Sohbette Her Zaman Temiz Oluşturulur)
     function getWelcomeScreenHtml() {
       const hasValidKey = Boolean(state.apiKey && state.apiKey.startsWith('sk-or-'));
       return `
@@ -971,10 +1014,10 @@
           </div>
           
           <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
-            Forge AI Çalışma Alanı
+            Forge AI Studio
           </h1>
           <p class="text-sm sm:text-base text-slate-500 max-w-lg mb-8 leading-relaxed">
-            Fotoğraflarınızı sürükleyip bırakarak ışık, renk ve kadraj analizi yaptırabilir; web tasarımları, belgeler ve kodlar üretip sağ panelde canlı önizleyebilirsiniz.
+            Fotoğraflarınızı sürükleyip bırakarak yapay zeka ile doğrudan iyileştirip yeniden oluşturabilir; web tasarımları ve belgeler üretip sağ panelde canlı önizleyebilirsiniz.
           </p>
 
           <div id="noKeyWarning" class="${hasValidKey ? 'hidden' : ''} w-full max-w-lg mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-left flex items-start gap-3 shadow-2xs">
@@ -986,15 +1029,23 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
-            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+            <button type="button" onclick="usePromptCard(this, 'bytedance-seed/seedream-4.5')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
               <div class="flex items-center gap-2 text-blue-600 font-semibold text-xs mb-1">
-                <i data-lucide="camera" class="w-4 h-4"></i>
-                <span>Fotoğraf İyileştirme & Renk Analizi</span>
+                <i data-lucide="wand-2" class="w-4 h-4"></i>
+                <span>🎨 Fotoğrafı Güzelleştir & İyileştir</span>
               </div>
-              <p class="text-xs text-slate-600 group-hover:text-slate-900">Yüklediğim bu fotoğrafı ışık, kontrast, renk dengesi ve kadraj açısından değerlendir; iyileştirme önerileri sun.</p>
+              <p class="text-xs text-slate-600 group-hover:text-slate-900">Bu fotoğrafı profesyonel stüdyo kalitesinde güzelleştir; ışığı, renk canlılığını, netliği ve dinamik aralığı doğal dokuyu koruyarak iyileştir.</p>
             </button>
 
-            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+            <button type="button" onclick="usePromptCard(this, 'google/gemma-4-31b-it:free')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+              <div class="flex items-center gap-2 text-emerald-600 font-semibold text-xs mb-1">
+                <i data-lucide="camera" class="w-4 h-4"></i>
+                <span>👁️ Fotoğraf Analizi (Ücretsiz)</span>
+              </div>
+              <p class="text-xs text-slate-600 group-hover:text-slate-900">Yüklediğim fotoğrafı kadraj, ışık ve renk dengesi açısından detaylıca yorumla ve düzenleme önerileri ver.</p>
+            </button>
+
+            <button type="button" onclick="usePromptCard(this, 'google/gemma-4-31b-it:free')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
               <div class="flex items-center gap-2 text-indigo-600 font-semibold text-xs mb-1">
                 <i data-lucide="layout-template" class="w-4 h-4"></i>
                 <span>Canlı Web Tasarımı & Önizleme</span>
@@ -1002,15 +1053,7 @@
               <p class="text-xs text-slate-600 group-hover:text-slate-900">Modern, açık renkli ve şık bir kişisel portföy açılış sayfası (tek dosya HTML/Tailwind) tasarla.</p>
             </button>
 
-            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
-              <div class="flex items-center gap-2 text-emerald-600 font-semibold text-xs mb-1">
-                <i data-lucide="code-2" class="w-4 h-4"></i>
-                <span>Yazılım & Mimari</span>
-              </div>
-              <p class="text-xs text-slate-600 group-hover:text-slate-900">Modern ve güvenli bir REST API mimarisi için en iyi pratikleri ve örnek kodu hazırla.</p>
-            </button>
-
-            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+            <button type="button" onclick="usePromptCard(this, 'google/gemma-4-31b-it:free')" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
               <div class="flex items-center gap-2 text-violet-600 font-semibold text-xs mb-1">
                 <i data-lucide="file-text" class="w-4 h-4"></i>
                 <span>Kurumsal Metin & Belge</span>
@@ -1022,15 +1065,18 @@
       `;
     }
 
-    window.usePromptCard = function(btn) {
+    window.usePromptCard = function(btn, recommendedModel) {
       const p = btn.querySelector('p');
       if (p) {
         els.userInput.value = p.textContent;
+        if (recommendedModel) {
+          els.modelSelect.value = recommendedModel;
+          localStorage.setItem(KEYS.MODEL, recommendedModel);
+        }
         els.userInput.focus();
       }
     };
 
-    // MESAJLARI EKRANA BAS (Yeni Sohbette Tamamen Temizler)
     function renderMessages() {
       const chat = state.chats.find(c => c.id === state.activeChatId);
       els.messagesContainer.innerHTML = '';
@@ -1041,12 +1087,12 @@
         return;
       }
 
-      chat.messages.forEach(m => createMessageBubble(m.role, m.content, m.fileName, m.imageDataUrl));
+      chat.messages.forEach(m => createMessageBubble(m.role, m.content, m.fileName, m.imageDataUrl, m.generatedImages, m.originalImageUrl));
       els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
       refreshIcons();
     }
 
-    function createMessageBubble(role, content, fileName = null, imageDataUrl = null) {
+    function createMessageBubble(role, content, fileName = null, imageDataUrl = null, generatedImages = null, originalImageUrl = null) {
       const row = document.createElement('div');
       row.className = `max-w-3xl mx-auto flex gap-3.5 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
 
@@ -1058,13 +1104,40 @@
         `;
       } else {
         const cleanRaw = encodeURIComponent(content || '');
+        const hasImages = Array.isArray(generatedImages) && generatedImages.length > 0;
+        let genImgHtml = '';
+
+        if (hasImages) {
+          genImgHtml = generatedImages.map(imgUrl => {
+            const encRes = encodeURIComponent(imgUrl);
+            const encOrig = originalImageUrl ? encodeURIComponent(originalImageUrl) : '';
+            return `
+              <div class="my-3 space-y-2">
+                <div class="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+                  <img src="${imgUrl}" onclick="openLightbox('${imgUrl}')" class="w-full max-h-[460px] object-contain cursor-zoom-in mx-auto" alt="Forge AI Görsel Çıktısı" />
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <button type="button" onclick="downloadImageDirect('${imgUrl}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs transition cursor-pointer">
+                    <span>⬇️ Fotoğrafı İndir</span>
+                  </button>
+                  <button type="button" onclick="previewImageArtifact('${encRes}', '${encOrig}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition cursor-pointer">
+                    <span>👁️ Öncesi / Sonrası Karşılaştır</span>
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        const isReady = Boolean(content || hasImages);
         row.innerHTML = `
           <div class="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-2xs shrink-0 mt-0.5">
             <i data-lucide="cpu" class="w-4 h-4"></i>
           </div>
           <div class="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 sm:p-5 shadow-2xs">
-            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="flex gap-1.5 py-2"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>'}</div>
-            <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-[11px] text-slate-400 ${content ? '' : 'hidden'}">
+            <div class="gen-images-container">${genImgHtml}</div>
+            <div class="prose max-w-none">${isReady ? parseMarkdownSafe(content) : '<div class="flex items-center gap-2 py-2 text-xs text-slate-500"><div class="flex gap-1.5"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>Forge AI işliyor...</span></div>'}</div>
+            <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-[11px] text-slate-400 ${isReady ? '' : 'hidden'}">
               <button type="button" onclick="previewFullResponse('${cleanRaw}')" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer">
                 <span>👁️ Çalışmayı Önizle</span>
               </button>
@@ -1094,7 +1167,7 @@
       return div.innerHTML;
     }
 
-    // MESAJ GÖNDERME VE AKIŞ İŞLEMİ (Hata Korumalı)
+    // MESAJ GÖNDERME: HEM GÖRSEL ÜRETİM/GÜZELLEŞTİRME (MODALITIES) HEM METİN AKIŞINI DESTEKLER
     async function sendMessage(e) {
       if (e) e.preventDefault();
       let text = els.userInput.value.trim();
@@ -1105,8 +1178,28 @@
         return;
       }
 
+      // Kullanıcı fotoğraf yükleyip "güzelleştir" veya "iyileştir" dediyse ama üstte hala analiz modeli seçiliyse, otomatik olarak görsel üretim/düzenleme modeline (Seedream 4.5) geçir
+      const lowerText = text.toLowerCase();
+      const wantsImageEdit = state.attachedImage && (
+        lowerText.includes('güzelleştir') ||
+        lowerText.includes('iyileştir') ||
+        lowerText.includes('düzenle') ||
+        lowerText.includes('retouch') ||
+        lowerText.includes('enhance') ||
+        lowerText.includes('düzelt') ||
+        lowerText.includes('netleştir') ||
+        lowerText.includes('renklendir')
+      );
+
+      if (wantsImageEdit && !IMAGE_GEN_MODELS.includes(els.modelSelect.value)) {
+        els.modelSelect.value = 'bytedance-seed/seedream-4.5';
+        localStorage.setItem(KEYS.MODEL, els.modelSelect.value);
+      }
+
       if (!text && state.attachedImage) {
-        text = 'Bu fotoğrafı ışık, renk dengesi, kadraj ve genel estetik açıdan analiz et; daha etkileyici görünmesi için iyileştirme önerileri sun.';
+        text = IMAGE_GEN_MODELS.includes(els.modelSelect.value)
+          ? 'Bu fotoğrafı profesyonel stüdyo kalitesinde güzelleştir; ışığı, renk dengesini ve netliğini doğal yapıyı bozmadan iyileştir.'
+          : 'Bu fotoğrafı ışık, renk dengesi, kadraj ve genel estetik açıdan analiz et; iyileştirme önerileri sun.';
       }
 
       if (!state.activeChatId) {
@@ -1155,12 +1248,16 @@
       els.sendBtn.classList.add('hidden');
       els.stopBtn.classList.remove('hidden');
 
-      const aiMsg = { role: 'assistant', content: '' };
+      const aiMsg = { role: 'assistant', content: '', generatedImages: [], originalImageUrl: attachedImgUrl };
       currentChat.messages.push(aiMsg);
       const bubble = createMessageBubble('assistant', '');
       refreshIcons();
       const proseEl = bubble.querySelector('.prose');
+      const imgContainerEl = bubble.querySelector('.gen-images-container');
       const actionsEl = bubble.querySelector('.msg-actions');
+
+      const selectedModel = els.modelSelect.value;
+      const isImageGenModel = IMAGE_GEN_MODELS.includes(selectedModel);
 
       try {
         const apiMessages = [
@@ -1179,89 +1276,174 @@
           })
         ];
 
-        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          signal: state.abortController.signal,
-          headers: {
-            'Authorization': `Bearer ${state.apiKey}`,
-            'HTTP-Referer': 'https://ozgulerforge.com.tr',
-            'X-Title': 'Forge AI',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: els.modelSelect.value,
-            temperature: state.temperature,
-            stream: true,
-            messages: apiMessages
-          })
-        });
+        // Görsel üretim/düzenleme modeli seçiliyse modalities: ["image", "text"] ile isteği gönder
+        if (isImageGenModel) {
+          proseEl.innerHTML = `<div class="flex items-center gap-2 py-2 text-xs text-blue-600 font-medium"><div class="flex gap-1.5"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>Fotoğraf yapay zeka stüdyosunda işleniyor (10-20 sn sürebilir)...</span></div>`;
 
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.error?.message || `Sunucu Yanıt Hatası (${response.status})`);
-        }
-
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let buffer = '';
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop();
-
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (!trimmed.startsWith('data: ')) continue;
-            const payload = trimmed.slice(6);
-            if (payload === '[DONE]') break;
-
-            try {
-              const parsed = JSON.parse(payload);
-              const token = parsed.choices?.[0]?.delta?.content;
-              if (token) {
-                aiMsg.content += token;
-                proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
-                els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
-              }
-            } catch (_) {}
-          }
-        }
-
-        // Akış tamamlandığında kod bloklarını ve önizleme butonlarını aktif et
-        enhanceRenderedContent(proseEl);
-
-        const encodedFinal = encodeURIComponent(aiMsg.content);
-        actionsEl.innerHTML = `
-          <button type="button" onclick="previewFullResponse('${encodedFinal}')" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer"><span>👁️ Çalışmayı Önizle</span></button>
-          <span>•</span>
-          <button type="button" onclick="copyRawText(this, '${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Kopyala</span></button>
-          <span>•</span>
-          <button type="button" onclick="speakText('${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Sesli Dinle</span></button>
-        `;
-        actionsEl.classList.remove('hidden');
-        syncStorage();
-
-        // Eğer yanıtta HTML kodu üretildiyse otomatik olarak sağdaki Canlı Önizleme stüdyosunda aç
-        const htmlMatch = aiMsg.content.match(/```html\s*([\s\S]*?)```/i);
-        if (htmlMatch && htmlMatch[1]) {
-          openArtifactPreview({
-            title: 'Canlı Web Çalışması Önizlemesi',
-            type: 'html',
-            content: htmlMatch[1].trim(),
-            lang: 'html',
-            ext: 'html'
+          const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            signal: state.abortController.signal,
+            headers: {
+              'Authorization': `Bearer ${state.apiKey}`,
+              'HTTP-Referer': 'https://ozgulerforge.com.tr',
+              'X-Title': 'Forge AI',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: selectedModel,
+              modalities: ['image', 'text'],
+              messages: apiMessages
+            })
           });
+
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error?.message || `Görsel Üretim Hatası (${response.status})`);
+          }
+
+          const choiceMsg = data.choices?.[0]?.message || {};
+          aiMsg.content = choiceMsg.content || 'Fotoğraf işlemi tamamlandı.';
+
+          // OpenRouter görsel yanıtlarını çıkar (choices[0].message.images dizisi)
+          if (Array.isArray(choiceMsg.images)) {
+            choiceMsg.images.forEach(item => {
+              const url = item?.image_url?.url || item?.url;
+              if (url) aiMsg.generatedImages.push(url);
+            });
+          }
+
+          // Eğer içerik dizisi içinde görsel geldiyse onu da yakala
+          if (Array.isArray(choiceMsg.content)) {
+            let textParts = [];
+            choiceMsg.content.forEach(part => {
+              if (part.type === 'text') textParts.push(part.text);
+              if (part.type === 'image_url' && part.image_url?.url) {
+                aiMsg.generatedImages.push(part.image_url.url);
+              }
+            });
+            aiMsg.content = textParts.join('\n') || 'Görsel başarıyla oluşturuldu.';
+          }
+
+          if (aiMsg.generatedImages.length > 0) {
+            imgContainerEl.innerHTML = aiMsg.generatedImages.map(imgUrl => {
+              const encRes = encodeURIComponent(imgUrl);
+              const encOrig = attachedImgUrl ? encodeURIComponent(attachedImgUrl) : '';
+              return `
+                <div class="my-3 space-y-2">
+                  <div class="relative group rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+                    <img src="${imgUrl}" onclick="openLightbox('${imgUrl}')" class="w-full max-h-[460px] object-contain cursor-zoom-in mx-auto" alt="Forge AI Görsel Çıktısı" />
+                  </div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button type="button" onclick="downloadImageDirect('${imgUrl}')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-2xs transition cursor-pointer">
+                      <span>⬇️ Fotoğrafı İndir</span>
+                    </button>
+                    <button type="button" onclick="previewImageArtifact('${encRes}', '${encOrig}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl flex items-center gap-1.5 transition cursor-pointer">
+                      <span>👁️ Öncesi / Sonrası Karşılaştır</span>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('');
+
+            // Sağ önizleme stüdyosunda otomatik olarak Öncesi/Sonrası aç
+            openArtifactPreview({
+              title: 'Fotoğraf İyileştirme Önizlemesi',
+              type: 'image',
+              imageUrl: aiMsg.generatedImages[0],
+              originalUrl: attachedImgUrl
+            });
+          } else {
+            aiMsg.content += '\n\n*(Not: Seçili model bu istek için görsel çıktısı döndürmedi. OpenRouter hesabınızda bakiye/kredi olduğundan emin olun veya farklı bir görsel üretim modeli deneyin.)*';
+          }
+
+          proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
+          actionsEl.classList.remove('hidden');
+          syncStorage();
+
+        } else {
+          // Standart Metin & Görsel Analiz Akışı (Streaming)
+          const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+            method: 'POST',
+            signal: state.abortController.signal,
+            headers: {
+              'Authorization': `Bearer ${state.apiKey}`,
+              'HTTP-Referer': 'https://ozgulerforge.com.tr',
+              'X-Title': 'Forge AI',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: selectedModel,
+              temperature: state.temperature,
+              stream: true,
+              messages: apiMessages
+            })
+          });
+
+          if (!response.ok) {
+            const err = await response.json().catch(() => ({}));
+            throw new Error(err.error?.message || `Sunucu Yanıt Hatası (${response.status})`);
+          }
+
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let buffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed.startsWith('data: ')) continue;
+              const payload = trimmed.slice(6);
+              if (payload === '[DONE]') break;
+
+              try {
+                const parsed = JSON.parse(payload);
+                const token = parsed.choices?.[0]?.delta?.content;
+                if (token) {
+                  aiMsg.content += token;
+                  proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
+                  els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
+                }
+              } catch (_) {}
+            }
+          }
+
+          enhanceRenderedContent(proseEl);
+
+          const encodedFinal = encodeURIComponent(aiMsg.content);
+          actionsEl.innerHTML = `
+            <button type="button" onclick="previewFullResponse('${encodedFinal}')" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer"><span>👁️ Çalışmayı Önizle</span></button>
+            <span>•</span>
+            <button type="button" onclick="copyRawText(this, '${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Kopyala</span></button>
+            <span>•</span>
+            <button type="button" onclick="speakText('${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Sesli Dinle</span></button>
+          `;
+          actionsEl.classList.remove('hidden');
+          syncStorage();
+
+          const htmlMatch = aiMsg.content.match(/```html\s*([\s\S]*?)```/i);
+          if (htmlMatch && htmlMatch[1]) {
+            openArtifactPreview({
+              title: 'Canlı Web Çalışması Önizlemesi',
+              type: 'html',
+              content: htmlMatch[1].trim(),
+              lang: 'html',
+              ext: 'html'
+            });
+          }
         }
 
       } catch (err) {
         if (err.name === 'AbortError') {
-          aiMsg.content += '\n\n*(Yanıt kullanıcı tarafından durduruldu.)*';
+          aiMsg.content += '\n\n*(İşlem kullanıcı tarafından durduruldu.)*';
         } else {
-          aiMsg.content = `> **Bağlantı / Motor Uyarısı:** ${err.message}\n\nLütfen API anahtarınızı veya seçili modelin kullanım limitini kontrol edin.`;
+          aiMsg.content = `> **Motor Uyarısı:** ${err.message}\n\n*Not: Görsel üretim ve fotoğraf düzenleme modelleri (Seedream, Gemini Image, FLUX vb.) OpenRouter hesabınızda kredi/bakiye gerektirir. Ücretsiz görsel analizi ve yorumlama için Google Gemma 4 modellerini kullanabilirsiniz.*`;
         }
         proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
         syncStorage();
@@ -1273,7 +1455,7 @@
       }
     }
 
-    // YENİ SOHBET BUTONU (Kesin Temizlik Garantili)
+    // YENİ SOHBET BUTONU
     document.getElementById('newChatBtn').onclick = () => {
       if (state.isGenerating && state.abortController) {
         state.abortController.abort();
@@ -1335,7 +1517,6 @@
 
     els.searchChatsInput.oninput = (e) => renderChatList(e.target.value);
 
-    // Sohbeti Markdown Olarak İndir
     document.getElementById('exportChatBtn').onclick = () => {
       const chat = state.chats.find(c => c.id === state.activeChatId);
       if (!chat || chat.messages.length === 0) return;
@@ -1351,7 +1532,6 @@
       a.click();
     };
 
-    // Ayarlar & Hakkında Modalları
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
       els.tempSlider.value = state.temperature;
@@ -1385,7 +1565,6 @@
     if (savedModel) els.modelSelect.value = savedModel;
     els.modelSelect.onchange = () => localStorage.setItem(KEYS.MODEL, els.modelSelect.value);
 
-    // PWA YÜKLEME BUTONU & OTOMATİK GÜNCELLEME YÖNETİMİ
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -1405,7 +1584,6 @@
     document.getElementById('installPwaBtn').onclick = triggerAppInstall;
     document.getElementById('headerInstallBtn').onclick = triggerAppInstall;
 
-    // Service Worker Otomatik Güncelleme Kontrolü
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').then((reg) => {
         reg.update();
@@ -1430,7 +1608,6 @@
       });
     }
 
-    // Uygulamayı Başlat
     updateApiBadge();
     renderChatList();
     renderMessages();

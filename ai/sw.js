@@ -1,4 +1,4 @@
-const CACHE_NAME = 'forge-ai-v3.0';
+const CACHE_NAME = 'forge-ai-studio-v4.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -20,7 +20,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Network-First (Önce Ağ, Çevrimdışıysa Önbellek) -> Güncellemelerin anında gelmesini sağlar
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET' || event.request.url.includes('openrouter.ai')) return;
 
