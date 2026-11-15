@@ -1,4 +1,4 @@
-const CACHE_NAME = 'formatlab-shell-v2';
+const CACHE_NAME = 'formatlab-shell-v3';
 const APP_BASE = new URL(self.registration.scope);
 const appFile = (name) => new URL(name, APP_BASE).href;
 const APP_ROOT = APP_BASE.href;
