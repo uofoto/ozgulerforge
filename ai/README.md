@@ -1,8 +1,9 @@
-# Forge AI Studio (v4.0) - Gerçek Görsel Üretim & İyileştirme Destekli PWA
+# Forge AI (v4.1) - Forge Auto Tek Motorlu Sade Sürüm
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
 
-## v4.0 Önemli Güncelleme
-* **Gerçek Fotoğraf Güzelleştirme & Görsel Üretim (`modalities: ["image", "text"]`):** Üst menüye **ByteDance Seedream 4.5**, **Gemini 2.5 Flash Image**, **GPT-5 Image Mini** ve **FLUX.2 Pro** modelleri eklendi. Fotoğraf yükleyip *"bu fotoğrafı güzelleştir"* yazdığınızda uygulama otomatik olarak görsel üretim motoruna geçer, iyileştirilmiş yeni fotoğrafı doğrudan sohbet ekranında oluşturur, tek tıkla indirme butonu sunar ve sağ panelde **Öncesi / Sonrası** karşılaştırması açar.
-* **Not:** OpenRouter üzerinde görsel üreten/düzenleyen modeller (Seedream, Gemini Image, FLUX) hesabınızda bakiye/kredi gerektirir; ücretsiz görsel analizi ve yorumlama için **Google Gemma 4 31B** kullanılabilir.
+## v4.1 Değişiklikleri
+* Tüm harici ve karmaşık model seçici listeleri kaldırıldı.
+* Uygulama doğrudan ücretsiz yönlendirme motoru olan **Forge Auto** (`openrouter/free`) üzerine sabitlendi.
+* Karşılama ekranı, sohbet balonları, kod vurgulama ve sağ canlı önizleme paneli sadeleştirilmiş tek motor yapısına uyarlandı.
