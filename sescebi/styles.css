@@ -212,3 +212,12 @@ body.modal-open { overflow: hidden; }
 #info-body p { margin: 0 0 10px; line-height: 1.45; }
 .info-list { margin: 0 0 8px; padding-left: 20px; color: var(--ink); line-height: 1.45; font-size: .92rem; }
 .info-list li { margin-bottom: 6px; }
+
+/* ---- v15: yeniden adlandırma, çalma düzeni, yedekleme ---- */
+.player-extra { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip { min-height: 38px; padding: 0 14px; color: #fffaf3; background: transparent; border: 1px solid #645a53; border-radius: 99px; font-size: .82rem; font-weight: 700; }
+.chip:hover { background: #3a312c; }
+.chip.wide { margin-left: auto; color: var(--yellow); border-color: #8a7a52; }
+.backup-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.backup-row .ghost-button { flex: 1 1 140px; min-height: 42px; }
+.rename-actions { margin-top: 14px; }

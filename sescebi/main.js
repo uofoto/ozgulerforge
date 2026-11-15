@@ -24,6 +24,7 @@ const icons = {
     link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13.5 14 9.5M8.2 16.8l-1.1 1.1a3.7 3.7 0 0 1-5.2-5.2l3.7-3.7a3.7 3.7 0 0 1 5.2 0M15.8 7.2l1.1-1.1a3.7 3.7 0 0 1 5.2 5.2l-3.7 3.7a3.7 3.7 0 0 1-5.2 0"/></svg>',
     scissors: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
 };
 app.innerHTML = `
   <div class="app-shell">
@@ -52,7 +53,7 @@ app.innerHTML = `
       </section>
 
       <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
-        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 14</span></div>
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 15</span></div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
           <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
@@ -92,12 +93,14 @@ app.innerHTML = `
           <div class="player" id="player" aria-live="polite">
             <div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div>
             <div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div>
+            <div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip wide" id="mode-button" type="button">Sırayla çal</button></div>
           </div>
         </div>
 
         <section class="card library-card" aria-labelledby="library-title">
           <div class="library-header"><div><h2 id="library-title">Cebimdeki sesler</h2><span class="library-count" id="library-count">0 kayıt</span></div><span class="stamp">OFFLINE</span></div>
           <p class="storage-note">Sesler uygulamanın kendi arşivinde durur; dosya yöneticisinde görünmez. <strong>İndir</strong> dersen cihazının indirme klasörüne kaydolur, <strong>Paylaş</strong> ile mail, Drive gibi yerlere gönderebilirsin.</p>
+          <div class="backup-row"><button class="ghost-button" id="backup-button" type="button">${icons.download}<span>Yedek al</span></button><button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedekten yükle</span></button><input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" /></div>
           <div class="empty-state" id="empty-state"><div class="empty-icon">${icons.cassette}</div><h3>Arşiv henüz boş</h3><p>İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.</p></div>
           <div class="song-list" id="song-list"></div>
         </section>
@@ -140,6 +143,14 @@ app.innerHTML = `
       <div class="sheet-head"><h2 id="info-title">Kayıt bilgisi</h2><button class="icon-button" id="info-close" type="button" aria-label="Kapat">✕</button></div>
       <div id="info-body"></div>
       <div class="sheet-actions"><button class="ghost-button" id="info-share" type="button" hidden>${icons.share}<span>Paylaş</span></button><button class="primary-button" id="info-ok" type="button">Tamam</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="rename-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rename-title">
+      <div class="sheet-head"><h2 id="rename-title">Adı değiştir</h2><button class="icon-button" id="rename-close" type="button" aria-label="Kapat">✕</button></div>
+      <label class="sr-only" for="rename-input">Yeni ad</label>
+      <input class="text-input" id="rename-input" type="text" maxlength="80" autocomplete="off" />
+      <div class="sheet-actions rename-actions"><button class="primary-button" id="rename-save" type="button">Kaydet</button></div>
     </div>
   </div>
   <div class="toast" id="toast" role="status"></div>
@@ -470,7 +481,7 @@ async function addSelectedAudio() {
                 throw new Error('Bu dosya 100 MB sınırını aşıyor.');
             name = selectedFile.name;
             if (isVideo) {
-                blob = await extractAudioFromVideo(selectedFile);
+                blob = await extractVideoAudio(selectedFile);
             }
             else {
                 blob = selectedFile;
@@ -515,7 +526,7 @@ function renderLibrary() {
     <article class="song-row" data-song-id="${song.id}">
       <div class="song-art">${icons.cassette}</div>
       <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span>·</span><span>${formatSize(song.size)}</span><span>·</span><span class="status-pill">Cihazda</span></div></div>
-      <div class="song-actions"><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}">${icons.scissors}</button><button class="icon-button share-row" type="button" aria-label="Paylaş: ${escapeHtml(song.name)}">${icons.share}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
+      <div class="song-actions"><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button rename-row" type="button" aria-label="Adı değiştir: ${escapeHtml(song.name)}">${icons.edit}</button><button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}">${icons.scissors}</button><button class="icon-button share-row" type="button" aria-label="Paylaş: ${escapeHtml(song.name)}">${icons.share}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
     </article>`).join('');
     songList.querySelectorAll('.song-row').forEach((row) => {
         const id = row.dataset.songId;
@@ -523,6 +534,7 @@ function renderLibrary() {
         if (!song)
             return;
         row.querySelector('.play-row')?.addEventListener('click', () => toggleSong(song));
+        row.querySelector('.rename-row')?.addEventListener('click', () => openRename(song));
         row.querySelector('.trim-row')?.addEventListener('click', () => void openTrim(song));
         row.querySelector('.share-row')?.addEventListener('click', () => void shareSong(song));
         row.querySelector('.download-row')?.addEventListener('click', () => void downloadSong(song));
@@ -541,6 +553,7 @@ function loadSong(song) {
     audio.load();
     player.classList.add('visible');
     playerTitle.textContent = song.name;
+    updateMediaSession();
     playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : song.source === 'trim' ? 'Kesit' : 'Dosya'} · cihazda saklanıyor`;
     seek.value = '0';
     updatePlayerUI();
@@ -571,6 +584,7 @@ function updatePlayerUI() {
     seek.max = String(duration || 100);
     seek.value = String(current);
     timeLabel.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
+    updatePositionState();
     playerSubtitle.textContent = audio.paused ? 'Duraklatıldı · cihazda saklı' : 'Şimdi çalıyor · cihazda saklı';
 }
 // ---- dışa aktarma: gerçek biçimi bayttan tanı, doğru ad/uzantı/MIME ile indir veya paylaş ----
@@ -653,14 +667,14 @@ function openOverlay(node) {
 }
 function closeOverlay(node) {
     node.hidden = true;
-    if (trimOverlay.hidden && infoOverlay.hidden)
+    if (trimOverlay.hidden && infoOverlay.hidden && renameOverlay.hidden)
         document.body.classList.remove('modal-open');
 }
 let infoFile = null;
-function showSaveInfo(file, pickedName) {
+function showSaveInfo(file, pickedName, isAudio = true) {
     const info = saveLocationInfo();
     infoFile = file;
-    const steps = pickedName ? [] : info.steps;
+    const steps = pickedName ? [] : info.steps.slice(0, isAudio ? info.steps.length : 1);
     const where = pickedName
         ? `Seçtiğin konuma kaydedildi: <strong>${escapeHtml(pickedName)}</strong>`
         : `İndirme başlatıldı. Dosya şurada olacak: <strong>${escapeHtml(info.where)}</strong>`;
@@ -685,6 +699,9 @@ async function downloadSong(song) {
         toast('Dosya hazırlanamadı.', true);
         return;
     }
+    await saveFile(file, true);
+}
+async function saveFile(file, isAudio) {
     // Bilgisayardaki Chromium tarayıcılar kayıt yerini seçtirebilir; telefonlarda bu özellik yoktur.
     if (typeof window.showSaveFilePicker === 'function') {
         try {
@@ -693,7 +710,7 @@ async function downloadSong(song) {
             const writable = await handle.createWritable();
             await writable.write(file);
             await writable.close();
-            showSaveInfo(file, handle.name);
+            showSaveInfo(file, handle.name, isAudio);
             return;
         }
         catch (error) {
@@ -709,7 +726,7 @@ async function downloadSong(song) {
     anchor.click();
     anchor.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 4000);
-    showSaveInfo(file);
+    showSaveInfo(file, undefined, isAudio);
 }
 function canShareFile(file) {
     return typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
@@ -1006,7 +1023,9 @@ infoOverlay.addEventListener('click', (event) => { if (event.target === infoOver
 document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape')
         return;
-    if (!infoOverlay.hidden)
+    if (!renameOverlay.hidden)
+        closeRename();
+    else if (!infoOverlay.hidden)
         closeInfo();
     else if (!trimOverlay.hidden)
         closeTrim();
@@ -1071,8 +1090,565 @@ audio.addEventListener('timeupdate', updatePlayerUI);
 audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
-audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); });
-const APP_VERSION = '14';
+audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); void handleEnded(); });
+// ---- v15: ad değiştirme ----
+const renameOverlay = get('rename-overlay');
+const renameInput = get('rename-input');
+let renameTarget = null;
+function openRename(song) {
+    renameTarget = song;
+    renameInput.value = song.name;
+    openOverlay(renameOverlay);
+    renameInput.focus();
+    renameInput.select();
+}
+function closeRename() {
+    renameTarget = null;
+    closeOverlay(renameOverlay);
+}
+async function saveRename() {
+    const song = renameTarget;
+    if (!song)
+        return;
+    const name = renameInput.value.replace(/\s+/g, ' ').trim().slice(0, 80);
+    if (!name) {
+        toast('Ad boş olamaz.', true);
+        return;
+    }
+    const previous = song.name;
+    try {
+        song.name = name;
+        await dbPut(song);
+    }
+    catch {
+        song.name = previous;
+        toast('Ad kaydedilemedi; cihaz depolamasını kontrol et.', true);
+        return;
+    }
+    if (activeSong?.id === song.id) {
+        playerTitle.textContent = name;
+        updateMediaSession();
+    }
+    renderLibrary();
+    closeRename();
+    toast('Ad değiştirildi.');
+}
+get('rename-save').addEventListener('click', () => void saveRename());
+get('rename-close').addEventListener('click', closeRename);
+renameInput.addEventListener('keydown', (event) => { if (event.key === 'Enter')
+    void saveRename(); });
+renameOverlay.addEventListener('click', (event) => { if (event.target === renameOverlay)
+    closeRename(); });
+
+// ---- v15: sıradaki ses, tekrar, kilit ekranı kontrolleri ----
+const prevButton = get('prev-button');
+const nextButton = get('next-button');
+const modeButton = get('mode-button');
+const PLAY_MODES = [
+    { id: 'once', label: 'Tek seferlik' },
+    { id: 'seq', label: 'Sırayla çal' },
+    { id: 'loop', label: 'Hepsini tekrarla' },
+    { id: 'one', label: 'Bunu tekrarla' },
+];
+let playMode = 'seq';
+try {
+    const saved = window.localStorage.getItem('sescebi-mode');
+    if (PLAY_MODES.some((mode) => mode.id === saved))
+        playMode = saved;
+}
+catch { /* depolama kapalı olabilir; varsayılan düzen kullanılır */ }
+function refreshModeButton() {
+    const mode = PLAY_MODES.find((item) => item.id === playMode) || PLAY_MODES[1];
+    modeButton.textContent = mode.label;
+    modeButton.setAttribute('aria-label', `Çalma düzeni: ${mode.label}. Değiştirmek için dokun.`);
+}
+function neighborSong(step, wrap) {
+    const index = songs.findIndex((song) => song.id === activeSong?.id);
+    if (index < 0)
+        return null;
+    let target = index + step;
+    if (target < 0 || target >= songs.length) {
+        if (!wrap)
+            return null;
+        target = (target + songs.length) % songs.length;
+    }
+    return songs[target] || null;
+}
+async function playSong(song) {
+    loadSong(song);
+    try {
+        await audio.play();
+    }
+    catch {
+        toast('Bu ses tarayıcıda oynatılamadı.', true);
+    }
+    renderLibrary();
+    updatePlayerUI();
+}
+async function handleEnded() {
+    if (playMode === 'once')
+        return;
+    if (playMode === 'one') {
+        audio.currentTime = 0;
+        await audio.play().catch(() => undefined);
+        return;
+    }
+    const next = neighborSong(1, playMode === 'loop');
+    if (next)
+        await playSong(next);
+}
+modeButton.addEventListener('click', () => {
+    const index = PLAY_MODES.findIndex((mode) => mode.id === playMode);
+    playMode = PLAY_MODES[(index + 1) % PLAY_MODES.length].id;
+    try {
+        window.localStorage.setItem('sescebi-mode', playMode);
+    }
+    catch { /* kaydedilemese de düzen bu oturumda geçerli */ }
+    refreshModeButton();
+});
+nextButton.addEventListener('click', () => {
+    if (!activeSong) {
+        toast('Önce bir ses çal.', true);
+        return;
+    }
+    const next = neighborSong(1, playMode === 'loop');
+    if (next)
+        void playSong(next);
+    else
+        toast('Listenin sonundasın.');
+});
+prevButton.addEventListener('click', () => {
+    if (!activeSong) {
+        toast('Önce bir ses çal.', true);
+        return;
+    }
+    const previous = audio.currentTime > 3 ? null : neighborSong(-1, playMode === 'loop');
+    if (previous)
+        void playSong(previous);
+    else
+        audio.currentTime = 0;
+});
+refreshModeButton();
+function updateMediaSession() {
+    if (!('mediaSession' in navigator) || !activeSong)
+        return;
+    try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: activeSong.name,
+            artist: 'Ses Cebi',
+            album: 'Cebimdeki sesler',
+            artwork: [{ src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' }],
+        });
+    }
+    catch { /* meta veri desteklenmiyorsa çalma etkilenmez */ }
+}
+function updatePositionState() {
+    if (!('mediaSession' in navigator))
+        return;
+    try {
+        navigator.mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
+        if (navigator.mediaSession.setPositionState && Number.isFinite(audio.duration) && audio.duration > 0) {
+            navigator.mediaSession.setPositionState({ duration: audio.duration, playbackRate: audio.playbackRate || 1, position: Math.min(audio.currentTime, audio.duration) });
+        }
+    }
+    catch { /* konum bilgisi isteğe bağlıdır */ }
+}
+if ('mediaSession' in navigator) {
+    const handlers = {
+        play: () => { void audio.play().catch(() => undefined); },
+        pause: () => audio.pause(),
+        seekbackward: () => { audio.currentTime = Math.max(0, audio.currentTime - 10); },
+        seekforward: () => { audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + 10); },
+        previoustrack: () => prevButton.click(),
+        nexttrack: () => nextButton.click(),
+        seekto: (details) => { if (typeof details.seekTime === 'number')
+            audio.currentTime = details.seekTime; },
+    };
+    for (const [action, handler] of Object.entries(handlers)) {
+        try {
+            navigator.mediaSession.setActionHandler(action, handler);
+        }
+        catch { /* bu eylem tarayıcıda yok */ }
+    }
+}
+
+// ---- v15: yedekleme ve geri yükleme (sıkıştırmasız standart .zip) ----
+const backupButton = get('backup-button');
+const restoreButton = get('restore-button');
+const restoreInput = get('restore-input');
+const CRC_TABLE = (() => {
+    const table = new Uint32Array(256);
+    for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++)
+            c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        table[n] = c >>> 0;
+    }
+    return table;
+})();
+function crc32(bytes) {
+    let c = 0xffffffff;
+    for (let i = 0; i < bytes.length; i++)
+        c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+}
+async function buildZip(entries) {
+    const encoder = new TextEncoder();
+    const now = new Date();
+    const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1);
+    const dosDate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+    const parts = [];
+    const central = [];
+    let offset = 0;
+    for (const entry of entries) {
+        const name = encoder.encode(entry.name);
+        const size = entry.blob.size;
+        const crc = crc32(new Uint8Array(await entry.blob.arrayBuffer()));
+        const local = new DataView(new ArrayBuffer(30));
+        local.setUint32(0, 0x04034b50, true);
+        local.setUint16(4, 20, true);
+        local.setUint16(6, 0x0800, true);
+        local.setUint16(10, dosTime, true);
+        local.setUint16(12, dosDate, true);
+        local.setUint32(14, crc, true);
+        local.setUint32(18, size, true);
+        local.setUint32(22, size, true);
+        local.setUint16(26, name.length, true);
+        parts.push(local.buffer, name, entry.blob);
+        const head = new DataView(new ArrayBuffer(46));
+        head.setUint32(0, 0x02014b50, true);
+        head.setUint16(4, 20, true);
+        head.setUint16(6, 20, true);
+        head.setUint16(8, 0x0800, true);
+        head.setUint16(12, dosTime, true);
+        head.setUint16(14, dosDate, true);
+        head.setUint32(16, crc, true);
+        head.setUint32(20, size, true);
+        head.setUint32(24, size, true);
+        head.setUint16(28, name.length, true);
+        head.setUint32(42, offset, true);
+        central.push(head.buffer, name);
+        offset += 30 + name.length + size;
+        if (offset > 0xfff00000)
+            throw new Error('Yedek 4 GB sınırını aşıyor; bazı sesleri silip tekrar dene.');
+    }
+    let centralSize = 0;
+    for (const part of central)
+        centralSize += part.byteLength;
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true);
+    end.setUint16(8, entries.length, true);
+    end.setUint16(10, entries.length, true);
+    end.setUint32(12, centralSize, true);
+    end.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, end.buffer], { type: 'application/zip' });
+}
+async function readZipEntries(file) {
+    const tailSize = Math.min(file.size, 65557);
+    if (tailSize < 22)
+        throw new Error('Bu bir zip dosyası gibi görünmüyor.');
+    const tail = new DataView(await file.slice(file.size - tailSize).arrayBuffer());
+    let end = -1;
+    for (let i = tailSize - 22; i >= 0; i--) {
+        if (tail.getUint32(i, true) === 0x06054b50) {
+            end = i;
+            break;
+        }
+    }
+    if (end < 0)
+        throw new Error('Bu bir zip dosyası gibi görünmüyor.');
+    const count = tail.getUint16(end + 10, true);
+    const centralSize = tail.getUint32(end + 12, true);
+    const centralOffset = tail.getUint32(end + 16, true);
+    if (count === 0xffff || centralOffset === 0xffffffff)
+        throw new Error('Bu zip biçimi desteklenmiyor.');
+    const central = new DataView(await file.slice(centralOffset, centralOffset + centralSize).arrayBuffer());
+    const decoder = new TextDecoder();
+    const entries = [];
+    let p = 0;
+    for (let i = 0; i < count; i++) {
+        if (p + 46 > central.byteLength || central.getUint32(p, true) !== 0x02014b50)
+            throw new Error('Zip dosyası bozuk.');
+        const nameLength = central.getUint16(p + 28, true);
+        const extraLength = central.getUint16(p + 30, true);
+        const commentLength = central.getUint16(p + 32, true);
+        entries.push({
+            name: decoder.decode(new Uint8Array(central.buffer, p + 46, nameLength)),
+            method: central.getUint16(p + 10, true),
+            size: central.getUint32(p + 20, true),
+            offset: central.getUint32(p + 42, true),
+        });
+        p += 46 + nameLength + extraLength + commentLength;
+    }
+    return entries;
+}
+async function zipEntryBlob(file, entry) {
+    if (entry.method !== 0)
+        throw new Error('Sıkıştırılmış zip desteklenmiyor; yalnızca Ses Cebi’nin kendi yedeği yüklenebilir.');
+    const header = new DataView(await file.slice(entry.offset, entry.offset + 30).arrayBuffer());
+    if (header.byteLength < 30 || header.getUint32(0, true) !== 0x04034b50)
+        throw new Error('Zip dosyası bozuk.');
+    const start = entry.offset + 30 + header.getUint16(26, true) + header.getUint16(28, true);
+    if (start + entry.size > file.size)
+        throw new Error('Zip dosyası eksik veya bozuk.');
+    return file.slice(start, start + entry.size);
+}
+function setBackupBusy(busy, button, text) {
+    backupButton.disabled = busy;
+    restoreButton.disabled = busy;
+    backupButton.querySelector('span').textContent = busy && button === 'backup' ? text : 'Yedek al';
+    restoreButton.querySelector('span').textContent = busy && button === 'restore' ? text : 'Yedekten yükle';
+}
+async function createBackup() {
+    if (!songs.length) {
+        toast('Yedeklenecek kayıt yok.', true);
+        return;
+    }
+    setBackupBusy(true, 'backup', 'Hazırlanıyor…');
+    try {
+        const entries = [];
+        const manifest = { app: 'sescebi', version: 1, created: new Date().toISOString(), songs: [] };
+        for (let i = 0; i < songs.length; i++) {
+            const song = songs[i];
+            const format = await detectFormat(song.blob, song.type);
+            const file = `sesler/${String(i + 1).padStart(3, '0')}-${safeFileName(song.name)}.${format.ext}`;
+            entries.push({ name: file, blob: song.blob });
+            manifest.songs.push({ id: song.id, name: song.name, duration: song.duration, source: song.source, createdAt: song.createdAt, type: format.mime, file });
+        }
+        entries.push({ name: 'sescebi.json', blob: new Blob([JSON.stringify(manifest, null, 1)], { type: 'application/json' }) });
+        const zip = await buildZip(entries);
+        const day = new Date().toISOString().slice(0, 10);
+        await saveFile(new File([zip], `ses-cebi-yedek-${day}.zip`, { type: 'application/zip' }), false);
+    }
+    catch (error) {
+        toast(error instanceof Error ? error.message : 'Yedek hazırlanamadı.', true);
+    }
+    finally {
+        setBackupBusy(false);
+    }
+}
+async function restoreBackup(file) {
+    setBackupBusy(true, 'restore', 'Yükleniyor…');
+    try {
+        const entries = await readZipEntries(file);
+        const manifestEntry = entries.find((entry) => entry.name === 'sescebi.json');
+        if (!manifestEntry)
+            throw new Error('Bu dosya bir Ses Cebi yedeği değil.');
+        const manifest = JSON.parse(await (await zipEntryBlob(file, manifestEntry)).text());
+        if (!manifest || manifest.app !== 'sescebi' || !Array.isArray(manifest.songs))
+            throw new Error('Bu dosya bir Ses Cebi yedeği değil.');
+        const known = new Set(songs.map((song) => song.id));
+        let added = 0;
+        let skipped = 0;
+        for (const item of manifest.songs) {
+            const entry = entries.find((candidate) => candidate.name === item.file);
+            const id = typeof item.id === 'string' && item.id ? item.id : crypto.randomUUID();
+            if (!entry || known.has(id)) {
+                skipped++;
+                continue;
+            }
+            const type = typeof item.type === 'string' && item.type.startsWith('audio/') ? item.type : 'audio/mpeg';
+            const blob = new Blob([await zipEntryBlob(file, entry)], { type });
+            const duration = Number(item.duration) > 0 ? Number(item.duration) : await getDuration(blob);
+            const song = {
+                id,
+                name: String(item.name || 'İsimsiz ses').slice(0, 80),
+                blob,
+                type,
+                size: blob.size,
+                duration,
+                createdAt: Number(item.createdAt) || Date.now(),
+                source: ['file', 'url', 'trim'].includes(item.source) ? item.source : 'file',
+            };
+            await dbPut(song);
+            songs.push(song);
+            known.add(id);
+            added++;
+        }
+        songs.sort((a, b) => b.createdAt - a.createdAt);
+        renderLibrary();
+        toast(`${added} ses geri yüklendi${skipped ? `, ${skipped} tanesi zaten vardı` : ''}.`);
+    }
+    catch (error) {
+        toast(error instanceof Error ? error.message : 'Yedek yüklenemedi.', true);
+    }
+    finally {
+        setBackupBusy(false);
+    }
+}
+backupButton.addEventListener('click', () => void createBackup());
+restoreButton.addEventListener('click', () => restoreInput.click());
+restoreInput.addEventListener('change', () => {
+    const file = restoreInput.files?.[0];
+    restoreInput.value = '';
+    if (file)
+        void restoreBackup(file);
+});
+
+// ---- v15: videodan sesi yeniden kodlamadan ayırma (MP4/MOV içindeki AAC → M4A) ----
+// Ses akışı olduğu gibi yeni bir M4A kapsayıcıya taşınır: kayıpsız, anında ve çok küçük.
+// AAC dışı sesli, parçalı (fragmented) veya tanınmayan dosyalarda null döner; uygulama eski yönteme (WAV) düşer.
+async function extractAacFromMp4(file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const view = new DataView(bytes.buffer);
+    const type4 = (p) => String.fromCharCode(bytes[p], bytes[p + 1], bytes[p + 2], bytes[p + 3]);
+    function boxes(start, end) {
+        const list = [];
+        let p = start;
+        while (p + 8 <= end) {
+            let size = view.getUint32(p);
+            const type = type4(p + 4);
+            let header = 8;
+            if (size === 1) {
+                if (p + 16 > end)
+                    break;
+                size = Number(view.getBigUint64(p + 8));
+                header = 16;
+            }
+            else if (size === 0)
+                size = end - p;
+            if (size < header || p + size > end)
+                break;
+            list.push({ type, start: p, body: p + header, end: p + size });
+            p += size;
+        }
+        return list;
+    }
+    const child = (parent, name) => (parent ? boxes(parent.body, parent.end).find((box) => box.type === name) : undefined);
+    const top = boxes(0, bytes.length);
+    if (top.some((box) => box.type === 'moof'))
+        return null;
+    const moov = top.find((box) => box.type === 'moov');
+    const mvhd = child(moov, 'mvhd');
+    if (!moov || !mvhd)
+        return null;
+    let trak = null;
+    for (const candidate of boxes(moov.body, moov.end).filter((box) => box.type === 'trak')) {
+        const hdlr = child(child(candidate, 'mdia'), 'hdlr');
+        if (hdlr && type4(hdlr.body + 8) === 'soun') {
+            trak = candidate;
+            break;
+        }
+    }
+    if (!trak)
+        return null;
+    const stbl = child(child(child(trak, 'mdia'), 'minf'), 'stbl');
+    if (!stbl)
+        return null;
+    const stsd = child(stbl, 'stsd');
+    const stsz = child(stbl, 'stsz');
+    const stsc = child(stbl, 'stsc');
+    const stco = child(stbl, 'stco') || child(stbl, 'co64');
+    if (!stsd || !stsz || !stsc || !stco || type4(stsd.body + 12) !== 'mp4a')
+        return null;
+    // 'mp4a' içinde MP3 de olabilir; yalnızca AAC (esds nesne türü 0x40, 0x66–0x68) M4A'ya taşınır.
+    let objectType = -1;
+    for (let p = stsd.body; p + 12 < stsd.end && objectType < 0; p++) {
+        if (type4(p) !== 'esds')
+            continue;
+        let q = p + 8;
+        while (q + 2 < stsd.end) {
+            const tag = bytes[q++];
+            let length = 0;
+            for (let k = 0; k < 4; k++) {
+                const part = bytes[q++];
+                length = (length << 7) | (part & 0x7f);
+                if (!(part & 0x80))
+                    break;
+            }
+            if (tag === 0x03) {
+                const flags = bytes[q + 2];
+                q += 3;
+                if (flags & 0x80)
+                    q += 2;
+                if (flags & 0x40)
+                    q += 1 + bytes[q];
+                if (flags & 0x20)
+                    q += 2;
+            }
+            else if (tag === 0x04) {
+                objectType = bytes[q];
+                break;
+            }
+            else
+                q += length;
+        }
+    }
+    if (objectType !== 0x40 && (objectType < 0x66 || objectType > 0x68))
+        return null;
+    const fixedSize = view.getUint32(stsz.body + 4);
+    const sampleCount = view.getUint32(stsz.body + 8);
+    const sampleSize = (index) => fixedSize || view.getUint32(stsz.body + 12 + index * 4);
+    const runCount = view.getUint32(stsc.body + 4);
+    const chunkCount = view.getUint32(stco.body + 4);
+    const is64 = stco.type === 'co64';
+    if (!sampleCount || !runCount || !chunkCount)
+        return null;
+    const runs = [];
+    for (let i = 0; i < runCount; i++)
+        runs.push({ first: view.getUint32(stsc.body + 8 + i * 12), perChunk: view.getUint32(stsc.body + 12 + i * 12) });
+    const chunks = [];
+    const relativeOffsets = [];
+    let sample = 0;
+    let run = 0;
+    let written = 0;
+    for (let c = 0; c < chunkCount; c++) {
+        while (run + 1 < runs.length && runs[run + 1].first <= c + 1)
+            run++;
+        let size = 0;
+        for (let k = 0; k < runs[run].perChunk; k++) {
+            if (sample >= sampleCount)
+                return null;
+            size += sampleSize(sample++);
+        }
+        const offset = is64 ? Number(view.getBigUint64(stco.body + 8 + c * 8)) : view.getUint32(stco.body + 8 + c * 4);
+        if (offset + size > bytes.length)
+            return null;
+        chunks.push(bytes.subarray(offset, offset + size));
+        relativeOffsets.push(written);
+        written += size;
+    }
+    if (written + 8 > 0xffffffff)
+        return null;
+    const ftyp = new Uint8Array(28);
+    const ftypView = new DataView(ftyp.buffer);
+    ftypView.setUint32(0, 28);
+    ftyp.set([0x66, 0x74, 0x79, 0x70, 0x4d, 0x34, 0x41, 0x20], 4); // ftyp, M4A
+    ftyp.set([0x4d, 0x34, 0x41, 0x20, 0x6d, 0x70, 0x34, 0x32, 0x69, 0x73, 0x6f, 0x6d], 16); // M4A  mp42 isom
+    const trakBytes = bytes.slice(trak.start, trak.end);
+    const mvhdBytes = bytes.subarray(mvhd.start, mvhd.end);
+    const moovSize = 8 + mvhdBytes.length + trakBytes.length;
+    const dataStart = ftyp.length + moovSize + 8;
+    const trakView = new DataView(trakBytes.buffer);
+    const tableAt = stco.body - trak.start + 8;
+    for (let c = 0; c < chunkCount; c++) {
+        if (is64)
+            trakView.setBigUint64(tableAt + c * 8, BigInt(dataStart + relativeOffsets[c]));
+        else
+            trakView.setUint32(tableAt + c * 4, dataStart + relativeOffsets[c]);
+    }
+    const moovHeader = new Uint8Array(8);
+    new DataView(moovHeader.buffer).setUint32(0, moovSize);
+    moovHeader.set([0x6d, 0x6f, 0x6f, 0x76], 4); // moov
+    const mdatHeader = new Uint8Array(8);
+    new DataView(mdatHeader.buffer).setUint32(0, 8 + written);
+    mdatHeader.set([0x6d, 0x64, 0x61, 0x74], 4); // mdat
+    return new Blob([ftyp, moovHeader, mvhdBytes, trakBytes, mdatHeader, ...chunks], { type: 'audio/mp4' });
+}
+async function extractVideoAudio(file) {
+    if (/\.(mp4|m4v|mov)$/i.test(file.name) || /^video\/(mp4|quicktime)$/.test(file.type)) {
+        try {
+            setProgress('Videodan ses ayrılıyor…', 30);
+            const direct = await extractAacFromMp4(file);
+            if (direct)
+                return direct;
+        }
+        catch { /* tanınmayan yapı; çözüp WAV üretme yoluna düşülür */ }
+    }
+    return extractAudioFromVideo(file);
+}
+
+const APP_VERSION = '15';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -1229,6 +1805,6 @@ async function init() {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=14', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=15', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();
