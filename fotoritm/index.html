@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Foto Ritim – Özgüler Forge (v3.5 Studio)</title>
+<title>Foto Ritim – Özgüler Forge (v3.5.1 Studio)</title>
 <meta name="description" content="Fotoğraflarını müziğin ritmine göre sinematik videoya çevir. Orijinal kalite, çevrimdışı çalışır.">
 <meta name="theme-color" content="#fbf8f4" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#141210" media="(prefers-color-scheme: dark)">
@@ -449,12 +449,13 @@ dialog p,dialog li{color:var(--mu);font-size:.9rem;line-height:1.55}
 <div id="toast"><span id="tm"></span><button id="tb" class="main">Tamam</button></div>
 
 <script>
-const APP_VERSION = 'v3.5.0 Studio';
+const APP_VERSION = 'v3.5.1 Studio';
 const $ = id => document.getElementById(id);
 const cv = $('cv'), main = cv.getContext('2d'), tlc = $('tlc'), tctx = tlc.getContext('2d');
 let ctx = main, mc = null, bc = null, wfCache = null, grainCanvas = null, imgs = [], AC = null, buf = null, audFile = null, beats = [], bpm = 0;
 let tl = [], BS = [], barBeats = [], startT = 0, endT = 0, beatPeak = 0, sections = [], manualStarts = new Map(), runEndT = 0;
 let vlive = false;
+let starting = false, starved = false, tick = 0, lastRender = 0, recT0 = 0, recFrames = 0, recExpect = 0;
 let pf = 0, lastUrl = null, dragI = -1, lastSec = -1, src = null, ctx0 = 0, playing = false, recMode = false, raf = 0, mr = null, chunks = [], finishing = false;
 
 // ---------- Tema Yönetimi ----------
@@ -1323,6 +1324,7 @@ function put(i, o = {}) {
   ctx.drawImage(b, -bw * r / 2 + focusOffsetX, -bh * r / 2 + focusOffsetY, bw * r, bh * r);
 
   if (o.tint) {
+    ctx.filter = 'none';
     ctx.globalCompositeOperation = 'multiply';
     ctx.fillStyle = o.tint;
     ctx.fillRect(-W / 2, -H / 2, W, H);
@@ -1371,6 +1373,17 @@ const ramp = (g, s, f) => {
   return g;
 };
 
+let rc = null;
+// Kırmızı / camgöbeği kanalını ayrı bir tuvalde üretip ana tuvale toplar (kanallar birbirini ezmez)
+function rgbLayer(idx, o, comp) {
+  if (!rc || rc.width !== cv.width || rc.height !== cv.height) { rc = document.createElement('canvas'); rc.width = cv.width; rc.height = cv.height; }
+  const m = rc.getContext('2d'), prev = ctx;
+  m.globalCompositeOperation = 'source-over'; m.globalAlpha = 1; m.fillStyle = '#000'; m.fillRect(0, 0, rc.width, rc.height);
+  ctx = m;
+  try { put(idx, Object.assign({}, o, { noBg: true })); } finally { ctx = prev; }
+  ctx.save(); ctx.globalCompositeOperation = comp; ctx.drawImage(rc, 0, 0); ctx.restore();
+}
+
 function trans(k, p, a, b) {
   const W = cv.width, H = cv.height, e = p * p * p * (p * (p * 6 - 15) + 10), q = p < .5 ? 8 * p * p * p * p : 1 - Math.pow(-2 * p + 2, 4) / 2, S = Math.sin(p * Math.PI);
   const dark = al => { ctx.fillStyle = 'rgba(0,0,0,' + al + ')'; ctx.fillRect(0, 0, W, H); };
@@ -1410,8 +1423,8 @@ function trans(k, p, a, b) {
       const shift = Math.sin(p * Math.PI) * W * 0.042;
       const sc = p < .5 ? (1 + p * .12) : (1.08 - (p - .5) * .16);
       ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
-      put(target, { dx: -shift, sc: sc * 1.03, tint: 'rgb(255, 40, 40)', comp: 'screen', noBg: true });
-      put(target, { dx: shift, sc: sc * 1.03, tint: 'rgb(40, 255, 255)', comp: 'screen', noBg: true });
+      rgbLayer(target, { dx: -shift, sc: sc * 1.03, tint: 'rgb(255,0,0)' }, 'lighter');
+      rgbLayer(target, { dx: shift, sc: sc * 1.03, tint: 'rgb(0,255,255)' }, 'lighter');
       break;
     }
     default: put(a, { sc: 1 + .03 * e }); put(b, { sc: 1.03 - .03 * e, al: e });
@@ -1772,6 +1785,18 @@ function scheduleTransitionSFX(ctxStartTime, offsetSec, limitSec, destNodes) {
 }
 
 async function start(rec, from, shortPreview = false) {
+  if (starting) return;
+  starting = true;
+  try { await startRun(rec, from, shortPreview); }
+  catch (x) {
+    console.error(x);
+    try { if (mr && mr.state !== 'inactive') { finishing = false; mr.stop(); } } catch (y) { }
+    stop(); lock(0); $('rec').disabled = $('play').disabled = !tl.length;
+    say('Başlatılamadı: ' + ((x && x.message) || x), 'err');
+  } finally { starting = false; }
+}
+
+async function startRun(rec, from, shortPreview = false) {
   if (!tl.length) return;
   stop();
   const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -1839,6 +1864,8 @@ async function start(rec, from, shortPreview = false) {
         if (outputWriter) { await writeQueue; await outputWriter.close(); outputBlob = await outputHandle.getFile(); }
         else if (chunks.length) outputBlob = new Blob(chunks, { type: mt.split(';')[0] });
       } catch (e) { lock(0); say('Dosya yazma tamamlanamadı.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
+      const wall = (performance.now() - recT0) / 1000;
+      if (recFrames < 8 || wall < recExpect * .6) { lock(0); $('pg').hidden = true; say('Kayıt erken sona erdi (' + recFrames + ' kare). Kaydı yeniden başlat ve kayıt bitene kadar sekmeyi açık tut.', 'err'); $('rec').disabled = $('play').disabled = false; draw(startT); drawTL(startT); return; }
       if (!outputBlob || outputBlob.size < 40000) { lock(0); $('pg').hidden = true; say('Kayıt boş çıktı. 720p ile deneyin.', 'err'); $('rec').disabled = $('play').disabled = false; return; }
 
       const ext = fileExt, url = URL.createObjectURL(outputBlob);
@@ -1855,6 +1882,7 @@ async function start(rec, from, shortPreview = false) {
       lock(0);
       say('Video başarıyla oluşturuldu ✓', 'ok'); $('pg').hidden = true; $('tc').textContent = ''; draw(startT); drawTL(startT); $('rec').disabled = $('play').disabled = false;
     };
+    recT0 = performance.now(); recFrames = 0; recExpect = runEndT - pf;
     mr.start(1000); $('rec').disabled = true; say('Kaydediliyor… ekranı açık tut ve uygulamadan çıkma.');
   }
 
@@ -1866,18 +1894,27 @@ async function start(rec, from, shortPreview = false) {
     const tot = endT - pf, fd = Math.min(1.2, tot / 3), fi = Math.min(.6, fd), g = gn.gain;
     g.setValueAtTime(0, ctx0); g.linearRampToValueAtTime(1, ctx0 + fi); g.setValueAtTime(1, ctx0 + tot - fd); g.linearRampToValueAtTime(0, ctx0 + tot);
   }
-  src.onended = () => { if (playing) finish(); };
+  const mySrc = src;
+  src.onended = () => { if (playing && src === mySrc) finish(); };
   playing = true; vlive = true; syncVids(pf); recMode = rec;
   $('play').textContent = rec ? '⏹ Kaydı İptal Et' : '⏹ Durdur';
   $('pg').value = 0; $('pg').hidden = false;
+  lastRender = performance.now();
   raf = requestAnimationFrame(frame);
+  // Sekme arka plana geçse bile kareler üretilsin (rAF durursa zamanlayıcı devralır)
+  clearInterval(tick);
+  starved = false;
+  tick = setInterval(() => { if (playing && (starved || performance.now() - lastRender > 100)) { starved = true; frame(true); } }, 33);
 }
 
-function frame() {
+function frame(fromTimer) {
   if (!playing) return;
+  lastRender = performance.now();
   const t = pf + Math.max(0, AC.currentTime - ctx0);
   if (t >= runEndT - .02) return finish();
-  syncVids(t); draw(t, 1); drawTL(t); drawEQ(); raf = requestAnimationFrame(frame);
+  syncVids(t); draw(t, 1); drawTL(t); drawEQ();
+  if (recMode) recFrames++;
+  if (fromTimer !== true) { starved = false; raf = requestAnimationFrame(frame); }
   const tot = runEndT - pf, el = Math.min(tot, t - pf); $('pg').value = el / tot;
   const sec = Math.floor(el);
   if (sec !== lastSec) {
@@ -1888,20 +1925,21 @@ function frame() {
 }
 
 function finish() {
-  playing = false; cancelAnimationFrame(raf); $('play').textContent = '▶ Önizle (Boşluk)';
+  if (!playing) return;
+  playing = false; cancelAnimationFrame(raf); clearInterval(tick); tick = 0; $('play').textContent = '▶ Önizle (Boşluk)';
   if (recMode) $('play').disabled = true; else { $('pg').hidden = true; $('tc').textContent = ''; }
   draw(Math.max(startT, runEndT - .03), recMode); vstop(); drawTL(endT); drawEQ(1);
   if (recMode && mr && mr.state !== 'inactive') {
     finishing = true;
     try { const track = mr.stream && mr.stream.getVideoTracks()[0]; if (track && typeof track.requestFrame === 'function') track.requestFrame(); } catch (x) { }
-    setTimeout(() => mr.stop(), 1000);
+    setTimeout(() => { try { if (mr.state !== 'inactive') mr.stop(); } catch (x) { } }, 900);
   }
 }
 
 function stop() {
   const wasRec = recMode && playing;
-  playing = false; cancelAnimationFrame(raf); vstop(); stopSfx();
-  try { src && src.stop(); } catch (x) { }
+  playing = false; cancelAnimationFrame(raf); clearInterval(tick); tick = 0; vstop(); stopSfx();
+  if (src) { src.onended = null; try { src.stop(); } catch (x) { } try { src.disconnect(); } catch (x) { } }
   if (wasRec && mr && mr.state !== 'inactive') {
     finishing = false; try { mr.stop(); } catch (x) { } lock(0); $('rec').disabled = !tl.length; say('Kayıt iptal edildi.');
   }
