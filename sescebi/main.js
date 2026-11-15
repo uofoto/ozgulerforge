@@ -22,6 +22,8 @@ const icons = {
     rewind: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 8 4 12l5 4"/><path d="M4 12h9a4 4 0 1 1-4 4"/></svg>',
     forward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 8 5 4-5 4"/><path d="M20 12h-9a4 4 0 1 0 4 4"/></svg>',
     link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13.5 14 9.5M8.2 16.8l-1.1 1.1a3.7 3.7 0 0 1-5.2-5.2l3.7-3.7a3.7 3.7 0 0 1 5.2 0M15.8 7.2l1.1-1.1a3.7 3.7 0 0 1 5.2 5.2l-3.7 3.7a3.7 3.7 0 0 1-5.2 0"/></svg>',
+    scissors: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>',
 };
 app.innerHTML = `
   <div class="app-shell">
@@ -50,7 +52,7 @@ app.innerHTML = `
       </section>
 
       <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
-        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 12</span></div>
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 13</span></div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
           <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
@@ -95,6 +97,7 @@ app.innerHTML = `
 
         <section class="card library-card" aria-labelledby="library-title">
           <div class="library-header"><div><h2 id="library-title">Cebimdeki sesler</h2><span class="library-count" id="library-count">0 kayıt</span></div><span class="stamp">OFFLINE</span></div>
+          <p class="storage-note">Sesler uygulamanın kendi arşivinde durur; dosya yöneticisinde görünmez. <strong>İndir</strong> dersen cihazının indirme klasörüne kaydolur, <strong>Paylaş</strong> ile mail, Drive gibi yerlere gönderebilirsin.</p>
           <div class="empty-state" id="empty-state"><div class="empty-icon">${icons.cassette}</div><h3>Arşiv henüz boş</h3><p>İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.</p></div>
           <div class="song-list" id="song-list"></div>
         </section>
@@ -111,6 +114,33 @@ app.innerHTML = `
       </div>
       <p class="legal-note">Uygulamayı kullanarak yukarıdaki kullanım, telif ve depolama koşullarını kabul etmiş olursunuz. Yasal haklarınız ve yükümlülükleriniz için ilgili mevzuatı ve içerik sahibinin izin şartlarını ayrıca kontrol edin.</p>
     </footer>
+  </div>
+  <div class="overlay" id="trim-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="trim-title">
+      <div class="sheet-head"><h2 id="trim-title">Sesi kes</h2><button class="icon-button" id="trim-close" type="button" aria-label="Kapat">✕</button></div>
+      <p class="sheet-sub" id="trim-name"></p>
+      <p class="sheet-status" id="trim-status" aria-live="polite"></p>
+      <canvas class="wave" id="wave" height="96" aria-label="Ses dalga biçimi"></canvas>
+      <div class="trim-field">
+        <div class="trim-label"><span>Başlangıç</span><strong id="trim-start-label">00:00.0</strong></div>
+        <div class="trim-row"><button class="nudge" type="button" data-nudge="start" data-delta="-1">−1 sn</button><input id="trim-start" type="range" min="0" max="100" step="any" value="0" aria-label="Başlangıç" /><button class="nudge" type="button" data-nudge="start" data-delta="1">+1 sn</button></div>
+      </div>
+      <div class="trim-field">
+        <div class="trim-label"><span>Bitiş</span><strong id="trim-end-label">00:00.0</strong></div>
+        <div class="trim-row"><button class="nudge" type="button" data-nudge="end" data-delta="-1">−1 sn</button><input id="trim-end" type="range" min="0" max="100" step="any" value="100" aria-label="Bitiş" /><button class="nudge" type="button" data-nudge="end" data-delta="1">+1 sn</button></div>
+      </div>
+      <p class="sheet-sub" id="trim-summary"></p>
+      <label class="consent sheet-check"><input id="trim-keep" type="checkbox" checked /><span>Orijinal ses de arşivde kalsın</span></label>
+      <div class="sheet-actions"><button class="ghost-button" id="trim-preview" type="button" disabled>Seçimi dinle</button><button class="primary-button" id="trim-save" type="button" disabled>${icons.scissors}<span>Kes ve kaydet</span></button></div>
+      <p class="sheet-sub small">Kesilen bölüm WAV olarak yeni bir kayıt olur; WAV her telefonun müzik çalarında çalar.</p>
+    </div>
+  </div>
+  <div class="overlay" id="info-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="info-title">
+      <div class="sheet-head"><h2 id="info-title">Kayıt bilgisi</h2><button class="icon-button" id="info-close" type="button" aria-label="Kapat">✕</button></div>
+      <div id="info-body"></div>
+      <div class="sheet-actions"><button class="ghost-button" id="info-share" type="button" hidden>${icons.share}<span>Paylaş</span></button><button class="primary-button" id="info-ok" type="button">Tamam</button></div>
+    </div>
   </div>
   <div class="toast" id="toast" role="status"></div>
 `;
@@ -132,6 +162,21 @@ const playerSubtitle = get('player-subtitle');
 const playButton = get('play-button');
 const seek = get('seek');
 const timeLabel = get('time');
+const trimOverlay = get('trim-overlay');
+const trimName = get('trim-name');
+const trimStatus = get('trim-status');
+const waveCanvas = get('wave');
+const trimStart = get('trim-start');
+const trimEnd = get('trim-end');
+const trimStartLabel = get('trim-start-label');
+const trimEndLabel = get('trim-end-label');
+const trimSummary = get('trim-summary');
+const trimKeep = get('trim-keep');
+const trimPreviewButton = get('trim-preview');
+const trimSaveButton = get('trim-save');
+const infoOverlay = get('info-overlay');
+const infoBody = get('info-body');
+const infoShareButton = get('info-share');
 function get(selector) {
     const element = document.querySelector(`#${selector}`);
     if (!element)
@@ -338,9 +383,9 @@ function decodeAudio(ctx, data) {
         }
     });
 }
-function encodeWav(buffer) {
+function encodeWav(buffer, from = 0, to = buffer.length) {
     const channels = Math.min(2, buffer.numberOfChannels);
-    const length = buffer.length;
+    const length = to - from;
     const sampleRate = buffer.sampleRate;
     const dataSize = length * channels * 2;
     const out = new ArrayBuffer(44 + dataSize);
@@ -364,7 +409,7 @@ function encodeWav(buffer) {
     let offset = 44;
     for (let i = 0; i < length; i++) {
         for (let c = 0; c < channels; c++) {
-            const sample = Math.max(-1, Math.min(1, data[c][i]));
+            const sample = Math.max(-1, Math.min(1, data[c][from + i]));
             view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
             offset += 2;
         }
@@ -470,7 +515,7 @@ function renderLibrary() {
     <article class="song-row" data-song-id="${song.id}">
       <div class="song-art">${icons.cassette}</div>
       <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span>·</span><span>${formatSize(song.size)}</span><span>·</span><span class="status-pill">Cihazda</span></div></div>
-      <div class="song-actions"><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
+      <div class="song-actions"><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}">${icons.scissors}</button><button class="icon-button share-row" type="button" aria-label="Paylaş: ${escapeHtml(song.name)}">${icons.share}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
     </article>`).join('');
     songList.querySelectorAll('.song-row').forEach((row) => {
         const id = row.dataset.songId;
@@ -478,7 +523,9 @@ function renderLibrary() {
         if (!song)
             return;
         row.querySelector('.play-row')?.addEventListener('click', () => toggleSong(song));
-        row.querySelector('.download-row')?.addEventListener('click', () => downloadSong(song));
+        row.querySelector('.trim-row')?.addEventListener('click', () => void openTrim(song));
+        row.querySelector('.share-row')?.addEventListener('click', () => void shareSong(song));
+        row.querySelector('.download-row')?.addEventListener('click', () => void downloadSong(song));
         row.querySelector('.delete-row')?.addEventListener('click', () => deleteSong(song));
     });
 }
@@ -494,7 +541,7 @@ function loadSong(song) {
     audio.load();
     player.classList.add('visible');
     playerTitle.textContent = song.name;
-    playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : 'Dosya'} · cihazda saklanıyor`;
+    playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : song.source === 'trim' ? 'Kesit' : 'Dosya'} · cihazda saklanıyor`;
     seek.value = '0';
     updatePlayerUI();
 }
@@ -526,24 +573,451 @@ function updatePlayerUI() {
     timeLabel.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
     playerSubtitle.textContent = audio.paused ? 'Duraklatıldı · cihazda saklı' : 'Şimdi çalıyor · cihazda saklı';
 }
-function downloadSong(song) {
-    const url = URL.createObjectURL(song.blob);
+// ---- dışa aktarma: gerçek biçimi bayttan tanı, doğru ad/uzantı/MIME ile indir veya paylaş ----
+// Telefondaki müzik çalarlar dosyayı uzantısından ve MIME türünden tanır; yanlış uzantı çalmayı engeller.
+const FORMATS = {
+    mp3: { ext: 'mp3', mime: 'audio/mpeg' },
+    m4a: { ext: 'm4a', mime: 'audio/mp4' },
+    wav: { ext: 'wav', mime: 'audio/wav' },
+    ogg: { ext: 'ogg', mime: 'audio/ogg' },
+    flac: { ext: 'flac', mime: 'audio/flac' },
+    aac: { ext: 'aac', mime: 'audio/aac' },
+    webm: { ext: 'webm', mime: 'audio/webm' },
+};
+const FORMAT_BY_TYPE = {
+    'audio/mpeg': 'mp3', 'audio/mp3': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/m4a': 'm4a',
+    'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/wave': 'wav', 'audio/ogg': 'ogg', 'audio/flac': 'flac',
+    'audio/x-flac': 'flac', 'audio/aac': 'aac', 'audio/webm': 'webm',
+};
+async function detectFormat(blob, declaredType) {
+    const bytes = new Uint8Array(await blob.slice(0, 16).arrayBuffer());
+    const ascii = (from, to) => String.fromCharCode(...bytes.slice(from, to));
+    if (ascii(0, 3) === 'ID3')
+        return FORMATS.mp3;
+    if (ascii(0, 4) === 'RIFF' && ascii(8, 12) === 'WAVE')
+        return FORMATS.wav;
+    if (ascii(0, 4) === 'OggS')
+        return FORMATS.ogg;
+    if (ascii(0, 4) === 'fLaC')
+        return FORMATS.flac;
+    if (ascii(4, 8) === 'ftyp')
+        return FORMATS.m4a;
+    if (bytes[0] === 0x1a && bytes[1] === 0x45 && bytes[2] === 0xdf && bytes[3] === 0xa3)
+        return FORMATS.webm;
+    if (bytes[0] === 0xff && (bytes[1] & 0xf6) === 0xf0)
+        return FORMATS.aac;
+    if (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0)
+        return FORMATS.mp3;
+    return FORMATS[FORMAT_BY_TYPE[(declaredType || '').toLowerCase()]] || FORMATS.mp3;
+}
+function safeFileName(name) {
+    const cleaned = String(name || '').replace(/[\\/:*?"<>|\u0000-\u001f]/g, ' ').replace(/\s+/g, ' ').trim().replace(/^\.+/, '').slice(0, 80).trim();
+    return cleaned || 'ses';
+}
+async function exportFile(song) {
+    const format = await detectFormat(song.blob, song.type);
+    return new File([song.blob], `${safeFileName(song.name)}.${format.ext}`, { type: format.mime });
+}
+function saveLocationInfo() {
+    const ua = navigator.userAgent;
+    const note = 'Web uygulamaları dosyanın tam yolunu göremez; bu bilgi tarayıcının varsayılan davranışına göredir. Tarayıcı ayarlarında başka bir indirme klasörü seçtiysen dosya orada olur.';
+    if (/android/i.test(ua)) {
+        return {
+            where: 'telefonunun “İndirilenler” (Download) klasörü',
+            steps: [
+                'Dosyalar (Google Dosyalar) uygulamasını aç → İndirilenler.',
+                'Dosyaya dokunursan telefonun müzik çaları açılır. Çalar listede göstermezse çalardaki “klasörleri tara / yenile” seçeneğini kullan.',
+            ],
+            note,
+        };
+    }
+    if (isIos) {
+        return {
+            where: 'Dosyalar uygulaması → İndirilenler',
+            steps: [
+                'Dosyalar → Bu iPhone’da (veya iCloud Drive) → İndirilenler.',
+                'Dosyaya dokununca doğrudan çalar. Başka bir çalara göndermek için Paylaş’a dokunup uygulamayı seç; “Dosyalara Kaydet” ile istediğin klasörü de seçebilirsin.',
+            ],
+            note: 'iPhone’un Müzik uygulaması web’den inen dosyaları kendiliğinden listesine almaz. ' + note,
+        };
+    }
+    return {
+        where: 'tarayıcının indirme klasörü (genellikle İndirilenler / Downloads)',
+        steps: ['Tarayıcının indirme listesinden “Klasörde göster” ile aç.'],
+        note,
+    };
+}
+function openOverlay(node) {
+    node.hidden = false;
+    document.body.classList.add('modal-open');
+}
+function closeOverlay(node) {
+    node.hidden = true;
+    if (trimOverlay.hidden && infoOverlay.hidden)
+        document.body.classList.remove('modal-open');
+}
+let infoFile = null;
+function showSaveInfo(file, pickedName) {
+    const info = saveLocationInfo();
+    infoFile = file;
+    const steps = pickedName ? [] : info.steps;
+    const where = pickedName
+        ? `Seçtiğin konuma kaydedildi: <strong>${escapeHtml(pickedName)}</strong>`
+        : `İndirme başlatıldı. Dosya şurada olacak: <strong>${escapeHtml(info.where)}</strong>`;
+    infoBody.innerHTML = `
+    <p class="info-file"><strong>${escapeHtml(file.name)}</strong><span>${formatSize(file.size)}</span></p>
+    <p>${where}</p>
+    ${steps.length ? `<ul class="info-list">${steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ul>` : ''}
+    <p class="sheet-sub small">${escapeHtml(info.note)}</p>`;
+    infoShareButton.hidden = !canShareFile(file);
+    openOverlay(infoOverlay);
+}
+function closeInfo() {
+    closeOverlay(infoOverlay);
+    infoFile = null;
+}
+async function downloadSong(song) {
+    let file;
+    try {
+        file = await exportFile(song);
+    }
+    catch {
+        toast('Dosya hazırlanamadı.', true);
+        return;
+    }
+    // Bilgisayardaki Chromium tarayıcılar kayıt yerini seçtirebilir; telefonlarda bu özellik yoktur.
+    if (typeof window.showSaveFilePicker === 'function') {
+        try {
+            const ext = file.name.split('.').pop();
+            const handle = await window.showSaveFilePicker({ suggestedName: file.name, types: [{ description: 'Ses dosyası', accept: { [file.type]: [`.${ext}`] } }] });
+            const writable = await handle.createWritable();
+            await writable.write(file);
+            await writable.close();
+            showSaveInfo(file, handle.name);
+            return;
+        }
+        catch (error) {
+            if (error && error.name === 'AbortError')
+                return;
+        }
+    }
+    const url = URL.createObjectURL(file);
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `${song.name || 'ses'}.${extensionFor(song.type)}`;
+    anchor.download = file.name;
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    toast('Ses dosyası indirilmeye hazır.');
+    window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+    showSaveInfo(file);
 }
-function extensionFor(type) {
-    const map = { 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/ogg': 'ogg', 'audio/aac': 'aac', 'audio/flac': 'flac' };
-    return map[type] || 'audio';
+function canShareFile(file) {
+    return typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
 }
+async function shareFile(file, title) {
+    if (!canShareFile(file)) {
+        toast('Bu tarayıcı dosya paylaşmayı desteklemiyor. Dosyayı indirip mail veya Drive içinden ekleyebilirsin.', true);
+        return;
+    }
+    if (file.size > 25 * 1024 * 1024)
+        toast(`Dosya ${formatSize(file.size)}. Mail eki sınırı genelde 25 MB; büyük dosyada Drive’ı seç.`);
+    try {
+        await navigator.share({ files: [file], title });
+    }
+    catch (error) {
+        if (!(error && error.name === 'AbortError'))
+            toast('Paylaşım penceresi açılamadı.', true);
+    }
+}
+async function shareSong(song) {
+    let file;
+    try {
+        file = await exportFile(song);
+    }
+    catch {
+        toast('Dosya hazırlanamadı.', true);
+        return;
+    }
+    if (!canShareFile(file)) {
+        toast('Bu tarayıcı doğrudan paylaşmayı desteklemiyor; dosya indiriliyor. İndirince mail veya Drive içinden ekleyebilirsin.', true);
+        await downloadSong(song);
+        return;
+    }
+    await shareFile(file, song.name);
+}
+
+// ---- kesme ----
+// Ses çözülüp (PCM) seçilen aralık 16 bit WAV olarak yeni kayıt yapılır; orijinal isteğe bağlı korunur.
+const MAX_TRIM_SECONDS = 15 * 60;
+const MIN_CLIP = 0.2;
+let trimState = null;
+function formatClock(value) {
+    const tenths = Math.max(0, Math.round(value * 10));
+    const minutes = Math.floor(tenths / 600);
+    const seconds = (tenths % 600) / 10;
+    return `${String(minutes).padStart(2, '0')}:${seconds.toFixed(1).padStart(4, '0')}`;
+}
+function computePeaks(buffer, buckets) {
+    const peaks = new Float32Array(buckets);
+    const size = Math.max(1, Math.floor(buffer.length / buckets));
+    const stride = Math.max(1, Math.floor(size / 200));
+    for (let c = 0; c < Math.min(2, buffer.numberOfChannels); c++) {
+        const data = buffer.getChannelData(c);
+        for (let b = 0; b < buckets; b++) {
+            let max = 0;
+            const end = Math.min(buffer.length, b * size + size);
+            for (let i = b * size; i < end; i += stride) {
+                const value = Math.abs(data[i]);
+                if (value > max)
+                    max = value;
+            }
+            if (max > peaks[b])
+                peaks[b] = max;
+        }
+    }
+    return peaks;
+}
+function drawWave() {
+    const s = trimState;
+    if (!s || !s.peaks || !s.buffer)
+        return;
+    const dpr = window.devicePixelRatio || 1;
+    const w = Math.max(200, Math.round(waveCanvas.clientWidth * dpr));
+    const h = Math.round(96 * dpr);
+    if (waveCanvas.width !== w)
+        waveCanvas.width = w;
+    if (waveCanvas.height !== h)
+        waveCanvas.height = h;
+    const g = waveCanvas.getContext('2d');
+    if (!g)
+        return;
+    g.clearRect(0, 0, w, h);
+    const duration = s.buffer.duration;
+    const x0 = (s.start / duration) * w;
+    const x1 = (s.end / duration) * w;
+    const n = s.peaks.length;
+    const step = Math.max(2, Math.round(3 * dpr));
+    const barWidth = Math.max(1, Math.round(2 * dpr));
+    for (let x = 0; x < w; x += step) {
+        const peak = s.peaks[Math.min(n - 1, Math.floor((x / w) * n))];
+        const bar = Math.max(2 * dpr, peak * (h - 8 * dpr));
+        g.fillStyle = x >= x0 && x <= x1 ? '#d95d39' : '#cdbdab';
+        g.fillRect(x, (h - bar) / 2, barWidth, bar);
+    }
+    if (s.playhead >= 0) {
+        g.fillStyle = '#211b18';
+        g.fillRect(Math.round((s.playhead / duration) * w), 0, Math.max(1, Math.round(2 * dpr)), h);
+    }
+}
+function setTrimBusy(busy, text = '') {
+    trimStatus.textContent = text;
+    trimStatus.hidden = !text;
+    trimStart.disabled = busy;
+    trimEnd.disabled = busy;
+    trimPreviewButton.disabled = busy;
+    trimSaveButton.disabled = busy;
+    trimOverlay.querySelectorAll('.nudge').forEach((button) => { button.disabled = busy; });
+}
+function syncTrim(changed) {
+    const s = trimState;
+    if (!s || !s.buffer)
+        return;
+    const duration = s.buffer.duration;
+    let start = Number(trimStart.value);
+    let end = Number(trimEnd.value);
+    if (changed === 'start' && start > end - MIN_CLIP)
+        start = Math.max(0, end - MIN_CLIP);
+    if (changed === 'end' && end < start + MIN_CLIP)
+        end = Math.min(duration, start + MIN_CLIP);
+    s.start = start;
+    s.end = end;
+    trimStart.value = String(start);
+    trimEnd.value = String(end);
+    trimStartLabel.textContent = formatClock(start);
+    trimEndLabel.textContent = formatClock(end);
+    const length = end - start;
+    const bytes = Math.round(length * s.buffer.sampleRate) * Math.min(2, s.buffer.numberOfChannels) * 2 + 44;
+    trimSummary.textContent = `Seçili süre: ${formatClock(length)} · yaklaşık ${formatSize(bytes)}`;
+    drawWave();
+}
+async function openTrim(song) {
+    if (song.duration > MAX_TRIM_SECONDS) {
+        toast(`Kesme en çok ${MAX_TRIM_SECONDS / 60} dakikalık seslerde çalışır (bellek sınırı).`, true);
+        return;
+    }
+    audio.pause();
+    closeTrim();
+    const state = { song, buffer: null, peaks: null, start: 0, end: song.duration, preview: null, previewUrl: '', playhead: -1 };
+    trimState = state;
+    trimName.textContent = song.name;
+    trimSummary.textContent = '';
+    trimStartLabel.textContent = formatClock(0);
+    trimEndLabel.textContent = formatClock(song.duration);
+    setTrimBusy(true, 'Ses çözülüyor…');
+    openOverlay(trimOverlay);
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioCtx();
+    try {
+        const buffer = await decodeAudio(ctx, await song.blob.arrayBuffer());
+        if (trimState !== state)
+            return;
+        if (!buffer.length || buffer.duration <= 0)
+            throw new Error('empty');
+        state.buffer = buffer;
+        state.peaks = computePeaks(buffer, 400);
+        state.start = 0;
+        state.end = buffer.duration;
+        trimStart.max = String(buffer.duration);
+        trimEnd.max = String(buffer.duration);
+        trimStart.value = '0';
+        trimEnd.value = String(buffer.duration);
+        trimKeep.checked = true;
+        setTrimBusy(false);
+        trimPreviewButton.textContent = 'Seçimi dinle';
+        syncTrim();
+    }
+    catch {
+        if (trimState === state) {
+            closeTrim();
+            toast('Bu ses tarayıcıda çözülemedi, kesilemiyor.', true);
+        }
+    }
+    finally {
+        ctx.close().catch(() => undefined);
+    }
+}
+function closeTrim() {
+    const s = trimState;
+    if (s && s.preview) {
+        s.preview.pause();
+        s.preview.removeAttribute('src');
+        s.preview.load();
+    }
+    if (s && s.previewUrl)
+        URL.revokeObjectURL(s.previewUrl);
+    trimState = null;
+    closeOverlay(trimOverlay);
+}
+function stopTrimPreview() {
+    const s = trimState;
+    if (!s || !s.preview)
+        return;
+    s.preview.pause();
+    s.playhead = -1;
+    trimPreviewButton.textContent = 'Seçimi dinle';
+    drawWave();
+}
+function toggleTrimPreview() {
+    const s = trimState;
+    if (!s || !s.buffer)
+        return;
+    if (s.preview && !s.preview.paused) {
+        stopTrimPreview();
+        return;
+    }
+    if (!s.preview) {
+        s.previewUrl = URL.createObjectURL(s.song.blob);
+        const preview = new Audio(s.previewUrl);
+        preview.addEventListener('timeupdate', () => {
+            s.playhead = preview.currentTime;
+            if (preview.currentTime >= s.end)
+                stopTrimPreview();
+            else
+                drawWave();
+        });
+        preview.addEventListener('ended', stopTrimPreview);
+        s.preview = preview;
+    }
+    const preview = s.preview;
+    const begin = () => {
+        preview.currentTime = s.start;
+        preview.play().then(() => { trimPreviewButton.textContent = 'Durdur'; }).catch(() => toast('Önizleme çalınamadı.', true));
+    };
+    if (preview.readyState >= 1)
+        begin();
+    else {
+        preview.addEventListener('loadedmetadata', begin, { once: true });
+        preview.load();
+    }
+}
+async function saveTrim() {
+    const s = trimState;
+    if (!s || !s.buffer)
+        return;
+    stopTrimPreview();
+    setTrimBusy(true, 'Kesit hazırlanıyor…');
+    try {
+        const rate = s.buffer.sampleRate;
+        const from = Math.max(0, Math.floor(s.start * rate));
+        const to = Math.min(s.buffer.length, Math.ceil(s.end * rate));
+        if (to - from < rate * MIN_CLIP * 0.5)
+            throw new Error('Seçilen bölüm çok kısa.');
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        const clip = await createSong(encodeWav(s.buffer, from, to), 'kesit', 'trim');
+        clip.name = `${s.song.name} (kesit)`;
+        await dbPut(clip);
+        songs = [clip, ...songs];
+        const keep = trimKeep.checked;
+        const original = s.song;
+        closeTrim();
+        if (!keep)
+            await removeSong(original);
+        renderLibrary();
+        toast(keep ? 'Kesit yeni kayıt olarak eklendi.' : 'Kesit kaydedildi, orijinal silindi.');
+    }
+    catch (error) {
+        if (trimState === s)
+            setTrimBusy(false);
+        toast(error instanceof Error ? error.message : 'Kesit kaydedilemedi.', true);
+    }
+}
+trimStart.addEventListener('input', () => syncTrim('start'));
+trimEnd.addEventListener('input', () => syncTrim('end'));
+trimOverlay.querySelectorAll('.nudge').forEach((button) => button.addEventListener('click', () => {
+    const s = trimState;
+    if (!s || !s.buffer)
+        return;
+    const which = button.dataset.nudge === 'end' ? 'end' : 'start';
+    const input = which === 'start' ? trimStart : trimEnd;
+    input.value = String(Math.min(s.buffer.duration, Math.max(0, Number(input.value) + Number(button.dataset.delta))));
+    syncTrim(which);
+}));
+waveCanvas.addEventListener('pointerdown', (event) => {
+    const s = trimState;
+    if (!s || !s.buffer)
+        return;
+    const rect = waveCanvas.getBoundingClientRect();
+    const time = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)) * s.buffer.duration;
+    const which = Math.abs(time - s.start) <= Math.abs(time - s.end) ? 'start' : 'end';
+    (which === 'start' ? trimStart : trimEnd).value = String(time);
+    syncTrim(which);
+});
+trimPreviewButton.addEventListener('click', toggleTrimPreview);
+trimSaveButton.addEventListener('click', () => void saveTrim());
+get('trim-close').addEventListener('click', closeTrim);
+get('info-close').addEventListener('click', closeInfo);
+get('info-ok').addEventListener('click', closeInfo);
+infoShareButton.addEventListener('click', () => { if (infoFile)
+    void shareFile(infoFile, infoFile.name); });
+trimOverlay.addEventListener('click', (event) => { if (event.target === trimOverlay)
+    closeTrim(); });
+infoOverlay.addEventListener('click', (event) => { if (event.target === infoOverlay)
+    closeInfo(); });
+document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape')
+        return;
+    if (!infoOverlay.hidden)
+        closeInfo();
+    else if (!trimOverlay.hidden)
+        closeTrim();
+});
+window.addEventListener('resize', drawWave);
 async function deleteSong(song) {
     if (!window.confirm(`“${song.name}” arşivden silinsin mi?`))
         return;
+    await removeSong(song);
+}
+async function removeSong(song) {
     try {
         await dbDelete(song.id);
         songs = songs.filter((item) => item.id !== song.id);
@@ -598,7 +1072,7 @@ audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); });
-const APP_VERSION = '12';
+const APP_VERSION = '13';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -755,6 +1229,6 @@ async function init() {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=12', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=13', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();
