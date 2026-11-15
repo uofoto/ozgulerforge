@@ -1,25 +1,19 @@
 {
-  "id": "/ai/forge-ai-studio-v6",
+  "id": "/ai/forge-ai-studio-v6.1",
   "name": "Forge AI Studio",
   "short_name": "Forge AI",
   "description": "Ozguler Forge - Forge AI Studio Yapay Zeka Çalışma Alanı",
-  "start_url": "/ai/index.html",
-  "scope": "/ai/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#F8FAFC",
-  "theme_color": "#ffffff",
+  "background_color": "#0F172A",
+  "theme_color": "#0F172A",
   "orientation": "any",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/8637/8637099.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/8637/8637099.png",
+      "src": "https://images-p9.bstatic.com/image_generation_content/3267345601857346348",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
