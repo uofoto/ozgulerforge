@@ -1,9 +1,10 @@
-# Forge AI (v5.0) - Doğrudan Google Gemini API Sürümü
+# Forge AI Studio (v6.0 PRO)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
 
-## v5.0 Özellikleri
-* Aracı platformlar tamamen çıkarıldı; uygulama doğrudan Google'ın resmi **Gemini API** (`generativelanguage.googleapis.com`) altyapısına bağlandı.
-* Google AI Studio üzerinden alınan ücretsiz `AIza...` API anahtarı ile çalışır.
-* **Gemini 2.5 Flash**, **Gemini 2.5 Pro** ve **Gemini 2.0 Flash** modellerini destekler; fotoğraf ve belge yükleme, canlı HTML/kod önizleme ve sesli dikte özellikleri tam uyumludur.
+## v6.0 PRO Yenilikleri
+1. **Tam Forge AI Markalaması:** Arayüzdeki tüm etiketler, karşılama ekranı, motor isimleri (`Forge AI Ultra 3.8` ve `Forge AI Lite`) ve sistem kimliği tamamen **Forge AI** markasına dönüştürüldü.
+2. **Anlık Fotoğraf İyileştirme Stüdyosu (Canvas):** Fotoğraf yüklendiği anda sağ panelde açılan stüdyo ile ücretsiz olarak *Otomatik Stüdyo*, *Canlı Doğa*, *Altın Saat*, *Dramatik Siyah-Beyaz* profilleri ve manuel ışık/kontrast/canlılık ayarları uygulanıp indirilebilir.
+3. **Çok Sayfalı PDF Okuma & PDF Dışa Aktarma:** PDF dosyaları doğrudan sürüklenip bırakılarak özetlenebilir; üretilen raporlar ve yazılar tek tıkla PDF olarak yazdırılabilir/kaydedilebilir.
+4. **Uzman Modları & `/` Hızlı Komutlar:** Üst menüden *Fotoğraf Uzmanı*, *Resmi Yazı & Rapor* veya *Web & Kod Mimarı* modları seçilebilir; mesaj kutusuna `/` yazılarak hızlı komutlar kullanılabilir.

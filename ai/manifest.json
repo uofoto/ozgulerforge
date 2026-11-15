@@ -1,7 +1,7 @@
 {
-  "name": "Forge AI | Google Gemini",
+  "name": "Forge AI Studio | Ozguler Forge",
   "short_name": "Forge AI",
-  "description": "Ozguler Forge - Google Gemini Yapay Zeka Çalışma Alanı",
+  "description": "Ozguler Forge - Forge AI Studio Yapay Zeka ve Fotoğraf Çalışma Alanı",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#F8FAFC",
