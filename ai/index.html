@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#ffffff" />
-  <meta name="description" content="Forge AI - Ozguler Forge Yapay Zeka Motoru" />
+  <meta name="description" content="Forge AI - Ozguler Forge Yapay Zeka Çalışma Alanı" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <title>Forge AI | Ozguler Forge</title>
+  <title>Forge AI</title>
   <link rel="manifest" href="manifest.json" />
   
   <!-- Modern Tipografi: Plus Jakarta Sans & JetBrains Mono -->
@@ -104,26 +104,23 @@
     <!-- Üst Marka & Yeni Sohbet -->
     <div class="p-4 space-y-4">
       <div class="flex items-center justify-between">
-        <a href="https://ozgulerforge.com.tr" target="_blank" class="flex items-center gap-3 group">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-600/20 group-hover:scale-105 transition">
+        <div class="flex items-center gap-3 select-none">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-600/20">
             <i data-lucide="cpu" class="w-5 h-5"></i>
           </div>
-          <div>
-            <div class="flex items-center gap-1.5">
-              <span class="font-bold text-lg tracking-tight text-slate-900">Forge AI</span>
-              <span class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100">Vision</span>
-            </div>
-            <span class="text-[11px] text-slate-400 block -mt-0.5">ozgulerforge.com.tr</span>
+          <div class="flex items-center gap-1.5">
+            <span class="font-bold text-lg tracking-tight text-slate-900">Forge AI</span>
+            <span class="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100">Pro</span>
           </div>
-        </a>
+        </div>
         <button id="closeSidebarBtn" class="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <button id="newChatBtn" class="w-full py-2.5 px-3.5 bg-slate-900 hover:bg-blue-600 text-white font-medium rounded-xl text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-sm">
+      <button id="newChatBtn" type="button" class="w-full py-2.5 px-3.5 bg-slate-900 hover:bg-blue-600 text-white font-medium rounded-xl text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-sm cursor-pointer">
         <i data-lucide="plus" class="w-4 h-4"></i>
-        <span>Yeni Çalışma Oturumu</span>
+        <span>Yeni Sohbet</span>
       </button>
 
       <!-- Sohbet Arama -->
@@ -136,14 +133,14 @@
     <!-- Sohbet Geçmişi Listesi -->
     <div class="flex-1 overflow-y-auto px-3 space-y-1" id="chatList"></div>
 
-    <!-- Alt Menü & Kurumsal Bilgi -->
+    <!-- Alt Menü & Uygulama İndirme -->
     <div class="p-3 border-t border-slate-100 bg-slate-50/50 space-y-1.5">
-      <button id="installPwaBtn" class="hidden w-full py-2 px-3 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition border border-blue-200/60">
+      <button id="installPwaBtn" type="button" class="w-full py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition shadow-xs cursor-pointer">
         <i data-lucide="download" class="w-3.5 h-3.5"></i>
-        <span>Uygulamayı Cihaza Yükle</span>
+        <span>Uygulamayı İndir / Kur</span>
       </button>
 
-      <button id="openSettingsBtn" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center justify-between transition shadow-2xs">
+      <button id="openSettingsBtn" type="button" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center justify-between transition shadow-2xs cursor-pointer">
         <span class="flex items-center gap-2">
           <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-slate-500"></i>
           Motor & API Ayarları
@@ -151,201 +148,211 @@
         <span id="keyStatusBadge" class="w-2 h-2 rounded-full bg-rose-500" title="API Durumu"></span>
       </button>
 
-      <button id="openAboutBtn" class="w-full py-1.5 px-3 text-slate-500 hover:text-slate-800 text-[11px] rounded-lg flex items-center justify-between transition">
+      <button id="openAboutBtn" type="button" class="w-full py-1.5 px-3 text-slate-500 hover:text-slate-800 text-[11px] rounded-lg flex items-center justify-between transition cursor-pointer">
         <span class="flex items-center gap-1.5">
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span>v2.5 Vision</span>
+        <span>v3.0</span>
       </button>
     </div>
   </aside>
 
-  <!-- ANA ÇALIŞMA ALANI -->
-  <main class="flex-1 flex flex-col h-full min-w-0 relative">
+  <!-- ANA ÇALIŞMA + CANLI ÖNİZLEME BÖLÜNMÜŞ ALANI -->
+  <div class="flex-1 flex h-full min-w-0 relative overflow-hidden">
     
-    <!-- Üst Kontrol Çubuğu (Header) -->
-    <header class="h-14 border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between bg-white/80 backdrop-blur-md z-20">
-      <div class="flex items-center gap-3">
-        <button id="openSidebarBtn" class="md:hidden p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100">
-          <i data-lucide="menu" class="w-5 h-5"></i>
-        </button>
-
-        <!-- Model Seçici (Görsel Analiz Destekli Modeller Dahil) -->
-        <div class="relative flex items-center">
-          <select id="modelSelect" class="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-medium text-xs sm:text-sm rounded-xl pl-3 pr-8 py-1.5 focus:outline-none focus:border-blue-500 transition cursor-pointer max-w-[230px] sm:max-w-sm truncate">
-            <option value="google/gemma-4-31b-it:free">👁️ Google Gemma 4 31B (Fotoğraf + Metin / Ücretsiz)</option>
-            <option value="google/gemma-4-26b-a4b-it:free">👁️ Google Gemma 4 26B (Hızlı Görsel / Ücretsiz)</option>
-            <option value="nvidia/nemotron-nano-12b-v2-vl:free">👁️ NVIDIA Nemotron VL (Görsel Analiz / Ücretsiz)</option>
-            <option value="openrouter/free">⚡ Forge Auto (Otomatik Ücretsiz Model)</option>
-            <option value="nvidia/nemotron-3-ultra-550b-a55b:free">🧠 NVIDIA Nemotron 3 Ultra (Metin / Ücretsiz)</option>
-            <option value="cohere/north-mini-code:free">💻 Cohere North Mini Code (Yazılım / Ücretsiz)</option>
-            <option value="openai/gpt-4o-mini">GPT-4o Mini (Görsel + Metin / Kredi)</option>
-            <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Görsel + Metin / Kredi)</option>
-          </select>
-          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 pointer-events-none"></i>
-        </div>
-      </div>
-
-      <!-- Sağ Üst Aksiyonlar -->
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <button id="exportChatBtn" class="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition" title="Sohbeti Markdown (.md) Olarak İndir">
-          <i data-lucide="file-down" class="w-4 h-4"></i>
-        </button>
-        <a href="mailto:iletisim@ozgulerforge.com.tr" class="hidden sm:flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-blue-600 px-2.5 py-1.5 rounded-xl hover:bg-blue-50/60 transition">
-          <i data-lucide="mail" class="w-3.5 h-3.5"></i>
-          <span>iletisim@ozgulerforge.com.tr</span>
-        </a>
-      </div>
-    </header>
-
-    <!-- Mesaj Akış Alanı -->
-    <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-6 scroll-smooth">
+    <!-- SOL/ORTA: SOHBET ÇALIŞMA ALANI -->
+    <main class="flex-1 flex flex-col h-full min-w-0 relative">
       
-      <!-- Karşılama Ekranı (Boş Oturumda Görünür) -->
-      <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
-        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/20 mb-5">
-          <i data-lucide="sparkles" class="w-8 h-8"></i>
-        </div>
-        
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
-          Forge AI Çalışma Alanı
-        </h1>
-        <p class="text-sm sm:text-base text-slate-500 max-w-lg mb-8 leading-relaxed">
-          Fotoğraflarınızı sürükleyip bırakarak ışık, renk, kadraj ve düzenleme analizi yaptırabilir; metin ve kod belgelerinizi işleyebilirsiniz.
-        </p>
+      <!-- Üst Kontrol Çubuğu (Header) -->
+      <header class="h-14 border-b border-slate-200/80 px-4 sm:px-6 flex items-center justify-between bg-white/80 backdrop-blur-md z-20 shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
+          <button id="openSidebarBtn" type="button" class="md:hidden p-2 -ml-2 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-100">
+            <i data-lucide="menu" class="w-5 h-5"></i>
+          </button>
 
-        <!-- API Uyarısı (Anahtar Girilmemişse) -->
-        <div id="noKeyWarning" class="w-full max-w-lg mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-left flex items-start gap-3 shadow-2xs">
-          <i data-lucide="key-round" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
-          <div class="text-xs text-amber-900 space-y-1">
-            <p class="font-semibold">Motor Aktivasyonu Gerekli</p>
-            <p class="text-amber-700">Sorgu göndermeye başlamak için sol menüdeki <strong>Motor & API Ayarları</strong> bölümünden OpenRouter API anahtarınızı kaydedin.</p>
+          <!-- Model Seçici -->
+          <div class="relative flex items-center min-w-0">
+            <select id="modelSelect" class="appearance-none bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-800 font-medium text-xs sm:text-sm rounded-xl pl-3 pr-8 py-1.5 focus:outline-none focus:border-blue-500 transition cursor-pointer max-w-[200px] sm:max-w-xs truncate">
+              <option value="google/gemma-4-31b-it:free">👁️ Google Gemma 4 31B (Fotoğraf + Metin)</option>
+              <option value="google/gemma-4-26b-a4b-it:free">👁️ Google Gemma 4 26B (Hızlı Görsel)</option>
+              <option value="nvidia/nemotron-nano-12b-v2-vl:free">👁️ NVIDIA Nemotron VL (Görsel Analiz)</option>
+              <option value="openrouter/free">⚡ Forge Auto (Otomatik Ücretsiz Model)</option>
+              <option value="nvidia/nemotron-3-ultra-550b-a55b:free">🧠 NVIDIA Nemotron 3 Ultra (Metin)</option>
+              <option value="cohere/north-mini-code:free">💻 Cohere North Mini Code (Yazılım)</option>
+              <option value="openai/gpt-4o-mini">GPT-4o Mini (Görsel + Metin / Kredi)</option>
+              <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet (Görsel + Metin / Kredi)</option>
+            </select>
+            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400 absolute right-2.5 pointer-events-none"></i>
           </div>
         </div>
 
-        <!-- Örnek Başlangıç Kartları -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
-          <button type="button" class="prompt-card p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group">
-            <div class="flex items-center gap-2 text-blue-600 font-semibold text-xs mb-1">
-              <i data-lucide="camera" class="w-4 h-4"></i>
-              <span>Fotoğraf İyileştirme & Renk Analizi</span>
-            </div>
-            <p class="text-xs text-slate-600 group-hover:text-slate-900">Yüklediğim bu fotoğrafı ışık, kontrast, renk dengesi ve kadraj açısından değerlendir; Lightroom için iyileştirme değerleri öner.</p>
+        <!-- Sağ Üst Aksiyonlar -->
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Canlı Önizleme Panelini Aç/Kapat -->
+          <button id="togglePreviewPaneBtn" type="button" class="px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-blue-600 bg-slate-100/80 hover:bg-blue-50 border border-slate-200/80 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Çalışma Önizleme Panelini Aç/Kapat">
+            <i data-lucide="panel-right" class="w-3.5 h-3.5 text-blue-600"></i>
+            <span class="hidden sm:inline">Önizleme</span>
           </button>
 
-          <button type="button" class="prompt-card p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group">
-            <div class="flex items-center gap-2 text-indigo-600 font-semibold text-xs mb-1">
-              <i data-lucide="wand-2" class="w-4 h-4"></i>
-              <span>Görsel Eleştiri & Kompozisyon</span>
-            </div>
-            <p class="text-xs text-slate-600 group-hover:text-slate-900">Bu karedeki güçlü ve zayıf yönleri analiz et, daha etkileyici görünmesi için nasıl kırpma ve tonlama yapmalıyım?</p>
+          <!-- Üst Bar İndir Butonu -->
+          <button id="headerInstallBtn" type="button" class="px-2.5 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50 border border-blue-200/80 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Uygulamayı Cihaza İndir">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">İndir</span>
           </button>
 
-          <button type="button" class="prompt-card p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group">
-            <div class="flex items-center gap-2 text-emerald-600 font-semibold text-xs mb-1">
-              <i data-lucide="code-2" class="w-4 h-4"></i>
-              <span>Yazılım & Mimari</span>
-            </div>
-            <p class="text-xs text-slate-600 group-hover:text-slate-900">Modern ve güvenli bir web uygulaması mimarisi için en iyi pratikleri özetle.</p>
-          </button>
-
-          <button type="button" class="prompt-card p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group">
-            <div class="flex items-center gap-2 text-violet-600 font-semibold text-xs mb-1">
-              <i data-lucide="file-text" class="w-4 h-4"></i>
-              <span>Kurumsal Metin & Belge</span>
-            </div>
-            <p class="text-xs text-slate-600 group-hover:text-slate-900">Resmi bir proje teklifi ve iş birliği e-postası taslağı oluştur.</p>
+          <!-- Sohbeti Dışa Aktar -->
+          <button id="exportChatBtn" type="button" class="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition cursor-pointer" title="Sohbeti Markdown (.md) Olarak Kaydet">
+            <i data-lucide="file-down" class="w-4 h-4"></i>
           </button>
         </div>
+      </header>
+
+      <!-- Mesaj Akış Alanı -->
+      <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 scroll-smooth">
+        <!-- Dinamik içerik renderMessages() tarafından yönetilir -->
       </div>
-    </div>
 
-    <!-- ALT MESAJ GİRİŞ KONSOLU -->
-    <div class="px-4 sm:px-8 pb-4 pt-2 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC] to-transparent">
-      <div class="max-w-3xl mx-auto">
-        
-        <!-- Eklenen Fotoğraf veya Dosya Önizleme Çubuğu -->
-        <div id="attachmentsPreviewBar" class="hidden mb-2.5 flex flex-wrap items-center gap-2">
-          <!-- Fotoğraf Küçük Resmi (Thumbnail) -->
-          <div id="imagePreviewCard" class="hidden relative group bg-white p-1.5 rounded-2xl border border-blue-200 shadow-xs flex items-center gap-2.5 pr-3">
-            <img id="imagePreviewThumb" src="" alt="Seçilen Fotoğraf" class="w-12 h-12 object-cover rounded-xl border border-slate-100" />
-            <div class="text-xs">
-              <p id="imagePreviewName" class="font-semibold text-slate-800 max-w-[160px] truncate">foto.jpg</p>
-              <span class="text-[10px] text-blue-600 font-medium">Görsel Analize Hazır</span>
-            </div>
-            <button type="button" id="removeImageBtn" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition ml-1" title="Fotoğrafı Kaldır">
-              <i data-lucide="x" class="w-4 h-4"></i>
-            </button>
-          </div>
-
-          <!-- Metin Dosyası Rozeti -->
-          <div id="filePreviewCard" class="hidden inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium">
-            <i data-lucide="file-code" class="w-4 h-4 text-blue-600"></i>
-            <span id="attachedFileName" class="max-w-[200px] truncate">dosya.txt</span>
-            <button type="button" id="removeFileBtn" class="text-blue-500 hover:text-rose-600 ml-1">
-              <i data-lucide="x" class="w-3.5 h-3.5"></i>
-            </button>
-          </div>
-        </div>
-
-        <form id="chatForm" class="bg-white border border-slate-200/90 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 rounded-2xl p-2.5 shadow-float transition-all">
-          <textarea
-            id="userInput"
-            rows="1"
-            placeholder="Bir soru yazın veya fotoğrafınızı sürükleyip bırakın (Ctrl+V ile yapıştırabilirsiniz)..."
-            class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-sm sm:text-[15px] px-2 py-1 focus:outline-none resize-none max-h-44 leading-relaxed"
-          ></textarea>
+      <!-- ALT MESAJ GİRİŞ KONSOLU -->
+      <div class="px-4 sm:px-6 pb-4 pt-2 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC] to-transparent shrink-0">
+        <div class="max-w-3xl mx-auto">
           
-          <div class="flex items-center justify-between pt-2 mt-1 border-t border-slate-100 px-1">
-            <div class="flex items-center gap-1">
-              <!-- Fotoğraf Yükleme Butonu -->
-              <input type="file" id="imageInput" class="hidden" accept="image/jpeg,image/png,image/webp,image/gif" />
-              <button type="button" id="attachImageBtn" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition flex items-center gap-1.5 text-xs font-medium" title="Fotoğraf Yükle (JPG, PNG, WEBP)">
-                <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
-                <span>Fotoğraf Ekle</span>
-              </button>
-
-              <!-- Belge / Kod Yükleme Butonu -->
-              <input type="file" id="fileInput" class="hidden" accept=".txt,.md,.json,.csv,.js,.py,.html,.css,.xml,.sql" />
-              <button type="button" id="attachFileBtn" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium" title="Metin veya Kod Dosyası Ekle">
-                <i data-lucide="paperclip" class="w-4 h-4"></i>
-                <span class="hidden sm:inline">Belge</span>
-              </button>
-
-              <!-- Sesli Dikte (Mikrofon) -->
-              <button type="button" id="micBtn" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium" title="Sesle Yazdır">
-                <i data-lucide="mic" class="w-4 h-4"></i>
-                <span class="hidden sm:inline" id="micLabel">Sesli</span>
+          <!-- Eklenen Fotoğraf veya Dosya Önizleme Çubuğu -->
+          <div id="attachmentsPreviewBar" class="hidden mb-2.5 flex flex-wrap items-center gap-2">
+            <div id="imagePreviewCard" class="hidden relative group bg-white p-1.5 rounded-2xl border border-blue-200 shadow-xs flex items-center gap-2.5 pr-3">
+              <img id="imagePreviewThumb" src="" alt="Seçilen Fotoğraf" class="w-12 h-12 object-cover rounded-xl border border-slate-100" />
+              <div class="text-xs">
+                <p id="imagePreviewName" class="font-semibold text-slate-800 max-w-[160px] truncate">foto.jpg</p>
+                <span class="text-[10px] text-blue-600 font-medium">Görsel Analize Hazır</span>
+              </div>
+              <button type="button" id="removeImageBtn" class="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition ml-1" title="Fotoğrafı Kaldır">
+                <i data-lucide="x" class="w-4 h-4"></i>
               </button>
             </div>
 
-            <div class="flex items-center gap-2">
-              <button type="button" id="stopBtn" class="hidden px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
-                <i data-lucide="square" class="w-3 h-3 fill-current"></i>
-                <span>Durdur</span>
-              </button>
-
-              <button type="submit" id="sendBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-sm shadow-blue-600/20 transition">
-                <span>Gönder</span>
-                <i data-lucide="arrow-up" class="w-4 h-4"></i>
+            <div id="filePreviewCard" class="hidden inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium">
+              <i data-lucide="file-code" class="w-4 h-4 text-blue-600"></i>
+              <span id="attachedFileName" class="max-w-[200px] truncate">dosya.txt</span>
+              <button type="button" id="removeFileBtn" class="text-blue-500 hover:text-rose-600 ml-1">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
               </button>
             </div>
           </div>
-        </form>
 
-        <!-- Kurumsal Alt Bilgi (Footer) -->
-        <div class="mt-2.5 flex flex-wrap items-center justify-between text-[11px] text-slate-400 px-1 gap-2">
-          <span>© 2026 <strong>Ozguler Forge</strong> • Tüm hakları saklıdır.</span>
-          <div class="flex items-center gap-3">
-            <a href="https://ozgulerforge.com.tr" target="_blank" class="hover:text-blue-600 transition">ozgulerforge.com.tr</a>
-            <span>•</span>
-            <a href="mailto:iletisim@ozgulerforge.com.tr" class="hover:text-blue-600 transition">iletisim@ozgulerforge.com.tr</a>
+          <form id="chatForm" class="bg-white border border-slate-200/90 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 rounded-2xl p-2.5 shadow-float transition-all">
+            <textarea
+              id="userInput"
+              rows="1"
+              placeholder="Bir soru yazın, kod/belge isteyin veya fotoğrafınızı sürükleyip bırakın..."
+              class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-sm sm:text-[15px] px-2 py-1 focus:outline-none resize-none max-h-44 leading-relaxed"
+            ></textarea>
+            
+            <div class="flex items-center justify-between pt-2 mt-1 border-t border-slate-100 px-1">
+              <div class="flex items-center gap-1">
+                <input type="file" id="imageInput" class="hidden" accept="image/jpeg,image/png,image/webp,image/gif" />
+                <button type="button" id="attachImageBtn" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Fotoğraf Yükle">
+                  <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
+                  <span>Fotoğraf Ekle</span>
+                </button>
+
+                <input type="file" id="fileInput" class="hidden" accept=".txt,.md,.json,.csv,.js,.py,.html,.css,.xml,.sql" />
+                <button type="button" id="attachFileBtn" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Metin veya Kod Dosyası Ekle">
+                  <i data-lucide="paperclip" class="w-4 h-4"></i>
+                  <span class="hidden sm:inline">Belge</span>
+                </button>
+
+                <button type="button" id="micBtn" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Sesle Yazdır">
+                  <i data-lucide="mic" class="w-4 h-4"></i>
+                  <span class="hidden sm:inline" id="micLabel">Sesli</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button type="button" id="stopBtn" class="hidden px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
+                  <i data-lucide="square" class="w-3 h-3 fill-current"></i>
+                  <span>Durdur</span>
+                </button>
+
+                <button type="submit" id="sendBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow-sm shadow-blue-600/20 transition cursor-pointer">
+                  <span>Gönder</span>
+                  <i data-lucide="arrow-up" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- Kurumsal Alt Bilgi (Footer) -->
+          <div class="mt-2.5 flex flex-wrap items-center justify-between text-[11px] text-slate-400 px-1 gap-2">
+            <span>© 2026 <strong>Ozguler Forge</strong> • Tüm hakları saklıdır.</span>
+            <div class="flex items-center gap-3">
+              <a href="https://ozgulerforge.com.tr" target="_blank" class="hover:text-blue-600 transition">ozgulerforge.com.tr</a>
+              <span>•</span>
+              <a href="mailto:iletisim@ozgulerforge.com.tr" class="hover:text-blue-600 transition">iletisim@ozgulerforge.com.tr</a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
+
+    <!-- SAĞ PANEL: CANLI ÇALIŞMA STÜDYOSU & ÖNİZLEME (ARTIFACT / PREVIEW) -->
+    <section id="previewPane" class="hidden fixed inset-0 lg:static lg:w-[46%] xl:w-[48%] bg-white border-l border-slate-200/90 z-30 flex flex-col shadow-float lg:shadow-none">
+      <!-- Önizleme Üst Barı -->
+      <div class="h-14 border-b border-slate-200/80 px-4 flex items-center justify-between bg-slate-50/70 shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-7 h-7 rounded-lg bg-blue-600/10 text-blue-600 flex items-center justify-center shrink-0">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </div>
+          <div class="min-w-0">
+            <h2 id="previewTitle" class="text-xs sm:text-sm font-bold text-slate-900 truncate">Çalışma Önizlemesi</h2>
+            <span id="previewSubtitle" class="text-[10px] text-slate-400 block -mt-0.5">Canlı Görünüm & Kod Çıktısı</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0">
+          <!-- Sekme Geçişi: Canlı Görünüm / Kaynak Kod -->
+          <div id="previewModeTabs" class="hidden bg-slate-200/70 p-0.5 rounded-lg flex items-center text-[11px] font-semibold">
+            <button type="button" id="tabLiveView" class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition cursor-pointer">Canlı</button>
+            <button type="button" id="tabSourceView" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition cursor-pointer">Kaynak</button>
+          </div>
+
+          <button type="button" id="downloadArtifactBtn" class="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer" title="Çalışmayı Dosya Olarak İndir">
+            <i data-lucide="download" class="w-4 h-4"></i>
+          </button>
+
+          <button type="button" id="copyArtifactBtn" class="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer" title="İçeriği Kopyala">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+          </button>
+
+          <button type="button" id="closePreviewPaneBtn" class="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition cursor-pointer" title="Önizlemeyi Kapat">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Önizleme İçerik Alanı -->
+      <div id="previewBody" class="flex-1 overflow-auto bg-white relative">
+        <!-- Boş Durum -->
+        <div id="previewEmptyState" class="h-full flex flex-col items-center justify-center p-8 text-center text-slate-400 space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+            <i data-lucide="layout-template" class="w-6 h-6"></i>
+          </div>
+          <p class="text-xs font-medium text-slate-600">Henüz Önizlenecek Çalışma Seçilmedi</p>
+          <p class="text-[11px] max-w-xs leading-relaxed">
+            Yapay zeka bir web sayfası, kod bloğu, belge veya fotoğraf analizi ürettiğinde üzerindeki <strong>"Önizle"</strong> butonuna tıklayarak burada canlı olarak inceleyebilirsiniz.
+          </p>
+        </div>
+
+        <!-- Canlı HTML / Web Önizleme Iframe -->
+        <iframe id="previewIframe" class="hidden w-full h-full border-0 bg-white" sandbox="allow-scripts allow-same-origin"></iframe>
+
+        <!-- Zengin Metin / Belge / Fotoğraf Önizleme -->
+        <div id="previewDocumentView" class="hidden p-6 sm:p-8 prose max-w-none"></div>
+
+        <!-- Kaynak Kod Önizleme -->
+        <pre id="previewCodeView" class="hidden p-4 m-0 text-xs font-mono bg-slate-50 text-slate-800 min-h-full overflow-x-auto"><code id="previewCodeContent"></code></pre>
+      </div>
+    </section>
+  </div>
 
   <!-- MODAL 1: MOTOR & API AYARLARI -->
   <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-xs flex items-center justify-center p-4">
@@ -360,7 +367,7 @@
             <p class="text-[11px] text-slate-400">API bağlantısı ve model davranış ayarları</p>
           </div>
         </div>
-        <button id="closeSettingsBtn" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
+        <button id="closeSettingsBtn" type="button" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
@@ -392,8 +399,8 @@
       </div>
 
       <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
-        <button id="cancelSettingsBtn" class="px-4 py-2 text-slate-600 hover:bg-slate-100 text-xs font-semibold rounded-xl transition">Vazgeç</button>
-        <button id="saveSettingsBtn" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-sm transition">Ayarları Uygula</button>
+        <button id="cancelSettingsBtn" type="button" class="px-4 py-2 text-slate-600 hover:bg-slate-100 text-xs font-semibold rounded-xl transition">Vazgeç</button>
+        <button id="saveSettingsBtn" type="button" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-sm transition">Ayarları Uygula</button>
       </div>
     </div>
   </div>
@@ -407,17 +414,17 @@
             <i data-lucide="cpu" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-slate-900">Forge AI Vision</h3>
+            <h3 class="text-base font-bold text-slate-900">Forge AI</h3>
             <p class="text-xs text-slate-500">Ozguler Forge Yapay Zeka Platformu</p>
           </div>
         </div>
-        <button id="closeAboutBtn" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
+        <button id="closeAboutBtn" type="button" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-        <strong>Forge AI</strong>, görsel analiz ve gelişmiş dil modellerini tek bir güvenli arayüzde birleştiren yeni nesil kişisel ve kurumsal yapay zeka çalışma ortamıdır. Verileriniz üçüncü taraf sunucularda depolanmaz; tüm oturum geçmişiniz kendi cihazınızda kalır.
+        <strong>Forge AI</strong>, görsel analiz, canlı önizleme stüdyosu ve gelişmiş dil modellerini tek bir güvenli arayüzde birleştiren yeni nesil yapay zeka çalışma ortamıdır. Verileriniz üçüncü taraf sunucularda depolanmaz; tüm oturum geçmişiniz kendi cihazınızda kalır.
       </p>
 
       <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 space-y-2.5 text-xs">
@@ -436,14 +443,54 @@
       </div>
 
       <div class="pt-1 flex justify-end">
-        <button id="okAboutBtn" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition">Kapat</button>
+        <button id="okAboutBtn" type="button" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: PWA KURULUM REHBERİ (Tarayıcı Otomatik Tetiklemezse) -->
+  <div id="installGuideModal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-float">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <i data-lucide="download" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Forge AI Uygulamasını Yükle</h3>
+            <p class="text-xs text-slate-500">Cihazınıza uygulama olarak kurun</p>
+          </div>
+        </div>
+        <button id="closeInstallGuideBtn" type="button" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+          <p class="font-semibold text-slate-900 mb-1">Bilgisayar (Chrome / Edge):</p>
+          <p>Adres çubuğunun sağ ucundaki <strong>Uygulamayı Yükle</strong> simgesine veya sağ üst menüden <strong>Yayınla, kaydet ve paylaş → Sayfayı uygulama olarak yükle</strong> seçeneğine tıklayın.</p>
+        </div>
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+          <p class="font-semibold text-slate-900 mb-1">Telefon (Android / iOS):</p>
+          <p>Tarayıcı menüsünden (<strong>⋮</strong> veya <strong>Paylaş</strong> simgesi) <strong>"Ana Ekrana Ekle"</strong> veya <strong>"Uygulamayı Yükle"</strong> seçeneğine dokunun.</p>
+        </div>
+      </div>
+
+      <div class="pt-1 flex justify-end">
+        <button id="okInstallGuideBtn" type="button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl transition">Anladım</button>
       </div>
     </div>
   </div>
 
   <script>
-    // İkonları Başlat
-    lucide.createIcons();
+    // Güvenli İkon Yükleyici (CDN gecikirse bile hata vermez)
+    function refreshIcons() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        try { window.lucide.createIcons(); } catch (e) {}
+      }
+    }
+    refreshIcons();
 
     const KEYS = {
       API: 'forge_ai_api_key',
@@ -454,7 +501,7 @@
       MODEL: 'forge_ai_model'
     };
 
-    const DEFAULT_SYSTEM = 'Sen Ozguler Forge tarafından geliştirilen Forge AI adlı üst düzey bir yapay zeka ve görsel analiz asistanısın. Kullanıcı fotoğraf yüklediğinde kompozisyon, ışık, renk dengesi ve iyileştirme adımlarını profesyonel bir fotoğrafçı ve sanat yönetmeni titizliğiyle Türkçe olarak açıklarsın.';
+    const DEFAULT_SYSTEM = 'Sen Ozguler Forge tarafından geliştirilen Forge AI adlı üst düzey bir yapay zeka asistanısın. Yanıtların net, yapılandırılmış, hatasız ve Türkçe olmalıdır. Kullanıcı fotoğraf yüklediğinde kompozisyon, ışık, renk dengesi ve iyileştirme önerilerini detaylıca sunarsın.';
 
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
@@ -463,9 +510,10 @@
       chats: JSON.parse(localStorage.getItem(KEYS.CHATS) || '[]'),
       activeChatId: localStorage.getItem(KEYS.ACTIVE) || null,
       attachedFile: null,
-      attachedImage: null, // { name, dataUrl }
+      attachedImage: null,
       isGenerating: false,
-      abortController: null
+      abortController: null,
+      currentArtifact: null // { title, type: 'html'|'code'|'document', content, lang, ext }
     };
 
     const els = {
@@ -477,7 +525,6 @@
       chatList: document.getElementById('chatList'),
       searchChatsInput: document.getElementById('searchChatsInput'),
       messagesContainer: document.getElementById('messagesContainer'),
-      welcomeScreen: document.getElementById('welcomeScreen'),
       noKeyWarning: document.getElementById('noKeyWarning'),
       keyStatusBadge: document.getElementById('keyStatusBadge'),
       modelSelect: document.getElementById('modelSelect'),
@@ -493,46 +540,221 @@
       imagePreviewName: document.getElementById('imagePreviewName'),
       filePreviewCard: document.getElementById('filePreviewCard'),
       attachedFileName: document.getElementById('attachedFileName'),
+      previewPane: document.getElementById('previewPane'),
+      previewTitle: document.getElementById('previewTitle'),
+      previewSubtitle: document.getElementById('previewSubtitle'),
+      previewModeTabs: document.getElementById('previewModeTabs'),
+      tabLiveView: document.getElementById('tabLiveView'),
+      tabSourceView: document.getElementById('tabSourceView'),
+      previewEmptyState: document.getElementById('previewEmptyState'),
+      previewIframe: document.getElementById('previewIframe'),
+      previewDocumentView: document.getElementById('previewDocumentView'),
+      previewCodeView: document.getElementById('previewCodeView'),
+      previewCodeContent: document.getElementById('previewCodeContent'),
       settingsModal: document.getElementById('settingsModal'),
       aboutModal: document.getElementById('aboutModal'),
+      installGuideModal: document.getElementById('installGuideModal'),
       apiKeyInput: document.getElementById('apiKeyInput'),
       tempSlider: document.getElementById('tempSlider'),
       tempValueLabel: document.getElementById('tempValueLabel'),
       systemPromptInput: document.getElementById('systemPromptInput')
     };
 
-    // Marked.js Özel Kod Bloğu Oluşturucu
-    const renderer = new marked.Renderer();
-    renderer.code = function(code, language) {
-      const validLang = language && hljs.getLanguage(language) ? language : 'plaintext';
-      const highlighted = hljs.highlight(code, { language: validLang }).value;
-      const encodedCode = encodeURIComponent(code);
-      return `
-        <div class="code-wrapper">
-          <div class="code-header">
-            <span class="uppercase font-semibold text-slate-500">${validLang}</span>
-            <button type="button" onclick="copyCodeBlock(this, '${encodedCode}')" class="flex items-center gap-1 text-slate-500 hover:text-blue-600 transition font-sans font-medium">
-              <span>Kopyala</span>
-            </button>
-          </div>
-          <pre><code class="hljs language-${validLang}">${highlighted}</code></pre>
-        </div>
-      `;
-    };
-    marked.setOptions({ renderer, breaks: true });
+    // GÜVENLİ MARKDOWN YORUMLAYICI (Marked.js Sürüm Uyumluluğu Garantili)
+    function parseMarkdownSafe(mdText) {
+      if (!mdText) return '';
+      try {
+        if (window.marked && typeof window.marked.parse === 'function') {
+          return window.marked.parse(mdText, { breaks: true });
+        }
+      } catch (e) {
+        console.warn('Markdown ayrıştırma hatası:', e);
+      }
+      return escapeHtml(mdText).replace(/\n/g, '<br>');
+    }
 
-    window.copyCodeBlock = function(btn, encodedCode) {
-      navigator.clipboard.writeText(decodeURIComponent(encodedCode));
+    // Mesaj içindeki kod bloklarına otomatik "Önizle" ve "Kopyala" başlığı ekle
+    function enhanceRenderedContent(container) {
+      if (!container) return;
+      const preBlocks = container.querySelectorAll('pre');
+      preBlocks.forEach((pre) => {
+        if (pre.parentElement && pre.parentElement.classList.contains('code-wrapper')) return;
+        const codeEl = pre.querySelector('code');
+        if (!codeEl) return;
+
+        const rawCode = codeEl.textContent || '';
+        let lang = 'metin';
+        codeEl.classList.forEach(cls => {
+          if (cls.startsWith('language-')) lang = cls.replace('language-', '');
+        });
+
+        if (window.hljs && typeof window.hljs.highlightElement === 'function') {
+          try { window.hljs.highlightElement(codeEl); } catch (_) {}
+        }
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'code-wrapper';
+
+        const header = document.createElement('div');
+        header.className = 'code-header';
+
+        const langBadge = document.createElement('span');
+        langBadge.className = 'uppercase font-semibold text-slate-500';
+        langBadge.textContent = lang;
+
+        const btnGroup = document.createElement('div');
+        btnGroup.className = 'flex items-center gap-2';
+
+        // Önizle Butonu
+        const previewBtn = document.createElement('button');
+        previewBtn.type = 'button';
+        previewBtn.className = 'px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100 font-sans font-semibold text-[11px] transition cursor-pointer';
+        previewBtn.textContent = '👁️ Önizle';
+        previewBtn.onclick = () => {
+          const isHtml = lang === 'html' || lang === 'svg' || rawCode.trim().startsWith('<!DOCTYPE') || rawCode.trim().startsWith('<html') || rawCode.trim().startsWith('<svg');
+          openArtifactPreview({
+            title: isHtml ? 'Canlı Web / Görsel Önizleme' : `Kod Çalışması (${lang.toUpperCase()})`,
+            type: isHtml ? 'html' : 'code',
+            content: rawCode,
+            lang: lang,
+            ext: isHtml ? 'html' : (lang === 'javascript' ? 'js' : lang === 'python' ? 'py' : 'txt')
+          });
+        };
+
+        // Kopyala Butonu
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'text-slate-500 hover:text-blue-600 font-sans font-medium text-[11px] transition cursor-pointer';
+        copyBtn.textContent = 'Kopyala';
+        copyBtn.onclick = () => {
+          navigator.clipboard.writeText(rawCode);
+          copyBtn.textContent = 'Kopyalandı ✓';
+          copyBtn.classList.add('text-emerald-600');
+          setTimeout(() => {
+            copyBtn.textContent = 'Kopyala';
+            copyBtn.classList.remove('text-emerald-600');
+          }, 2000);
+        };
+
+        btnGroup.appendChild(previewBtn);
+        btnGroup.appendChild(copyBtn);
+        header.appendChild(langBadge);
+        header.appendChild(btnGroup);
+
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(header);
+        wrapper.appendChild(pre);
+      });
+    }
+
+    // CANLI ÖNİZLEME STÜDYOSU FONKSİYONLARI
+    function openArtifactPreview(artifact) {
+      state.currentArtifact = artifact;
+      els.previewPane.classList.remove('hidden');
+      els.previewEmptyState.classList.add('hidden');
+      els.previewTitle.textContent = artifact.title || 'Çalışma Önizlemesi';
+
+      if (artifact.type === 'html') {
+        els.previewSubtitle.textContent = 'Canlı İnteraktif Görünüm';
+        els.previewModeTabs.classList.remove('hidden');
+        showPreviewTab('live');
+      } else if (artifact.type === 'document') {
+        els.previewSubtitle.textContent = 'Belge & Çalışma Önizlemesi';
+        els.previewModeTabs.classList.add('hidden');
+        els.previewIframe.classList.add('hidden');
+        els.previewCodeView.classList.add('hidden');
+        els.previewDocumentView.classList.remove('hidden');
+        els.previewDocumentView.innerHTML = parseMarkdownSafe(artifact.content);
+        enhanceRenderedContent(els.previewDocumentView);
+      } else {
+        els.previewSubtitle.textContent = `Kaynak Kod (${(artifact.lang || 'TXT').toUpperCase()})`;
+        els.previewModeTabs.classList.add('hidden');
+        els.previewIframe.classList.add('hidden');
+        els.previewDocumentView.classList.add('hidden');
+        els.previewCodeView.classList.remove('hidden');
+        els.previewCodeContent.textContent = artifact.content;
+      }
+      refreshIcons();
+    }
+
+    function showPreviewTab(mode) {
+      if (!state.currentArtifact) return;
+      if (mode === 'live') {
+        els.tabLiveView.className = 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition cursor-pointer';
+        els.tabSourceView.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition cursor-pointer';
+        els.previewCodeView.classList.add('hidden');
+        els.previewDocumentView.classList.add('hidden');
+        els.previewIframe.classList.remove('hidden');
+        els.previewIframe.srcdoc = state.currentArtifact.content;
+      } else {
+        els.tabSourceView.className = 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition cursor-pointer';
+        els.tabLiveView.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition cursor-pointer';
+        els.previewIframe.classList.add('hidden');
+        els.previewDocumentView.classList.add('hidden');
+        els.previewCodeView.classList.remove('hidden');
+        els.previewCodeContent.textContent = state.currentArtifact.content;
+      }
+    }
+
+    els.tabLiveView.onclick = () => showPreviewTab('live');
+    els.tabSourceView.onclick = () => showPreviewTab('source');
+    document.getElementById('closePreviewPaneBtn').onclick = () => els.previewPane.classList.add('hidden');
+    document.getElementById('togglePreviewPaneBtn').onclick = () => {
+      els.previewPane.classList.toggle('hidden');
+    };
+
+    document.getElementById('copyArtifactBtn').onclick = () => {
+      if (!state.currentArtifact) return;
+      navigator.clipboard.writeText(state.currentArtifact.content);
+    };
+
+    document.getElementById('downloadArtifactBtn').onclick = () => {
+      if (!state.currentArtifact) return;
+      const blob = new Blob([state.currentArtifact.content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `forge-ai-calisma.${state.currentArtifact.ext || 'txt'}`;
+      a.click();
+    };
+
+    window.copyRawText = function(btn, encodedText) {
+      navigator.clipboard.writeText(decodeURIComponent(encodedText));
       const span = btn.querySelector('span');
-      span.textContent = 'Kopyalandı ✓';
-      span.classList.add('text-emerald-600');
-      setTimeout(() => {
-        span.textContent = 'Kopyala';
-        span.classList.remove('text-emerald-600');
-      }, 2000);
+      if (span) {
+        span.textContent = 'Kopyalandı ✓';
+        span.classList.add('text-emerald-600');
+        setTimeout(() => {
+          span.textContent = 'Kopyala';
+          span.classList.remove('text-emerald-600');
+        }, 2000);
+      }
     };
 
-    window.speakText = function(btn, encodedText) {
+    window.previewFullResponse = function(encodedText) {
+      const content = decodeURIComponent(encodedText);
+      // İçinde HTML kodu varsa doğrudan canlı web önizlemesi aç
+      const htmlMatch = content.match(/```html\s*([\s\S]*?)```/i);
+      if (htmlMatch && htmlMatch[1]) {
+        openArtifactPreview({
+          title: 'Canlı Web Çalışması Önizlemesi',
+          type: 'html',
+          content: htmlMatch[1].trim(),
+          lang: 'html',
+          ext: 'html'
+        });
+      } else {
+        openArtifactPreview({
+          title: 'Çalışma & Belge Önizlemesi',
+          type: 'document',
+          content: content,
+          ext: 'md'
+        });
+      }
+    };
+
+    window.speakText = function(encodedText) {
+      if (!('speechSynthesis' in window)) return;
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
         return;
@@ -552,17 +774,18 @@
         localStorage.setItem(KEYS.CHATS, JSON.stringify(state.chats));
         localStorage.setItem(KEYS.ACTIVE, state.activeChatId || '');
       } catch (e) {
-        console.warn('Yerel depolama kotası doldu, eski görseller temizleniyor.');
+        console.warn('Yerel depolama sınırına ulaşıldı.');
       }
     }
 
     function updateApiBadge() {
-      const valid = state.apiKey && state.apiKey.startsWith('sk-or-');
+      const valid = Boolean(state.apiKey && state.apiKey.startsWith('sk-or-'));
       els.keyStatusBadge.className = `w-2 h-2 rounded-full ${valid ? 'bg-emerald-500' : 'bg-rose-500'}`;
-      els.noKeyWarning.classList.toggle('hidden', valid);
+      const warningEl = document.getElementById('noKeyWarning');
+      if (warningEl) warningEl.classList.toggle('hidden', valid);
     }
 
-    // FOTOĞRAF SIKIŞTIRMA VE OPTİMİZASYON (Yüksek Çözünürlüklü Fotoğrafların Hızlı Gitmesi İçin)
+    // FOTOĞRAF OPTİMİZASYONU
     function processImageFile(file) {
       if (!file || !file.type.startsWith('image/')) return;
       const reader = new FileReader();
@@ -570,7 +793,7 @@
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          const MAX_DIM = 1600; // Hem keskin detay hem hızlı API iletimi için ideal sınır
+          const MAX_DIM = 1600;
           let width = img.width;
           let height = img.height;
 
@@ -596,7 +819,6 @@
           els.imagePreviewCard.classList.remove('hidden');
           updatePreviewBarVisibility();
 
-          // Eğer seçili model görsel desteklemiyorsa otomatik olarak Gemma 4 Vision'a geçir
           const currentModel = els.modelSelect.value;
           if (!currentModel.includes('gemma-4') && !currentModel.includes('vl') && !currentModel.includes('gpt-4o') && !currentModel.includes('claude-3.5')) {
             els.modelSelect.value = 'google/gemma-4-31b-it:free';
@@ -635,18 +857,17 @@
     }
 
     function updatePreviewBarVisibility() {
-      const hasAny = state.attachedImage || state.attachedFile;
+      const hasAny = Boolean(state.attachedImage || state.attachedFile);
       els.attachmentsPreviewBar.classList.toggle('hidden', !hasAny);
     }
 
-    // SÜRÜKLE - BIRAK (DRAG & DROP) OLAYLARI
+    // SÜRÜKLE - BIRAK OLAYLARI
     let dragCounter = 0;
     window.addEventListener('dragenter', (e) => {
       e.preventDefault();
       dragCounter++;
       els.dropZoneOverlay.classList.remove('hidden');
     });
-
     window.addEventListener('dragleave', (e) => {
       e.preventDefault();
       dragCounter--;
@@ -655,41 +876,30 @@
         els.dropZoneOverlay.classList.add('hidden');
       }
     });
-
-    window.addEventListener('dragover', (e) => {
-      e.preventDefault();
-    });
-
+    window.addEventListener('dragover', (e) => e.preventDefault());
     window.addEventListener('drop', (e) => {
       e.preventDefault();
       dragCounter = 0;
       els.dropZoneOverlay.classList.add('hidden');
-
       const files = e.dataTransfer?.files;
       if (!files || files.length === 0) return;
-
       const file = files[0];
-      if (file.type.startsWith('image/')) {
-        processImageFile(file);
-      } else {
-        processTextFile(file);
-      }
+      if (file.type.startsWith('image/')) processImageFile(file);
+      else processTextFile(file);
     });
 
-    // PANODAN YAPIŞTIRMA (CTRL+V İLE FOTOĞRAF EKLEME)
+    // PANODAN YAPIŞTIRMA (CTRL+V)
     window.addEventListener('paste', (e) => {
       const items = e.clipboardData?.items;
       if (!items) return;
       for (const item of items) {
         if (item.type.startsWith('image/')) {
-          const file = item.getAsFile();
-          processImageFile(file);
+          processImageFile(item.getAsFile());
           break;
         }
       }
     });
 
-    // Buton Tıklamaları
     document.getElementById('attachImageBtn').onclick = () => els.imageInput.click();
     els.imageInput.onchange = (e) => processImageFile(e.target.files[0]);
     document.getElementById('removeImageBtn').onclick = clearAttachedImage;
@@ -698,7 +908,6 @@
     els.fileInput.onchange = (e) => processTextFile(e.target.files[0]);
     document.getElementById('removeFileBtn').onclick = clearAttachedFile;
 
-    // Kenar Çubuğu Kontrolleri
     function toggleSidebar(show) {
       els.sidebar.classList.toggle('-translate-x-full', !show);
       els.sidebarOverlay.classList.toggle('hidden', !show);
@@ -707,7 +916,7 @@
     document.getElementById('closeSidebarBtn').onclick = () => toggleSidebar(false);
     els.sidebarOverlay.onclick = () => toggleSidebar(false);
 
-    // Sohbet Listesini Çiz
+    // SOHBET LİSTESİNİ ÇİZ
     function renderChatList(filter = '') {
       els.chatList.innerHTML = '';
       const filtered = state.chats.filter(c => c.title.toLowerCase().includes(filter.toLowerCase()));
@@ -728,14 +937,14 @@
             <i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 ${active ? 'text-blue-600' : 'text-slate-400'}"></i>
             <span class="truncate">${escapeHtml(chat.title)}</span>
           </div>
-          <button class="delete-chat opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 rounded-md transition" title="Oturumu Sil">
+          <button type="button" class="delete-chat opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 rounded-md transition" title="Oturumu Sil">
             <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
           </button>
         `;
         item.onclick = (e) => {
           if (e.target.closest('.delete-chat')) {
             state.chats = state.chats.filter(c => c.id !== chat.id);
-            if (state.activeChatId === chat.id) state.activeChatId = state.chats[0]?.id || null;
+            if (state.activeChatId === chat.id) state.activeChatId = null;
             syncStorage();
             renderChatList(els.searchChatsInput.value);
             renderMessages();
@@ -749,24 +958,92 @@
         };
         els.chatList.appendChild(item);
       });
-      lucide.createIcons();
+      refreshIcons();
     }
 
-    // Mesajları Ekrana Bas
+    // KARŞILAMA EKRANI HTML ŞABLONU (Yeni Sohbette Her Zaman Temiz Oluşturulur)
+    function getWelcomeScreenHtml() {
+      const hasValidKey = Boolean(state.apiKey && state.apiKey.startsWith('sk-or-'));
+      return `
+        <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/20 mb-5">
+            <i data-lucide="sparkles" class="w-8 h-8"></i>
+          </div>
+          
+          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
+            Forge AI Çalışma Alanı
+          </h1>
+          <p class="text-sm sm:text-base text-slate-500 max-w-lg mb-8 leading-relaxed">
+            Fotoğraflarınızı sürükleyip bırakarak ışık, renk ve kadraj analizi yaptırabilir; web tasarımları, belgeler ve kodlar üretip sağ panelde canlı önizleyebilirsiniz.
+          </p>
+
+          <div id="noKeyWarning" class="${hasValidKey ? 'hidden' : ''} w-full max-w-lg mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-left flex items-start gap-3 shadow-2xs">
+            <i data-lucide="key-round" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
+            <div class="text-xs text-amber-900 space-y-1">
+              <p class="font-semibold">Motor Aktivasyonu Gerekli</p>
+              <p class="text-amber-700">Sorgu göndermeye başlamak için sol menüdeki <strong>Motor & API Ayarları</strong> bölümünden OpenRouter API anahtarınızı kaydedin.</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
+            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+              <div class="flex items-center gap-2 text-blue-600 font-semibold text-xs mb-1">
+                <i data-lucide="camera" class="w-4 h-4"></i>
+                <span>Fotoğraf İyileştirme & Renk Analizi</span>
+              </div>
+              <p class="text-xs text-slate-600 group-hover:text-slate-900">Yüklediğim bu fotoğrafı ışık, kontrast, renk dengesi ve kadraj açısından değerlendir; iyileştirme önerileri sun.</p>
+            </button>
+
+            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+              <div class="flex items-center gap-2 text-indigo-600 font-semibold text-xs mb-1">
+                <i data-lucide="layout-template" class="w-4 h-4"></i>
+                <span>Canlı Web Tasarımı & Önizleme</span>
+              </div>
+              <p class="text-xs text-slate-600 group-hover:text-slate-900">Modern, açık renkli ve şık bir kişisel portföy açılış sayfası (tek dosya HTML/Tailwind) tasarla.</p>
+            </button>
+
+            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+              <div class="flex items-center gap-2 text-emerald-600 font-semibold text-xs mb-1">
+                <i data-lucide="code-2" class="w-4 h-4"></i>
+                <span>Yazılım & Mimari</span>
+              </div>
+              <p class="text-xs text-slate-600 group-hover:text-slate-900">Modern ve güvenli bir REST API mimarisi için en iyi pratikleri ve örnek kodu hazırla.</p>
+            </button>
+
+            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
+              <div class="flex items-center gap-2 text-violet-600 font-semibold text-xs mb-1">
+                <i data-lucide="file-text" class="w-4 h-4"></i>
+                <span>Kurumsal Metin & Belge</span>
+              </div>
+              <p class="text-xs text-slate-600 group-hover:text-slate-900">Resmi bir proje teklifi ve iş birliği e-postası taslağı oluştur.</p>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    window.usePromptCard = function(btn) {
+      const p = btn.querySelector('p');
+      if (p) {
+        els.userInput.value = p.textContent;
+        els.userInput.focus();
+      }
+    };
+
+    // MESAJLARI EKRANA BAS (Yeni Sohbette Tamamen Temizler)
     function renderMessages() {
       const chat = state.chats.find(c => c.id === state.activeChatId);
+      els.messagesContainer.innerHTML = '';
+
       if (!chat || chat.messages.length === 0) {
-        els.messagesContainer.innerHTML = '';
-        els.messagesContainer.appendChild(els.welcomeScreen);
-        els.welcomeScreen.classList.remove('hidden');
+        els.messagesContainer.innerHTML = getWelcomeScreenHtml();
+        refreshIcons();
         return;
       }
 
-      els.welcomeScreen.classList.add('hidden');
-      els.messagesContainer.innerHTML = '';
       chat.messages.forEach(m => createMessageBubble(m.role, m.content, m.fileName, m.imageDataUrl));
       els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
-      lucide.createIcons();
+      refreshIcons();
     }
 
     function createMessageBubble(role, content, fileName = null, imageDataUrl = null) {
@@ -786,30 +1063,38 @@
             <i data-lucide="cpu" class="w-4 h-4"></i>
           </div>
           <div class="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 sm:p-5 shadow-2xs">
-            <div class="prose max-w-none">${content ? marked.parse(content) : '<div class="flex gap-1.5 py-2"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>'}</div>
-            <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex items-center gap-3 text-[11px] text-slate-400 ${content ? '' : 'hidden'}">
-              <button type="button" onclick="copyCodeBlock(this, '${cleanRaw}')" class="hover:text-blue-600 flex items-center gap-1 transition">
-                <span>Yanıtı Kopyala</span>
+            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="flex gap-1.5 py-2"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>'}</div>
+            <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-[11px] text-slate-400 ${content ? '' : 'hidden'}">
+              <button type="button" onclick="previewFullResponse('${cleanRaw}')" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer">
+                <span>👁️ Çalışmayı Önizle</span>
               </button>
               <span>•</span>
-              <button type="button" onclick="speakText(this, '${cleanRaw}')" class="hover:text-blue-600 flex items-center gap-1 transition">
+              <button type="button" onclick="copyRawText(this, '${cleanRaw}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer">
+                <span>Kopyala</span>
+              </button>
+              <span>•</span>
+              <button type="button" onclick="speakText('${cleanRaw}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer">
                 <span>Sesli Dinle</span>
               </button>
             </div>
           </div>
         `;
+        if (content) {
+          enhanceRenderedContent(row.querySelector('.prose'));
+        }
       }
       els.messagesContainer.appendChild(row);
       return row;
     }
 
     function escapeHtml(str) {
+      if (!str) return '';
       const div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
     }
 
-    // Mesaj Gönderme ve Görsel + Metin Akış İşlemi
+    // MESAJ GÖNDERME VE AKIŞ İŞLEMİ (Hata Korumalı)
     async function sendMessage(e) {
       if (e) e.preventDefault();
       let text = els.userInput.value.trim();
@@ -820,7 +1105,6 @@
         return;
       }
 
-      // Sadece fotoğraf yüklenip metin yazılmadıysa varsayılan analiz komutu ekle
       if (!text && state.attachedImage) {
         text = 'Bu fotoğrafı ışık, renk dengesi, kadraj ve genel estetik açıdan analiz et; daha etkileyici görünmesi için iyileştirme önerileri sun.';
       }
@@ -837,7 +1121,6 @@
         currentChat.title = (text || state.attachedImage?.name || state.attachedFile?.name).slice(0, 40);
       }
 
-      // Dosya ve fotoğraf verilerini hazırla
       let fullTextForApi = text;
       let attachedName = null;
       let attachedImgUrl = null;
@@ -859,7 +1142,6 @@
         imageDataUrl: attachedImgUrl
       });
       
-      // Giriş alanını sıfırla
       els.userInput.value = '';
       els.userInput.style.height = 'auto';
       clearAttachedFile();
@@ -868,7 +1150,6 @@
       renderChatList();
       renderMessages();
 
-      // Üretim Durumuna Geç
       state.isGenerating = true;
       state.abortController = new AbortController();
       els.sendBtn.classList.add('hidden');
@@ -877,12 +1158,11 @@
       const aiMsg = { role: 'assistant', content: '' };
       currentChat.messages.push(aiMsg);
       const bubble = createMessageBubble('assistant', '');
-      lucide.createIcons();
+      refreshIcons();
       const proseEl = bubble.querySelector('.prose');
       const actionsEl = bubble.querySelector('.msg-actions');
 
       try {
-        // Multimodal (Fotoğraf + Metin) Mesaj Formatını Oluştur
         const apiMessages = [
           { role: 'system', content: state.systemPrompt },
           ...currentChat.messages.slice(0, -1).map(m => {
@@ -944,29 +1224,46 @@
               const token = parsed.choices?.[0]?.delta?.content;
               if (token) {
                 aiMsg.content += token;
-                proseEl.innerHTML = marked.parse(aiMsg.content);
+                proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
                 els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
               }
             } catch (_) {}
           }
         }
 
+        // Akış tamamlandığında kod bloklarını ve önizleme butonlarını aktif et
+        enhanceRenderedContent(proseEl);
+
         const encodedFinal = encodeURIComponent(aiMsg.content);
         actionsEl.innerHTML = `
-          <button type="button" onclick="copyCodeBlock(this, '${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition"><span>Yanıtı Kopyala</span></button>
+          <button type="button" onclick="previewFullResponse('${encodedFinal}')" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer"><span>👁️ Çalışmayı Önizle</span></button>
           <span>•</span>
-          <button type="button" onclick="speakText(this, '${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition"><span>Sesli Dinle</span></button>
+          <button type="button" onclick="copyRawText(this, '${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Kopyala</span></button>
+          <span>•</span>
+          <button type="button" onclick="speakText('${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Sesli Dinle</span></button>
         `;
         actionsEl.classList.remove('hidden');
         syncStorage();
+
+        // Eğer yanıtta HTML kodu üretildiyse otomatik olarak sağdaki Canlı Önizleme stüdyosunda aç
+        const htmlMatch = aiMsg.content.match(/```html\s*([\s\S]*?)```/i);
+        if (htmlMatch && htmlMatch[1]) {
+          openArtifactPreview({
+            title: 'Canlı Web Çalışması Önizlemesi',
+            type: 'html',
+            content: htmlMatch[1].trim(),
+            lang: 'html',
+            ext: 'html'
+          });
+        }
 
       } catch (err) {
         if (err.name === 'AbortError') {
           aiMsg.content += '\n\n*(Yanıt kullanıcı tarafından durduruldu.)*';
         } else {
-          aiMsg.content = `> **Bağlantı / Motor Uyarısı:** ${err.message}\n\n*İpucu: Fotoğraf yüklediyseniz üst menüden göz simgeli (👁️) görsel destekli bir modelin seçili olduğundan emin olun.*`;
+          aiMsg.content = `> **Bağlantı / Motor Uyarısı:** ${err.message}\n\nLütfen API anahtarınızı veya seçili modelin kullanım limitini kontrol edin.`;
         }
-        proseEl.innerHTML = marked.parse(aiMsg.content);
+        proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
         syncStorage();
       } finally {
         state.isGenerating = false;
@@ -975,6 +1272,24 @@
         els.sendBtn.classList.remove('hidden');
       }
     }
+
+    // YENİ SOHBET BUTONU (Kesin Temizlik Garantili)
+    document.getElementById('newChatBtn').onclick = () => {
+      if (state.isGenerating && state.abortController) {
+        state.abortController.abort();
+      }
+      state.activeChatId = null;
+      localStorage.setItem(KEYS.ACTIVE, '');
+      clearAttachedImage();
+      clearAttachedFile();
+      els.userInput.value = '';
+      els.userInput.style.height = 'auto';
+      els.previewPane.classList.add('hidden');
+      renderChatList(els.searchChatsInput.value);
+      renderMessages();
+      toggleSidebar(false);
+      els.userInput.focus();
+    };
 
     // Sesli Dikte
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1003,7 +1318,6 @@
       document.getElementById('micBtn').classList.add('hidden');
     }
 
-    // Olay Dinleyicileri
     els.chatForm.onsubmit = sendMessage;
     els.stopBtn.onclick = () => state.abortController && state.abortController.abort();
 
@@ -1018,21 +1332,6 @@
         sendMessage();
       }
     });
-
-    document.querySelectorAll('.prompt-card').forEach(card => {
-      card.onclick = () => {
-        els.userInput.value = card.querySelector('p').textContent;
-        els.userInput.focus();
-      };
-    });
-
-    document.getElementById('newChatBtn').onclick = () => {
-      state.activeChatId = null;
-      syncStorage();
-      renderChatList();
-      renderMessages();
-      toggleSidebar(false);
-    };
 
     els.searchChatsInput.oninput = (e) => renderChatList(e.target.value);
 
@@ -1079,28 +1378,59 @@
     document.getElementById('closeAboutBtn').onclick = () => els.aboutModal.classList.add('hidden');
     document.getElementById('okAboutBtn').onclick = () => els.aboutModal.classList.add('hidden');
 
+    document.getElementById('closeInstallGuideBtn').onclick = () => els.installGuideModal.classList.add('hidden');
+    document.getElementById('okInstallGuideBtn').onclick = () => els.installGuideModal.classList.add('hidden');
+
     const savedModel = localStorage.getItem(KEYS.MODEL);
     if (savedModel) els.modelSelect.value = savedModel;
     els.modelSelect.onchange = () => localStorage.setItem(KEYS.MODEL, els.modelSelect.value);
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    }
-    let deferredPrompt;
-    const installBtn = document.getElementById('installPwaBtn');
+    // PWA YÜKLEME BUTONU & OTOMATİK GÜNCELLEME YÖNETİMİ
+    let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      installBtn.classList.remove('hidden');
     });
-    installBtn.onclick = async () => {
-      if (!deferredPrompt) return;
-      deferredPrompt.prompt();
-      await deferredPrompt.userChoice;
-      deferredPrompt = null;
-      installBtn.classList.add('hidden');
-    };
 
+    async function triggerAppInstall() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      } else {
+        els.installGuideModal.classList.remove('hidden');
+      }
+    }
+
+    document.getElementById('installPwaBtn').onclick = triggerAppInstall;
+    document.getElementById('headerInstallBtn').onclick = triggerAppInstall;
+
+    // Service Worker Otomatik Güncelleme Kontrolü
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').then((reg) => {
+        reg.update();
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                window.location.reload();
+              }
+            });
+          }
+        });
+      }).catch(() => {});
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
+    }
+
+    // Uygulamayı Başlat
     updateApiBadge();
     renderChatList();
     renderMessages();
