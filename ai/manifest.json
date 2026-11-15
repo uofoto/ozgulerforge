@@ -1,8 +1,8 @@
 {
-  "id": "/ai/forge-ai-studio-v6.1",
+  "id": "/ai/forge-ai-studio-v6.3",
   "name": "Forge AI Studio",
   "short_name": "Forge AI",
-  "description": "Ozguler Forge - Forge AI Studio Yapay Zeka Çalışma Alanı",
+  "description": "Ozguler Forge - Forge AI Studio Çoklu Belge ve Yapay Zeka Stüdyosu",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
