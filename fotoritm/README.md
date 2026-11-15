@@ -1,13 +1,27 @@
-# Foto Ritim v3.5.1 – Özgüler Forge
+# Foto Ritim v3.6.0 – Özgüler Forge
 
-## v3.5.1 düzeltmeleri
-1. **Boş / siyah video hatası (ana düzeltme):** Önizleme çalışırken ya da önizlemeden hemen sonra "MP4 kaydet"e basıldığında, eski ses kaynağının `onended` olayı yeni kaydı anında bitiriyordu. Sonuç: yalnızca 2 siyah kare + 1 sn ses. Eski kaynağın olayı artık durdurulurken temizleniyor ve her çalıştırma kendi kaynağına bağlı.
-2. **Oynatma sırasında ← / → ile atlama** artık oynatmayı kesmiyor (aynı hatanın etkisiydi).
-3. **Arka plan / sekme değişimi:** requestAnimationFrame durursa zamanlayıcı devralıyor, kareler üretilmeye devam ediyor.
-4. **Boş kayıt koruması:** Kayıt erken bitmişse artık "başarılı" denmiyor, net bir hata gösteriliyor.
-5. **Çift tıklama koruması:** Kayıt düğmesine iki kez basmak ikinci bir kayıt başlatmıyor.
-6. **RGB Kayması (Glitch) geçişi:** İkinci renk kanalı birinciyi siyaha boğuyordu; kanallar artık ayrı katmanda üretilip toplanıyor (gerçek kromatik sapma).
-7. **Eksik PWA ikonları** pakete eklendi (192, 512, maskable, apple-touch).
+## v3.6.0: Maksimum kalite dışa aktarma motoru
+Fujifilm X-T3 / DJI Mini 3 Pro görüntüleri için baştan yazıldı.
+
+| | Eski (v3.5) | Yeni (v3.6) |
+|---|---|---|
+| Kayıt yöntemi | Gerçek zamanlı ekran kaydı (kare düşebilir) | **Kare kare** render, hiçbir kare düşmez |
+| Video kodlayıcı | Tarayıcının varsayılanı (çoğu zaman Baseline) | **H.264 High**, 4K30'da 100 Mbps, 4K60'ta 120 Mbps |
+| Renk | Tarayıcının dönüşümü | **BT.709 limited**, kendi GPU dönüşümümüz (ffmpeg referansına ±1) |
+| Çözünürlük | Varsayılan 1080p, telefonda 720p'ye zorlanır | **4K (3840×2160)** varsayılan, telefonda da zorlanmaz |
+| Kare hızı | 30 sabit | 24 / 25 / 30 / **60 fps** |
+| Fotoğraf çözünürlüğü | 4096 px'e küçültme | 5120 px (masaüstü), yüksek kaliteli yeniden örnekleme |
+| Giriş videoları | Gerçek zamanlı oynatma | **Kare doğrulukla** konumlandırma (seek) |
+| Ses | Gerçek zamanlı kayıt | Ayrı render, **AAC 256 kbps** (yoksa Opus) |
+| Dosya yazma | RAM'de biriktirme | Masaüstünde **doğrudan diske akıtma** (büyük dosyalar sorunsuz) |
+
+- **Saf Kalite (efektsiz)** şablonu: vinyet, gren, LUT, zoom, Ken Burns, flaş, sarsıntı kapalı; 4K / 30 fps.
+- Tarayıcı WebCodecs'i desteklemiyorsa (eski Safari/Firefox) otomatik olarak eski kayıt motoruna döner.
+- Dışa aktarma sırasında ayarlar kilitlenir; **sekmeyi açık tut** (telefonda ekran kapanmaz).
+- Hâlâ sıkıştırılmış H.264'tür: matematiksel olarak kayıpsız değil, ama bu bit hızında kaynak ile görsel olarak ayırt edilemez.
+
+## v3.5.1
+Boş/siyah video hatası, çift tık koruması, RGB kayması geçişi, eksik PWA ikonları.
 
 ## Yayınlama
-Tüm dosyaları aynı klasöre HTTPS ile yükle. sw.js sürümü `foto-ritim-v3.5.1` olarak artırıldı; telefonlar yeni sürümü "Yeni sürüm hazır" bildirimiyle alır.
+Tüm dosyaları aynı klasöre HTTPS ile yükle. `sw.js` sürümü `foto-ritim-v3.6.0`; telefonlar "Yeni sürüm hazır" bildirimiyle alır.
