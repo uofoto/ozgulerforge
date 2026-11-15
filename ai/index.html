@@ -112,8 +112,12 @@
     <div class="p-4 space-y-3.5">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3 select-none">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-600/20">
-            <i data-lucide="cpu" class="w-5 h-5"></i>
+          <!-- MODERN ÖZEL FORGE İKONU (SVG) -->
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-blue-600/25">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"></path>
+              <circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity="0.25"></circle>
+            </svg>
           </div>
           <div class="flex items-center gap-1.5">
             <span class="font-bold text-lg tracking-tight text-slate-900">Forge AI</span>
@@ -162,7 +166,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span>v6.5 PRO</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.6 PRO</span>
       </button>
     </div>
   </aside>
@@ -525,7 +529,7 @@
       TEMP: 'forge_ai_temperature',
       CHATS: 'forge_ai_chats',
       ACTIVE: 'forge_ai_active_chat',
-      MODEL: 'forge_ai_v65_model'
+      MODEL: 'forge_ai_v66_model'
     };
 
     const BASE_IDENTITY = 'Sen Ozguler Forge tarafından geliştirilen Forge AI adlı yapay zeka asistanısın. Kendini her zaman Forge AI olarak tanıt. Yanıtların net, yapılandırılmış, profesyonel ve Türkçe olmalıdır.';
@@ -1153,8 +1157,11 @@
       const hasValidKey = Boolean(state.apiKey && state.apiKey.startsWith('AIza'));
       return `
         <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/20 mb-5">
-            <i data-lucide="cpu" class="w-8 h-8"></i>
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"></path>
+              <circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity="0.25"></circle>
+            </svg>
           </div>
           
           <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
@@ -1607,7 +1614,6 @@
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
       updateApiBadge();
       
-      // ANINDA GÜNCELLEME: Kaydedildiği an karşılama ekranını ve uyarı kutusunu yenile
       const warningEl = document.getElementById('noKeyWarning');
       if (warningEl) warningEl.classList.add('hidden');
       renderMessages();
@@ -1626,7 +1632,7 @@
     if (savedModel && [...els.modelSelect.options].some(o => o.value === savedModel)) {
       els.modelSelect.value = savedModel;
     }
-    els.modelSelect.onchange = () => localStorage.setItem(KEYS.MODEL, els.modelSelect.value);
+    els.modelSelect.onchange = () => localStorage.getItem(KEYS.MODEL, els.modelSelect.value);
 
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -1647,6 +1653,33 @@
     document.getElementById('installPwaBtn').onclick = triggerAppInstall;
     document.getElementById('headerInstallBtn').onclick = triggerAppInstall;
 
+    // --- OTOMATİK SÜRÜM DENETİMİ & GÜNCELLEME (AUTO-UPDATE) ---
+    async function checkForUpdates() {
+      try {
+        const res = await fetch('./sw.js?t=' + Date.now(), { cache: 'no-store' });
+        if (!res.ok) return;
+        const text = await res.text();
+        const match = text.match(/CACHE_NAME\s*=\s*'([^']+)'/);
+        if (match && match[1]) {
+          const remoteCacheName = match[1];
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            // Eğer tarayıcıda kayıtlı cache adı sunucudakinden farklıysa yeni sürüm var demektir!
+            if (!keys.includes(remoteCacheName)) {
+              console.log('Yeni Forge AI sürümü algılandı. Otomatik güncelleniyor...');
+              if ('serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.getRegistration();
+                if (reg && reg.waiting) {
+                  reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                }
+              }
+              window.location.reload();
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').then((reg) => {
         reg.update();
@@ -1661,7 +1694,19 @@
           }
         });
       }).catch(() => {});
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
+      });
     }
+
+    // Uygulama açılışında ve her 30 dakikada bir arka planda otomatik güncelleme kontrolü
+    setInterval(checkForUpdates, 30 * 60 * 1000);
+    window.addEventListener('focus', checkForUpdates);
 
     updateApiBadge();
     renderChatList();

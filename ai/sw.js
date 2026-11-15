@@ -1,11 +1,9 @@
-const CACHE_NAME = 'forge-ai-studio-v6.5';
+const CACHE_NAME = 'forge-ai-studio-v6.6';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json'
 ];
-
-self.string = 'cache';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
