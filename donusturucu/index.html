@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#17131f" />
+    <meta name="description" content="Görsel ve videoları cihazınızda, tarayıcı içinde dönüştürün." />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <title>FormatLab — Medya dönüştürme istasyonu</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="rail" aria-label="Ana menü">
+        <a class="brand-mark" href="#top" aria-label="FormatLab ana sayfa"><span class="brand-glyph"><i></i><i></i><i></i></span><span class="brand-name">FORMAT<span>LAB</span></span></a>
+        <div class="rail-label">İSTASYON</div>
+        <a class="rail-link active" href="#workspace" aria-current="page"><span class="rail-icon">↗</span><span>Dönüştür</span></a>
+        <a class="rail-link" href="#format-notes"><span class="rail-icon">◫</span><span>Format rehberi</span></a>
+        <div class="rail-spacer"></div>
+        <div class="local-note"><span class="local-dot"></span><span>Yerel işlem<br /><b>Dosyalar cihazınızda</b></span></div>
+        <div class="rail-version">FL / 01.0</div>
+      </aside>
+
+      <main id="top" class="main-content">
+        <header class="topbar">
+          <div class="breadcrumb"><span>FORMATLAB</span><b>/</b><strong>MEDYA İSTASYONU</strong></div>
+          <div class="top-actions"><span class="engine-status"><i></i><span id="engine-status-text">Tarayıcı motoru hazırlanıyor</span></span><button id="install-button" class="install-button" hidden>＋ Uygulamayı yükle</button></div>
+        </header>
+
+        <section class="intro" id="workspace">
+          <div class="intro-copy"><div class="eyebrow"><span class="eyebrow-line"></span> MEDYA DÖNÜŞTÜRME İSTASYONU <span class="eyebrow-index">01—04</span></div><h1>Biçimi değiştir.<br /><em>Kontrol sende.</em></h1><p>Görsel ve videolarını bu cihazda dönüştür. Kaynak dosyaların hiçbir yere yüklenmez.</p></div>
+          <div class="intro-stamp" aria-hidden="true"><span>LOCAL</span><b>↗</b><small>PROCESSING<br />ONLY</small></div>
+        </section>
+
+        <section class="workbench" aria-label="Dönüştürme çalışma alanı">
+          <div class="section-heading"><div><span class="step-no">01</span><h2>Dosyaları istasyona al</h2></div><span class="micro-label">GÖRSEL / VİDEO</span></div>
+          <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Dönüştürülecek dosyaları seç veya sürükleyip bırak">
+            <input id="file-input" type="file" accept="image/*,video/*,.tif,.tiff,.heic,.heif,.avif,.bmp,.gif,.svg,.webm,.mkv,.mov,.avi,.mp4,.m4v,.3gp,.mts,.m2ts" multiple hidden />
+            <div class="drop-graphic" aria-hidden="true"><span class="drop-square square-a"></span><span class="drop-square square-b"></span><span class="drop-plus">＋</span></div>
+            <div class="drop-copy"><strong>Dosyaları buraya bırak</strong><span>veya <button id="choose-files" class="text-button" type="button">cihazından göz at</button></span><small>Birden fazla dosya seçebilirsin · işlem cihazında gerçekleşir</small></div>
+            <div class="drop-corner">İÇE AKTAR <b>↘</b></div>
+          </div>
+
+          <div class="format-bar">
+            <div class="format-cell source-cell"><label for="media-kind">KAYNAK TÜRLERİ</label><div class="kind-switch" role="group" aria-label="Görüntülenecek kuyruk türü"><button type="button" class="kind-button selected" data-kind="all">Tümü <span id="all-count">00</span></button><button type="button" class="kind-button" data-kind="image">Görsel <span id="image-count">00</span></button><button type="button" class="kind-button" data-kind="video">Video <span id="video-count">00</span></button></div></div>
+            <div class="format-cell target-cell"><label for="target-format">HEDEF BİÇİM</label><div class="select-wrap"><select id="target-format" aria-label="Çıkış formatı"></select><span class="select-caret">⌄</span></div></div>
+            <div class="format-cell quality-cell"><label>KALİTE YAKLAŞIMI</label><div class="quality-switch"><button id="lossless-button" type="button" class="quality-option active">Kayıpsız</button><button id="quality-button" type="button" class="quality-option">En yüksek</button></div></div>
+          </div>
+          <div id="format-hint" class="format-hint" role="status"><span class="hint-mark">i</span><span>Seçilen dönüşüm için biçim bilgisi hazırlanıyor.</span></div>
+
+          <div class="section-heading settings-heading"><div><span class="step-no">02</span><h2>Çıkış ayarları</h2></div><span id="settings-context" class="micro-label">GÖRSELE UYGUN</span></div>
+          <div class="settings-panel" id="settings-panel">
+            <div class="setting-control quality-control"><label for="quality-range">Kalite <span id="quality-value">92</span><small>%</small></label><input id="quality-range" type="range" min="50" max="100" value="92" /><div class="range-labels"><span>Daha küçük</span><span>Daha yüksek kalite</span></div></div>
+            <div class="setting-control resolution-control"><label for="resolution">Çözünürlük</label><div class="select-wrap"><select id="resolution"><option value="original">Kaynağı koru</option><option value="1080">En fazla 1080p</option><option value="720">En fazla 720p</option><option value="480">En fazla 480p</option></select><span class="select-caret">⌄</span></div></div>
+            <div class="setting-control fps-control"><label for="fps">Kare hızı</label><div class="select-wrap"><select id="fps"><option value="30">30 fps · varsayılan</option><option value="24">24 fps</option><option value="60">60 fps</option></select><span class="select-caret">⌄</span></div></div>
+            <div class="setting-control bitrate-control"><label for="bitrate">Video bit hızı</label><div class="select-wrap"><select id="bitrate"><option value="8000000">Yüksek · 8 Mbps</option><option value="16000000">Çok yüksek · 16 Mbps</option><option value="4000000">Dengeli · 4 Mbps</option></select><span class="select-caret">⌄</span></div></div>
+            <div class="setting-control codec-control video-control-hidden"><label for="codec">WebM kodeği</label><div class="select-wrap"><select id="codec"><option value="auto">Otomatik · VP9 öncelikli</option><option value="vp9">VP9</option><option value="vp8">VP8</option></select><span class="select-caret">⌄</span></div></div>
+            <label class="setting-check alpha-control"><input id="transparent-bg" type="checkbox" checked /><span class="check-box">✓</span><span>Şeffaflığı koru<small>PNG / desteklenirse WebP</small></span></label>
+            <div class="estimate"><span>TAHMİNİ ÇIKTI</span><strong id="estimate-value">—</strong><small id="estimate-note">Dosya seçildiğinde hesaplanır</small></div>
+          </div>
+
+          <div class="section-heading queue-heading"><div><span class="step-no">03</span><h2>İşlem kuyruğu <span id="queue-total" class="heading-count">00</span></h2></div><div class="queue-actions"><button id="clear-button" class="quiet-button" type="button" disabled>Kuyruğu temizle</button><button id="convert-button" class="convert-button" type="button" disabled><span>Seçilenleri dönüştür</span><b>↗</b></button></div></div>
+          <div class="queue-header"><span>ÖĞE</span><span>ÖNCE → SONRA</span><span>BOYUT / DURUM</span><span>İLERLEME</span><span></span></div>
+          <div id="queue-list" class="queue-list"><div class="empty-queue"><div class="empty-orbit"><span>＋</span></div><strong>Kuyruk henüz boş</strong><p>Bir ya da daha fazla medya dosyası ekleyerek başla.</p></div></div>
+          <div class="download-strip"><div><span class="download-mark">↓</span><span><strong>Çıktılar cihazında kalır</strong><small>Tek tek indir veya tamamlananları ZIP olarak paketle.</small></span></div><button id="download-all" class="download-all" type="button" disabled>TÜMÜNÜ ZIP İNDİR <b>↓</b></button></div>
+        </section>
+
+        <section id="format-notes" class="notes-section"><div class="notes-title"><span class="step-no">04</span><div><span class="micro-label">BİLGİLENDİRME</span><h2>Her dönüşüm aynı değildir.</h2></div></div><div class="notes-grid"><article class="note-card note-purple"><span class="note-number">A / GÖRSEL</span><h3>PNG kodlaması kayıpsız.</h3><p>PNG kodlayıcısı kayıpsızdır; ancak tarayıcının çözme/renk dönüşümü EXIF ve renk profili metaverisini korumayabilir. JPEG şeffaflığı desteklemez; hareketli kaynaklar tek kareye indirgenebilir.</p></article><article class="note-card note-orange"><span class="note-number">B / VİDEO</span><h3>Kodek, tarayıcıya bağlı.</h3><p>Video çıkışı, cihazının desteklediği VP8/VP9 WebM kodeğiyle gerçek zamanlı kodlanır. Bu yol kayıpsız video kodlaması değildir; ses yakalama da kaynak ve tarayıcı desteğine bağlıdır.</p></article><article class="note-card note-dark"><span class="note-number">C / GİZLİLİK</span><h3>Dosyalar yüklenmez.</h3><p>İşlem bu sekmede yapılır. Çok büyük videolar bellek ve pil tüketebilir. Sekme kapanırsa tamamlanmamış işler ve geçici çıktılar silinir.</p></article></div></section>
+        <footer class="footer"><span>FORMATLAB <b>·</b> CİHAZDA İŞLEME</span><span>Hedefler: PNG / JPEG / WebP / AVIF (tarayıcı destekliyorsa) ve WebM. Tüm konteyner/kodekler yok.</span></footer>
+      </main>
+    </div>
+    <div id="toast-region" class="toast-region" role="status" aria-live="polite"></div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
