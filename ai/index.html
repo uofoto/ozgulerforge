@@ -2,13 +2,15 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0F172A" />
   <meta name="description" content="Forge AI - Ozguler Forge Çoklu Belge ve Fotoğraf Asistanı" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Forge AI</title>
   <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
   
   <!-- Modern Tipografi: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,11 +18,12 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS & İkonlar -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
   
   <!-- Markdown & Kod Vurgulama -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 
@@ -222,7 +225,7 @@
               <span class="font-mono font-bold text-blue-600">/guzellestir</span>
               <span class="text-slate-600 truncate">Fotoğrafı Stüdyoda İyileştir</span>
             </button>
-            <button type="button" onclick="applySlashCmd('/ozetle Eklediğim çoklu belgeleri ve PDF'leri karşılaştırarak analiz et ve özetle.')" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-blue-50 text-xs flex items-center gap-2 transition cursor-pointer">
+            <button type="button" onclick="applySlashCmd('/ozetle Eklediğim çoklu belgeleri ve PDF\'leri karşılaştırarak analiz et ve özetle.')" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-blue-50 text-xs flex items-center gap-2 transition cursor-pointer">
               <span class="font-mono font-bold text-blue-600">/ozetle</span>
               <span class="text-slate-600 truncate">Tüm Belgeleri Özetle & Karşılaştır</span>
             </button>
@@ -389,7 +392,7 @@
           </div>
         </div>
 
-        <iframe id="previewIframe" class="hidden w-full h-full border-0 bg-white" sandbox="allow-scripts allow-same-origin"></iframe>
+        <iframe id="previewIframe" class="hidden w-full h-full border-0 bg-white" sandbox="allow-scripts allow-popups"></iframe>
         <div id="previewDocumentView" class="hidden p-6 sm:p-8 prose max-w-none"></div>
         <pre id="previewCodeView" class="hidden p-4 m-0 text-xs font-mono bg-slate-50 text-slate-800 min-h-full overflow-x-auto"><code id="previewCodeContent"></code></pre>
       </div>
@@ -534,6 +537,48 @@
 
     const BASE_IDENTITY = 'Sen Ozguler Forge tarafından geliştirilen Forge AI adlı yapay zeka asistanısın. Kendini her zaman Forge AI olarak tanıt. Yanıtların net, yapılandırılmış, profesyonel ve Türkçe olmalıdır.';
 
+    // Ekler (PDF / fotoğraf / belge metni) IndexedDB'de tutulur; böylece sonraki mesajlarda da modele gönderilebilir.
+    const AttachDB = (() => {
+      const mem = new Map(); // IndexedDB kullanılamazsa oturum boyunca bellek yedeği
+      let dbPromise = null;
+      function open() {
+        if (!dbPromise) {
+          dbPromise = new Promise((resolve, reject) => {
+            const req = indexedDB.open('forge_ai_db', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('attachments', { keyPath: 'id' });
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          });
+        }
+        return dbPromise;
+      }
+      async function run(mode, fn) {
+        const db = await open();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('attachments', mode);
+          const req = fn(tx.objectStore('attachments'));
+          tx.oncomplete = () => resolve(req ? req.result : undefined);
+          tx.onerror = () => reject(tx.error);
+          tx.onabort = () => reject(tx.error);
+        });
+      }
+      return {
+        async put(rec) {
+          try { await run('readwrite', (st) => st.put(rec)); mem.delete(rec.id); }
+          catch (e) { console.warn('IndexedDB yazılamadı, bellek yedeği kullanılıyor.', e); mem.set(rec.id, rec); }
+        },
+        async get(id) {
+          if (mem.has(id)) return mem.get(id);
+          try { return (await run('readonly', (st) => st.get(id))) || null; }
+          catch (e) { return null; }
+        },
+        async del(id) {
+          mem.delete(id);
+          try { await run('readwrite', (st) => st.delete(id)); } catch (e) {}
+        }
+      };
+    })();
+
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
       systemPrompt: localStorage.getItem(KEYS.SYSTEM) || BASE_IDENTITY,
@@ -591,11 +636,22 @@
       systemPromptInput: document.getElementById('systemPromptInput')
     };
 
+    if (window.DOMPurify) {
+      window.DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+        if (node.tagName === 'A' && node.hasAttribute('href')) {
+          node.setAttribute('target', '_blank');
+          node.setAttribute('rel', 'noopener noreferrer');
+        }
+      });
+    }
+
+    // marked çıktısı DOMPurify ile temizlenir. DOMPurify yüklenemezse düz metin (escape) gösterilir.
     function parseMarkdownSafe(mdText) {
       if (!mdText) return '';
       try {
-        if (window.marked && typeof window.marked.parse === 'function') {
-          return window.marked.parse(mdText, { breaks: true });
+        if (window.marked && typeof window.marked.parse === 'function' && window.DOMPurify) {
+          const rawHtml = window.marked.parse(mdText, { breaks: true });
+          return window.DOMPurify.sanitize(rawHtml);
         }
       } catch (e) {}
       return escapeHtml(mdText).replace(/\n/g, '<br>');
@@ -856,8 +912,8 @@
       a.click();
     };
 
-    window.copyRawText = function(btn, encodedText) {
-      navigator.clipboard.writeText(decodeURIComponent(encodedText));
+    window.copyRawText = function(btn, text) {
+      navigator.clipboard.writeText(text);
       const span = btn.querySelector('span');
       if (span) {
         span.textContent = 'Kopyalandı ✓';
@@ -869,8 +925,7 @@
       }
     };
 
-    window.previewFullResponse = function(encodedText) {
-      const content = decodeURIComponent(encodedText);
+    window.previewFullResponse = function(content) {
       const htmlMatch = content.match(/```html\s*([\s\S]*?)```/i);
       if (htmlMatch && htmlMatch[1]) {
         openArtifactPreview({
@@ -890,13 +945,13 @@
       }
     };
 
-    window.speakText = function(encodedText) {
+    window.speakText = function(text) {
       if (!('speechSynthesis' in window)) return;
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
         return;
       }
-      const utterance = new SpeechSynthesisUtterance(decodeURIComponent(encodedText));
+      const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'tr-TR';
       window.speechSynthesis.speak(utterance);
     };
@@ -1136,6 +1191,8 @@
         `;
         item.onclick = (e) => {
           if (e.target.closest('.delete-chat')) {
+            if (!confirm('Bu çalışma kalıcı olarak silinsin mi?')) return;
+            chat.messages.forEach(m => { if (m.hasAttach) AttachDB.del(m.id); });
             state.chats = state.chats.filter(c => c.id !== chat.id);
             if (state.activeChatId === chat.id) state.activeChatId = null;
             syncStorage();
@@ -1245,9 +1302,11 @@
       refreshIcons();
     }
 
+    const msgTextStore = new WeakMap();
+
     function createMessageBubble(role, content, filesSummary = null, imagesCount = 0) {
       const row = document.createElement('div');
-      row.className = `max-w-3xl mx-auto flex gap-3.5 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
+      row.className = `msg-row max-w-3xl mx-auto flex gap-3.5 ${role === 'user' ? 'justify-end' : 'justify-start'}`;
 
       if (role === 'user') {
         const badgeImg = imagesCount > 0 ? `<div class="mb-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-700/40 text-blue-50 text-[11px] font-mono"><i data-lucide="image" class="w-3 h-3"></i>${imagesCount} Adet Fotoğraf Eklendi</div><br>` : '';
@@ -1256,7 +1315,7 @@
           <div class="bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-tr-xs max-w-[85%] text-sm sm:text-[15px] shadow-xs leading-relaxed whitespace-pre-wrap">${badgeImg}${badgeFiles}${escapeHtml(content)}</div>
         `;
       } else {
-        const cleanRaw = encodeURIComponent(content || '');
+        msgTextStore.set(row, content || '');
         row.innerHTML = `
           <div class="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-2xs shrink-0 mt-0.5">
             <i data-lucide="cpu" class="w-4 h-4"></i>
@@ -1264,15 +1323,15 @@
           <div class="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 sm:p-5 shadow-2xs">
             <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="flex items-center gap-2 py-2 text-xs text-slate-500"><div class="flex gap-1.5"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>Forge AI çoklu belge analizi yapıyor...</span></div>'}</div>
             <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-[11px] text-slate-400 ${content ? '' : 'hidden'}">
-              <button type="button" onclick="previewFullResponse('${cleanRaw}')" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer">
+              <button type="button" data-action="preview" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer">
                 <span>👁️ Çalışmayı Önizle / PDF</span>
               </button>
               <span>•</span>
-              <button type="button" onclick="copyRawText(this, '${cleanRaw}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer">
+              <button type="button" data-action="copy" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer">
                 <span>Kopyala</span>
               </button>
               <span>•</span>
-              <button type="button" onclick="speakText('${cleanRaw}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer">
+              <button type="button" data-action="speak" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer">
                 <span>Sesli Dinle</span>
               </button>
             </div>
@@ -1335,14 +1394,21 @@
 
       const filesSummaryText = filesPayload.length > 0 ? `${filesPayload.length} Adet Belge Eklendi (${filesPayload.map(f=>f.name).join(', ')})` : null;
 
+      const msgId = 'm_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+      const hasAttach = imagesPayload.length > 0 || filesPayload.length > 0;
+      // put() asla reject etmez (hata olursa bellek yedeğine düşer)
+      const attachSave = hasAttach
+        ? AttachDB.put({ id: msgId, apiText: apiTextPayload, images: imagesPayload, pdfs: filesPayload.filter(f => f.type === 'pdf') })
+        : Promise.resolve();
+
       currentChat.messages.push({
+        id: msgId,
         role: 'user',
         content: text,
-        apiText: apiTextPayload,
+        apiText: hasAttach ? undefined : apiTextPayload,
         filesSummary: filesSummaryText,
         imagesCount: imagesPayload.length,
-        imagesList: imagesPayload,
-        pdfList: filesPayload.filter(f => f.type === 'pdf')
+        hasAttach
       });
       
       els.userInput.value = '';
@@ -1368,58 +1434,46 @@
       const selectedModel = els.modelSelect.value;
 
       try {
-        const apiContents = currentChat.messages.slice(0, -1).map(m => {
+        await attachSave;
+        const apiContents = [];
+        for (const m of currentChat.messages.slice(0, -1)) {
           const parts = [];
-          const msgText = m.apiText || m.content;
-          if (msgText) {
-            parts.push({ text: msgText });
-          }
-          if (m.imagesList && Array.isArray(m.imagesList)) {
-            m.imagesList.forEach(img => {
+          const rec = m.hasAttach ? await AttachDB.get(m.id) : null;
+          const msgText = (rec && rec.apiText) || m.apiText || m.content;
+          if (msgText) parts.push({ text: msgText });
+          if (rec && Array.isArray(rec.images)) {
+            rec.images.forEach(img => {
               const match = img.dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-              if (match) {
-                parts.push({
-                  inlineData: {
-                    mimeType: match[1],
-                    data: match[2]
-                  }
-                });
-              }
+              if (match) parts.push({ inlineData: { mimeType: match[1], data: match[2] } });
             });
           }
-          if (m.pdfList && Array.isArray(m.pdfList)) {
-            m.pdfList.forEach(pdf => {
-              parts.push({
-                inlineData: {
-                  mimeType: pdf.mimeType,
-                  data: pdf.base64Data
-                }
-              });
-            });
+          if (rec && Array.isArray(rec.pdfs)) {
+            rec.pdfs.forEach(pdf => parts.push({ inlineData: { mimeType: pdf.mimeType, data: pdf.base64Data } }));
           }
-          return {
-            role: m.role === 'assistant' ? 'model' : 'user',
-            parts: parts
-          };
-        });
+          if (parts.length === 0) continue;
+          apiContents.push({ role: m.role === 'assistant' ? 'model' : 'user', parts });
+        }
 
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(selectedModel)}:streamGenerateContent?alt=sse&key=${encodeURIComponent(state.apiKey)}`;
+        const requestBody = JSON.stringify({
+          systemInstruction: { parts: [{ text: state.systemPrompt }] },
+          contents: apiContents,
+          generationConfig: { temperature: state.temperature }
+        });
+        if (requestBody.length > 19 * 1024 * 1024) {
+          throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
+        }
+
+        // API anahtarı URL yerine header ile gönderilir
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(selectedModel)}:streamGenerateContent?alt=sse`;
 
         const response = await fetch(endpoint, {
           method: 'POST',
           signal: state.abortController.signal,
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'x-goog-api-key': state.apiKey
           },
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [{ text: state.systemPrompt }]
-            },
-            contents: apiContents,
-            generationConfig: {
-              temperature: state.temperature
-            }
-          })
+          body: requestBody
         });
 
         if (!response.ok) {
@@ -1430,6 +1484,19 @@
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
         let buffer = '';
+        let blockReason = '';
+        let finishReason = '';
+
+        // Her chunk'ta değil, kare başına en fazla bir kez render et
+        let renderQueued = false;
+        const flushRender = () => {
+          renderQueued = false;
+          proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
+          els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
+        };
+        const scheduleRender = () => {
+          if (!renderQueued) { renderQueued = true; requestAnimationFrame(flushRender); }
+        };
 
         while (true) {
           const { done, value } = await reader.read();
@@ -1447,34 +1514,41 @@
 
             try {
               const parsed = JSON.parse(payload);
-              const parts = parsed.candidates?.[0]?.content?.parts;
+              if (parsed.promptFeedback && parsed.promptFeedback.blockReason) blockReason = parsed.promptFeedback.blockReason;
+              const cand = parsed.candidates && parsed.candidates[0];
+              if (cand && cand.finishReason && cand.finishReason !== 'STOP') finishReason = cand.finishReason;
+              const parts = cand && cand.content && cand.content.parts;
               if (Array.isArray(parts)) {
                 for (const p of parts) {
-                  if (p.text) {
-                    aiMsg.content += p.text;
-                  }
+                  if (p.text && !p.thought) aiMsg.content += p.text;
                 }
-                proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
-                els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
+                scheduleRender();
               }
             } catch (_) {}
           }
         }
 
-        currentChat.messages.forEach(m => {
-          if (m.imagesList) delete m.imagesList;
-          if (m.pdfList) delete m.pdfList;
-        });
+        flushRender();
+
+        if (!aiMsg.content.trim()) {
+          throw new Error(blockReason
+            ? `İstek güvenlik filtresi tarafından engellendi (${blockReason}).`
+            : `Model boş yanıt döndürdü${finishReason ? ' (' + finishReason + ')' : ''}. Lütfen tekrar deneyin.`);
+        }
+        if (finishReason === 'MAX_TOKENS') {
+          aiMsg.content += '\n\n*(Yanıt uzunluk sınırında kesildi. "Devam et" yazarak sürdürebilirsiniz.)*';
+          flushRender();
+        }
 
         enhanceRenderedContent(proseEl);
 
-        const encodedFinal = encodeURIComponent(aiMsg.content);
+        msgTextStore.set(bubble, aiMsg.content);
         actionsEl.innerHTML = `
-          <button type="button" onclick="previewFullResponse('${encodedFinal}')" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer"><span>👁️ Çalışmayı Önizle / PDF</span></button>
+          <button type="button" data-action="preview" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer"><span>👁️ Çalışmayı Önizle / PDF</span></button>
           <span>•</span>
-          <button type="button" onclick="copyRawText(this, '${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Kopyala</span></button>
+          <button type="button" data-action="copy" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Kopyala</span></button>
           <span>•</span>
-          <button type="button" onclick="speakText('${encodedFinal}')" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Sesli Dinle</span></button>
+          <button type="button" data-action="speak" class="hover:text-blue-600 flex items-center gap-1 transition cursor-pointer"><span>Sesli Dinle</span></button>
         `;
         actionsEl.classList.remove('hidden');
         syncStorage();
@@ -1558,6 +1632,17 @@
     }
 
     els.chatForm.onsubmit = sendMessage;
+
+    els.messagesContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action]');
+      if (!btn) return;
+      const row = btn.closest('.msg-row');
+      const text = row ? (msgTextStore.get(row) || '') : '';
+      const action = btn.dataset.action;
+      if (action === 'preview') window.previewFullResponse(text);
+      else if (action === 'copy') window.copyRawText(btn, text);
+      else if (action === 'speak') window.speakText(text);
+    });
     els.stopBtn.onclick = () => state.abortController && state.abortController.abort();
 
     els.userInput.addEventListener('input', function() {
@@ -1632,7 +1717,7 @@
     if (savedModel && [...els.modelSelect.options].some(o => o.value === savedModel)) {
       els.modelSelect.value = savedModel;
     }
-    els.modelSelect.onchange = () => localStorage.getItem(KEYS.MODEL, els.modelSelect.value);
+    els.modelSelect.onchange = () => localStorage.setItem(KEYS.MODEL, els.modelSelect.value);
 
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -1653,58 +1738,66 @@
     document.getElementById('installPwaBtn').onclick = triggerAppInstall;
     document.getElementById('headerInstallBtn').onclick = triggerAppInstall;
 
-    // --- OTOMATİK SÜRÜM DENETİMİ & GÜNCELLEME (AUTO-UPDATE) ---
-    async function checkForUpdates() {
-      try {
-        const res = await fetch('./sw.js?t=' + Date.now(), { cache: 'no-store' });
-        if (!res.ok) return;
-        const text = await res.text();
-        const match = text.match(/CACHE_NAME\s*=\s*'([^']+)'/);
-        if (match && match[1]) {
-          const remoteCacheName = match[1];
-          if ('caches' in window) {
-            const keys = await caches.keys();
-            // Eğer tarayıcıda kayıtlı cache adı sunucudakinden farklıysa yeni sürüm var demektir!
-            if (!keys.includes(remoteCacheName)) {
-              console.log('Yeni Forge AI sürümü algılandı. Otomatik güncelleniyor...');
-              if ('serviceWorker' in navigator) {
-                const reg = await navigator.serviceWorker.getRegistration();
-                if (reg && reg.waiting) {
-                  reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                }
-              }
-              window.location.reload();
-            }
-          }
-        }
-      } catch (e) {}
+    // --- SÜRÜM DENETİMİ & GÜNCELLEME ---
+    // Tarayıcı sw.js dosyasını kendisi bayt bazında karşılaştırır; yeni sürüm "waiting" durumuna düşer.
+    // Kullanıcı meşgul değilse otomatik uygulanır, meşgulse (yazıyor / cevap akıyor / ek var) bildirim gösterilir.
+    let swReg = null;
+    let updateRequested = false;
+
+    function isUserBusy() {
+      return state.isGenerating ||
+        els.userInput.value.trim() !== '' ||
+        state.attachedFiles.length > 0 ||
+        state.attachedImages.length > 0;
+    }
+
+    function applyUpdate(worker) {
+      updateRequested = true;
+      worker.postMessage({ type: 'SKIP_WAITING' });
+    }
+
+    function showUpdateToast(worker) {
+      if (document.getElementById('updateToast')) return;
+      const t = document.createElement('div');
+      t.id = 'updateToast';
+      t.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white text-xs rounded-xl shadow-float px-4 py-2.5 flex items-center gap-3';
+      t.innerHTML = '<span>Forge AI\'nın yeni sürümü hazır.</span>' +
+        '<button type="button" id="updateNowBtn" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 font-semibold cursor-pointer">Yenile</button>' +
+        '<button type="button" id="updateLaterBtn" class="text-slate-400 hover:text-white cursor-pointer">Sonra</button>';
+      document.body.appendChild(t);
+      document.getElementById('updateNowBtn').onclick = () => applyUpdate(worker);
+      document.getElementById('updateLaterBtn').onclick = () => t.remove();
+    }
+
+    function handleWaitingWorker(worker) {
+      if (!worker) return;
+      if (isUserBusy()) showUpdateToast(worker);
+      else applyUpdate(worker);
+    }
+
+    function checkForUpdates() {
+      if (swReg) swReg.update().catch(() => {});
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').then((reg) => {
-        reg.update();
+      navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).then((reg) => {
+        swReg = reg;
+        if (reg.waiting && navigator.serviceWorker.controller) handleWaitingWorker(reg.waiting);
         reg.addEventListener('updatefound', () => {
-          const newWorker = reg.installing;
-          if (newWorker) {
-            newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                window.location.reload();
-              }
-            });
-          }
+          const nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) handleWaitingWorker(nw);
+          });
         });
       }).catch(() => {});
 
-      let refreshing = false;
+      // Sadece kullanıcı/uygulama güncellemeyi onayladıysa yenile (ilk kurulumda gereksiz yenileme olmaz)
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
+        if (updateRequested) window.location.reload();
       });
     }
 
-    // Uygulama açılışında ve her 30 dakikada bir arka planda otomatik güncelleme kontrolü
     setInterval(checkForUpdates, 30 * 60 * 1000);
     window.addEventListener('focus', checkForUpdates);
 

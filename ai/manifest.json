@@ -1,8 +1,9 @@
 {
-  "id": "/ai/forge-ai-studio-v6.6",
+  "id": "/ai/forge-ai-studio",
   "name": "Forge AI",
   "short_name": "Forge AI",
   "description": "Ozguler Forge - Forge AI Çoklu Belge ve Yapay Zeka Asistanı",
+  "lang": "tr",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -10,11 +11,8 @@
   "theme_color": "#0F172A",
   "orientation": "any",
   "icons": [
-    {
-      "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29sb3IiIHN0cm9rZS13aWR0aD0iMi4yIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0xMiAydjRtMCAxMnY0TTIgMTJoNG0xMiAwaDRtLTMuMTctNi44M2wtMi44MyAyLjgzbS04IDhsLTIuODMgMi44M20wLTEzLjY2bDIuODMgMi44M204IDhsMi44MyAyLjgzIi8+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMy41IiBmaWxsPSJjdXJyZW50Q29sb3IiIGZpbGwtb3BhY2l0eT0iMC4yNSIvPjwvc3ZnPg==",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
