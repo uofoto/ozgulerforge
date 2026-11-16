@@ -227,7 +227,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.21</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.23</span>
       </button>
     </div>
   </aside>
@@ -322,7 +322,7 @@
               </div>
 
               <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
-                <span id="modelBadge" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl truncate max-w-full sm:max-w-[200px]">⚡ Forge 4</span>
+                <select id="modelSelect" title="Motor seç" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl min-w-0 max-w-full sm:max-w-[200px] cursor-pointer focus:outline-none"></select>
                 <button type="button" id="stopBtn" class="hidden shrink-0 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
                   <i data-lucide="square" class="w-3 h-3 fill-current"></i>
                   <span>Durdur</span>
@@ -428,6 +428,12 @@
           <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Anahtarı</label>
           <p class="text-[10px] text-slate-500 mb-1">Forge AI yanıtları Google Gemini üzerinden oluşturur. Google AI Studio’da Gemini API’ye kısıtlanmış veya yetkilendirme türünde bir anahtar kullanın; eski, kısıtlanmamış anahtarlar reddedilebilir.</p>
           <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">OpenRouter API Anahtarı</label>
+          <p class="text-[10px] text-slate-500 mb-1">Forge 1, 2, 3, 5 ve Forge Otomatik motorları için gerekir (ücretsiz modeller). openrouter.ai/keys adresinden alabilirsiniz.</p>
+          <input type="password" id="orKeyInput" placeholder="sk-or-v1-..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
         </div>
 
 
@@ -540,8 +546,29 @@
     }
     refreshIcons();
 
-    const GEMINI_MODEL = 'gemini-4-hydrogen'; // API model kimliği (kullanıcıya gösterilmez)
-    const MODEL_LABEL = 'Forge 4'; // Gemini kullanıcıya görünen ad
+    // Kullanıcıya yalnızca "Forge X" adları gösterilir; gerçek model kimlikleri burada tutulur.
+    const MODELS = [
+      { id: 'auto', label: 'Forge Otomatik', auto: true },
+      { id: 'f1', label: 'Forge 1', provider: 'gemini',     model: 'gemini-4-hydrogen', vision: true },
+      { id: 'f2', label: 'Forge 2', provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free' },
+      { id: 'f3', label: 'Forge 3', provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free' },
+      { id: 'f4', label: 'Forge 4', provider: 'openrouter', model: 'google/gemma-4-31b-it:free', vision: true },
+      { id: 'f5', label: 'Forge 5 (Kod)', provider: 'openrouter', model: 'cohere/north-mini-code:free' }
+    ];
+    const OR_KEY_STORE = 'forge_ai_openrouter_api_key';
+    function curModel() {
+      let id = null;
+      try { id = localStorage.getItem('forge_ai_v66_model'); } catch (_) {}
+      return MODELS.find(m => m.id === id) || MODELS[0];
+    }
+    function hasKeyFor(m) {
+      if (m.provider === 'openrouter') return Boolean(state.orKey);
+      return Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
+    }
+    function keyOk() {
+      const m = curModel();
+      return m.auto ? MODELS.some(x => !x.auto && hasKeyFor(x)) : hasKeyFor(m);
+    }
 
     const KEYS = {
       API: 'forge_ai_gemini_api_key',
@@ -650,6 +677,7 @@
 
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
+      orKey: localStorage.getItem('forge_ai_openrouter_api_key') || '',
       systemPrompt: localStorage.getItem(KEYS.SYSTEM) || BASE_IDENTITY,
       chats: JSON.parse(localStorage.getItem(KEYS.CHATS) || '[]'),
       activeChatId: null,
@@ -928,9 +956,9 @@
     }
 
     function updateApiBadge() {
-      const valid = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
-      const badge = document.getElementById('modelBadge');
-      if (badge) badge.textContent = '⚡ ' + MODEL_LABEL;
+      const valid = keyOk();
+      const sel = document.getElementById('modelSelect');
+      if (sel && sel.value !== curModel().id) sel.value = curModel().id;
       els.keyStatusBadge.className = `w-2 h-2 rounded-full ${valid ? 'bg-emerald-500' : 'bg-rose-500'}`;
       const warningEl = document.getElementById('noKeyWarning');
       if (warningEl) warningEl.classList.toggle('hidden', valid);
@@ -1220,7 +1248,7 @@
     };
 
     function getWelcomeScreenHtml() {
-      const hasValidKey = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
+      const hasValidKey = keyOk();
       return `
         <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
           <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
@@ -1353,7 +1381,7 @@
       if (!text && !hasFiles) return;
       if (state.isGenerating) return;
 
-      if (!state.apiKey && !PROXY_URL) {
+      if (!keyOk()) {
         els.settingsModal.classList.remove('hidden');
         return;
       }
@@ -1454,52 +1482,84 @@
         });
       };
 
-      const activeModelLabel = MODEL_LABEL;
-
       try {
         updateProgress(0, 'Forge AI isteğinizi hazırlıyor…');
         await attachSave;
         updateProgress(1, 'Sohbet geçmişi ve ekleri kontrol ediliyor…');
-        const apiContents = [];
+        const hist = [];
         for (const m of currentChat.messages.slice(0, -1)) {
-          const parts = [];
           const rec = m.hasAttach ? await AttachDB.get(m.id) : null;
           const msgText = (rec && rec.apiText) || m.apiText || m.content;
-          if (msgText) parts.push({ text: msgText });
-          if (rec && Array.isArray(rec.images)) {
-            rec.images.forEach(img => {
-              const match = img.dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-              if (match) parts.push({ inlineData: { mimeType: match[1], data: match[2] } });
-            });
-          }
-          if (rec && Array.isArray(rec.pdfs)) {
-            rec.pdfs.forEach(pdf => parts.push({ inlineData: { mimeType: pdf.mimeType, data: pdf.base64Data } }));
-          }
-          if (parts.length === 0) continue;
-          apiContents.push({ role: m.role === 'assistant' ? 'model' : 'user', parts });
+          const images = (rec && Array.isArray(rec.images)) ? rec.images : [];
+          const pdfs = (rec && Array.isArray(rec.pdfs)) ? rec.pdfs : [];
+          if (!msgText && !images.length && !pdfs.length) continue;
+          hist.push({ role: m.role, msgText, images, pdfs });
         }
 
+        const sel = curModel();
+        const candidates = sel.auto ? MODELS.filter(m => !m.auto && hasKeyFor(m)) : [sel];
+        if (!candidates.length || !hasKeyFor(candidates[0])) throw new Error('API anahtarı yok. Forge AI Motor Ayarları bölümünden Gemini veya OpenRouter anahtarınızı girin.');
+
+        const runAttempt = async (activeModel, canFallback) => {
+        const activeModelLabel = activeModel.label;
+        const isOR = activeModel.provider === 'openrouter';
+        const apiContents = [];
+        const orMessages = [];
+        for (const h of hist) {
+          const parts = [];
+          const orParts = [];
+          if (h.msgText) { parts.push({ text: h.msgText }); orParts.push({ type: 'text', text: h.msgText }); }
+          h.images.forEach(img => {
+            const match = img.dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+            if (match) {
+              parts.push({ inlineData: { mimeType: match[1], data: match[2] } });
+              if (activeModel.vision) orParts.push({ type: 'image_url', image_url: { url: img.dataUrl } });
+              else orParts.push({ type: 'text', text: '[Not: Kullanıcı bir fotoğraf ekledi ancak bu motor görselleri okuyamıyor. Bunu kullanıcıya söyle ve görsel destekleyen bir motor (Forge 1, Forge 4 veya Forge Otomatik) seçmesini öner.]' });
+            }
+          });
+          h.pdfs.forEach(pdf => {
+            parts.push({ inlineData: { mimeType: pdf.mimeType, data: pdf.base64Data } });
+            orParts.push({ type: 'file', file: { filename: pdf.name || 'belge.pdf', file_data: 'data:application/pdf;base64,' + pdf.base64Data } });
+          });
+          if (parts.length === 0) continue;
+          apiContents.push({ role: h.role === 'assistant' ? 'model' : 'user', parts });
+          if (h.role === 'assistant') orMessages.push({ role: 'assistant', content: h.msgText || '' });
+          else orMessages.push({ role: 'user', content: orParts.every(p => p.type === 'text') ? orParts.map(p => p.text).join('\n') : orParts });
+        }
+
+        const ac = new AbortController();
+        const relay = () => ac.abort();
+        state.abortController.signal.addEventListener('abort', relay);
+        let timedOut = false, gotText = false;
+        const FIRST_TOKEN_MS = 45000;
+        const timer = canFallback ? setTimeout(() => { if (!gotText) { timedOut = true; ac.abort(); } }, FIRST_TOKEN_MS) : null;
+        try {
         updateProgress(2, apiContents.some(c => c.parts.some(part => part.inlineData)) ? 'Sohbeti ve eklenen görsel/PDF dosyalarını hazırlıyorum…' : 'Sohbet geçmişini ve talimatları hazırlıyorum…');
         const systemText = state.systemPrompt + (getMemory().on !== false && getMemory().text ? `\n\nKullanıcı hakkında hatırlaman gereken notlar (kullanıcı kendisi yazdı):\n${getMemory().text}` : '') + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') ;
-        const requestBody = JSON.stringify({
+        const webOn = localStorage.getItem(WEB_KEY) === '1';
+        const requestBody = JSON.stringify(isOR ? {
+          model: activeModel.model,
+          stream: true,
+          messages: [{ role: 'system', content: systemText }, ...orMessages],
+          plugins: webOn ? [{ id: 'web' }] : undefined
+        } : {
           systemInstruction: { parts: [{ text: systemText }] },
           contents: apiContents,
-          tools: localStorage.getItem(WEB_KEY) === '1' ? [{ googleSearch: {} }] : undefined
+          tools: webOn ? [{ googleSearch: {} }] : undefined
         });
         if (requestBody.length > 19 * 1024 * 1024) throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
-        if (!PROXY_URL && !state.apiKey) throw new Error('Gemini API anahtarı yok. Forge AI Motor Ayarları bölümünden anahtarınızı girin.');
 
         updateProgress(3, 'Forge AI uygun yanıtı hazırlamak için bağlantı kuruyor…');
         const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
-        const endpoint = `${base}/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:streamGenerateContent?alt=sse`;
-        if (PROXY_URL && !getIdToken()) throw new Error('Google hesabı oturumu süresi dolmuş. Lütfen yeniden giriş yapın.');
-        const headers = Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
+        const endpoint = isOR ? 'https://openrouter.ai/api/v1/chat/completions' : `${base}/v1beta/models/${encodeURIComponent(activeModel.model)}:streamGenerateContent?alt=sse`;
+        if (!isOR && PROXY_URL && !getIdToken()) throw new Error('Google hesabı oturumu süresi dolmuş. Lütfen yeniden giriş yapın.');
+        const headers = isOR ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.orKey } : Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
         let response;
         try {
-          response = await fetch(endpoint, { method: 'POST', signal: state.abortController.signal, headers, body: requestBody });
+          response = await fetch(endpoint, { method: 'POST', signal: ac.signal, headers, body: requestBody });
         } catch (netErr) {
           if (netErr.name === 'AbortError') throw netErr;
-          throw new Error(`[${MODEL_LABEL}] Bağlantı kurulamadı: ${netErr.message}`);
+          throw new Error(`[${activeModelLabel}] Bağlantı kurulamadı: ${netErr.message}`);
         }
         if (!response.ok) {
           const status = response.status;
@@ -1514,7 +1574,7 @@
             429: 'Kota/oran sınırı aşıldı.',
             503: 'Model şu an yoğun, geçici olarak yanıt veremiyor.'
           };
-          throw new Error(`[${MODEL_LABEL} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
+          throw new Error(`[${activeModelLabel} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
         }
         updateProgress(4, 'Forge AI yanıtınızı hazırlıyor…');
 
@@ -1554,6 +1614,24 @@
             try {
               const parsed = JSON.parse(payload);
                             if (parsed.error) { streamError = parsed.error.message || 'Akış sırasında hata oluştu.'; continue; }
+              if (isOR) {
+                const ch = parsed.choices && parsed.choices[0];
+                if (ch) {
+                  if (ch.finish_reason === 'length') finishReason = 'MAX_TOKENS';
+                  const dl = ch.delta || {};
+                  if (Array.isArray(dl.annotations)) dl.annotations.forEach(a => {
+                    const u = a && a.url_citation;
+                    if (u && /^https?:\/\//.test(u.url || '') && !sources.some(x => x.uri === u.url)) sources.push({ uri: u.url, title: u.title || u.url });
+                  });
+                  if (dl.content) {
+                    if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Forge AI yanıtınızı yazıyor…';
+                    gotText = true;
+                    aiMsg.content += dl.content;
+                    scheduleRender();
+                  }
+                }
+                continue;
+              }
               if (parsed.promptFeedback && parsed.promptFeedback.blockReason) blockReason = parsed.promptFeedback.blockReason;
               const cand = parsed.candidates && parsed.candidates[0];
               if (cand && cand.finishReason && cand.finishReason !== 'STOP') finishReason = cand.finishReason;
@@ -1564,7 +1642,7 @@
               const parts = cand && cand.content && cand.content.parts;
               if (Array.isArray(parts)) {
                 for (const p of parts) {
-                  if (p.text && !p.thought) { if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Forge AI yanıtınızı yazıyor…'; aiMsg.content += p.text; }
+                  if (p.text && !p.thought) { if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Forge AI yanıtınızı yazıyor…'; gotText = true; aiMsg.content += p.text; }
                 }
                 scheduleRender();
               }
@@ -1572,21 +1650,46 @@
           }
         }
 
-        updateElapsedTime();
-        clearInterval(elapsedTimer);
-        aiMsg.elapsedMs = elapsedMs;
-        aiMsg.webSearch = localStorage.getItem(WEB_KEY) === '1';
-        if (progressEl) progressEl.remove();
-        flushRender();
-        if (sources.length) aiMsg.sources = sources;
-
         if (!aiMsg.content.trim()) {
           if (streamError) throw new Error(`[${activeModelLabel}] ${streamError}`);
           throw new Error(blockReason
             ? `İstek güvenlik filtresi tarafından engellendi (${blockReason}).`
             : `Model boş yanıt döndürdü${finishReason ? ' (' + finishReason + ')' : ''}. Lütfen tekrar deneyin.`);
         }
-        if (finishReason === 'MAX_TOKENS') {
+        return { sources, finishReason, flushRender };
+        } catch (e) {
+          if (timedOut && e.name === 'AbortError') throw new Error(`[${activeModelLabel}] ${FIRST_TOKEN_MS / 1000} sn içinde yanıt gelmedi.`);
+          throw e;
+        } finally {
+          if (timer) clearTimeout(timer);
+          state.abortController && state.abortController.signal.removeEventListener('abort', relay);
+        }
+        };
+
+        const errs = [];
+        let r = null, usedModel = null;
+        for (let ci = 0; ci < candidates.length; ci++) {
+          const cm = candidates[ci];
+          const hasNext = ci < candidates.length - 1;
+          aiMsg.content = '';
+          try { r = await runAttempt(cm, hasNext); usedModel = cm; break; }
+          catch (e) {
+            if (e.name === 'AbortError') throw e;
+            errs.push(e.message);
+            if (hasNext) updateProgress(3, `${cm.label} yanıt vermedi; ${candidates[ci + 1].label} deneniyor…`);
+          }
+        }
+        if (!r) throw new Error(errs.join(' | '));
+        const flushRender = r.flushRender;
+
+        updateElapsedTime();
+        clearInterval(elapsedTimer);
+        aiMsg.elapsedMs = elapsedMs;
+        aiMsg.webSearch = localStorage.getItem(WEB_KEY) === '1';
+        if (progressEl) progressEl.remove();
+        flushRender();
+        if (r.sources.length) aiMsg.sources = r.sources;
+        if (r.finishReason === 'MAX_TOKENS') {
           aiMsg.content += '\n\n*(Yanıt uzunluk sınırında kesildi. "Devam et" yazarak sürdürebilirsiniz.)*';
           flushRender();
         }
@@ -1606,8 +1709,8 @@
         if (discEl) {
           discEl.classList.remove('hidden');
           const note = discEl.querySelector('.msg-fallback-note');
-          const shownModel = activeModelLabel;
-          if (note) note.textContent = '';
+          const shownModel = usedModel.label;
+          if (note) note.textContent = curModel().auto ? ' · ' + shownModel : '';
           if (note) note.textContent += ' · ' + (aiMsg.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(aiMsg.elapsedMs);
           renderSources(bubble, aiMsg.sources);
         }
@@ -1760,7 +1863,7 @@
       const msg = chat && chat.messages[idx];
       if (!msg || msg.role !== 'user') return;
       if (!newText) { forgeDialog('Soru boş olamaz.'); return; }
-      if (!state.apiKey && !PROXY_URL) { els.settingsModal.classList.remove('hidden'); return; }
+      if (!keyOk()) { els.settingsModal.classList.remove('hidden'); return; }
 
       // Metin değişmediyse yine de aynı soruya yeni yanıt üretilir (yeniden dene)
       const oldText = msg.content;
@@ -1829,6 +1932,7 @@
 
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
+      document.getElementById('orKeyInput').value = state.orKey;
       els.systemPromptInput.value = state.systemPrompt;
       els.settingsModal.classList.remove('hidden');
     };
@@ -1837,6 +1941,8 @@
 
     document.getElementById('saveSettingsBtn').onclick = () => {
       state.apiKey = els.apiKeyInput.value.trim();
+      state.orKey = document.getElementById('orKeyInput').value.trim();
+      localStorage.setItem(OR_KEY_STORE, state.orKey);
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       localStorage.setItem(KEYS.API, state.apiKey);
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
@@ -2131,6 +2237,21 @@
         renderUserArea();
       }
     };
+
+    (function initModelSelect() {
+      const sel = document.getElementById('modelSelect');
+      MODELS.forEach((m) => {
+        const o = document.createElement('option');
+        o.value = m.id; o.textContent = '⚡ ' + m.label;
+        sel.appendChild(o);
+      });
+      sel.value = curModel().id;
+      sel.onchange = () => {
+        try { localStorage.setItem(KEYS.MODEL, sel.value); } catch (_) {}
+        updateApiBadge();
+        if (!keyOk()) els.settingsModal.classList.remove('hidden');
+      };
+    })();
 
     updateApiBadge();
     renderChatList();
