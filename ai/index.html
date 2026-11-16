@@ -8,6 +8,15 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Forge AI</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('forge_ai_theme') || 'system';
+        var d = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (d) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
   <link rel="manifest" href="manifest.json?v=2" />
   <link rel="icon" type="image/png" href="icon-v2-192.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon-v2.png" />
@@ -92,6 +101,7 @@
     .sb-mi:hover, .sb-mi:focus-visible { background:#F3F1EC; outline:none; }
     .sb-sub { display:block; width:100%; padding:.45rem .75rem; border-radius:.6rem; font-size:.8125rem; color:#475569; text-align:left; cursor:pointer; transition:background .15s, color .15s; }
     .sb-sub:hover { background:#fff; color:#2563EB; }
+    #guideContent summary::-webkit-details-marker { display:none; }
     .sb-sep { height:1px; background:#EEECE6; margin:.3rem .5rem; }
     .sb-chev { transition:transform .2s; }
     [aria-expanded="true"] > .sb-chev { transform:rotate(180deg); }
@@ -113,6 +123,121 @@
     .text-\[11px\] { font-size: 0.8125rem !important; }
     #chatForm .text-xs, header .text-xs, #messagesContainer .text-xs { font-size: 0.875rem; line-height: 1.35rem; }
     .code-wrapper pre { font-size: 0.9rem; }
+
+
+    .sb-row-brand { background:#2563EB; color:#fff; font-weight:500; box-shadow:0 1px 2px rgba(37,99,235,.25); }
+    .sb-row-brand:hover { background:#1D4ED8; color:#fff; }
+    .sb-sub { display:flex !important; align-items:center; gap:.6rem; }
+    .sb-sub .theme-check { opacity:0; }
+    .sb-sub[aria-checked="true"] .theme-check { opacity:1; color:#2563EB; }
+    html.dark .sb-sub[aria-checked="true"] .theme-check { color:#7AA2FF; }
+
+    /* ===== Koyu tema ===== */
+    @media screen {
+    html.dark { color-scheme: dark; }
+    html.dark body { background-color:#1A1A1C; color:#E4E4E7; }
+    html.dark ::-webkit-scrollbar-thumb { background:#3C3C43; }
+    html.dark ::-webkit-scrollbar-thumb:hover { background:#4A4A52; }
+    html.dark .bg-gradient-to-t.from-\[\#F8FAFC\] { background-image: linear-gradient(to top, #1A1A1C, #1A1A1C, rgba(26,26,28,0)); }
+    html.dark .prose { color:#D4D4D8; }
+    html.dark .prose h1, html.dark .prose h2, html.dark .prose h3 { color:#F4F4F5; }
+    html.dark .prose blockquote { color:#B4B4BD; background:#2B2B30; }
+    html.dark .prose th { background:#2B2B30; border-color:#3A3A41; }
+    html.dark .prose td { border-color:#3A3A41; }
+    html.dark .prose :not(pre) > code { background:#323238; color:#F4F4F5; }
+    html.dark .code-wrapper { background:#1B1B1E; border-color:#3A3A41; box-shadow:none; }
+    html.dark .code-header { background:#26262A; border-bottom-color:#3A3A41; color:#9A9AA4; }
+    html.dark .code-wrapper pre { background:#1B1B1E !important; }
+    html.dark .hljs { color:#C9D1D9; background:transparent; }
+    html.dark .hljs-comment, html.dark .hljs-quote { color:#8B949E; }
+    html.dark .hljs-keyword, html.dark .hljs-doctag, html.dark .hljs-template-tag, html.dark .hljs-template-variable, html.dark .hljs-type { color:#FF7B72; }
+    html.dark .hljs-title, html.dark .hljs-title.class_, html.dark .hljs-title.function_ { color:#D2A8FF; }
+    html.dark .hljs-attr, html.dark .hljs-attribute, html.dark .hljs-literal, html.dark .hljs-meta, html.dark .hljs-number, html.dark .hljs-operator, html.dark .hljs-variable, html.dark .hljs-selector-attr, html.dark .hljs-selector-class, html.dark .hljs-selector-id { color:#79C0FF; }
+    html.dark .hljs-regexp, html.dark .hljs-string { color:#A5D6FF; }
+    html.dark .hljs-built_in, html.dark .hljs-symbol { color:#FFA657; }
+    html.dark .hljs-name, html.dark .hljs-selector-tag, html.dark .hljs-selector-pseudo { color:#7EE787; }
+    html.dark .sb-row { color:#D4D4D8; }
+    html.dark .sb-row:hover { background:#2E2E33; }
+    html.dark .sb-row.sb-row-brand { background:#2563EB; color:#fff; }
+    html.dark .sb-row.sb-row-brand:hover { background:#1D4ED8; color:#fff; }
+    html.dark .sb-mi { color:#D4D4D8; }
+    html.dark .sb-mi:hover, html.dark .sb-mi:focus-visible { background:#2E2E33; }
+    html.dark .sb-sub { color:#B4B4BD; }
+    html.dark .sb-sub:hover { background:#26262A; color:#93B4FF; }
+    html.dark .sb-sep { background:#38383E; }
+html.dark .bg-white { background-color:#26262A }
+html.dark .bg-white\/85 { background-color:rgba(26,26,28,.85) }
+html.dark .bg-white\/95 { background-color:rgba(38,38,42,.95) }
+html.dark .bg-slate-50 { background-color:#2B2B30 }
+html.dark .bg-slate-50\/70 { background-color:rgba(43,43,48,.7) }
+html.dark .bg-slate-100 { background-color:#323238 }
+html.dark .bg-slate-100\/90 { background-color:rgba(50,50,56,.9) }
+html.dark .bg-slate-200 { background-color:#3C3C43 }
+html.dark .bg-slate-200\/70 { background-color:rgba(60,60,67,.7) }
+html.dark .bg-slate-800 { background-color:#3C3C43 }
+html.dark .bg-slate-900 { background-color:#3C3C43 }
+html.dark .hover\:bg-slate-800:hover { background-color:#4A4A52 }
+html.dark .hover\:bg-slate-900:hover { background-color:#4A4A52 }
+html.dark .bg-blue-50 { background-color:rgba(59,110,255,.16) }
+html.dark .bg-blue-50\/80 { background-color:rgba(59,110,255,.14) }
+html.dark .hover\:bg-blue-50:hover { background-color:rgba(59,110,255,.22) }
+html.dark .hover\:bg-blue-50\/70:hover { background-color:rgba(59,110,255,.2) }
+html.dark .hover\:bg-blue-100:hover { background-color:rgba(59,110,255,.28) }
+html.dark .bg-rose-50 { background-color:rgba(244,63,94,.14) }
+html.dark .hover\:bg-rose-50:hover { background-color:rgba(244,63,94,.2) }
+html.dark .hover\:bg-rose-100:hover { background-color:rgba(244,63,94,.24) }
+html.dark .bg-amber-50 { background-color:rgba(245,158,11,.12) }
+html.dark .bg-\[\#F9F8F5\] { background-color:#1F1F22 }
+html.dark .bg-\[\#E9E7E0\] { background-color:#36363C }
+html.dark .bg-\[\#F6F5F1\] { background-color:#2A2A2E }
+html.dark .hover\:bg-\[\#EFEDE7\]:hover { background-color:#2E2E33 }
+html.dark .hover\:bg-\[\#F3F1EC\]:hover { background-color:#2E2E33 }
+html.dark .hover\:bg-slate-100:hover { background-color:#323238 }
+html.dark .hover\:bg-slate-200:hover { background-color:#3C3C43 }
+html.dark .hover\:bg-slate-200\/60:hover { background-color:rgba(60,60,67,.6) }
+html.dark .focus\:bg-white:focus { background-color:#26262A }
+html.dark .border-slate-100 { border-color:#2E2E33 }
+html.dark .border-slate-200 { border-color:#3A3A41 }
+html.dark .border-slate-200\/80 { border-color:#3A3A41 }
+html.dark .border-slate-200\/90 { border-color:#3A3A41 }
+html.dark .border-\[\#E3E0D8\] { border-color:#38383E }
+html.dark .border-\[\#E8E6DF\] { border-color:#2E2E33 }
+html.dark .border-\[\#ECEAE3\] { border-color:#38383E }
+html.dark .border-blue-100 { border-color:rgba(110,150,255,.3) }
+html.dark .border-blue-200 { border-color:rgba(110,150,255,.35) }
+html.dark .border-blue-200\/80 { border-color:rgba(110,150,255,.35) }
+html.dark .border-blue-300 { border-color:rgba(110,150,255,.5) }
+html.dark .border-amber-100 { border-color:rgba(245,158,11,.3) }
+html.dark .border-amber-200\/80 { border-color:rgba(245,158,11,.3) }
+html.dark .border-rose-200 { border-color:rgba(244,63,94,.35) }
+html.dark .text-slate-900 { color:#F4F4F5 }
+html.dark .text-slate-800 { color:#E4E4E7 }
+html.dark .text-slate-700 { color:#D4D4D8 }
+html.dark .text-slate-600 { color:#B4B4BD }
+html.dark .text-slate-500 { color:#9A9AA4 }
+html.dark .text-slate-400 { color:#7E7E88 }
+html.dark .hover\:text-slate-900:hover { color:#FFFFFF }
+html.dark .hover\:text-slate-800:hover { color:#F4F4F5 }
+html.dark .hover\:text-slate-700:hover { color:#E4E4E7 }
+html.dark .text-blue-500 { color:#7AA2FF }
+html.dark .text-blue-600 { color:#7AA2FF }
+html.dark .text-blue-700 { color:#93B4FF }
+html.dark .text-blue-800 { color:#A9C4FF }
+html.dark .text-blue-900 { color:#BFD3FF }
+html.dark .hover\:text-blue-600:hover { color:#93B4FF }
+html.dark .hover\:text-blue-700:hover { color:#A9C4FF }
+html.dark .text-amber-600 { color:#FBBF24 }
+html.dark .text-amber-700 { color:#FCD34D }
+html.dark .text-amber-800 { color:#FDE68A }
+html.dark .text-amber-900 { color:#FDE68A }
+html.dark .text-emerald-600 { color:#34D399 }
+html.dark .text-emerald-700 { color:#6EE7B7 }
+html.dark .text-rose-500 { color:#FB7185 }
+html.dark .text-rose-600 { color:#FB7185 }
+html.dark .hover\:text-rose-600:hover { color:#FDA4AF }
+html.dark .text-indigo-600 { color:#A5B4FC }
+html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
+    }
 
     @media print {
       body * { visibility: hidden; }
@@ -167,8 +292,8 @@
 
     <!-- Gezinme -->
     <nav class="px-3 pt-2 space-y-0.5">
-      <button id="newChatBtn" type="button" class="sb-row sb-row-active">
-        <i data-lucide="plus" class="w-[18px] h-[18px] text-slate-600"></i>
+      <button id="newChatBtn" type="button" class="sb-row sb-row-brand">
+        <i data-lucide="plus" class="w-[18px] h-[18px] text-white"></i>
         <span>Yeni Çalışma</span>
       </button>
       <button id="searchToggleBtn" type="button" class="sb-row" aria-expanded="false" aria-controls="searchWrap">
@@ -204,6 +329,18 @@
           <span id="keyStatusBadge" class="w-2 h-2 rounded-full bg-rose-500" title="Motor Bağlantı Durumu"></span>
         </button>
 
+        <button id="themeToggleBtn" type="button" role="menuitem" aria-expanded="false" aria-controls="themeSubmenu" class="sb-mi">
+          <i data-lucide="sun-moon" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span class="flex-1">Tema</span>
+          <span id="themeCurrent" class="text-sm text-slate-400">Sistem</span>
+          <i data-lucide="chevron-down" class="sb-chev w-4 h-4 text-slate-400"></i>
+        </button>
+        <div id="themeSubmenu" class="hidden mx-1.5 mt-0.5 mb-1 p-1 rounded-xl bg-[#F6F5F1] border border-[#ECEAE3] space-y-0.5">
+          <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="system" class="sb-sub"><i data-lucide="monitor" class="w-4 h-4"></i><span class="flex-1">Sistem</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
+          <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="light" class="sb-sub"><i data-lucide="sun" class="w-4 h-4"></i><span class="flex-1">Açık</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
+          <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="dark" class="sb-sub"><i data-lucide="moon" class="w-4 h-4"></i><span class="flex-1">Koyu</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
+        </div>
+
         <div id="cloudSync">
           <button id="cloudBtn" type="button" role="menuitem" class="sb-mi">
             <i data-lucide="cloud" class="w-[18px] h-[18px] text-slate-600"></i>
@@ -224,6 +361,11 @@
 
         <div class="sb-sep"></div>
 
+        <button id="openGuideBtn" type="button" role="menuitem" class="sb-mi">
+          <i data-lucide="book-open" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span>Kullanım Kılavuzu</span>
+        </button>
+
         <button id="legalToggleBtn" type="button" role="menuitem" aria-expanded="false" aria-controls="legalSubmenu" class="sb-mi">
           <i data-lucide="scale" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Yasal Bilgiler</span>
@@ -239,7 +381,7 @@
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.27</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.29</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -379,14 +521,11 @@
             </div>
           </form>
 
-          <div class="mt-2.5 flex flex-wrap items-center justify-between text-[11px] text-slate-400 px-1 gap-2">
+          <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <div class="hidden sm:flex items-center gap-3">
-              <a href="https://ozgulerforge.com.tr" target="_blank" class="hover:text-blue-600 transition">ozgulerforge.com.tr</a>
-              <span>•</span>
-              <a href="mailto:iletisim@ozgulerforge.com.tr" class="hover:text-blue-600 transition">iletisim@ozgulerforge.com.tr</a>
-            </div>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Forge AI <span data-app-version>v6.9.29</span></span>
           </div>
+        </div>
         </div>
       </div>
     </main>
@@ -524,6 +663,14 @@
           <span class="text-slate-500 font-medium">Web Sayfası:</span>
           <a href="https://ozgulerforge.com.tr" target="_blank" class="font-semibold text-blue-600 hover:underline">ozgulerforge.com.tr</a>
         </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-medium">E-posta:</span>
+          <a href="mailto:iletisim@ozgulerforge.com.tr" class="font-semibold text-blue-600 hover:underline">iletisim@ozgulerforge.com.tr</a>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-slate-500 font-medium">Sürüm:</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.29</span>
+        </div>
       </div>
 
       <div class="pt-1 flex justify-end">
@@ -532,6 +679,21 @@
     </div>
   </div>
 
+
+  <!-- KULLANIM KILAVUZU PENCERESİ -->
+  <div id="guideModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-float">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3">
+        <div>
+          <h3 id="guideTitle" class="text-lg font-bold text-slate-900">Kullanım Kılavuzu</h3>
+          <p class="text-sm text-slate-500 mt-0.5">Forge AI'yı en verimli kullanmanın kısa yolu.</p>
+        </div>
+        <button id="closeGuideBtn" type="button" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100" aria-label="Kapat"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="guideContent" class="p-4 sm:p-5 overflow-y-auto space-y-2"></div>
+      <div class="p-4 border-t border-slate-100 flex justify-end"><button id="okGuideBtn" type="button" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl">Anladım</button></div>
+    </div>
+  </div>
 
   <!-- YASAL BİLGİLER PENCERESİ -->
   <div id="legalModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
@@ -2066,6 +2228,109 @@
     document.getElementById('okLegalBtn').onclick = closeLegalModal;
     els.legalModal.addEventListener('click', (e) => { if (e.target === els.legalModal) closeLegalModal(); });
 
+
+
+    // --- TEMA (Sistem / Açık / Koyu) ---
+    (function initTheme() {
+      const KEY = 'forge_ai_theme';
+      const NAMES = { system: 'Sistem', light: 'Açık', dark: 'Koyu' };
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const meta = document.querySelector('meta[name="theme-color"]');
+      const get = () => { try { const v = localStorage.getItem(KEY); return NAMES[v] ? v : 'system'; } catch (_) { return 'system'; } };
+      const paint = () => {
+        const mode = get();
+        const dark = mode === 'dark' || (mode === 'system' && mq.matches);
+        document.documentElement.classList.toggle('dark', dark);
+        if (meta) meta.setAttribute('content', dark ? '#1A1A1C' : '#0F172A');
+        document.getElementById('themeCurrent').textContent = NAMES[mode];
+        document.querySelectorAll('[data-theme-opt]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.themeOpt === mode)));
+      };
+      document.querySelectorAll('[data-theme-opt]').forEach((b) => {
+        b.onclick = () => { try { localStorage.setItem(KEY, b.dataset.themeOpt); } catch (_) {} paint(); };
+      });
+      const tbtn = document.getElementById('themeToggleBtn');
+      const tsub = document.getElementById('themeSubmenu');
+      tbtn.onclick = () => { const open = tsub.classList.toggle('hidden') === false; tbtn.setAttribute('aria-expanded', String(open)); };
+      if (mq.addEventListener) mq.addEventListener('change', () => { if (get() === 'system') paint(); });
+      paint();
+    })();
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.29'; });
+
+    // --- KULLANIM KILAVUZU ---
+    const GUIDE_SECTIONS = [
+      ['Hızlı başlangıç', [
+        'Alttaki yazı kutusuna sorunuzu yazın, Enter ile gönderin (alt satıra geçmek için Shift + Enter).',
+        'Forge AI’yı ilk kez kullanıyorsanız sol alttaki ⋯ menüsünden “Forge AI Motor Ayarları”nı açıp Gemini API anahtarınızı girin. Anahtar yalnızca bu tarayıcıda saklanır.',
+        'Her konuşma sol listede bir “çalışma” olarak kaydedilir. Yeni bir konu için “Yeni Çalışma”ya basın.'
+      ]],
+      ['Belge ve fotoğraf ekleme', [
+        'Yazı kutusunun altındaki “Fotoğraf” ve “PDF / Belgeler” düğmeleriyle birden fazla dosya ekleyebilirsiniz; dosyaları sohbet alanına sürükleyip bırakmak da yeterlidir.',
+        'Desteklenen belgeler: PDF, TXT, MD, JSON, CSV, JS, PY, HTML, CSS, XML ve SQL. Fotoğraflar: JPG, PNG, WEBP, GIF.',
+        'Ekler cihazınızda saklanır; takip sorularında Forge AI ekleri görmeye devam eder. Tek istek yaklaşık 20 MB’ı aşarsa uyarı alırsınız, dosyaları azaltıp tekrar deneyin.'
+      ]],
+      ['Hızlı komutlar', [
+        'Yazı kutusuna “/” yazınca komut menüsü açılır.',
+        '/ozetle: eklediğiniz belgeleri karşılaştırarak özetler.',
+        '/resmi-yazi: dilekçe veya proje teklifi gibi resmi yazı taslağı hazırlar.',
+        '/web-tasarla: tek dosyalık bir web sayfası üretir; sonucu “Önizle” ile görürsünüz.'
+      ]],
+      ['Web araması ve kaynaklar', [
+        'Yazı kutusundaki “Web” düğmesi açıkken Forge AI güncel bilgi için Google Arama kullanır.',
+        'Kullanılan kaynak bağlantıları yanıtın altında gösterilir. Süre bilgisi “Web araması + yanıt” olarak etiketlenir.',
+        'Güncel olmasına gerek olmayan sorularda düğmeyi kapalı tutmak yanıtı hızlandırır.'
+      ]],
+      ['Model seçimi', [
+        'Yazı kutusunun sağındaki menüden motoru seçersiniz. “Forge AI Otomatik” (varsayılan) basit soruları hafif modele, belge ve uzun analiz isteklerini güçlü modele yönlendirir.',
+        'Yanıtın altında hangi modelin kullanıldığı yazar. Kota dolarsa Forge AI otomatik olarak diğer modeli dener.'
+      ]],
+      ['Yanıtlarla çalışma', [
+        'Her yanıtın altında Önizle, Kopyala ve Sesli Dinle düğmeleri bulunur.',
+        'Kendi mesajınızı düzenleyip yeniden gönderebilirsiniz.',
+        'Üretilen web sayfası, belge ve kod çıktılarını sağ üstteki “Önizleme” düğmesiyle yan panelde açabilirsiniz.',
+        'Yazı yerine konuşmak için mikrofon düğmesine (“Sesli”) basın.',
+        'Yapay zekâ hata yapabilir; önemli bilgileri mutlaka doğrulayın.'
+      ]],
+      ['Çalışmaları yönetme', [
+        '“Ara” ile çalışma başlıklarında arama yapın.',
+        'Listede bir satırın üzerine gelince çıkan kutuyu işaretleyerek birden çok çalışmayı seçin; üstte beliren çubuktan “Tümünü seç”, “Vazgeç” veya “Sil” seçeneklerini kullanın. Silme işlemi onay ister ve çalışmanın eklerini de siler.',
+        'Üstteki dışa aktar düğmesi geçerli sohbeti Markdown olarak kaydeder. ⋯ menüsündeki “Tüm çalışmaları yedekle” tüm çalışmaları JSON dosyası olarak indirir.'
+      ]],
+      ['Google ile giriş ve bulut eşitleme', [
+        'Sol alttaki Google düğmesiyle giriş yaptığınızda Forge AI size adınızla hitap eder.',
+        '⋯ menüsündeki “Sohbetleri bulutla eşitle” sohbetlerinizi hesabınıza yazar ve diğer cihazlarınızda görünür kılar. Silmeler de eşitlenir.',
+        'Ekler (PDF ve fotoğraf) cihazda kalır, eşitlenmez. Tek sohbet yaklaşık 900 KB’ı aşarsa eşitlenmez.'
+      ]],
+      ['Uygulamayı cihaza kurma', [
+        '⋯ menüsündeki veya üstteki “İndir” düğmesi Forge AI’yı uygulama olarak kurar. Kurulum penceresi açılmazsa tarayıcının menüsünden “Ana ekrana ekle” veya “Uygulamayı yükle” seçeneğini kullanın.',
+        'Uygulama güncellendiğinde, o sırada yazı yazmıyorsanız otomatik yenilenir; aksi halde “Yenile” bildirimi görürsünüz.'
+      ]]
+    ];
+    (function initGuide() {
+      const modal = document.getElementById('guideModal');
+      const body = document.getElementById('guideContent');
+      GUIDE_SECTIONS.forEach(([title, items], idx) => {
+        const d = document.createElement('details');
+        d.className = 'group rounded-xl border border-slate-200 bg-white';
+        if (idx === 0) d.open = true;
+        const sum = document.createElement('summary');
+        sum.className = 'flex items-center justify-between gap-3 cursor-pointer select-none px-4 py-3 text-base font-semibold text-slate-900 list-none';
+        const t = document.createElement('span'); t.textContent = title;
+        const chev = document.createElement('span'); chev.className = 'text-slate-400 transition-transform group-open:rotate-180'; chev.textContent = '⌄';
+        sum.append(t, chev);
+        const ul = document.createElement('ul');
+        ul.className = 'px-4 pb-4 space-y-2 text-[15px] leading-relaxed text-slate-700 list-disc ml-9 mr-4';
+        items.forEach((x) => { const li = document.createElement('li'); li.textContent = x; ul.appendChild(li); });
+        d.append(sum, ul);
+        body.appendChild(d);
+      });
+      const close = () => modal.classList.add('hidden');
+      document.getElementById('openGuideBtn').onclick = () => { modal.classList.remove('hidden'); body.scrollTop = 0; };
+      document.getElementById('closeGuideBtn').onclick = close;
+      document.getElementById('okGuideBtn').onclick = close;
+      modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+    })();
+
     document.getElementById('closeInstallGuideBtn').onclick = () => els.installGuideModal.classList.add('hidden');
     document.getElementById('okInstallGuideBtn').onclick = () => els.installGuideModal.classList.add('hidden');
 
@@ -2197,7 +2462,7 @@
       menu.addEventListener('click', (e) => {
         e.stopPropagation();
         const b = e.target.closest('button');
-        if (!b || b.id === 'legalToggleBtn' || b.id === 'cloudBtn') return;
+        if (!b || b.id === 'legalToggleBtn' || b.id === 'cloudBtn' || b.id === 'themeToggleBtn' || b.hasAttribute('data-theme-opt')) return;
         setOpen(false);
       });
       document.addEventListener('click', (e) => { if (!menu.contains(e.target)) setOpen(false); });
