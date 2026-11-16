@@ -148,6 +148,15 @@
       </div>
     </div>
 
+    <div id="bulkBar" class="hidden px-3 pb-2">
+      <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px]">
+        <span id="bulkCount" class="font-semibold text-slate-700 mr-auto">0 seçili</span>
+        <button type="button" id="bulkAllBtn" class="px-2 py-1 rounded-lg text-slate-600 hover:bg-slate-200/70 font-semibold transition cursor-pointer">Tümünü seç</button>
+        <button type="button" id="bulkCancelBtn" class="px-2 py-1 rounded-lg text-slate-600 hover:bg-slate-200/70 font-semibold transition cursor-pointer">Vazgeç</button>
+        <button type="button" id="bulkDeleteBtn" class="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold transition cursor-pointer">Sil</button>
+      </div>
+    </div>
+
     <div class="flex-1 overflow-y-auto px-3 space-y-1" id="chatList"></div>
 
     <div class="p-3 border-t border-slate-100 bg-slate-50/50 space-y-1.5">
@@ -194,7 +203,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.3</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.4</span>
       </button>
     </div>
   </aside>
@@ -1263,8 +1272,22 @@
     document.getElementById('closeSidebarBtn').onclick = () => toggleSidebar(false);
     els.sidebarOverlay.onclick = () => toggleSidebar(false);
 
+    const selectedChats = new Set();
+    function updateBulkBar() {
+      const bar = document.getElementById('bulkBar');
+      if (!bar) return;
+      const n = selectedChats.size;
+      bar.classList.toggle('hidden', n === 0);
+      document.getElementById('bulkCount').textContent = n + ' seçili';
+      const q = (els.searchChatsInput.value || '').toLowerCase();
+      const shown = state.chats.filter(c => c.title.toLowerCase().includes(q));
+      document.getElementById('bulkAllBtn').textContent = shown.length && shown.every(c => selectedChats.has(c.id)) ? 'Seçimi kaldır' : 'Tümünü seç';
+    }
+
     function renderChatList(filter = '') {
       els.chatList.innerHTML = '';
+      [...selectedChats].forEach(id => { if (!state.chats.some(c => c.id === id)) selectedChats.delete(id); });
+      updateBulkBar();
       const filtered = state.chats.filter(c => c.title.toLowerCase().includes(filter.toLowerCase()));
 
       if (filtered.length === 0) {
@@ -1280,6 +1303,9 @@
         }`;
         item.innerHTML = `
           <div class="flex items-center gap-2 min-w-0 flex-1">
+            <span class="chat-sel-wrap flex items-center justify-center p-1.5 -ml-1.5 -my-1.5 shrink-0 cursor-pointer" title="Silmek için seç">
+              <input type="checkbox" class="chat-sel w-3.5 h-3.5 accent-blue-600 cursor-pointer" ${selectedChats.has(chat.id) ? 'checked' : ''} aria-label="Sohbeti seç">
+            </span>
             <i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 ${active ? 'text-blue-600' : 'text-slate-400'}"></i>
             <span class="truncate">${escapeHtml(chat.title)}</span>
           </div>
@@ -1288,10 +1314,19 @@
           </button>
         `;
         item.onclick = async (e) => {
+          const selWrap = e.target.closest('.chat-sel-wrap');
+          if (selWrap) {
+            const cb = selWrap.querySelector('.chat-sel');
+            if (e.target !== cb) cb.checked = !cb.checked;
+            if (cb.checked) selectedChats.add(chat.id); else selectedChats.delete(chat.id);
+            updateBulkBar();
+            return;
+          }
           if (e.target.closest('.delete-chat')) {
             if (!(await forgeDialog('Bu çalışma kalıcı olarak silinsin mi?', { confirm: true, danger: true, okText: 'Sil' }))) return;
             chat.messages.forEach(m => { if (m.hasAttach) AttachDB.del(m.id); });
             state.chats = state.chats.filter(c => c.id !== chat.id);
+            selectedChats.delete(chat.id);
             if (state.activeChatId === chat.id) state.activeChatId = null;
             syncStorage();
             renderChatList(els.searchChatsInput.value);
@@ -1307,6 +1342,30 @@
       });
       refreshIcons();
     }
+
+    document.getElementById('bulkAllBtn').onclick = () => {
+      const q = (els.searchChatsInput.value || '').toLowerCase();
+      const shown = state.chats.filter(c => c.title.toLowerCase().includes(q));
+      const allOn = shown.length > 0 && shown.every(c => selectedChats.has(c.id));
+      shown.forEach(c => { if (allOn) selectedChats.delete(c.id); else selectedChats.add(c.id); });
+      renderChatList(els.searchChatsInput.value);
+    };
+    document.getElementById('bulkCancelBtn').onclick = () => {
+      selectedChats.clear();
+      renderChatList(els.searchChatsInput.value);
+    };
+    document.getElementById('bulkDeleteBtn').onclick = async () => {
+      const ids = [...selectedChats];
+      if (!ids.length) return;
+      if (!(await forgeDialog('Seçilen ' + ids.length + ' çalışma kalıcı olarak silinsin mi?', { confirm: true, danger: true, okText: 'Sil' }))) return;
+      state.chats.filter(c => selectedChats.has(c.id)).forEach(c => c.messages.forEach(m => { if (m.hasAttach) AttachDB.del(m.id); }));
+      state.chats = state.chats.filter(c => !selectedChats.has(c.id));
+      if (selectedChats.has(state.activeChatId)) state.activeChatId = null;
+      selectedChats.clear();
+      syncStorage();
+      renderChatList(els.searchChatsInput.value);
+      renderMessages();
+    };
 
     function getWelcomeScreenHtml() {
       const hasValidKey = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')) || (state.orKey && state.orKey.startsWith('sk-or-')));

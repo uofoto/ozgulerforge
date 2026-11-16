@@ -1,7 +1,10 @@
-# Forge AI (v6.9.3)
+# Forge AI (v6.9.4)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.4
+- **Toplu silme:** Sol taraftaki her sohbetin başında küçük bir onay kutusu var. Kutuları işaretleyince üstte "N seçili" çubuğu çıkar: "Tümünü seç" (aramayla süzülen listeye uygulanır), "Vazgeç" ve "Sil". Silmeden önce onay istenir; sohbetlerin ekleri de silinir.
 
 ## v6.9.3
 - **OpenRouter desteği:** Ayarlar'a "OpenRouter API Anahtarı" ve model adı alanı eklendi. Gemini kotası dolduğunda (429 vb.) istek otomatik olarak OpenRouter'a yönlenir; model menüsünden "🌐 OpenRouter" seçilerek doğrudan da kullanılabilir. Yalnızca OpenRouter anahtarı girilirse Gemini anahtarı gerekmez. Görsel, PDF ve Web araması (`plugins: web`) desteklenir.
