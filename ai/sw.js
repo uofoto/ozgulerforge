@@ -1,4 +1,4 @@
-const CACHE_NAME = 'forge-ai-studio-v6.7';
+const CACHE_NAME = 'forge-ai-studio-v6.8';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -37,6 +37,7 @@ self.addEventListener('fetch', (event) => {
   if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
   // Yapay zeka API'si ve sw.js'in kendisi asla cache'lenmez
   if (url.hostname === 'generativelanguage.googleapis.com') return;
+  if (url.hostname === 'accounts.google.com') return;
   if (url.origin === self.location.origin && url.pathname.endsWith('/sw.js')) return;
 
   event.respondWith(
