@@ -209,7 +209,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.9</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.10</span>
       </button>
     </div>
   </aside>
@@ -2373,7 +2373,7 @@
         const code = (e && e.code) || '';
         if (code.includes('configuration-not-found')) return 'Firebase Authentication henüz başlatılmamış: Console > Build > Authentication > "Get started" deyip Google girişini etkinleştirin.';
         if (code.includes('operation-not-allowed')) return 'Firebase Console > Authentication > Sign-in method bölümünde Google girişi etkinleştirilmemiş.';
-        if (code.includes('unauthorized-domain')) return 'Bu site adresi Firebase > Authentication > Settings > Authorized domains listesinde yok.';
+        if (code.includes('unauthorized-domain')) return 'Bu site adresi (' + location.hostname + ') Firebase > Authentication > Settings > Authorized domains listesinde yok. Bu adresi "Add domain" ile ekleyin.';
         if (code.includes('popup-blocked')) return 'Tarayıcı açılır pencereyi engelledi. Bu site için açılır pencerelere izin verin.';
         if (code.includes('permission-denied')) return 'Firestore kuralları erişime izin vermiyor. Kuralları README\'deki gibi ayarlayın.';
         if (code.includes('popup-closed') || code.includes('cancelled-popup')) return '';

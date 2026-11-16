@@ -1,7 +1,10 @@
-# Forge AI (v6.9.9)
+# Forge AI (v6.9.10)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.10
+- "Authorized domains" hata mesajı artık sitenin açıldığı adresi (hostname) gösterir.
 
 ## v6.9.9
 - `auth/configuration-not-found` hatası için açıklayıcı Türkçe mesaj eklendi (Authentication başlatılmamış).
