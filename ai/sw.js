@@ -1,12 +1,12 @@
-const CACHE_NAME = 'forge-ai-studio-v6.9.24';
+const CACHE_NAME = 'forge-ai-studio-v6.9.25';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
-  './icon-maskable-512.png',
-  './apple-touch-icon.png'
+  './icon-v2-192.png',
+  './icon-v2-512.png',
+  './icon-v2-maskable-512.png',
+  './apple-touch-icon-v2.png'
 ];
 
 // Not: skipWaiting() burada otomatik çağrılmaz. Sayfa, kullanıcı meşgul değilken
