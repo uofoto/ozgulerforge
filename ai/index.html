@@ -125,7 +125,6 @@
           </div>
           <div class="flex items-center gap-1.5">
             <span class="font-bold text-lg tracking-tight text-slate-900">Forge AI</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-blue-600 text-white">PRO</span>
           </div>
         </div>
         <button id="closeSidebarBtn" class="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
@@ -195,7 +194,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.1 PRO</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.2</span>
       </button>
     </div>
   </aside>
@@ -234,7 +233,7 @@
       <div id="messagesContainer" class="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 scroll-smooth"></div>
 
       <!-- ALT MESAJ KONSOLU -->
-      <div class="px-4 sm:px-6 pb-4 pt-2 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC] to-transparent shrink-0 relative">
+      <div class="px-2.5 sm:px-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-4 pt-2 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC] to-transparent shrink-0 relative">
         <div class="max-w-3xl mx-auto relative">
 
           <div id="slashMenu" class="hidden absolute bottom-full left-0 mb-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-float p-1.5 z-30 space-y-0.5">
@@ -260,12 +259,12 @@
           <!-- ÇOKLU DOSYA ÖNİZLEME ÇUBUĞU -->
           <div id="attachmentsPreviewBar" class="hidden mb-2.5 flex flex-wrap items-center gap-2 max-h-36 overflow-y-auto p-1"></div>
 
-          <form id="chatForm" class="bg-white border border-slate-200/90 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 rounded-2xl p-2.5 shadow-float transition-all">
+          <form id="chatForm" class="bg-white border border-slate-200/90 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 rounded-2xl p-3 sm:p-2.5 shadow-float transition-all">
             <textarea
               id="userInput"
               rows="1"
-              placeholder="Forge AI'ya yazın, '/' ile komut seçin veya çok sayıda fotoğraf/PDF sürükleyip bırakın..."
-              class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-sm sm:text-[15px] px-2 py-1 focus:outline-none resize-none max-h-44 leading-relaxed"
+              placeholder="Forge AI'ya yazın..."
+              class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-base sm:text-[15px] px-2 py-1 min-h-[64px] sm:min-h-0 focus:outline-none resize-none max-h-44 leading-relaxed"
             ></textarea>
             
             <div class="flex items-center justify-between pt-2 mt-1 border-t border-slate-100 px-1">
@@ -273,13 +272,13 @@
                 <input type="file" id="imageInput" class="hidden" accept="image/jpeg,image/png,image/webp,image/gif" multiple />
                 <button type="button" id="attachImageBtn" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Çoklu Fotoğraf Yükle">
                   <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
-                  <span>Fotoğraf</span>
+                  <span class="hidden sm:inline">Fotoğraf</span>
                 </button>
 
                 <input type="file" id="fileInput" class="hidden" accept=".pdf,.txt,.md,.json,.csv,.js,.py,.html,.css,.xml,.sql" multiple />
                 <button type="button" id="attachFileBtn" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Çoklu PDF veya Belge Yükle">
                   <i data-lucide="files" class="w-4 h-4 text-indigo-600"></i>
-                  <span>PDF / Belgeler</span>
+                  <span class="hidden sm:inline">PDF / Belgeler</span>
                 </button>
 
                 <button type="button" id="micBtn" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Sesle Yazdır">
@@ -320,7 +319,7 @@
 
           <div class="mt-2.5 flex flex-wrap items-center justify-between text-[11px] text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong> • Çoklu Belge Analizi Aktif</span>
-            <div class="flex items-center gap-3">
+            <div class="hidden sm:flex items-center gap-3">
               <a href="https://ozgulerforge.com.tr" target="_blank" class="hover:text-blue-600 transition">ozgulerforge.com.tr</a>
               <span>•</span>
               <a href="mailto:iletisim@ozgulerforge.com.tr" class="hover:text-blue-600 transition">iletisim@ozgulerforge.com.tr</a>
@@ -1309,8 +1308,8 @@
           <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
             Forge AI
           </h1>
-          <p class="text-sm sm:text-base text-slate-500 max-w-lg mb-8 leading-relaxed">
-            Çoklu PDF belgesi yükleme, karşılaştırmalı analiz, anlık fotoğraf stüdyosu ve canlı önizleme özellikleriyle profesyonel yapay zeka asistanınız.
+          <p class="text-sm sm:text-base text-slate-500 max-w-md mb-8 leading-relaxed">
+            ${(currentUser && currentUser.name) ? 'Merhaba, ' + escapeHtml(String(currentUser.name).split(' ')[0]) + '. ' : ''}Size nasıl yardımcı olabilirim?
           </p>
 
           <div id="noKeyWarning" class="${hasValidKey ? 'hidden' : ''} w-full max-w-lg mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-left flex items-start gap-3 shadow-2xs">
@@ -1321,39 +1320,6 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
-            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
-              <div class="flex items-center gap-2 text-emerald-600 font-semibold text-xs mb-1">
-                <i data-lucide="files" class="w-4 h-4"></i>
-                <span>📕 Çoklu PDF Karşılaştırma & Özet</span>
-              </div>
-              <p class="text-xs text-slate-600 group-hover:text-slate-900">Birden fazla PDF veya belge yükleyerek aralarındaki farkları karşılaştır ve kapsamlı bir sentez raporu hazırla.</p>
-            </button>
-
-            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
-              <div class="flex items-center gap-2 text-blue-600 font-semibold text-xs mb-1">
-                <i data-lucide="wand-2" class="w-4 h-4"></i>
-                <span>📸 Çoklu Fotoğraf & Işık Stüdyosu</span>
-              </div>
-              <p class="text-xs text-slate-600 group-hover:text-slate-900">Birden fazla fotoğraf yükleyerek kompozisyon ve renk dengesini analiz et; Lightroom reçeteleri sun.</p>
-            </button>
-
-            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
-              <div class="flex items-center gap-2 text-indigo-600 font-semibold text-xs mb-1">
-                <i data-lucide="scroll-text" class="w-4 h-4"></i>
-                <span>📄 Resmi Yazı & Dilekçe</span>
-              </div>
-              <p class="text-xs text-slate-600 group-hover:text-slate-900">Kurumsal yazışma kurallarına uygun profesyonel dilekçe veya proje raporu taslağı oluştur.</p>
-            </button>
-
-            <button type="button" onclick="usePromptCard(this)" class="p-4 rounded-2xl bg-white border border-slate-200/80 hover:border-blue-400 hover:shadow-soft transition group cursor-pointer text-left">
-              <div class="flex items-center gap-2 text-violet-600 font-semibold text-xs mb-1">
-                <i data-lucide="layout-template" class="w-4 h-4"></i>
-                <span>💻 Canlı Web Tasarımı</span>
-              </div>
-              <p class="text-xs text-slate-600 group-hover:text-slate-900">Modern ve şık bir kişisel portföy açılış sayfası (tek dosya HTML/Tailwind) tasarla.</p>
-            </button>
-          </div>
         </div>
       `;
     }

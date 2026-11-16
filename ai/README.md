@@ -1,7 +1,10 @@
-# Forge AI (v6.9.1 PRO)
+# Forge AI (v6.9.2)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.2
+- "PRO" ibaresi kaldırıldı; ana ekran sadeleştirildi (4 öneri kartı kaldırıldı); mobilde sohbet kutusu büyütüldü (daha geniş yazı alanı, yalnızca simgeli düğmeler, 16 px yazı).
 
 ## v6.9.1
 - "Forge AI Ultra 3.8" seçeneği kaldırıldı (çalışmıyordu). Model listesi: Otomatik ve Lite.
