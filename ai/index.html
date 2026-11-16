@@ -227,7 +227,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.23</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.24</span>
       </button>
     </div>
   </aside>
@@ -322,7 +322,7 @@
               </div>
 
               <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
-                <select id="modelSelect" title="Motor seç" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl min-w-0 max-w-full sm:max-w-[200px] cursor-pointer focus:outline-none"></select>
+                <select id="modelSelect" title="Motor seç" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl min-w-0 max-w-full sm:max-w-[340px] cursor-pointer focus:outline-none"></select>
                 <button type="button" id="stopBtn" class="hidden shrink-0 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
                   <i data-lucide="square" class="w-3 h-3 fill-current"></i>
                   <span>Durdur</span>
@@ -549,11 +549,11 @@
     // Kullanıcıya yalnızca "Forge X" adları gösterilir; gerçek model kimlikleri burada tutulur.
     const MODELS = [
       { id: 'auto', label: 'Forge Otomatik', auto: true },
-      { id: 'f1', label: 'Forge 1', provider: 'gemini',     model: 'gemini-4-hydrogen', vision: true },
-      { id: 'f2', label: 'Forge 2', provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free' },
-      { id: 'f3', label: 'Forge 3', provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free' },
-      { id: 'f4', label: 'Forge 4', provider: 'openrouter', model: 'google/gemma-4-31b-it:free', vision: true },
-      { id: 'f5', label: 'Forge 5 (Kod)', provider: 'openrouter', model: 'cohere/north-mini-code:free' }
+      { id: 'f1', label: 'Forge 1', provider: 'gemini',     model: 'gemini-4-hydrogen', vision: true, desc: 'Gemini 4 Hydrogen, fotoğraf destekler' },
+      { id: 'f2', label: 'Forge 2', provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', desc: 'Nemotron 3 Ultra' },
+      { id: 'f3', label: 'Forge 3', provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free', desc: 'Nemotron 3.5 Lightning' },
+      { id: 'f4', label: 'Forge 4', provider: 'openrouter', model: 'google/gemma-4-31b-it:free', vision: true, desc: 'Gemma 4 31B, fotoğraf destekler' },
+      { id: 'f5', label: 'Forge 5 (Kod)', provider: 'openrouter', model: 'cohere/north-mini-code:free', desc: 'North Mini Code' }
     ];
     const OR_KEY_STORE = 'forge_ai_openrouter_api_key';
     function curModel() {
@@ -2242,7 +2242,7 @@
       const sel = document.getElementById('modelSelect');
       MODELS.forEach((m) => {
         const o = document.createElement('option');
-        o.value = m.id; o.textContent = '⚡ ' + m.label;
+        o.value = m.id; o.textContent = '⚡ ' + m.label + (m.desc ? ': ' + m.desc : '');
         sel.appendChild(o);
       });
       sel.value = curModel().id;
