@@ -1607,8 +1607,7 @@
           discEl.classList.remove('hidden');
           const note = discEl.querySelector('.msg-fallback-note');
           const shownModel = activeModelLabel;
-          if (note && fellBack) note.textContent = ' (Önceki motor yanıt vermedi; Forge AI yedek motoruyla yanıtlandı.)';
-          else if (note) note.textContent = '';
+          if (note) note.textContent = '';
           if (note) note.textContent += ' · ' + (aiMsg.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(aiMsg.elapsedMs);
           renderSources(bubble, aiMsg.sources);
         }
