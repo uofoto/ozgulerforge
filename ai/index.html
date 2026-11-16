@@ -209,7 +209,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.10</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.11</span>
       </button>
     </div>
   </aside>
@@ -308,18 +308,7 @@
               </div>
 
               <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
-                <select id="modelSelect" class="hidden" aria-hidden="true" tabindex="-1">
-                  <option value="auto" selected>🧭 Forge AI Otomatik</option>
-                  <option value="gemini-3.5-flash-lite">🚀 Forge AI Lite (Hızlı)</option>
-                  <option value="openrouter">🌐 OpenRouter</option>
-                </select>
-                <div class="relative min-w-0" id="modelPicker">
-                  <button type="button" id="modelPickerBtn" aria-haspopup="listbox" aria-expanded="false" class="px-2.5 py-1.5 bg-blue-50/80 hover:bg-blue-100/70 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl flex items-center gap-1.5 transition cursor-pointer max-w-full sm:max-w-[200px]">
-                    <span id="modelPickerLabel" class="truncate">🧭 Forge AI Otomatik</span>
-                    <i data-lucide="chevron-up" id="modelPickerChevron" class="w-3.5 h-3.5 text-blue-600 shrink-0 transition-transform"></i>
-                  </button>
-                  <div id="modelPickerMenu" role="listbox" class="hidden absolute bottom-full right-0 mb-2 w-60 bg-white border border-slate-200 rounded-2xl shadow-float p-1.5 z-30 space-y-0.5"></div>
-                </div>
+                <span id="modelBadge" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl truncate max-w-full sm:max-w-[200px]">⚡ Forge 4</span>
                 <button type="button" id="stopBtn" class="hidden shrink-0 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
                   <i data-lucide="square" class="w-3 h-3 fill-current"></i>
                   <span>Durdur</span>
@@ -473,13 +462,6 @@
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">OpenRouter API Anahtarı (isteğe bağlı yedek)</label>
-          <input type="password" id="orKeyInput" placeholder="sk-or-v1-..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
-          <input type="text" id="orModelInput" placeholder="openrouter/auto" class="mt-2 w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
-          <p class="text-[10px] text-slate-400 mt-1 leading-snug">Model adı openrouter.ai/models sayfasından alınır (örn. <span class="font-mono">google/gemini-2.5-flash</span>). Ücretsiz modellerin adı <span class="font-mono">:free</span> ile biter. Gemini kotası dolduğunda otomatik olarak OpenRouter devreye girer; alttaki model menüsünden doğrudan da seçebilirsiniz.</p>
-        </div>
-
-        <div>
           <div class="flex justify-between items-center mb-1">
             <label class="text-xs font-semibold text-slate-700">Yaratıcılık Dengesi (Temperature)</label>
             <span id="tempValueLabel" class="text-xs font-mono font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">0.7</span>
@@ -582,10 +564,11 @@
     }
     refreshIcons();
 
+    const GEMINI_MODEL = 'gemini-4-hydrogen'; // API model kimliği (kullanıcıya gösterilmez)
+    const MODEL_LABEL = 'Forge 4'; // kullanıcıya görünen ad
+
     const KEYS = {
       API: 'forge_ai_gemini_api_key',
-      OR: 'forge_ai_openrouter_key',
-      ORMODEL: 'forge_ai_openrouter_model',
       SYSTEM: 'forge_ai_system_prompt',
       TEMP: 'forge_ai_temperature',
       CHATS: 'forge_ai_chats',
@@ -690,8 +673,6 @@
 
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
-      orKey: localStorage.getItem(KEYS.OR) || '',
-      orModel: localStorage.getItem(KEYS.ORMODEL) || 'openrouter/auto',
       systemPrompt: localStorage.getItem(KEYS.SYSTEM) || BASE_IDENTITY,
       temperature: parseFloat(localStorage.getItem(KEYS.TEMP) || '0.7'),
       chats: JSON.parse(localStorage.getItem(KEYS.CHATS) || '[]'),
@@ -715,7 +696,6 @@
       searchChatsInput: document.getElementById('searchChatsInput'),
       messagesContainer: document.getElementById('messagesContainer'),
       keyStatusBadge: document.getElementById('keyStatusBadge'),
-      modelSelect: document.getElementById('modelSelect'),
       chatForm: document.getElementById('chatForm'),
       userInput: document.getElementById('userInput'),
       slashMenu: document.getElementById('slashMenu'),
@@ -742,8 +722,6 @@
       aboutModal: document.getElementById('aboutModal'),
       installGuideModal: document.getElementById('installGuideModal'),
       apiKeyInput: document.getElementById('apiKeyInput'),
-      orKeyInput: document.getElementById('orKeyInput'),
-      orModelInput: document.getElementById('orModelInput'),
       tempSlider: document.getElementById('tempSlider'),
       tempValueLabel: document.getElementById('tempValueLabel'),
       systemPromptInput: document.getElementById('systemPromptInput')
@@ -1087,7 +1065,7 @@
     }
 
     function updateApiBadge() {
-      const valid = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')) || (state.orKey && state.orKey.startsWith('sk-or-')));
+      const valid = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
       els.keyStatusBadge.className = `w-2 h-2 rounded-full ${valid ? 'bg-emerald-500' : 'bg-rose-500'}`;
       const warningEl = document.getElementById('noKeyWarning');
       if (warningEl) warningEl.classList.toggle('hidden', valid);
@@ -1380,7 +1358,7 @@
     };
 
     function getWelcomeScreenHtml() {
-      const hasValidKey = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')) || (state.orKey && state.orKey.startsWith('sk-or-')));
+      const hasValidKey = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
       return `
         <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
           <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
@@ -1500,7 +1478,7 @@
       if (!text && !hasFiles) return;
       if (state.isGenerating) return;
 
-      if (!state.apiKey && !state.orKey && !PROXY_URL) {
+      if (!state.apiKey && !PROXY_URL) {
         els.settingsModal.classList.remove('hidden');
         return;
       }
@@ -1576,10 +1554,7 @@
       const proseEl = bubble.querySelector('.prose');
       const actionsEl = bubble.querySelector('.msg-actions');
 
-      const lastUser = currentChat.messages[currentChat.messages.length - 2] || {};
-      const heavy = lastUser.hasAttach || (lastUser.content || '').length > 400 || currentChat.messages.length > 10 ||
-        /analiz|karşılaştır|rapor|kod|tasarla|özetle|hesapla|dilekçe|resmi|neden|açıkla|planla/i.test(lastUser.content || '');
-      const selectedModel = els.modelSelect.value === 'auto' ? (heavy ? 'gemini-3.6-flash' : 'gemini-3.5-flash-lite') : els.modelSelect.value;
+      const selectedModel = GEMINI_MODEL;
       let usedModel = selectedModel;
 
       try {
@@ -1615,65 +1590,20 @@
         }
 
         // API anahtarı URL yerine header ile gönderilir.
-        // Seçilen model kota/yoğunluk/erişim nedeniyle yanıt vermezse sırayla yedek modeller denenir.
-        const MODEL_FALLBACKS = { 'gemini-3.6-flash': ['gemini-3.5-flash-lite'] };
         const hasGemini = Boolean(PROXY_URL || state.apiKey);
-        const hasOR = Boolean(state.orKey);
-        const orModel = state.orModel || 'openrouter/auto';
-        const attempts = [];
-        if (selectedModel === 'openrouter') {
-          if (!hasOR) throw new Error('OpenRouter seçili ama anahtar girilmemiş. Ayarlar > OpenRouter API Anahtarı alanını doldurun.');
-          attempts.push({ p: 'or', m: orModel });
-        } else {
-          if (hasGemini) {
-            attempts.push({ p: 'g', m: selectedModel });
-            (MODEL_FALLBACKS[selectedModel] || []).forEach(m => attempts.push({ p: 'g', m }));
-          }
-          if (hasOR) attempts.push({ p: 'or', m: orModel });
-        }
-        if (!attempts.length) throw new Error('Kullanılabilir bir API anahtarı yok. Ayarlar bölümünden Gemini veya OpenRouter anahtarı girin.');
-
-        // OpenRouter (OpenAI uyumlu) için mesaj biçimi
-        const buildOrBody = (model) => {
-          const messages = [{ role: 'system', content: systemText }];
-          apiContents.forEach(c => {
-            const content = [];
-            c.parts.forEach(p => {
-              if (p.text) content.push({ type: 'text', text: p.text });
-              else if (p.inlineData) {
-                const mt = p.inlineData.mimeType || '';
-                const du = `data:${mt};base64,${p.inlineData.data}`;
-                if (mt.startsWith('image/')) content.push({ type: 'image_url', image_url: { url: du } });
-                else if (mt === 'application/pdf') content.push({ type: 'file', file: { filename: 'belge.pdf', file_data: du } });
-              }
-            });
-            if (!content.length) return;
-            if (c.role === 'model') messages.push({ role: 'assistant', content: content.map(x => x.text || '').join('') });
-            else messages.push({ role: 'user', content });
-          });
-          return JSON.stringify({
-            model, messages, stream: true, temperature: Math.min(state.temperature, 2),
-            plugins: localStorage.getItem(WEB_KEY) === '1' ? [{ id: 'web' }] : undefined
-          });
-        };
+        if (!hasGemini) throw new Error('API anahtarı yok. Ayarlar bölümünden Gemini API anahtarınızı girin.');
+        const attempts = [{ p: 'g', m: selectedModel }];
 
         let response = null;
-        let usedProvider = 'g';
         let fellBack = false;
         for (let i = 0; i < attempts.length; i++) {
           const at = attempts[i];
           let endpoint, headers, body;
-          if (at.p === 'or') {
-            endpoint = 'https://openrouter.ai/api/v1/chat/completions';
-            headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.orKey, 'HTTP-Referer': location.origin, 'X-Title': 'Forge AI' };
-            body = buildOrBody(at.m);
-          } else {
-            const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
-            endpoint = `${base}/v1beta/models/${encodeURIComponent(at.m)}:streamGenerateContent?alt=sse`;
-            if (PROXY_URL && !getIdToken()) throw new Error('Oturumunuzun süresi doldu. Lütfen kenar çubuğundan Google ile yeniden giriş yapın.');
-            headers = Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
-            body = requestBody;
-          }
+          const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
+          endpoint = `${base}/v1beta/models/${encodeURIComponent(at.m)}:streamGenerateContent?alt=sse`;
+          if (PROXY_URL && !getIdToken()) throw new Error('Oturumunuzun süresi doldu. Lütfen kenar çubuğundan Google ile yeniden giriş yapın.');
+          headers = Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
+          body = requestBody;
           let netErr = null;
           try {
             response = await fetch(endpoint, { method: 'POST', signal: state.abortController.signal, headers, body });
@@ -1681,8 +1611,8 @@
             if (fe.name === 'AbortError') throw fe;
             netErr = fe;
           }
-          if (!netErr && response.ok) { usedModel = at.m; usedProvider = at.p; fellBack = i > 0; break; }
-          const label = at.p === 'or' ? 'OpenRouter • ' + at.m : at.m;
+          if (!netErr && response.ok) { usedModel = at.m; fellBack = i > 0; break; }
+          const label = MODEL_LABEL;
           let e;
           let status = 0;
           if (netErr) {
@@ -1703,7 +1633,7 @@
             e = new Error(`[${label} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
           }
           const next = attempts[i + 1];
-          const retryable = netErr || [402, 404, 429, 500, 502, 503].includes(status) || (next && next.p !== at.p && [400, 401, 403].includes(status));
+          const retryable = Boolean(next) && (netErr || [429, 500, 502, 503].includes(status));
           if (!retryable || !next) throw e;
         }
 
@@ -1714,7 +1644,6 @@
         const sources = [];
         let finishReason = '';
         let streamError = '';
-        let orActual = '';
 
         // Her chunk'ta değil, kare başına en fazla bir kez render et
         let renderQueued = false;
@@ -1743,23 +1672,7 @@
 
             try {
               const parsed = JSON.parse(payload);
-              if (usedProvider === 'or') {
-                if (parsed.error) { streamError = parsed.error.message || 'Akış sırasında hata oluştu.'; continue; }
-                if (parsed.model) orActual = parsed.model;
-                const ch = parsed.choices && parsed.choices[0];
-                if (ch) {
-                  if (ch.finish_reason && ch.finish_reason !== 'stop') finishReason = ch.finish_reason === 'length' ? 'MAX_TOKENS' : ch.finish_reason;
-                  const d = ch.delta || {};
-                  if (typeof d.content === 'string' && d.content) aiMsg.content += d.content;
-                  const anns = (Array.isArray(d.annotations) ? d.annotations : []).concat(Array.isArray(ch.message && ch.message.annotations) ? ch.message.annotations : []);
-                  anns.forEach(an => {
-                    const u = an && an.url_citation;
-                    if (u && /^https?:\/\//.test(u.url || '') && !sources.some(x => x.uri === u.url)) sources.push({ uri: u.url, title: u.title || u.url });
-                  });
-                  scheduleRender();
-                }
-                continue;
-              }
+                            if (parsed.error) { streamError = parsed.error.message || 'Akış sırasında hata oluştu.'; continue; }
               if (parsed.promptFeedback && parsed.promptFeedback.blockReason) blockReason = parsed.promptFeedback.blockReason;
               const cand = parsed.candidates && parsed.candidates[0];
               if (cand && cand.finishReason && cand.finishReason !== 'STOP') finishReason = cand.finishReason;
@@ -1782,7 +1695,7 @@
         if (sources.length) aiMsg.sources = sources;
 
         if (!aiMsg.content.trim()) {
-          if (streamError) throw new Error(`[OpenRouter • ${orActual || usedModel}] ${streamError}`);
+          if (streamError) throw new Error(`[${MODEL_LABEL}] ${streamError}`);
           throw new Error(blockReason
             ? `İstek güvenlik filtresi tarafından engellendi (${blockReason}).`
             : `Model boş yanıt döndürdü${finishReason ? ' (' + finishReason + ')' : ''}. Lütfen tekrar deneyin.`);
@@ -1807,9 +1720,9 @@
         if (discEl) {
           discEl.classList.remove('hidden');
           const note = discEl.querySelector('.msg-fallback-note');
-          const shownModel = usedProvider === 'or' ? 'OpenRouter • ' + (orActual || usedModel) : usedModel;
+          const shownModel = MODEL_LABEL;
           if (note && fellBack) note.textContent = ' (Önceki model yanıt vermedi; ' + shownModel + ' ile yanıtlandı.)';
-          else if (note && (els.modelSelect.value === 'auto' || usedProvider === 'or')) note.textContent = ' (Model: ' + shownModel + ')';
+          else if (note) note.textContent = ' (Model: ' + shownModel + ')';
           renderSources(bubble, aiMsg.sources);
         }
         syncStorage();
@@ -1955,7 +1868,7 @@
       const msg = chat && chat.messages[idx];
       if (!msg || msg.role !== 'user') return;
       if (!newText) { forgeDialog('Soru boş olamaz.'); return; }
-      if (!state.apiKey && !state.orKey && !PROXY_URL) { els.settingsModal.classList.remove('hidden'); return; }
+      if (!state.apiKey && !PROXY_URL) { els.settingsModal.classList.remove('hidden'); return; }
 
       // Metin değişmediyse yine de aynı soruya yeni yanıt üretilir (yeniden dene)
       const oldText = msg.content;
@@ -2024,8 +1937,6 @@
 
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
-      els.orKeyInput.value = state.orKey;
-      els.orModelInput.value = state.orModel;
       els.tempSlider.value = state.temperature;
       els.tempValueLabel.textContent = state.temperature;
       els.systemPromptInput.value = state.systemPrompt;
@@ -2037,13 +1948,9 @@
 
     document.getElementById('saveSettingsBtn').onclick = () => {
       state.apiKey = els.apiKeyInput.value.trim();
-      state.orKey = els.orKeyInput.value.trim();
-      state.orModel = els.orModelInput.value.trim() || 'openrouter/auto';
       state.temperature = parseFloat(els.tempSlider.value);
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       localStorage.setItem(KEYS.API, state.apiKey);
-      localStorage.setItem(KEYS.OR, state.orKey);
-      localStorage.setItem(KEYS.ORMODEL, state.orModel);
       localStorage.setItem(KEYS.TEMP, state.temperature);
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
       updateApiBadge();
@@ -2062,11 +1969,6 @@
     document.getElementById('closeInstallGuideBtn').onclick = () => els.installGuideModal.classList.add('hidden');
     document.getElementById('okInstallGuideBtn').onclick = () => els.installGuideModal.classList.add('hidden');
 
-    const savedModel = localStorage.getItem(KEYS.MODEL);
-    if (savedModel && [...els.modelSelect.options].some(o => o.value === savedModel)) {
-      els.modelSelect.value = savedModel;
-    }
-    els.modelSelect.onchange = () => localStorage.setItem(KEYS.MODEL, els.modelSelect.value);
 
     let deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -2150,44 +2052,6 @@
     setInterval(checkForUpdates, 30 * 60 * 1000);
     window.addEventListener('focus', checkForUpdates);
 
-    // --- MODEL SEÇİCİ (sohbet kutusunun yanında, açılır/kapanır) ---
-    (function initModelPicker() {
-      const btn = document.getElementById('modelPickerBtn');
-      const menu = document.getElementById('modelPickerMenu');
-      const label = document.getElementById('modelPickerLabel');
-      const chev = document.getElementById('modelPickerChevron');
-      const opts = [...els.modelSelect.options];
-      function close() { menu.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); chev.style.transform = ''; }
-      function sync() {
-        const cur = opts.find(o => o.value === els.modelSelect.value) || opts[0];
-        label.textContent = cur.textContent;
-        menu.innerHTML = '';
-        opts.forEach(o => {
-          const active = o.value === els.modelSelect.value;
-          const b = document.createElement('button');
-          b.type = 'button';
-          b.setAttribute('role', 'option');
-          b.className = 'w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between gap-2 transition cursor-pointer ' +
-            (active ? 'bg-blue-50 text-blue-900 font-semibold' : 'hover:bg-slate-50 text-slate-700');
-          const t = document.createElement('span');
-          t.textContent = o.textContent;
-          b.appendChild(t);
-          if (active) { const c = document.createElement('span'); c.className = 'text-blue-600'; c.textContent = '✓'; b.appendChild(c); }
-          b.onclick = () => { els.modelSelect.value = o.value; els.modelSelect.dispatchEvent(new Event('change')); close(); };
-          menu.appendChild(b);
-        });
-      }
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        const open = menu.classList.toggle('hidden') === false;
-        btn.setAttribute('aria-expanded', String(open));
-        chev.style.transform = open ? 'rotate(180deg)' : '';
-      };
-      document.addEventListener('click', (e) => { if (!menu.contains(e.target)) close(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
-      els.modelSelect.addEventListener('change', sync);
-      sync();
-    })();
 
     // --- KAYNAKLAR, WEB ARAMA DÜĞMESİ, HAFIZA PENCERESİ ---
     function renderSources(row, list) {
