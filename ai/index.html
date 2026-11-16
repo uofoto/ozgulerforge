@@ -203,7 +203,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.5</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.7</span>
       </button>
     </div>
   </aside>
@@ -2285,6 +2285,27 @@
     updateApiBadge();
     renderChatList();
     renderMessages();
+  </script>
+
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAlZLrHCBuvEUbgELeFumaL4q_mD_X7HT8",
+      authDomain: "forge-ai-83cea.firebaseapp.com",
+      projectId: "forge-ai-83cea",
+      storageBucket: "forge-ai-83cea.firebasestorage.app",
+      messagingSenderId: "912627097805",
+      appId: "1:912627097805:web:0de9478c8d0ba511ef4984"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    window.firebaseApp = app;
   </script>
 </body>
 </html>

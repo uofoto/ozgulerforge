@@ -1,7 +1,13 @@
-# Forge AI (v6.9.5)
+# Forge AI (v6.9.7)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.7
+- Firebase kodu Firebase Console'un verdiği biçimle değiştirildi (`firebase-app.js` 13.3.0).
+
+## v6.9.6
+- **Firebase:** `forge-ai-83cea` projesinin yapılandırması `index.html` sonuna eklendi (`firebase-app.js` CDN'den yüklenir, `window.firebaseApp` olarak erişilir). Şimdilik yalnızca başlatma yapılır; Auth/Firestore henüz kullanılmıyor.
 
 ## v6.9.5
 - **Mobil düzeltme:** Sohbet kutusunun altındaki "Gönder" düğmesi dar ekranlarda sağa taşıp kesiliyordu. Düğme artık küçülmez ve her zaman tam görünür; model seçici kalan alana sığacak şekilde kısalır.
