@@ -56,7 +56,7 @@
     #messagesContainer { min-width: 0; overflow-x: hidden; }
     .msg-row { min-width: 0; width: 100%; }
     .msg-row > div:last-child { min-width: 0; max-width: 100%; }
-    .prose { min-width: 0; max-width: 100%; color: #1E293B; font-size: 0.95rem; line-height: 1.7; overflow-wrap: anywhere; }
+    .prose { min-width: 0; max-width: 100%; color: #1E293B; font-size: 1.0625rem; line-height: 1.75; overflow-wrap: anywhere; }
     .prose * { max-width: 100%; box-sizing: border-box; }
     .prose p { margin-bottom: 0.85rem; }
     .prose p:last-child { margin-bottom: 0; }
@@ -100,6 +100,20 @@
     #chatList .group:hover .chat-sel-wrap, #chatList[data-selecting="1"] .chat-sel-wrap { width:1.5rem; opacity:1; }
     @media (hover: none) { .chat-sel-wrap { width:1.5rem; opacity:1; } #chatList .delete-chat { opacity:1 !important; } }
 
+
+    /* Okunabilirlik: küçük yazıları büyüt */
+    #sidebar .sb-row, #sidebar .sb-mi { font-size: 0.9375rem; padding-top: .65rem; padding-bottom: .65rem; }
+    #sidebar .sb-sub { font-size: 0.875rem; padding-top: .55rem; padding-bottom: .55rem; }
+    #sidebar #menuEmail { font-size: .8125rem; }
+    #sidebar #userName { font-size: .9375rem; }
+    #sidebar #userEmail { font-size: .75rem; }
+    #sidebar #bulkBar { font-size: .8125rem; }
+    #sidebar #bulkBar * { font-size: .8125rem; }
+    .text-\[10px\] { font-size: 0.75rem !important; }
+    .text-\[11px\] { font-size: 0.8125rem !important; }
+    #chatForm .text-xs, header .text-xs, #messagesContainer .text-xs { font-size: 0.875rem; line-height: 1.35rem; }
+    .code-wrapper pre { font-size: 0.9rem; }
+
     @media print {
       body * { visibility: hidden; }
       #printArea, #printArea * { visibility: visible; }
@@ -133,7 +147,7 @@
   <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-30 hidden md:hidden"></div>
 
   <!-- SOL KENAR ÇUBUĞU (SIDEBAR) -->
-  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-[#F9F8F5] border-r border-[#E8E6DF] transform -translate-x-full md:translate-x-0 md:static transition-transform duration-250 ease-out flex flex-col shadow-soft md:shadow-none">
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-80 max-w-[88vw] bg-[#F9F8F5] border-r border-[#E8E6DF] transform -translate-x-full md:translate-x-0 md:static transition-transform duration-250 ease-out flex flex-col shadow-soft md:shadow-none">
 
     <!-- Üst: marka -->
     <div class="px-4 pt-4 pb-2 flex items-center justify-between">
@@ -144,7 +158,7 @@
             <circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity="0.25"></circle>
           </svg>
         </div>
-        <span class="font-bold text-xl tracking-tight text-slate-900">Forge AI</span>
+        <span class="font-bold text-2xl tracking-tight text-slate-900">Forge AI</span>
       </div>
       <button id="closeSidebarBtn" type="button" class="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-[#EFEDE7]" aria-label="Menüyü kapat">
         <i data-lucide="x" class="w-5 h-5"></i>
@@ -162,7 +176,7 @@
         <span>Ara</span>
       </button>
       <div id="searchWrap" class="hidden px-1 pt-0.5 pb-1">
-        <input type="text" id="searchChatsInput" placeholder="Çalışmalarda ara..." class="w-full bg-white border border-[#E3E0D8] rounded-lg px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition">
+        <input type="text" id="searchChatsInput" placeholder="Çalışmalarda ara..." class="w-full bg-white border border-[#E3E0D8] rounded-lg px-3 py-2.5 text-[15px] text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition">
       </div>
     </nav>
 
@@ -176,7 +190,7 @@
     </div>
 
     <!-- Çalışma listesi -->
-    <div class="px-5 pt-5 pb-1.5 text-xs font-medium text-slate-500 select-none">Çalışmalar</div>
+    <div class="px-5 pt-5 pb-1.5 text-[13px] font-medium text-slate-500 select-none">Çalışmalar</div>
     <div class="flex-1 overflow-y-auto px-3 space-y-0.5" id="chatList"></div>
 
     <!-- Alt: hesap (Google girişi) ve menü -->
@@ -225,7 +239,7 @@
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.26</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.27</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -272,7 +286,7 @@
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
 
-          <span class="font-bold text-sm text-slate-800 truncate">Forge AI</span>
+          <span class="font-bold text-base text-slate-800 truncate">Forge AI</span>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
@@ -296,7 +310,7 @@
 
       <!-- ALT MESAJ KONSOLU -->
       <div class="px-2.5 sm:px-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-4 pt-2 bg-gradient-to-t from-[#F8FAFC] via-[#F8FAFC] to-transparent shrink-0 relative">
-        <div class="max-w-3xl mx-auto relative">
+        <div class="max-w-4xl mx-auto relative">
 
           <div id="slashMenu" class="hidden absolute bottom-full left-0 mb-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-float p-1.5 z-30 space-y-0.5">
             <div class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Hızlı Forge AI Komutları</div>
@@ -322,7 +336,7 @@
               id="userInput"
               rows="1"
               placeholder="Forge AI'ya yazın..."
-              class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-base sm:text-[15px] px-2 py-1 min-h-[64px] sm:min-h-0 focus:outline-none resize-none max-h-44 leading-relaxed"
+              class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-base sm:text-[17px] px-2 py-1 min-h-[64px] sm:min-h-0 focus:outline-none resize-none max-h-44 leading-relaxed"
             ></textarea>
             
             <div class="flex items-center justify-between gap-2 pt-2 mt-1 border-t border-slate-100 px-1">
@@ -1205,7 +1219,7 @@
       filtered.forEach(chat => {
         const active = chat.id === state.activeChatId;
         const item = document.createElement('div');
-        item.className = `group flex items-center justify-between px-3 py-2 rounded-xl text-[13px] cursor-pointer transition ${
+        item.className = `group flex items-center justify-between px-3 py-2.5 rounded-xl text-[15px] cursor-pointer transition ${
           active ? 'bg-[#E9E7E0] text-slate-900 font-medium' : 'text-slate-700 hover:bg-[#EFEDE7]'
         }`;
         item.innerHTML = `
@@ -1278,7 +1292,7 @@
     function getWelcomeScreenHtml() {
       const hasValidKey = keyOk();
       return `
-        <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
+        <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-3xl mx-auto text-center py-8">
           <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
             <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"></path>
@@ -1351,7 +1365,7 @@
 
     function createMessageBubble(role, content, filesSummary = null, imagesCount = 0, msgIndex = -1) {
       const row = document.createElement('div');
-      row.className = `msg-row max-w-3xl mx-auto flex gap-3.5 ${role === 'user' ? 'justify-end items-start' : 'justify-start'}`;
+      row.className = `msg-row max-w-4xl mx-auto flex gap-3.5 ${role === 'user' ? 'justify-end items-start' : 'justify-start'}`;
       if (msgIndex >= 0) row.dataset.idx = String(msgIndex);
 
       if (role === 'user') {
@@ -1361,7 +1375,7 @@
           <button type="button" data-action="edit" class="mt-2 p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer shrink-0" title="Soruyu düzenle">
             <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
           </button>
-          <div class="msg-user-bubble bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-tr-xs max-w-[85%] text-sm sm:text-[15px] shadow-xs leading-relaxed whitespace-pre-wrap">${badgeImg}${badgeFiles}${escapeHtml(content)}</div>
+          <div class="msg-user-bubble bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-tr-xs max-w-[85%] text-base shadow-xs leading-relaxed whitespace-pre-wrap">${badgeImg}${badgeFiles}${escapeHtml(content)}</div>
         `;
       } else {
         msgTextStore.set(row, content || '');
@@ -2246,7 +2260,7 @@
       }
       google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential, auto_select: true });
       if (PROXY_URL && currentUser && !getIdToken()) google.accounts.id.prompt();
-      google.accounts.id.renderButton(host, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', locale: 'tr', width: 200 });
+      google.accounts.id.renderButton(host, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', locale: 'tr', width: 240 });
     }
     document.getElementById('signOutBtn').onclick = () => {
       if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect();

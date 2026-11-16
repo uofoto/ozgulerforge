@@ -1,4 +1,7 @@
-# Forge AI (v6.9.26)
+# Forge AI (v6.9.27)
+
+## v6.9.27
+- **Okunabilirlik:** Kenar çubuğu 288 px → 320 px, sohbet sütunu genişletildi (768 → 896 px); menü, liste, yanıt ve yazı alanı fontları büyütüldü; 10–11 px’lik küçük yazılar 12–13 px’e çıkarıldı.
 
 ## v6.9.26
 - **Kenar çubuğu yenilendi (Claude tarzı):** Düz satırlı gezinme (Yeni Çalışma, Ara), sade çalışma listesi; sohbet seçme kutusu üzerine gelince veya seçim yapılırken görünür.

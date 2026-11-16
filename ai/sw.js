@@ -1,4 +1,4 @@
-const CACHE_NAME = 'forge-ai-studio-v6.9.26';
+const CACHE_NAME = 'forge-ai-studio-v6.9.27';
 const STATIC_ASSETS = [
   './',
   './index.html',
