@@ -1,7 +1,10 @@
-# Forge AI (v6.9.4)
+# Forge AI (v6.9.5)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.5
+- **Mobil düzeltme:** Sohbet kutusunun altındaki "Gönder" düğmesi dar ekranlarda sağa taşıp kesiliyordu. Düğme artık küçülmez ve her zaman tam görünür; model seçici kalan alana sığacak şekilde kısalır.
 
 ## v6.9.4
 - **Toplu silme:** Sol taraftaki her sohbetin başında küçük bir onay kutusu var. Kutuları işaretleyince üstte "N seçili" çubuğu çıkar: "Tümünü seç" (aramayla süzülen listeye uygulanır), "Vazgeç" ve "Sil". Silmeden önce onay istenir; sohbetlerin ekleri de silinir.
