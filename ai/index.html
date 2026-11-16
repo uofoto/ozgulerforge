@@ -209,12 +209,25 @@
         <span>Hafızam</span>
       </button>
 
+      <div class="relative">
+        <button id="legalToggleBtn" type="button" aria-expanded="false" aria-controls="legalSubmenu" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center justify-between transition cursor-pointer">
+          <span class="flex items-center gap-2"><i data-lucide="scale" class="w-3.5 h-3.5 text-slate-500"></i>Yasal Bilgiler</span>
+          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+        </button>
+        <div id="legalSubmenu" class="hidden mt-1 ml-3 pl-2 border-l border-slate-200 space-y-0.5 max-h-36 overflow-y-auto">
+          <button type="button" data-legal="usage" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-600 hover:bg-white hover:text-blue-600">Kullanım Politikası</button>
+          <button type="button" data-legal="privacy" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-600 hover:bg-white hover:text-blue-600">Gizlilik ve KVKK</button>
+          <button type="button" data-legal="terms" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-600 hover:bg-white hover:text-blue-600">Hizmet Şartları</button>
+          <button type="button" data-legal="licenses" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-600 hover:bg-white hover:text-blue-600">Yazılım Lisansları</button>
+        </div>
+      </div>
+
       <button id="openAboutBtn" type="button" class="w-full py-1.5 px-3 text-slate-500 hover:text-slate-800 text-[11px] rounded-lg flex items-center justify-between transition cursor-pointer">
         <span class="flex items-center gap-1.5">
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.16</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.19</span>
       </button>
     </div>
   </aside>
@@ -309,7 +322,7 @@
               </div>
 
               <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
-                <span id="modelBadge" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl truncate max-w-full sm:max-w-[200px]">⚡ Groq · Llama 3.1 8B</span>
+                <span id="modelBadge" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl truncate max-w-full sm:max-w-[200px]">⚡ Forge 4</span>
                 <button type="button" id="stopBtn" class="hidden shrink-0 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
                   <i data-lucide="square" class="w-3 h-3 fill-current"></i>
                   <span>Durdur</span>
@@ -412,21 +425,8 @@
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Aktif Yapay Zekâ Sağlayıcısı</label>
-          <select id="providerSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500">
-            <option value="auto">Akıllı otomatik yönlendirme (önerilen)</option>
-            <option value="groq">Groq · llama-3.1-8b-instant</option>
-            <option value="gemini">Google Gemini</option>
-          </select>
-          <p class="mt-1 text-[10px] text-slate-500">Metin için Groq; görsel/PDF ve Google Web araması için Gemini seçilir. Kota veya bağlantı sorunu olursa diğer sağlayıcı denenir. Anahtarlarınız korunur.</p>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Groq API Anahtarı</label>
-          <input type="password" id="groqApiKeyInput" placeholder="gsk_..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
-          <p class="mt-1 text-[10px] text-slate-500">Anahtarınızı console.groq.com adresinden alın. Tarayıcınızda saklanır.</p>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Anahtarı (Google)</label>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Anahtarı</label>
+          <p class="text-[10px] text-slate-500 mb-1">Forge AI yanıtları Google Gemini üzerinden oluşturur.</p>
           <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
         </div>
 
@@ -490,6 +490,20 @@
     </div>
   </div>
 
+
+  <!-- YASAL BİLGİLER PENCERESİ -->
+  <div id="legalModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+    <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-float">
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3">
+        <div><h3 id="legalTitle" class="text-base font-bold text-slate-900">Yasal Bilgiler</h3><p class="text-[10px] text-slate-400 mt-0.5">Son güncelleme: 16 Kasım 2026</p></div>
+        <button id="closeLegalBtn" type="button" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100" aria-label="Kapat"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div class="px-5 pt-3"><p class="text-[11px] leading-relaxed text-amber-800 bg-amber-50 border border-amber-100 rounded-xl p-3">Bu metinler bilgilendirme taslağıdır; yayımlamadan önce işletmenizin gerçek veri işleme süreçleri ve şirket bilgileriyle karşılaştırıp hukuk danışmanınıza inceletin.</p></div>
+      <div id="legalContent" class="p-5 pt-3 overflow-y-auto text-sm text-slate-700 leading-relaxed space-y-4"></div>
+      <div class="p-4 border-t border-slate-100 flex justify-end"><button id="okLegalBtn" type="button" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl">Kapat</button></div>
+    </div>
+  </div>
+
   <!-- PWA REHBER MODALI -->
   <div id="installGuideModal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-md p-6 space-y-4 shadow-float">
@@ -535,13 +549,9 @@
 
     const GEMINI_MODEL = 'gemini-4-hydrogen'; // API model kimliği (kullanıcıya gösterilmez)
     const MODEL_LABEL = 'Forge 4'; // Gemini kullanıcıya görünen ad
-    const GROQ_MODEL = 'llama-3.1-8b-instant';
-    const GROQ_LABEL = 'Groq · Llama 3.1 8B';
 
     const KEYS = {
       API: 'forge_ai_gemini_api_key',
-      GROQ_API: 'forge_ai_groq_api_key',
-      PROVIDER: 'forge_ai_provider',
       SYSTEM: 'forge_ai_system_prompt',
       TEMP: 'forge_ai_temperature',
       CHATS: 'forge_ai_chats',
@@ -549,6 +559,8 @@
       MODEL: 'forge_ai_v66_model',
       USER: 'forge_ai_user'
     };
+
+    try { localStorage.removeItem('forge_ai_groq_api_key'); localStorage.removeItem('forge_ai_provider'); } catch (_) {}
 
     // Google ile giriş için OAuth Web Client ID (Google Cloud Console > Credentials).
     // Boşsa giriş düğmesi kurulum bilgisi gösterir.
@@ -646,8 +658,6 @@
 
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
-      groqApiKey: localStorage.getItem(KEYS.GROQ_API) || '',
-      provider: localStorage.getItem(KEYS.PROVIDER) || 'auto',
       systemPrompt: localStorage.getItem(KEYS.SYSTEM) || BASE_IDENTITY,
       temperature: parseFloat(localStorage.getItem(KEYS.TEMP) || '0.7'),
       chats: JSON.parse(localStorage.getItem(KEYS.CHATS) || '[]'),
@@ -692,9 +702,8 @@
       settingsModal: document.getElementById('settingsModal'),
       aboutModal: document.getElementById('aboutModal'),
       installGuideModal: document.getElementById('installGuideModal'),
+      legalModal: document.getElementById('legalModal'),
       apiKeyInput: document.getElementById('apiKeyInput'),
-      groqApiKeyInput: document.getElementById('groqApiKeyInput'),
-      providerSelect: document.getElementById('providerSelect'),
       tempSlider: document.getElementById('tempSlider'),
       tempValueLabel: document.getElementById('tempValueLabel'),
       systemPromptInput: document.getElementById('systemPromptInput')
@@ -930,11 +939,9 @@
     }
 
     function updateApiBadge() {
-      const hasGroq = Boolean(state.groqApiKey);
-      const hasGemini = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
-      const valid = state.provider === 'groq' ? hasGroq : state.provider === 'gemini' ? hasGemini : (hasGroq || hasGemini);
+      const valid = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
       const badge = document.getElementById('modelBadge');
-      if (badge) badge.textContent = state.provider === 'auto' ? '⚡ Akıllı yönlendirme' : state.provider === 'groq' ? '⚡ ' + GROQ_LABEL : '⚡ ' + MODEL_LABEL;
+      if (badge) badge.textContent = '⚡ ' + MODEL_LABEL;
       els.keyStatusBadge.className = `w-2 h-2 rounded-full ${valid ? 'bg-emerald-500' : 'bg-rose-500'}`;
       const warningEl = document.getElementById('noKeyWarning');
       if (warningEl) warningEl.classList.toggle('hidden', valid);
@@ -1224,7 +1231,7 @@
     };
 
     function getWelcomeScreenHtml() {
-      const hasValidKey = state.provider === 'groq' ? Boolean(state.groqApiKey) : state.provider === 'gemini' ? Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza'))) : Boolean(state.groqApiKey || PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
+      const hasValidKey = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
       return `
         <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
           <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
@@ -1277,12 +1284,25 @@
         return;
       }
 
-      chat.messages.forEach((m, i) => { const r = createMessageBubble(m.role, m.content, m.filesSummary, m.imagesCount, i); if (m.sources) renderSources(r, m.sources); });
+      chat.messages.forEach((m, i) => {
+        const r = createMessageBubble(m.role, m.content, m.filesSummary, m.imagesCount, i);
+        if (m.sources) renderSources(r, m.sources);
+        if (m.role === 'assistant' && Number.isFinite(m.elapsedMs)) {
+          const note = r.querySelector('.msg-fallback-note');
+          if (note) note.textContent = ' · ' + (m.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(m.elapsedMs);
+        }
+      });
       els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
       refreshIcons();
     }
 
     const msgTextStore = new WeakMap();
+    function formatElapsedTime(ms) {
+      const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+      const minutes = Math.floor(totalSeconds / 60);
+      const seconds = totalSeconds % 60;
+      return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+    }
 
     function createMessageBubble(role, content, filesSummary = null, imagesCount = 0, msgIndex = -1) {
       const row = document.createElement('div');
@@ -1305,7 +1325,7 @@
             <i data-lucide="cpu" class="w-4 h-4"></i>
           </div>
           <div class="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 sm:p-5 shadow-2xs">
-            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="forge-progress not-prose py-1" aria-live="polite"><p data-progress-detail class="text-xs font-semibold text-slate-700 mb-2">İsteğinizi hazırlıyorum…</p><ol class="space-y-1.5 text-xs text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>İsteğe uygun yapay zekâ motorunu seçiyorum</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Seçilen motora bağlanıyorum</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Yanıtınızı oluşturuyorum</span></li></ol></div>'}</div>
+            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="forge-progress not-prose py-1" aria-live="polite"><div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2"><p data-progress-detail class="text-xs font-semibold text-slate-700">Forge AI isteğinizi hazırlıyor…</p><span data-elapsed-time class="text-[10px] font-mono text-slate-400 tabular-nums">Geçen süre: 00:00</span></div><ol class="space-y-1.5 text-xs text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI isteğiniz için uygun motoru seçiyor</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI hizmetine bağlanıyor</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI yanıtınızı oluşturuyor</span></li></ol></div>'}</div>
             <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-[11px] text-slate-400 ${content ? '' : 'hidden'}">
               <button type="button" data-action="preview" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer">
                 <span>👁️ Çalışmayı Önizle / PDF</span>
@@ -1344,7 +1364,7 @@
       if (!text && !hasFiles) return;
       if (state.isGenerating) return;
 
-      if (!(state.provider === 'groq' ? state.groqApiKey : state.provider === 'gemini' ? (state.apiKey || PROXY_URL) : (state.groqApiKey || state.apiKey || PROXY_URL))) {
+      if (!state.apiKey && !PROXY_URL) {
         els.settingsModal.classList.remove('hidden');
         return;
       }
@@ -1420,6 +1440,15 @@
       const proseEl = bubble.querySelector('.prose');
       const actionsEl = bubble.querySelector('.msg-actions');
       const progressEl = bubble.querySelector('.forge-progress');
+      const generationStartedAt = Date.now();
+      let elapsedMs = 0;
+      const elapsedEl = progressEl && progressEl.querySelector('[data-elapsed-time]');
+      const updateElapsedTime = () => {
+        elapsedMs = Date.now() - generationStartedAt;
+        if (elapsedEl) elapsedEl.textContent = 'Geçen süre: ' + formatElapsedTime(elapsedMs);
+      };
+      updateElapsedTime();
+      const elapsedTimer = setInterval(updateElapsedTime, 1000);
       let progressStep = 0;
       const updateProgress = (step, detail) => {
         if (!progressEl) return;
@@ -1436,15 +1465,12 @@
         });
       };
 
-      let useGroq = state.provider !== 'gemini';
-      let selectedModel = useGroq ? GROQ_MODEL : GEMINI_MODEL;
-      let activeModelLabel = useGroq ? GROQ_LABEL : MODEL_LABEL;
-      let usedModel = selectedModel;
+      const activeModelLabel = MODEL_LABEL;
 
       try {
-        updateProgress(0, 'İsteğinizi hazırlıyorum…');
+        updateProgress(0, 'Forge AI isteğinizi hazırlıyor…');
         await attachSave;
-        updateProgress(1, 'Sohbet geçmişi ve ekleri kontrol ediyorum…');
+        updateProgress(1, 'Sohbet geçmişi ve ekleri kontrol ediliyor…');
         const apiContents = [];
         for (const m of currentChat.messages.slice(0, -1)) {
           const parts = [];
@@ -1466,91 +1492,43 @@
 
         updateProgress(2, apiContents.some(c => c.parts.some(part => part.inlineData)) ? 'Sohbeti ve eklenen görsel/PDF dosyalarını hazırlıyorum…' : 'Sohbet geçmişini ve talimatları hazırlıyorum…');
         const systemText = state.systemPrompt + (getMemory().on !== false && getMemory().text ? `\n\nKullanıcı hakkında hatırlaman gereken notlar (kullanıcı kendisi yazdı):\n${getMemory().text}` : '') + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') ;
-        const needsGemini = apiContents.some(c => c.parts.some(part => part.inlineData)) || localStorage.getItem(WEB_KEY) === '1';
-        const groqMessages = [{ role: 'system', content: systemText }].concat(apiContents.map(c => ({
-          role: c.role === 'model' ? 'assistant' : 'user',
-          content: c.parts.filter(part => typeof part.text === 'string').map(part => part.text).join('\n')
-        })).filter(m => m.content));
-        const hasGroqKey = Boolean(state.groqApiKey);
-        const hasGeminiKey = Boolean(PROXY_URL || state.apiKey);
-        const preferred = state.provider === 'auto' ? (needsGemini ? 'g' : 'q') : (state.provider === 'gemini' ? 'g' : 'q');
-        const first = needsGemini ? 'g' : preferred;
-        updateProgress(3, needsGemini ? 'Ekler veya Web araması için Gemini’yi seçiyorum…' : (state.provider === 'auto' ? 'Metin isteği için Groq’u seçiyorum…' : 'Tercih ettiğiniz motoru kullanıyorum…'));
-        const attempts = [];
-        if (first === 'q' && hasGroqKey) attempts.push({ p: 'q', m: GROQ_MODEL });
-        if (first === 'g' && hasGeminiKey) attempts.push({ p: 'g', m: GEMINI_MODEL });
-        const alternate = first === 'q' ? 'g' : 'q';
-        if (alternate === 'q' && hasGroqKey) attempts.push({ p: 'q', m: GROQ_MODEL });
-        if (alternate === 'g' && hasGeminiKey) attempts.push({ p: 'g', m: GEMINI_MODEL });
-        if (!attempts.length) throw new Error('Kullanılabilir API anahtarı bulunamadı. Akıllı yönlendirme için Groq ve/veya Gemini anahtarını Motor Ayarları bölümüne ekleyin.');
-        if (needsGemini && !hasGeminiKey) throw new Error('Bu istek görsel/PDF eki veya Google Web araması gerektiriyor; bunun için Gemini API anahtarı gerekli. Motor Ayarları bölümünden Gemini anahtarını ekleyin.');
+        const requestBody = JSON.stringify({
+          systemInstruction: { parts: [{ text: systemText }] },
+          contents: apiContents,
+          tools: localStorage.getItem(WEB_KEY) === '1' ? [{ google_search: {} }] : undefined,
+          generationConfig: { temperature: state.temperature }
+        });
+        if (requestBody.length > 19 * 1024 * 1024) throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
+        if (!PROXY_URL && !state.apiKey) throw new Error('Gemini API anahtarı yok. Forge AI Motor Ayarları bölümünden anahtarınızı girin.');
 
-        let response = null;
-        let fellBack = false;
-        let lastProviderError = null;
-        for (let i = 0; i < attempts.length; i++) {
-          const at = attempts[i];
-          useGroq = at.p === 'q';
-          selectedModel = at.m;
-          activeModelLabel = useGroq ? GROQ_LABEL : MODEL_LABEL;
-          let endpoint, headers, body;
-          updateProgress(3, (i > 0 ? 'İlk motor yanıt vermedi; ' : '') + (useGroq ? 'Groq’a bağlanıyorum…' : 'Gemini’ye bağlanıyorum…'));
-          if (useGroq) {
-            endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-            headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.groqApiKey };
-            body = JSON.stringify({ model: GROQ_MODEL, messages: groqMessages, temperature: state.temperature, stream: true });
-          } else {
-            const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
-            endpoint = `${base}/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:streamGenerateContent?alt=sse`;
-            if (PROXY_URL && !getIdToken()) {
-              lastProviderError = new Error('Oturumunuzun süresi doldu. Google Gemini kullanımı için yeniden giriş yapın.');
-              continue;
-            }
-            headers = Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
-            body = JSON.stringify({
-              systemInstruction: { parts: [{ text: systemText }] },
-              contents: apiContents,
-              tools: localStorage.getItem(WEB_KEY) === '1' ? [{ google_search: {} }] : undefined,
-              generationConfig: { temperature: state.temperature }
-            });
-          }
-          if (body.length > 19 * 1024 * 1024) throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
-          let netErr = null;
-          try {
-            response = await fetch(endpoint, { method: 'POST', signal: state.abortController.signal, headers, body });
-          } catch (fe) {
-            if (fe.name === 'AbortError') throw fe;
-            netErr = fe;
-          }
-          if (!netErr && response.ok) {
-            usedModel = at.m;
-            fellBack = i > 0;
-            updateProgress(4, (useGroq ? 'Groq' : 'Gemini') + ' yanıtı hazırlıyor…');
-            break;
-          }
-          let status = 0;
-          if (netErr) {
-            lastProviderError = new Error(`[${activeModelLabel}] Bağlantı kurulamadı: ${netErr.message}`);
-          } else {
-            status = response.status;
-            const errData = await response.json().catch(() => ({}));
-            const apiMsg = (errData.error && errData.error.message) || errData.message || '';
-            const hints = {
-              400: 'İstek geçersiz (model veya içerik desteklenmiyor olabilir).',
-              401: 'API anahtarı geçersiz.',
-              402: 'Bakiye/kredi yetersiz.',
-              403: 'API anahtarının bu modele erişim izni yok veya anahtar kısıtlı.',
-              404: 'Model adı bulunamadı.',
-              429: 'Kota/oran sınırı aşıldı.',
-              503: 'Model şu an yoğun, geçici olarak yanıt veremiyor.'
-            };
-            lastProviderError = new Error(`[${activeModelLabel} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
-          }
-          // Diğer sağlayıcı kullanılabiliyorsa, sağlayıcıya özgü hata/kota/erişim sorunlarında otomatik geçiş yap.
-          if (i < attempts.length - 1) updateProgress(3, (useGroq ? 'Groq' : 'Gemini') + ' yanıt veremedi; diğer motoru deniyorum…');
-          if (i === attempts.length - 1) throw lastProviderError;
+        updateProgress(3, 'Forge AI uygun yanıtı hazırlamak için bağlantı kuruyor…');
+        const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
+        const endpoint = `${base}/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:streamGenerateContent?alt=sse`;
+        if (PROXY_URL && !getIdToken()) throw new Error('Google hesabı oturumu süresi dolmuş. Lütfen yeniden giriş yapın.');
+        const headers = Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
+        let response;
+        try {
+          response = await fetch(endpoint, { method: 'POST', signal: state.abortController.signal, headers, body: requestBody });
+        } catch (netErr) {
+          if (netErr.name === 'AbortError') throw netErr;
+          throw new Error(`[${MODEL_LABEL}] Bağlantı kurulamadı: ${netErr.message}`);
         }
-        if (!response || !response.ok) throw lastProviderError || new Error('Her iki sağlayıcı da yanıt vermedi.');
+        if (!response.ok) {
+          const status = response.status;
+          const errData = await response.json().catch(() => ({}));
+          const apiMsg = (errData.error && errData.error.message) || errData.message || '';
+          const hints = {
+            400: 'İstek geçersiz (model veya içerik desteklenmiyor olabilir).',
+            401: 'API anahtarı geçersiz.',
+            402: 'Bakiye/kredi yetersiz.',
+            403: 'API anahtarının bu modele erişim izni yok veya anahtar kısıtlı.',
+            404: 'Model adı bulunamadı.',
+            429: 'Kota/oran sınırı aşıldı.',
+            503: 'Model şu an yoğun, geçici olarak yanıt veremiyor.'
+          };
+          throw new Error(`[${MODEL_LABEL} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
+        }
+        updateProgress(4, 'Forge AI yanıtınızı hazırlıyor…');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
@@ -1588,13 +1566,6 @@
             try {
               const parsed = JSON.parse(payload);
                             if (parsed.error) { streamError = parsed.error.message || 'Akış sırasında hata oluştu.'; continue; }
-              if (useGroq) {
-                const choice = parsed.choices && parsed.choices[0];
-                if (choice && choice.finish_reason) finishReason = choice.finish_reason;
-                const delta = choice && choice.delta && choice.delta.content;
-                if (typeof delta === 'string') { if (delta && progressEl) { progressEl.querySelector('[data-progress-detail]').textContent = 'Yanıtınızı yazıyorum…'; } aiMsg.content += delta; scheduleRender(); }
-                continue;
-              }
               if (parsed.promptFeedback && parsed.promptFeedback.blockReason) blockReason = parsed.promptFeedback.blockReason;
               const cand = parsed.candidates && parsed.candidates[0];
               if (cand && cand.finishReason && cand.finishReason !== 'STOP') finishReason = cand.finishReason;
@@ -1605,7 +1576,7 @@
               const parts = cand && cand.content && cand.content.parts;
               if (Array.isArray(parts)) {
                 for (const p of parts) {
-                  if (p.text && !p.thought) { if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Yanıtınızı yazıyorum…'; aiMsg.content += p.text; }
+                  if (p.text && !p.thought) { if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Forge AI yanıtınızı yazıyor…'; aiMsg.content += p.text; }
                 }
                 scheduleRender();
               }
@@ -1613,6 +1584,10 @@
           }
         }
 
+        updateElapsedTime();
+        clearInterval(elapsedTimer);
+        aiMsg.elapsedMs = elapsedMs;
+        aiMsg.webSearch = localStorage.getItem(WEB_KEY) === '1';
         if (progressEl) progressEl.remove();
         flushRender();
         if (sources.length) aiMsg.sources = sources;
@@ -1623,7 +1598,7 @@
             ? `İstek güvenlik filtresi tarafından engellendi (${blockReason}).`
             : `Model boş yanıt döndürdü${finishReason ? ' (' + finishReason + ')' : ''}. Lütfen tekrar deneyin.`);
         }
-        if (finishReason === 'MAX_TOKENS' || (useGroq && finishReason === 'length')) {
+        if (finishReason === 'MAX_TOKENS') {
           aiMsg.content += '\n\n*(Yanıt uzunluk sınırında kesildi. "Devam et" yazarak sürdürebilirsiniz.)*';
           flushRender();
         }
@@ -1644,8 +1619,9 @@
           discEl.classList.remove('hidden');
           const note = discEl.querySelector('.msg-fallback-note');
           const shownModel = activeModelLabel;
-          if (note && fellBack) note.textContent = ' (Önceki model yanıt vermedi; ' + shownModel + ' ile yanıtlandı.)';
-          else if (note) note.textContent = ' (Model: ' + shownModel + ')';
+          if (note && fellBack) note.textContent = ' (Önceki motor yanıt vermedi; Forge AI yedek motoruyla yanıtlandı.)';
+          else if (note) note.textContent = '';
+          if (note) note.textContent += ' · ' + (aiMsg.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(aiMsg.elapsedMs);
           renderSources(bubble, aiMsg.sources);
         }
         syncStorage();
@@ -1662,15 +1638,20 @@
         }
 
       } catch (err) {
+        updateElapsedTime();
+        aiMsg.elapsedMs = elapsedMs;
+        aiMsg.webSearch = localStorage.getItem(WEB_KEY) === '1';
         if (err.name === 'AbortError') {
           aiMsg.content += '\n\n*(İşlem kullanıcı tarafından durduruldu.)*';
         } else {
           aiMsg.content = `> **Forge AI Motor Uyarısı:** ${err.message}\n\n*Lütfen motor ayarlarınızı kontrol edin.*`;
         }
+        aiMsg.content += `\n\n*İşlem süresi: ${formatElapsedTime(elapsedMs)}*`;
         if (progressEl) progressEl.remove();
         proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
         syncStorage();
       } finally {
+        clearInterval(elapsedTimer);
         state.isGenerating = false;
         state.abortController = null;
         els.stopBtn.classList.add('hidden');
@@ -1792,7 +1773,7 @@
       const msg = chat && chat.messages[idx];
       if (!msg || msg.role !== 'user') return;
       if (!newText) { forgeDialog('Soru boş olamaz.'); return; }
-      if (!(state.provider === 'groq' ? state.groqApiKey : state.provider === 'gemini' ? (state.apiKey || PROXY_URL) : (state.groqApiKey || state.apiKey || PROXY_URL))) { els.settingsModal.classList.remove('hidden'); return; }
+      if (!state.apiKey && !PROXY_URL) { els.settingsModal.classList.remove('hidden'); return; }
 
       // Metin değişmediyse yine de aynı soruya yeni yanıt üretilir (yeniden dene)
       const oldText = msg.content;
@@ -1861,8 +1842,6 @@
 
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
-      els.groqApiKeyInput.value = state.groqApiKey;
-      els.providerSelect.value = state.provider;
       els.tempSlider.value = state.temperature;
       els.tempValueLabel.textContent = state.temperature;
       els.systemPromptInput.value = state.systemPrompt;
@@ -1874,13 +1853,9 @@
 
     document.getElementById('saveSettingsBtn').onclick = () => {
       state.apiKey = els.apiKeyInput.value.trim();
-      state.groqApiKey = els.groqApiKeyInput.value.trim();
-      state.provider = ['auto', 'groq', 'gemini'].includes(els.providerSelect.value) ? els.providerSelect.value : 'auto';
       state.temperature = parseFloat(els.tempSlider.value);
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       localStorage.setItem(KEYS.API, state.apiKey);
-      localStorage.setItem(KEYS.GROQ_API, state.groqApiKey);
-      localStorage.setItem(KEYS.PROVIDER, state.provider);
       localStorage.setItem(KEYS.TEMP, state.temperature);
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
       updateApiBadge();
@@ -1895,6 +1870,71 @@
     document.getElementById('openAboutBtn').onclick = () => els.aboutModal.classList.remove('hidden');
     document.getElementById('closeAboutBtn').onclick = () => els.aboutModal.classList.add('hidden');
     document.getElementById('okAboutBtn').onclick = () => els.aboutModal.classList.add('hidden');
+
+    const LEGAL_TEXTS = {
+      usage: {
+        title: 'Kullanım Politikası',
+        sections: [
+          ['Kabul edilebilir kullanım', 'Forge AI; hukuka uygun, güvenli ve başkalarının haklarına saygılı amaçlarla kullanılmalıdır. Hizmeti yasa dışı faaliyet, zararlı yazılım, dolandırıcılık, taciz veya güvenlik önlemlerini aşma amacıyla kullanmayın.'],
+          ['İçerik ve ekler', 'Yüklediğiniz metin, görsel ve belgeleri kullanma yetkiniz olmalıdır. Başkasına ait kişisel, gizli veya telif korumalı bilgileri gerekli izin ve hukuki dayanak olmadan paylaşmayın.'],
+          ['Yapay zekâ çıktıları', 'Yanıtlar otomatik oluşturulur; hatalı, eksik veya güncel olmayan bilgi içerebilir. Önemli kararlar öncesinde çıktıları bağımsız kaynaklardan doğrulayın.']
+        ]
+      },
+      privacy: {
+        title: 'Gizlilik ve KVKK Bilgilendirmesi',
+        sections: [
+          ['Veri sorumlusu ve iletişim', 'Bu taslakta veri sorumlusu Ozguler Forge olarak belirtilmiştir. Gizlilik ve kişisel veri talepleri için iletisim@ozgulerforge.com.tr adresi kullanılabilir. Yayımdan önce veri sorumlusunun tam ticari unvanı ve iletişim bilgileri doğrulanmalıdır.'],
+          ['İşlenen bilgiler ve amaçlar', 'Sohbet mesajları, eklediğiniz metin/görsel/belgeler, uygulama tercihleri ve API anahtarınız işlevleri sunmak ve sohbetleri saklamak amacıyla işlenebilir. API anahtarı bu uygulamada tarayıcınızın yerel depolamasında tutulur. Sohbetler ve ekler cihazınızda saklanır; ek dosyalar IndexedDB içinde tutulabilir.'],
+          ['Üçüncü taraf hizmetler ve aktarım', 'Yanıt üretmek için mesajlarınız, ekleriniz ve isteğe bağlı web araması Google Gemini hizmetine gönderilir. Google ile giriş/bulut eşitleme özelliklerini kullanırsanız kimlik ve sohbet verileri ilgili Google/Firebase altyapısına aktarılabilir; ek dosyalar bulut eşitlemesine dahil edilmez. Üçüncü tarafların kendi şart ve gizlilik bildirimleri de geçerlidir.'],
+          ['Saklama, silme ve başvuru', 'Sohbetler siz silene veya tarayıcı verilerini temizleyene kadar cihazınızda kalabilir. Bulut eşitleme açıksa bulut kopyalarının silinmesi de uygulama üzerinden yapılmalıdır. 6698 sayılı KVKK kapsamındaki başvurularınızı yukarıdaki e-posta adresine iletebilirsiniz; bu metin tek başına aydınlatma yükümlülüğünün yerine geçtiği anlamına gelmez.']
+        ]
+      },
+      terms: {
+        title: 'Hizmet Şartları',
+        sections: [
+          ['Hizmetin kapsamı', 'Forge AI; metin, görsel ve belge girdileriyle yapay zekâ yanıtı üretir. Hizmet ve özellikler zaman içinde değiştirilebilir, sınırlandırılabilir veya durdurulabilir.'],
+          ['Kullanıcı sorumlulukları', 'Hesap ve API anahtarlarınızın güvenliğinden, paylaştığınız içerik üzerindeki haklardan ve oluşturulan çıktıları kullanmadan önce doğrulamaktan siz sorumlusunuz. API anahtarınızı herkese açık veya güvenilmeyen cihazlarda kullanmayın.'],
+          ['Garanti ve sorumluluk sınırı', 'Hizmet “olduğu gibi” sunulur. Kesintisiz çalışma, çıktının doğruluğu veya belirli bir amaca uygunluğu garanti edilmez. Yapay zekâ çıktıları profesyonel hukuk, sağlık, mali veya benzeri danışmanlık yerine geçmez. Kanunen sınırlandırılamayan sorumluluklar saklıdır.'],
+          ['Fikri haklar', 'Kullanıcı, yüklediği içerik için gerekli hak ve izinlere sahip olduğunu kabul eder. Çıktıların benzersizliği veya üçüncü kişilerin haklarını ihlal etmediği garanti edilmez; kullanım öncesi gerekli kontroller kullanıcıya aittir.']
+        ]
+      },
+      licenses: {
+        title: 'Yazılım Lisansları ve Bildirimler',
+        sections: [
+          ['Açık kaynak bileşenler', 'Uygulama; Tailwind CSS (MIT), Lucide ikonları (ISC), Marked (MIT), DOMPurify (Apache-2.0/MPL-2.0), highlight.js (BSD-3-Clause), Firebase JavaScript SDK (Apache-2.0), Plus Jakarta Sans ve JetBrains Mono yazı tipleri (SIL Open Font License) gibi üçüncü taraf bileşenler kullanır. Bileşenlerin kendi lisans ve bildirimleri geçerlidir.'],
+          ['Harici platform ve servisler', 'Google Identity Services, Google Gemini API, Google Fonts ve CDN üzerinden yüklenen kütüphaneler ilgili sağlayıcıların şartlarına tabidir. Bu bildirim, üçüncü tarafların marka veya hizmetleri üzerinde hak iddiası oluşturmaz.'],
+          ['Lisans metinleri', 'Dağıtım yaparken kullanılan sürümlerin lisans dosyalarını ve gerekli bildirimleri ilgili upstream projelerden doğrulayın; bu özet resmi lisans metinlerinin yerine geçmez.']
+        ]
+      }
+    };
+    const legalToggleBtn = document.getElementById('legalToggleBtn');
+    const legalSubmenu = document.getElementById('legalSubmenu');
+    legalToggleBtn.onclick = () => {
+      const open = legalSubmenu.classList.toggle('hidden') === false;
+      legalToggleBtn.setAttribute('aria-expanded', String(open));
+    };
+    document.querySelectorAll('[data-legal]').forEach((button) => {
+      button.onclick = () => {
+        const doc = LEGAL_TEXTS[button.dataset.legal];
+        if (!doc) return;
+        document.getElementById('legalTitle').textContent = doc.title;
+        const body = document.getElementById('legalContent');
+        body.replaceChildren();
+        doc.sections.forEach(([heading, text]) => {
+          const section = document.createElement('section');
+          section.className = 'space-y-1';
+          const h = document.createElement('h4'); h.className = 'font-semibold text-slate-900'; h.textContent = heading;
+          const p = document.createElement('p'); p.textContent = text;
+          section.append(h, p); body.appendChild(section);
+        });
+        els.legalModal.classList.remove('hidden');
+        refreshIcons();
+      };
+    });
+    const closeLegalModal = () => els.legalModal.classList.add('hidden');
+    document.getElementById('closeLegalBtn').onclick = closeLegalModal;
+    document.getElementById('okLegalBtn').onclick = closeLegalModal;
+    els.legalModal.addEventListener('click', (e) => { if (e.target === els.legalModal) closeLegalModal(); });
 
     document.getElementById('closeInstallGuideBtn').onclick = () => els.installGuideModal.classList.add('hidden');
     document.getElementById('okInstallGuideBtn').onclick = () => els.installGuideModal.classList.add('hidden');

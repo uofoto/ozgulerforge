@@ -1,9 +1,14 @@
-# Forge AI (v6.9.16)
+# Forge AI (v6.9.19)
 
-## v6.9.16
-- **Fotoğraf Stüdyosu kaldırıldı:** Fotoğraf düzenleme paneli, filtre/preset kontrolleri ve fotoğraf yüklenince stüdyoyu otomatik açma davranışı kaldırıldı. Görsel ekleme, yapay zekâdan görsel hakkında yardım almak için kullanılabilir.
-- Oluşturulan web sayfası, belge ve kodlar için genel önizleme paneli korunmuştur.
-- Önceki sürüm: otomatik Groq/Gemini yönlendirmesi ve sohbet yanıtında adım adım işlem durumu.
+## v6.9.19
+- **Tek sağlayıcı: Google Gemini.** Groq ve sağlayıcı yönlendirme kodu kaldırıldı. Önceki sürümde tarayıcıda saklanan eski Groq anahtarı ve sağlayıcı seçimi uygulama açıldığında silinir.
+- **Yasal menü:** Sol menüye Kullanım Politikası, Gizlilik/KVKK taslağı, Hizmet Şartları ve Yazılım Lisansları eklendi. Metinler genel taslaktır; yayımdan önce hukuk danışmanı ve gerçek veri işleme süreçleriyle gözden geçirilmelidir.
+
+## Önceki arayüz iyileştirmeleri
+- İşlem süresi canlı gösterilir ve tamamlanan yanıtın altında saklanır; Web araması açıkken süre “Web araması + yanıt” olarak etiketlenir.
+- Fotoğraf Stüdyosu kaldırıldı; görsel ekleme ve üretilen web/belge/kod önizlemeleri kullanılabilir.
+- Uzun satırlar sohbet alanında kırılır; kod blokları yatay kaydırmayı kendi alanlarında tutar.
+- Yanıt ilerleme adımları Forge AI markasıyla gösterilir.
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
