@@ -185,12 +185,17 @@
         <span id="keyStatusBadge" class="w-2 h-2 rounded-full bg-rose-500" title="Motor Bağlantı Durumu"></span>
       </button>
 
+      <button id="openMemoryBtn" type="button" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center gap-2 transition shadow-2xs cursor-pointer">
+        <i data-lucide="brain" class="w-3.5 h-3.5 text-violet-600"></i>
+        <span>Hafızam</span>
+      </button>
+
       <button id="openAboutBtn" type="button" class="w-full py-1.5 px-3 text-slate-500 hover:text-slate-800 text-[11px] rounded-lg flex items-center justify-between transition cursor-pointer">
         <span class="flex items-center gap-1.5">
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.8 PRO</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.1 PRO</span>
       </button>
     </div>
   </aside>
@@ -281,16 +286,21 @@
                   <i data-lucide="mic" class="w-4 h-4"></i>
                   <span class="hidden sm:inline" id="micLabel">Sesli</span>
                 </button>
+
+                <button type="button" id="webSearchBtn" aria-pressed="false" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Web'de ara ve kaynak göster">
+                  <i data-lucide="globe" class="w-4 h-4"></i>
+                  <span class="hidden sm:inline">Web</span>
+                </button>
               </div>
 
               <div class="flex items-center gap-2">
                 <select id="modelSelect" class="hidden" aria-hidden="true" tabindex="-1">
-                  <option value="gemini-3.8-flash" selected>⚡ Forge AI Ultra 3.8</option>
+                  <option value="auto" selected>🧭 Forge AI Otomatik</option>
                   <option value="gemini-3.5-flash-lite">🚀 Forge AI Lite (Hızlı)</option>
                 </select>
                 <div class="relative" id="modelPicker">
                   <button type="button" id="modelPickerBtn" aria-haspopup="listbox" aria-expanded="false" class="px-2.5 py-1.5 bg-blue-50/80 hover:bg-blue-100/70 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl flex items-center gap-1.5 transition cursor-pointer max-w-[150px] sm:max-w-[200px]">
-                    <span id="modelPickerLabel" class="truncate">⚡ Forge AI Ultra 3.8</span>
+                    <span id="modelPickerLabel" class="truncate">🧭 Forge AI Otomatik</span>
                     <i data-lucide="chevron-up" id="modelPickerChevron" class="w-3.5 h-3.5 text-blue-600 shrink-0 transition-transform"></i>
                   </button>
                   <div id="modelPickerMenu" role="listbox" class="hidden absolute bottom-full right-0 mb-2 w-60 bg-white border border-slate-200 rounded-2xl shadow-float p-1.5 z-30 space-y-0.5"></div>
@@ -562,6 +572,17 @@
 
     // Google ile giriş için OAuth Web Client ID (Google Cloud Console > Credentials).
     // Boşsa giriş düğmesi kurulum bilgisi gösterir.
+    // Sunucu (proxy) adresi. Doluysa API anahtarı gerekmez; istekler bu adrese Google kimlik belgesiyle gider (proxy-worker.js).
+    const PROXY_URL = '';
+    const TOKEN_KEY = 'forge_ai_idtoken';
+    const MEMORY_KEY = 'forge_ai_memory';
+    const WEB_KEY = 'forge_ai_websearch';
+    const getMemory = () => { try { return JSON.parse(localStorage.getItem(MEMORY_KEY) || '{}'); } catch (_) { return {}; } };
+    function getIdToken() {
+      const t = localStorage.getItem(TOKEN_KEY);
+      if (!t) return null;
+      try { const p = JSON.parse(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); return p.exp * 1000 > Date.now() + 30000 ? t : null; } catch (_) { return null; }
+    }
     const GOOGLE_CLIENT_ID = '278638845406-0u88a69tpajg2cc2vgt827m0j2kpp5qa.apps.googleusercontent.com';
     let currentUser = null;
 
@@ -1034,7 +1055,7 @@
     }
 
     function updateApiBadge() {
-      const valid = Boolean(state.apiKey && state.apiKey.startsWith('AIza'));
+      const valid = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
       els.keyStatusBadge.className = `w-2 h-2 rounded-full ${valid ? 'bg-emerald-500' : 'bg-rose-500'}`;
       const warningEl = document.getElementById('noKeyWarning');
       if (warningEl) warningEl.classList.toggle('hidden', valid);
@@ -1275,7 +1296,7 @@
     }
 
     function getWelcomeScreenHtml() {
-      const hasValidKey = Boolean(state.apiKey && state.apiKey.startsWith('AIza'));
+      const hasValidKey = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
       return `
         <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
           <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
@@ -1361,7 +1382,7 @@
         return;
       }
 
-      chat.messages.forEach((m, i) => createMessageBubble(m.role, m.content, m.filesSummary, m.imagesCount, i));
+      chat.messages.forEach((m, i) => { const r = createMessageBubble(m.role, m.content, m.filesSummary, m.imagesCount, i); if (m.sources) renderSources(r, m.sources); });
       els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
       refreshIcons();
     }
@@ -1428,7 +1449,7 @@
       if (!text && !hasFiles) return;
       if (state.isGenerating) return;
 
-      if (!state.apiKey) {
+      if (!state.apiKey && !PROXY_URL) {
         els.settingsModal.classList.remove('hidden');
         return;
       }
@@ -1504,7 +1525,10 @@
       const proseEl = bubble.querySelector('.prose');
       const actionsEl = bubble.querySelector('.msg-actions');
 
-      const selectedModel = els.modelSelect.value;
+      const lastUser = currentChat.messages[currentChat.messages.length - 2] || {};
+      const heavy = lastUser.hasAttach || (lastUser.content || '').length > 400 || currentChat.messages.length > 10 ||
+        /analiz|karşılaştır|rapor|kod|tasarla|özetle|hesapla|dilekçe|resmi|neden|açıkla|planla/i.test(lastUser.content || '');
+      const selectedModel = els.modelSelect.value === 'auto' ? (heavy ? 'gemini-3.6-flash' : 'gemini-3.5-flash-lite') : els.modelSelect.value;
       let usedModel = selectedModel;
 
       try {
@@ -1529,8 +1553,9 @@
         }
 
         const requestBody = JSON.stringify({
-          systemInstruction: { parts: [{ text: state.systemPrompt + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') }] },
+          systemInstruction: { parts: [{ text: state.systemPrompt + (getMemory().on !== false && getMemory().text ? `\n\nKullanıcı hakkında hatırlaman gereken notlar (kullanıcı kendisi yazdı):\n${getMemory().text}` : '') + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') }] },
           contents: apiContents,
+          tools: localStorage.getItem(WEB_KEY) === '1' ? [{ google_search: {} }] : undefined,
           generationConfig: { temperature: state.temperature }
         });
         if (requestBody.length > 19 * 1024 * 1024) {
@@ -1539,18 +1564,18 @@
 
         // API anahtarı URL yerine header ile gönderilir.
         // Seçilen model kota/yoğunluk/erişim nedeniyle yanıt vermezse sırayla yedek modeller denenir.
-        const MODEL_FALLBACKS = { 'gemini-3.8-flash': ['gemini-3.6-flash', 'gemini-3.5-flash-lite'] };
+        const MODEL_FALLBACKS = { 'gemini-3.6-flash': ['gemini-3.5-flash-lite'] };
         const tryModels = [selectedModel, ...(MODEL_FALLBACKS[selectedModel] || [])];
         let response = null;
         for (let i = 0; i < tryModels.length; i++) {
-          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(tryModels[i])}:streamGenerateContent?alt=sse`;
+          const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
+          const endpoint = `${base}/v1beta/models/${encodeURIComponent(tryModels[i])}:streamGenerateContent?alt=sse`;
+          const authHeaders = PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey };
+          if (PROXY_URL && !getIdToken()) throw new Error('Oturumunuzun süresi doldu. Lütfen kenar çubuğundan Google ile yeniden giriş yapın.');
           response = await fetch(endpoint, {
             method: 'POST',
             signal: state.abortController.signal,
-            headers: {
-              'Content-Type': 'application/json',
-              'x-goog-api-key': state.apiKey
-            },
+            headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
             body: requestBody
           });
           if (response.ok) { usedModel = tryModels[i]; break; }
@@ -1573,6 +1598,7 @@
         const decoder = new TextDecoder('utf-8');
         let buffer = '';
         let blockReason = '';
+        const sources = [];
         let finishReason = '';
 
         // Her chunk'ta değil, kare başına en fazla bir kez render et
@@ -1605,6 +1631,10 @@
               if (parsed.promptFeedback && parsed.promptFeedback.blockReason) blockReason = parsed.promptFeedback.blockReason;
               const cand = parsed.candidates && parsed.candidates[0];
               if (cand && cand.finishReason && cand.finishReason !== 'STOP') finishReason = cand.finishReason;
+              const gm = cand && cand.groundingMetadata;
+              if (gm && Array.isArray(gm.groundingChunks)) gm.groundingChunks.forEach(c => {
+                if (c.web && /^https?:\/\//.test(c.web.uri || '') && !sources.some(x => x.uri === c.web.uri)) sources.push({ uri: c.web.uri, title: c.web.title || c.web.uri });
+              });
               const parts = cand && cand.content && cand.content.parts;
               if (Array.isArray(parts)) {
                 for (const p of parts) {
@@ -1617,6 +1647,7 @@
         }
 
         flushRender();
+        if (sources.length) aiMsg.sources = sources;
 
         if (!aiMsg.content.trim()) {
           throw new Error(blockReason
@@ -1642,10 +1673,10 @@
         const discEl = bubble.querySelector('.msg-disclaimer');
         if (discEl) {
           discEl.classList.remove('hidden');
-          if (usedModel !== selectedModel) {
-            const note = discEl.querySelector('.msg-fallback-note');
-            if (note) note.textContent = ' (Seçilen model şu an yanıt vermedi; ' + usedModel + ' ile yanıtlandı.)';
-          }
+          const note = discEl.querySelector('.msg-fallback-note');
+          if (note && usedModel !== selectedModel) note.textContent = ' (Seçilen model şu an yanıt vermedi; ' + usedModel + ' ile yanıtlandı.)';
+          else if (note && els.modelSelect.value === 'auto') note.textContent = ' (Otomatik seçim: ' + usedModel + ')';
+          renderSources(bubble, aiMsg.sources);
         }
         syncStorage();
 
@@ -1790,7 +1821,7 @@
       const msg = chat && chat.messages[idx];
       if (!msg || msg.role !== 'user') return;
       if (!newText) { forgeDialog('Soru boş olamaz.'); return; }
-      if (!state.apiKey) { els.settingsModal.classList.remove('hidden'); return; }
+      if (!state.apiKey && !PROXY_URL) { els.settingsModal.classList.remove('hidden'); return; }
 
       // Metin değişmediyse yine de aynı soruya yeni yanıt üretilir (yeniden dene)
       const oldText = msg.content;
@@ -2018,6 +2049,56 @@
       sync();
     })();
 
+    // --- KAYNAKLAR, WEB ARAMA DÜĞMESİ, HAFIZA PENCERESİ ---
+    function renderSources(row, list) {
+      if (!row || !Array.isArray(list) || !list.length) return;
+      const old = row.querySelector('.msg-sources'); if (old) old.remove();
+      const box = document.createElement('div');
+      box.className = 'msg-sources mt-3 flex flex-wrap items-center gap-1.5 text-[11px]';
+      const h = document.createElement('span'); h.className = 'text-slate-400 font-semibold'; h.textContent = 'Kaynaklar:'; box.appendChild(h);
+      list.slice(0, 8).forEach((x) => {
+        const a = document.createElement('a');
+        a.href = x.uri; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        a.className = 'px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-700 truncate max-w-[200px] transition';
+        a.textContent = x.title; box.appendChild(a);
+      });
+      const d = row.querySelector('.msg-disclaimer');
+      if (d) d.parentNode.insertBefore(box, d); else row.appendChild(box);
+    }
+
+    (function initWebToggle() {
+      const b = document.getElementById('webSearchBtn');
+      const paint = () => {
+        const on = localStorage.getItem(WEB_KEY) === '1';
+        b.setAttribute('aria-pressed', String(on));
+        b.className = 'p-2 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer ' + (on ? 'text-blue-700 bg-blue-50 border border-blue-200' : 'text-slate-500 hover:text-blue-600 hover:bg-slate-100 border border-transparent');
+      };
+      b.onclick = () => { localStorage.setItem(WEB_KEY, localStorage.getItem(WEB_KEY) === '1' ? '0' : '1'); paint(); };
+      paint();
+    })();
+
+    document.getElementById('openMemoryBtn').onclick = () => {
+      const mem = getMemory();
+      const wrap = document.createElement('div');
+      wrap.className = 'fixed inset-0 z-[100] flex items-start justify-center pt-16 px-4 bg-slate-900/30 backdrop-blur-[2px]';
+      wrap.innerHTML = '<div role="dialog" aria-modal="true" class="w-full max-w-md bg-white rounded-2xl shadow-float border border-slate-200 p-5">' +
+        '<h3 class="text-sm font-bold text-slate-900 mb-1">Forge AI Hafızam</h3>' +
+        '<p class="text-xs text-slate-500 mb-3">Yazdıklarınız yalnızca bu cihazda saklanır ve her sohbette Forge AI\'ya not olarak gönderilir. İstediğiniz zaman düzenleyin veya silin.</p>' +
+        '<textarea rows="6" placeholder="Örn: Adım Ümit. Mühendisim. Kısa ve maddeli yanıtları severim." class="mem-text w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 resize-none"></textarea>' +
+        '<label class="flex items-center gap-2 mt-2 text-xs text-slate-600"><input type="checkbox" class="mem-on"> Hafızayı kullan</label>' +
+        '<div class="flex justify-between gap-2 mt-4"><button type="button" class="mem-clear px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 cursor-pointer">Tümünü sil</button>' +
+        '<div class="flex gap-2"><button type="button" class="mem-cancel px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer">Kapat</button>' +
+        '<button type="button" class="mem-save px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 cursor-pointer">Kaydet</button></div></div></div>';
+      const ta = wrap.querySelector('.mem-text'), on = wrap.querySelector('.mem-on');
+      ta.value = mem.text || ''; on.checked = mem.on !== false;
+      wrap.querySelector('.mem-cancel').onclick = () => wrap.remove();
+      wrap.querySelector('.mem-clear').onclick = () => { ta.value = ''; localStorage.removeItem(MEMORY_KEY); };
+      wrap.querySelector('.mem-save').onclick = () => { localStorage.setItem(MEMORY_KEY, JSON.stringify({ text: ta.value.trim(), on: on.checked })); wrap.remove(); };
+      wrap.addEventListener('click', (e) => { if (e.target === wrap) wrap.remove(); });
+      document.body.appendChild(wrap);
+      ta.focus();
+    };
+
     // --- GOOGLE İLE GİRİŞ ---
     function decodeJwt(token) {
       const b64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -2042,6 +2123,7 @@
         const p = decodeJwt(resp.credential);
         currentUser = { sub: p.sub, name: p.name || p.given_name || 'Kullanıcı', email: p.email || '', picture: p.picture || '' };
         localStorage.setItem(KEYS.USER, JSON.stringify(currentUser));
+        localStorage.setItem(TOKEN_KEY, resp.credential);
         renderUserArea();
       } catch (err) { forgeDialog('Google girişi tamamlanamadı: ' + err.message); }
     }
@@ -2059,12 +2141,14 @@
         return;
       }
       google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential, auto_select: true });
+      if (PROXY_URL && currentUser && !getIdToken()) google.accounts.id.prompt();
       google.accounts.id.renderButton(host, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', locale: 'tr', width: 232 });
     }
     document.getElementById('signOutBtn').onclick = () => {
       if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect();
       currentUser = null;
       localStorage.removeItem(KEYS.USER);
+      localStorage.removeItem(TOKEN_KEY);
       renderUserArea();
     };
     renderUserArea();

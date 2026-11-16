@@ -1,7 +1,16 @@
-# Forge AI (v6.8 PRO)
+# Forge AI (v6.9.1 PRO)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.1
+- "Forge AI Ultra 3.8" seçeneği kaldırıldı (çalışmıyordu). Model listesi: Otomatik ve Lite.
+
+## v6.9 Değişiklikleri
+1. **Otomatik model:** "Forge AI Otomatik" (varsayılan) basit soruları Lite'a, belge/uzun/analiz isteklerini `gemini-3.6-flash`'a yönlendirir (o yanıt vermezse Lite devreye girer); yanıtın altında hangi modelin kullanıldığı yazar.
+2. **Anahtarsız (sunucu) mod:** `proxy-worker.js` Cloudflare Worker olarak yayınlanır; Gemini anahtarı yalnızca orada durur, Google girişi sunucuda doğrulanır, kişi başı günlük limit uygulanır. Ardından `index.html` içindeki `PROXY_URL` değerine worker adresini yazın; kullanıcıdan anahtar istenmez.
+3. **Hafızam:** Kenar çubuğundaki "Hafızam" ile kullanıcı notlarını yazar/siler; notlar her sohbete eklenir, yalnızca cihazda saklanır.
+4. **Web + kaynaklar:** Sohbet kutusundaki "Web" düğmesi açıkken Google Arama ile yanıt verilir, kaynak bağlantıları yanıtın altında gösterilir.
 
 ## v6.8 Değişiklikleri
 1. **Ultra 3.8 hatası:** Model kota/yoğunluk/erişim nedeniyle (404/429/500/503) yanıt vermezse otomatik olarak `gemini-3.6-flash`, sonra `gemini-3.5-flash-lite` denenir; yanıtın altında hangi modelle cevaplandığı yazar. Hata mesajları artık model adı, HTTP kodu ve Türkçe açıklama içerir. (Ücretsiz anahtarlarda 3.8 Flash için kota kapalı olabilir; Google AI Studio'da projeye faturalandırma bağlamak gerekebilir.)
@@ -37,4 +46,4 @@ Tüm dosyaları aynı klasöre yükleyin: `index.html`, `sw.js`, `manifest.json`
 
 ## Bilinen sınırlar
 - API anahtarı tarayıcıda (localStorage) tutulur: yalnızca kişisel kullanım içindir. Herkese açık dağıtım için bir sunucu tarafı proxy gerekir.
-- `index.html` içindeki model adlarını (`gemini-3.8-flash`, `gemini-3.5-flash-lite`) Google'ın güncel model listesiyle doğrulayın.
+- `index.html` içindeki model adlarını (`gemini-3.6-flash`, `gemini-3.5-flash-lite`) Google'ın güncel model listesiyle doğrulayın.
