@@ -53,7 +53,11 @@
     ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
     /* Markdown İçerik Stilleri */
-    .prose { color: #1E293B; font-size: 0.95rem; line-height: 1.7; }
+    #messagesContainer { min-width: 0; overflow-x: hidden; }
+    .msg-row { min-width: 0; width: 100%; }
+    .msg-row > div:last-child { min-width: 0; max-width: 100%; }
+    .prose { min-width: 0; max-width: 100%; color: #1E293B; font-size: 0.95rem; line-height: 1.7; overflow-wrap: anywhere; }
+    .prose * { max-width: 100%; box-sizing: border-box; }
     .prose p { margin-bottom: 0.85rem; }
     .prose p:last-child { margin-bottom: 0; }
     .prose h1, .prose h2, .prose h3 { font-weight: 700; color: #0F172A; margin-top: 1.25rem; margin-bottom: 0.5rem; }
@@ -62,15 +66,16 @@
     .prose ol { list-style-type: decimal; }
     .prose li { margin-bottom: 0.3rem; }
     .prose blockquote { border-left: 3px solid #2563EB; padding-left: 1rem; color: #475569; background: #F1F5F9; padding: 0.6rem 1rem; border-radius: 0 0.5rem 0.5rem 0; margin: 0.85rem 0; }
-    .prose table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+    .prose table { display: block; max-width: 100%; overflow-x: auto; width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
     .prose th { background: #F1F5F9; text-align: left; padding: 0.6rem 0.8rem; border: 1px solid #E2E8F0; font-weight: 600; }
     .prose td { padding: 0.6rem 0.8rem; border: 1px solid #E2E8F0; }
-    .prose :not(pre) > code { background: #F1F5F9; color: #0F172A; padding: 0.15rem 0.4rem; border-radius: 0.375rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; border: 1px solid #E2E8F0; }
+    .prose :not(pre) > code { white-space: normal; overflow-wrap: anywhere; word-break: break-word; background: #F1F5F9; color: #0F172A; padding: 0.15rem 0.4rem; border-radius: 0.375rem; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; border: 1px solid #E2E8F0; }
 
     /* Özel Kod Bloğu Çerçevesi */
     .code-wrapper { margin: 1rem 0; border-radius: 0.75rem; border: 1px solid #E2E8F0; background: #FFFFFF; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
     .code-header { display: flex; justify-content: space-between; align-items: center; padding: 0.45rem 0.9rem; background: #F8FAFC; border-bottom: 1px solid #E2E8F0; font-size: 0.75rem; color: #64748B; font-family: 'JetBrains Mono', monospace; }
-    .code-wrapper pre { margin: 0 !important; padding: 1rem !important; background: #FFFFFF !important; overflow-x: auto; font-size: 0.85rem; }
+    .code-wrapper { max-width: 100%; min-width: 0; }
+    .code-wrapper pre { display: block; max-width: 100%; box-sizing: border-box; margin: 0 !important; padding: 1rem !important; background: #FFFFFF !important; overflow-x: auto; white-space: pre; font-size: 0.85rem; }
 
     /* Yükleniyor Animasyonu */
     .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: #2563EB; animation: bounce 1.4s infinite ease-in-out both; }
@@ -209,7 +214,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.13</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.16</span>
       </button>
     </div>
   </aside>
@@ -229,9 +234,9 @@
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-          <button id="togglePreviewPaneBtn" type="button" class="px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 bg-slate-100/90 hover:bg-blue-50 border border-slate-200/80 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Fotoğraf Stüdyosu & Canlı Önizleme">
+          <button id="togglePreviewPaneBtn" type="button" class="px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 bg-slate-100/90 hover:bg-blue-50 border border-slate-200/80 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Üretilen Çalışma Önizlemesi">
             <i data-lucide="panel-right" class="w-3.5 h-3.5 text-blue-600"></i>
-            <span class="hidden sm:inline">Stüdyo</span>
+            <span class="hidden sm:inline">Önizleme</span>
           </button>
 
           <button id="headerInstallBtn" type="button" class="px-2.5 py-1.5 text-xs font-semibold text-blue-600 hover:bg-blue-50 border border-blue-200/80 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Uygulamayı Cihaza İndir">
@@ -253,10 +258,6 @@
 
           <div id="slashMenu" class="hidden absolute bottom-full left-0 mb-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-float p-1.5 z-30 space-y-0.5">
             <div class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Hızlı Forge AI Komutları</div>
-            <button type="button" onclick="applySlashCmd('/guzellestir Bu fotoğrafı profesyonel stüdyo ışığı ve renk dengesiyle iyileştir; Lightroom ayarlarını da yaz.')" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-blue-50 text-xs flex items-center gap-2 transition cursor-pointer">
-              <span class="font-mono font-bold text-blue-600">/guzellestir</span>
-              <span class="text-slate-600 truncate">Fotoğrafı Stüdyoda İyileştir</span>
-            </button>
             <button type="button" onclick="applySlashCmd('/ozetle Eklediğim çoklu belgeleri ve PDF\'leri karşılaştırarak analiz et ve özetle.')" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-blue-50 text-xs flex items-center gap-2 transition cursor-pointer">
               <span class="font-mono font-bold text-blue-600">/ozetle</span>
               <span class="text-slate-600 truncate">Tüm Belgeleri Özetle & Karşılaştır</span>
@@ -323,7 +324,7 @@
           </form>
 
           <div class="mt-2.5 flex flex-wrap items-center justify-between text-[11px] text-slate-400 px-1 gap-2">
-            <span>© 2026 <strong>Ozguler Forge</strong> • Çoklu Belge Analizi Aktif</span>
+            <span>© 2026 <strong>Ozguler Forge</strong></span>
             <div class="hidden sm:flex items-center gap-3">
               <a href="https://ozgulerforge.com.tr" target="_blank" class="hover:text-blue-600 transition">ozgulerforge.com.tr</a>
               <span>•</span>
@@ -334,7 +335,7 @@
       </div>
     </main>
 
-    <!-- SAĞ PANEL: STÜDYO & ÖNİZLEME -->
+    <!-- SAĞ PANEL: ÜRETİLEN ÇALIŞMA ÖNİZLEMESİ -->
     <section id="previewPane" class="hidden fixed inset-0 lg:static lg:w-[46%] xl:w-[48%] bg-white border-l border-slate-200/90 z-30 flex flex-col shadow-float lg:shadow-none">
       <div class="h-14 border-b border-slate-200/80 px-4 flex items-center justify-between bg-slate-50/70 shrink-0">
         <div class="flex items-center gap-2.5 min-w-0">
@@ -342,8 +343,8 @@
             <i data-lucide="sparkles" class="w-4 h-4"></i>
           </div>
           <div class="min-w-0">
-            <h2 id="previewTitle" class="text-xs sm:text-sm font-bold text-slate-900 truncate">Forge AI Stüdyo</h2>
-            <span id="previewSubtitle" class="text-[10px] text-slate-400 block -mt-0.5">Fotoğraf İyileştirme & Canlı Önizleme</span>
+            <h2 id="previewTitle" class="text-xs sm:text-sm font-bold text-slate-900 truncate">Forge AI Önizleme</h2>
+            <span id="previewSubtitle" class="text-[10px] text-slate-400 block -mt-0.5">Canlı çalışma ve belge önizlemesi</span>
           </div>
         </div>
 
@@ -378,56 +379,10 @@
           <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
             <i data-lucide="wand-2" class="w-6 h-6"></i>
           </div>
-          <p class="text-xs font-medium text-slate-600">Forge AI Stüdyo Hazır</p>
+          <p class="text-xs font-medium text-slate-600">Önizleme alanı hazır</p>
           <p class="text-[11px] max-w-xs leading-relaxed">
-            Fotoğraf yüklediğinizde anlık ışık/renk stüdyosu açılır; web veya belge üretildiğinde canlı önizleme burada sunulur.
+            Forge AI ile oluşturduğunuz web sayfaları, belgeler ve kod çıktıları burada görüntülenir.
           </p>
-        </div>
-
-        <div id="photoStudioView" class="hidden p-5 space-y-4 bg-slate-50/70 min-h-full">
-          <div class="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-xs space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <i data-lucide="wand-2" class="w-3.5 h-3.5 text-blue-600"></i>
-                Fotoğraf İyileştirme Stüdyosu
-              </span>
-              <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[11px] font-semibold">
-                <button type="button" id="btnShowEnhanced" class="px-2.5 py-1 rounded-md bg-white text-blue-600 shadow-2xs cursor-pointer">✨ İyileştirilmiş</button>
-                <button type="button" id="btnShowOriginal" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 cursor-pointer">Orijinal</button>
-              </div>
-            </div>
-
-            <div class="flex flex-wrap gap-1.5">
-              <button type="button" onclick="applyPhotoPreset('auto')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-semibold transition cursor-pointer">✨ Otomatik Stüdyo</button>
-              <button type="button" onclick="applyPhotoPreset('vivid')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition cursor-pointer">🌈 Canlı Doğa</button>
-              <button type="button" onclick="applyPhotoPreset('golden')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition cursor-pointer">🌅 Altın Saat</button>
-              <button type="button" onclick="applyPhotoPreset('bw')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition cursor-pointer">🖤 Siyah-Beyaz</button>
-              <button type="button" onclick="applyPhotoPreset('reset')" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-600 text-[11px] font-medium transition cursor-pointer">Sıfırla</button>
-            </div>
-
-            <div class="relative rounded-xl overflow-hidden bg-slate-900/5 border border-slate-200 flex items-center justify-center">
-              <canvas id="studioCanvas" class="max-w-full max-h-[340px] object-contain mx-auto"></canvas>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 pt-1 text-[11px]">
-              <div>
-                <div class="flex justify-between text-slate-600 font-medium mb-0.5"><span>Parlaklık</span><span id="lblBrightness">108%</span></div>
-                <input type="range" id="rngBrightness" min="70" max="140" value="108" class="w-full accent-blue-600 cursor-pointer">
-              </div>
-              <div>
-                <div class="flex justify-between text-slate-600 font-medium mb-0.5"><span>Kontrast</span><span id="lblContrast">114%</span></div>
-                <input type="range" id="rngContrast" min="70" max="150" value="114" class="w-full accent-blue-600 cursor-pointer">
-              </div>
-              <div>
-                <div class="flex justify-between text-slate-600 font-medium mb-0.5"><span>Canlılık</span><span id="lblSaturate">118%</span></div>
-                <input type="range" id="rngSaturate" min="0" max="170" value="118" class="w-full accent-blue-600 cursor-pointer">
-              </div>
-              <div>
-                <div class="flex justify-between text-slate-600 font-medium mb-0.5"><span>Sıcaklık</span><span id="lblWarmth">6%</span></div>
-                <input type="range" id="rngWarmth" min="0" max="40" value="6" class="w-full accent-blue-600 cursor-pointer">
-              </div>
-            </div>
-          </div>
         </div>
 
         <iframe id="previewIframe" class="hidden w-full h-full border-0 bg-white" sandbox="allow-scripts allow-popups"></iframe>
@@ -515,7 +470,7 @@
       </div>
 
       <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-        <strong>Forge AI</strong>; çoklu belge ve PDF analizi, anlık fotoğraf iyileştirme stüdyosu ve canlı önizleme özellikleriyle profesyonel yapay zeka asistanıdır.
+        <strong>Forge AI</strong>; metin, görsel ve belge ekleriyle çalışabilen; oluşturduğu web sayfaları, belgeler ve kodlar için canlı önizleme sunan yapay zeka asistanıdır.
       </p>
 
       <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 space-y-2.5 text-xs">
@@ -701,9 +656,7 @@
       attachedImages: [],
       isGenerating: false,
       abortController: null,
-      currentArtifact: null,
-      studioImageObj: null,
-      studioShowingOriginal: false
+      currentArtifact: null
     };
 
     const els = {
@@ -732,8 +685,6 @@
       tabLiveView: document.getElementById('tabLiveView'),
       tabSourceView: document.getElementById('tabSourceView'),
       previewEmptyState: document.getElementById('previewEmptyState'),
-      photoStudioView: document.getElementById('photoStudioView'),
-      studioCanvas: document.getElementById('studioCanvas'),
       previewIframe: document.getElementById('previewIframe'),
       previewDocumentView: document.getElementById('previewDocumentView'),
       previewCodeView: document.getElementById('previewCodeView'),
@@ -841,113 +792,12 @@
       });
     }
 
-    function openPhotoStudio(dataUrl, fileName = 'Fotograf') {
-      state.currentArtifact = { title: `Fotoğraf Stüdyosu: ${fileName}`, type: 'photo', fileName };
-      els.previewPane.classList.remove('hidden');
-      els.previewEmptyState.classList.add('hidden');
-      els.previewTitle.textContent = `Stüdyo: ${fileName}`;
-      els.previewSubtitle.textContent = 'Anlık Işık, Kontrast & Renk İyileştirme';
-
-      els.previewIframe.classList.add('hidden');
-      els.previewDocumentView.classList.add('hidden');
-      els.previewCodeView.classList.add('hidden');
-      els.previewModeTabs.classList.add('hidden');
-      els.printPdfBtn.classList.add('hidden');
-      els.photoStudioView.classList.remove('hidden');
-
-      const img = new Image();
-      img.onload = () => {
-        state.studioImageObj = img;
-        state.studioShowingOriginal = false;
-        applyPhotoPreset('auto');
-      };
-      img.src = dataUrl;
-      refreshIcons();
-    }
-
-    function renderStudioCanvas() {
-      const img = state.studioImageObj;
-      if (!img) return;
-      const canvas = els.studioCanvas;
-      const ctx = canvas.getContext('2d');
-      canvas.width = img.width;
-      canvas.height = img.height;
-
-      if (state.studioShowingOriginal) {
-        ctx.filter = 'none';
-      } else {
-        const b = document.getElementById('rngBrightness').value;
-        const c = document.getElementById('rngContrast').value;
-        const s = document.getElementById('rngSaturate').value;
-        const w = document.getElementById('rngWarmth').value;
-        document.getElementById('lblBrightness').textContent = b + '%';
-        document.getElementById('lblContrast').textContent = c + '%';
-        document.getElementById('lblSaturate').textContent = s + '%';
-        document.getElementById('lblWarmth').textContent = w + '%';
-        ctx.filter = `brightness(${b}%) contrast(${c}%) saturate(${s}%) sepia(${w}%)`;
-      }
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    }
-
-    window.applyPhotoPreset = function(preset) {
-      const rngB = document.getElementById('rngBrightness');
-      const rngC = document.getElementById('rngContrast');
-      const rngS = document.getElementById('rngSaturate');
-      const rngW = document.getElementById('rngWarmth');
-
-      if (preset === 'auto') {
-        rngB.value = 107; rngC.value = 114; rngS.value = 116; rngW.value = 5;
-      } else if (preset === 'vivid') {
-        rngB.value = 105; rngC.value = 118; rngS.value = 138; rngW.value = 4;
-      } else if (preset === 'golden') {
-        rngB.value = 108; rngC.value = 112; rngS.value = 122; rngW.value = 22;
-      } else if (preset === 'bw') {
-        rngB.value = 106; rngC.value = 132; rngS.value = 0; rngW.value = 0;
-      } else {
-        rngB.value = 100; rngC.value = 100; rngS.value = 100; rngW.value = 0;
-      }
-      state.studioShowingOriginal = false;
-      updateStudioToggleBtns();
-      renderStudioCanvas();
-    };
-
-    function updateStudioToggleBtns() {
-      const btnEnh = document.getElementById('btnShowEnhanced');
-      const btnOrig = document.getElementById('btnShowOriginal');
-      if (!state.studioShowingOriginal) {
-        btnEnh.className = 'px-2.5 py-1 rounded-md bg-white text-blue-600 shadow-2xs cursor-pointer';
-        btnOrig.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 cursor-pointer';
-      } else {
-        btnOrig.className = 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs cursor-pointer';
-        btnEnh.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 cursor-pointer';
-      }
-    }
-
-    document.getElementById('btnShowEnhanced').onclick = () => {
-      state.studioShowingOriginal = false;
-      updateStudioToggleBtns();
-      renderStudioCanvas();
-    };
-    document.getElementById('btnShowOriginal').onclick = () => {
-      state.studioShowingOriginal = true;
-      updateStudioToggleBtns();
-      renderStudioCanvas();
-    };
-    ['rngBrightness', 'rngContrast', 'rngSaturate', 'rngWarmth'].forEach(id => {
-      document.getElementById(id).oninput = () => {
-        state.studioShowingOriginal = false;
-        updateStudioToggleBtns();
-        renderStudioCanvas();
-      };
-    });
-
     function openArtifactPreview(artifact) {
       state.currentArtifact = artifact;
       els.previewPane.classList.remove('hidden');
       els.previewEmptyState.classList.add('hidden');
       els.previewTitle.textContent = artifact.title || 'Forge AI Önizleme';
 
-      els.photoStudioView.classList.add('hidden');
       els.previewIframe.classList.add('hidden');
       els.previewDocumentView.classList.add('hidden');
       els.previewCodeView.classList.add('hidden');
@@ -1010,13 +860,6 @@
 
     document.getElementById('downloadArtifactBtn').onclick = () => {
       if (!state.currentArtifact) return;
-      if (state.currentArtifact.type === 'photo') {
-        const link = document.createElement('a');
-        link.download = `ForgeAI-Studio-${Date.now()}.jpg`;
-        link.href = els.studioCanvas.toDataURL('image/jpeg', 0.94);
-        link.click();
-        return;
-      }
       const blob = new Blob([state.currentArtifact.content], { type: 'text/plain;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -1133,9 +976,6 @@
             });
             renderAttachmentsBar();
 
-            if (state.attachedImages.length === 1) {
-              openPhotoStudio(optimizedDataUrl, file.name);
-            }
           };
           img.src = e.target.result;
         };
@@ -1465,7 +1305,7 @@
             <i data-lucide="cpu" class="w-4 h-4"></i>
           </div>
           <div class="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 sm:p-5 shadow-2xs">
-            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="flex items-center gap-2 py-2 text-xs text-slate-500"><div class="flex gap-1.5"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>Forge AI çoklu belge analizi yapıyor...</span></div>'}</div>
+            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="forge-progress not-prose py-1" aria-live="polite"><p data-progress-detail class="text-xs font-semibold text-slate-700 mb-2">İsteğinizi hazırlıyorum…</p><ol class="space-y-1.5 text-xs text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>İsteğe uygun yapay zekâ motorunu seçiyorum</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Seçilen motora bağlanıyorum</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Yanıtınızı oluşturuyorum</span></li></ol></div>'}</div>
             <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-[11px] text-slate-400 ${content ? '' : 'hidden'}">
               <button type="button" data-action="preview" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer">
                 <span>👁️ Çalışmayı Önizle / PDF</span>
@@ -1579,6 +1419,22 @@
       refreshIcons();
       const proseEl = bubble.querySelector('.prose');
       const actionsEl = bubble.querySelector('.msg-actions');
+      const progressEl = bubble.querySelector('.forge-progress');
+      let progressStep = 0;
+      const updateProgress = (step, detail) => {
+        if (!progressEl) return;
+        progressStep = Math.max(progressStep, step);
+        const detailEl = progressEl.querySelector('[data-progress-detail]');
+        if (detailEl && detail) detailEl.textContent = detail;
+        progressEl.querySelectorAll('[data-progress-step]').forEach((item) => {
+          const index = Number(item.dataset.progressStep);
+          const mark = item.querySelector('[data-progress-mark]');
+          const done = index < progressStep;
+          const active = index === progressStep;
+          item.className = 'flex items-center gap-2 ' + (done ? 'text-emerald-700' : active ? 'text-blue-700 font-semibold' : 'text-slate-400');
+          if (mark) mark.textContent = done ? '✓' : active ? '●' : '○';
+        });
+      };
 
       let useGroq = state.provider !== 'gemini';
       let selectedModel = useGroq ? GROQ_MODEL : GEMINI_MODEL;
@@ -1586,7 +1442,9 @@
       let usedModel = selectedModel;
 
       try {
+        updateProgress(0, 'İsteğinizi hazırlıyorum…');
         await attachSave;
+        updateProgress(1, 'Sohbet geçmişi ve ekleri kontrol ediyorum…');
         const apiContents = [];
         for (const m of currentChat.messages.slice(0, -1)) {
           const parts = [];
@@ -1606,6 +1464,7 @@
           apiContents.push({ role: m.role === 'assistant' ? 'model' : 'user', parts });
         }
 
+        updateProgress(2, apiContents.some(c => c.parts.some(part => part.inlineData)) ? 'Sohbeti ve eklenen görsel/PDF dosyalarını hazırlıyorum…' : 'Sohbet geçmişini ve talimatları hazırlıyorum…');
         const systemText = state.systemPrompt + (getMemory().on !== false && getMemory().text ? `\n\nKullanıcı hakkında hatırlaman gereken notlar (kullanıcı kendisi yazdı):\n${getMemory().text}` : '') + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') ;
         const needsGemini = apiContents.some(c => c.parts.some(part => part.inlineData)) || localStorage.getItem(WEB_KEY) === '1';
         const groqMessages = [{ role: 'system', content: systemText }].concat(apiContents.map(c => ({
@@ -1616,6 +1475,7 @@
         const hasGeminiKey = Boolean(PROXY_URL || state.apiKey);
         const preferred = state.provider === 'auto' ? (needsGemini ? 'g' : 'q') : (state.provider === 'gemini' ? 'g' : 'q');
         const first = needsGemini ? 'g' : preferred;
+        updateProgress(3, needsGemini ? 'Ekler veya Web araması için Gemini’yi seçiyorum…' : (state.provider === 'auto' ? 'Metin isteği için Groq’u seçiyorum…' : 'Tercih ettiğiniz motoru kullanıyorum…'));
         const attempts = [];
         if (first === 'q' && hasGroqKey) attempts.push({ p: 'q', m: GROQ_MODEL });
         if (first === 'g' && hasGeminiKey) attempts.push({ p: 'g', m: GEMINI_MODEL });
@@ -1634,6 +1494,7 @@
           selectedModel = at.m;
           activeModelLabel = useGroq ? GROQ_LABEL : MODEL_LABEL;
           let endpoint, headers, body;
+          updateProgress(3, (i > 0 ? 'İlk motor yanıt vermedi; ' : '') + (useGroq ? 'Groq’a bağlanıyorum…' : 'Gemini’ye bağlanıyorum…'));
           if (useGroq) {
             endpoint = 'https://api.groq.com/openai/v1/chat/completions';
             headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.groqApiKey };
@@ -1664,6 +1525,7 @@
           if (!netErr && response.ok) {
             usedModel = at.m;
             fellBack = i > 0;
+            updateProgress(4, (useGroq ? 'Groq' : 'Gemini') + ' yanıtı hazırlıyor…');
             break;
           }
           let status = 0;
@@ -1685,6 +1547,7 @@
             lastProviderError = new Error(`[${activeModelLabel} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
           }
           // Diğer sağlayıcı kullanılabiliyorsa, sağlayıcıya özgü hata/kota/erişim sorunlarında otomatik geçiş yap.
+          if (i < attempts.length - 1) updateProgress(3, (useGroq ? 'Groq' : 'Gemini') + ' yanıt veremedi; diğer motoru deniyorum…');
           if (i === attempts.length - 1) throw lastProviderError;
         }
         if (!response || !response.ok) throw lastProviderError || new Error('Her iki sağlayıcı da yanıt vermedi.');
@@ -1729,7 +1592,7 @@
                 const choice = parsed.choices && parsed.choices[0];
                 if (choice && choice.finish_reason) finishReason = choice.finish_reason;
                 const delta = choice && choice.delta && choice.delta.content;
-                if (typeof delta === 'string') { aiMsg.content += delta; scheduleRender(); }
+                if (typeof delta === 'string') { if (delta && progressEl) { progressEl.querySelector('[data-progress-detail]').textContent = 'Yanıtınızı yazıyorum…'; } aiMsg.content += delta; scheduleRender(); }
                 continue;
               }
               if (parsed.promptFeedback && parsed.promptFeedback.blockReason) blockReason = parsed.promptFeedback.blockReason;
@@ -1742,7 +1605,7 @@
               const parts = cand && cand.content && cand.content.parts;
               if (Array.isArray(parts)) {
                 for (const p of parts) {
-                  if (p.text && !p.thought) aiMsg.content += p.text;
+                  if (p.text && !p.thought) { if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Yanıtınızı yazıyorum…'; aiMsg.content += p.text; }
                 }
                 scheduleRender();
               }
@@ -1750,6 +1613,7 @@
           }
         }
 
+        if (progressEl) progressEl.remove();
         flushRender();
         if (sources.length) aiMsg.sources = sources;
 
@@ -1803,6 +1667,7 @@
         } else {
           aiMsg.content = `> **Forge AI Motor Uyarısı:** ${err.message}\n\n*Lütfen motor ayarlarınızı kontrol edin.*`;
         }
+        if (progressEl) progressEl.remove();
         proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
         syncStorage();
       } finally {

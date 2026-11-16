@@ -1,11 +1,9 @@
-# Forge AI (v6.9.13)
+# Forge AI (v6.9.16)
 
-## v6.9.13
-- **Akıllı sağlayıcı yönlendirmesi:** Otomatik modda metin istekleri önce Groq `llama-3.1-8b-instant` modeline; görsel/PDF ekli veya Google Web aramalı istekler Gemini'ye yönlendirilir. Kota, erişim, bağlantı veya sağlayıcı hatasında diğer anahtar varsa otomatik denenir.
-- Ayarlar'dan otomatik modun yanında Groq veya Gemini tercih edilebilir; tercih edilen sağlayıcıda sorun olursa yedek sağlayıcı denenir. Groq anahtarı `console.groq.com` adresinden alınır.
-- **Gemini korunmuştur:** Mevcut Gemini anahtarı ve Google Gemini akışı ayrı tutulur; bu özellik için Gemini anahtarı silinmez/değiştirilmez.
-- Groq bu uygulamada görsel/PDF ikili ekleri ve Google Web aramasını desteklemez; yönlendirici bu istekleri Gemini'ye verir.
-- API anahtarları tarayıcının yerel depolamasında kalır; herkese açık dağıtımda sunucu tarafı proxy kullanın.
+## v6.9.16
+- **Fotoğraf Stüdyosu kaldırıldı:** Fotoğraf düzenleme paneli, filtre/preset kontrolleri ve fotoğraf yüklenince stüdyoyu otomatik açma davranışı kaldırıldı. Görsel ekleme, yapay zekâdan görsel hakkında yardım almak için kullanılabilir.
+- Oluşturulan web sayfası, belge ve kodlar için genel önizleme paneli korunmuştur.
+- Önceki sürüm: otomatik Groq/Gemini yönlendirmesi ve sohbet yanıtında adım adım işlem durumu.
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
