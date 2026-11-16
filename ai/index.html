@@ -83,6 +83,23 @@
     .typing-dot:nth-child(2) { animation-delay: -0.16s; }
     @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
+
+    /* Kenar çubuğu (Claude tarzı) */
+    .sb-row { display:flex; align-items:center; gap:.75rem; width:100%; padding:.55rem .75rem; border-radius:.75rem; font-size:.875rem; color:#334155; text-align:left; cursor:pointer; transition:background .15s; }
+    .sb-row:hover { background:#EFEDE7; }
+    .sb-row-active { background:#E9E7E0; color:#0F172A; font-weight:500; }
+    .sb-mi { display:flex; align-items:center; gap:.75rem; width:100%; padding:.55rem .75rem; border-radius:.75rem; font-size:.875rem; color:#334155; text-align:left; cursor:pointer; transition:background .15s; }
+    .sb-mi:hover, .sb-mi:focus-visible { background:#F3F1EC; outline:none; }
+    .sb-sub { display:block; width:100%; padding:.45rem .75rem; border-radius:.6rem; font-size:.8125rem; color:#475569; text-align:left; cursor:pointer; transition:background .15s, color .15s; }
+    .sb-sub:hover { background:#fff; color:#2563EB; }
+    .sb-sep { height:1px; background:#EEECE6; margin:.3rem .5rem; }
+    .sb-chev { transition:transform .2s; }
+    [aria-expanded="true"] > .sb-chev { transform:rotate(180deg); }
+    #sidebar button:focus-visible, #sidebar [role="button"]:focus-visible { outline:2px solid #2563EB; outline-offset:1px; }
+    .chat-sel-wrap { width:0; opacity:0; overflow:hidden; transition:width .15s, opacity .15s; }
+    #chatList .group:hover .chat-sel-wrap, #chatList[data-selecting="1"] .chat-sel-wrap { width:1.5rem; opacity:1; }
+    @media (hover: none) { .chat-sel-wrap { width:1.5rem; opacity:1; } #chatList .delete-chat { opacity:1 !important; } }
+
     @media print {
       body * { visibility: hidden; }
       #printArea, #printArea * { visibility: visible; }
@@ -116,119 +133,131 @@
   <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-30 hidden md:hidden"></div>
 
   <!-- SOL KENAR ÇUBUĞU (SIDEBAR) -->
-  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-slate-200/80 transform -translate-x-full md:translate-x-0 md:static transition-transform duration-250 ease-out flex flex-col justify-between shadow-soft md:shadow-none">
-    
-    <div class="p-4 space-y-3.5">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3 select-none">
-          <!-- MODERN ÖZEL FORGE İKONU (SVG) -->
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-blue-600/25">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"></path>
-              <circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity="0.25"></circle>
-            </svg>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <span class="font-bold text-lg tracking-tight text-slate-900">Forge AI</span>
-          </div>
-        </div>
-        <button id="closeSidebarBtn" class="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
+  <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-[#F9F8F5] border-r border-[#E8E6DF] transform -translate-x-full md:translate-x-0 md:static transition-transform duration-250 ease-out flex flex-col shadow-soft md:shadow-none">
 
-      <button id="newChatBtn" type="button" class="w-full py-2.5 px-3.5 bg-slate-900 hover:bg-blue-600 text-white font-medium rounded-xl text-sm flex items-center justify-center gap-2 transition-all duration-200 shadow-sm cursor-pointer">
-        <i data-lucide="plus" class="w-4 h-4"></i>
-        <span>Yeni Çalışma</span>
+    <!-- Üst: marka -->
+    <div class="px-4 pt-4 pb-2 flex items-center justify-between">
+      <div class="flex items-center gap-2.5 select-none">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/25">
+          <svg class="w-4.5 h-4.5" style="width:1.1rem;height:1.1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"></path>
+            <circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity="0.25"></circle>
+          </svg>
+        </div>
+        <span class="font-bold text-xl tracking-tight text-slate-900">Forge AI</span>
+      </div>
+      <button id="closeSidebarBtn" type="button" class="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-[#EFEDE7]" aria-label="Menüyü kapat">
+        <i data-lucide="x" class="w-5 h-5"></i>
       </button>
-
-      <div class="flex items-center gap-1.5">
-        <div class="relative flex-1">
-          <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-          <input type="text" id="searchChatsInput" placeholder="Oturumlarda ara..." class="w-full bg-slate-50 border border-slate-200/80 rounded-lg pl-8 pr-2.5 py-1.5 text-xs text-slate-700 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-blue-500 transition">
-        </div>
-        <button id="backupJsonBtn" type="button" class="p-1.5 text-slate-500 hover:text-blue-600 bg-slate-50 hover:bg-blue-50 border border-slate-200/80 rounded-lg transition cursor-pointer" title="Tüm Oturumları JSON Yedekle">
-          <i data-lucide="archive" class="w-4 h-4"></i>
-        </button>
-      </div>
     </div>
 
-    <div id="bulkBar" class="hidden px-3 pb-2">
-      <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-[11px]">
+    <!-- Gezinme -->
+    <nav class="px-3 pt-2 space-y-0.5">
+      <button id="newChatBtn" type="button" class="sb-row sb-row-active">
+        <i data-lucide="plus" class="w-[18px] h-[18px] text-slate-600"></i>
+        <span>Yeni Çalışma</span>
+      </button>
+      <button id="searchToggleBtn" type="button" class="sb-row" aria-expanded="false" aria-controls="searchWrap">
+        <i data-lucide="search" class="w-[18px] h-[18px] text-slate-600"></i>
+        <span>Ara</span>
+      </button>
+      <div id="searchWrap" class="hidden px-1 pt-0.5 pb-1">
+        <input type="text" id="searchChatsInput" placeholder="Çalışmalarda ara..." class="w-full bg-white border border-[#E3E0D8] rounded-lg px-3 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition">
+      </div>
+    </nav>
+
+    <div id="bulkBar" class="hidden px-3 pt-2">
+      <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white border border-[#E3E0D8] text-[11px]">
         <span id="bulkCount" class="font-semibold text-slate-700 mr-auto">0 seçili</span>
-        <button type="button" id="bulkAllBtn" class="px-2 py-1 rounded-lg text-slate-600 hover:bg-slate-200/70 font-semibold transition cursor-pointer">Tümünü seç</button>
-        <button type="button" id="bulkCancelBtn" class="px-2 py-1 rounded-lg text-slate-600 hover:bg-slate-200/70 font-semibold transition cursor-pointer">Vazgeç</button>
+        <button type="button" id="bulkAllBtn" class="px-2 py-1 rounded-lg text-slate-600 hover:bg-[#EFEDE7] font-semibold transition cursor-pointer">Tümünü seç</button>
+        <button type="button" id="bulkCancelBtn" class="px-2 py-1 rounded-lg text-slate-600 hover:bg-[#EFEDE7] font-semibold transition cursor-pointer">Vazgeç</button>
         <button type="button" id="bulkDeleteBtn" class="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold transition cursor-pointer">Sil</button>
       </div>
     </div>
 
-    <div class="flex-1 overflow-y-auto px-3 space-y-1" id="chatList"></div>
+    <!-- Çalışma listesi -->
+    <div class="px-5 pt-5 pb-1.5 text-xs font-medium text-slate-500 select-none">Çalışmalar</div>
+    <div class="flex-1 overflow-y-auto px-3 space-y-0.5" id="chatList"></div>
 
-    <div class="p-3 border-t border-slate-100 bg-slate-50/50 space-y-1.5">
-      <div id="userArea" class="pb-1.5">
-        <div id="userSignedOut">
-          <div id="googleBtnHost" class="flex justify-center"></div>
-          <button id="googleSetupBtn" type="button" class="hidden w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center justify-center gap-2 transition cursor-pointer">
-            <svg class="w-4 h-4" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.3l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.1.8-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
-            <span>Google ile Giriş Yap</span>
-          </button>
-        </div>
-        <div id="userSignedIn" class="hidden flex items-center gap-2.5 p-2 bg-white border border-slate-200/80 rounded-xl">
-          <img id="userAvatar" alt="" referrerpolicy="no-referrer" class="w-8 h-8 rounded-full bg-slate-200 shrink-0 object-cover" />
-          <div class="min-w-0 flex-1">
-            <div id="userName" class="text-xs font-semibold text-slate-800 truncate"></div>
-            <div id="userEmail" class="text-[10px] text-slate-400 truncate"></div>
-          </div>
-          <button id="signOutBtn" type="button" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer" title="Çıkış Yap">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-          </button>
-        </div>
-        <div id="cloudSync" class="mt-1.5">
-          <button id="cloudBtn" type="button" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center justify-center gap-2 transition cursor-pointer">
-            <span id="cloudBtnText">☁️ Sohbetleri bulutla eşitle</span>
-          </button>
-          <p id="cloudStatus" class="hidden mt-1 text-[10px] text-slate-400 text-center leading-snug"></p>
-        </div>
-      </div>
+    <!-- Alt: hesap (Google girişi) ve menü -->
+    <div class="relative p-3 border-t border-[#E8E6DF]">
+      <div id="accountMenu" role="menu" class="hidden absolute bottom-full left-3 right-3 mb-1 bg-white border border-[#E3E0D8] rounded-2xl shadow-float p-1.5 z-50 max-h-[75vh] overflow-y-auto">
+        <div id="menuEmail" class="hidden px-3 pt-1.5 pb-1 text-xs text-slate-500 truncate"></div>
 
-      <button id="installPwaBtn" type="button" class="w-full py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition shadow-xs cursor-pointer">
-        <i data-lucide="download" class="w-3.5 h-3.5"></i>
-        <span>Uygulamayı İndir / Kur</span>
-      </button>
-
-      <button id="openSettingsBtn" type="button" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center justify-between transition shadow-2xs cursor-pointer">
-        <span class="flex items-center gap-2">
-          <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 text-blue-600"></i>
-          Forge AI Motor Ayarları
-        </span>
-        <span id="keyStatusBadge" class="w-2 h-2 rounded-full bg-rose-500" title="Motor Bağlantı Durumu"></span>
-      </button>
-
-      <button id="openMemoryBtn" type="button" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center gap-2 transition shadow-2xs cursor-pointer">
-        <i data-lucide="brain" class="w-3.5 h-3.5 text-violet-600"></i>
-        <span>Hafızam</span>
-      </button>
-
-      <div class="relative">
-        <button id="legalToggleBtn" type="button" aria-expanded="false" aria-controls="legalSubmenu" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center justify-between transition cursor-pointer">
-          <span class="flex items-center gap-2"><i data-lucide="scale" class="w-3.5 h-3.5 text-slate-500"></i>Yasal Bilgiler</span>
-          <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-400"></i>
+        <button id="openSettingsBtn" type="button" role="menuitem" class="sb-mi">
+          <i data-lucide="settings" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span class="flex-1">Forge AI Motor Ayarları</span>
+          <span id="keyStatusBadge" class="w-2 h-2 rounded-full bg-rose-500" title="Motor Bağlantı Durumu"></span>
         </button>
-        <div id="legalSubmenu" class="hidden mt-1 ml-3 pl-2 border-l border-slate-200 space-y-0.5 max-h-36 overflow-y-auto">
-          <button type="button" data-legal="usage" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-600 hover:bg-white hover:text-blue-600">Kullanım Politikası</button>
-          <button type="button" data-legal="privacy" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-600 hover:bg-white hover:text-blue-600">Gizlilik ve KVKK</button>
-          <button type="button" data-legal="terms" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-600 hover:bg-white hover:text-blue-600">Hizmet Şartları</button>
-          <button type="button" data-legal="licenses" class="w-full text-left px-2.5 py-1.5 rounded-lg text-[11px] text-slate-600 hover:bg-white hover:text-blue-600">Yazılım Lisansları</button>
+
+        <div id="cloudSync">
+          <button id="cloudBtn" type="button" role="menuitem" class="sb-mi">
+            <i data-lucide="cloud" class="w-[18px] h-[18px] text-slate-600"></i>
+            <span id="cloudBtnText" class="flex-1">Sohbetleri bulutla eşitle</span>
+          </button>
+          <p id="cloudStatus" class="hidden px-3 pb-1.5 text-[10px] text-slate-400 leading-snug"></p>
+        </div>
+
+        <button id="installPwaBtn" type="button" role="menuitem" class="sb-mi">
+          <i data-lucide="download" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span>Uygulamayı İndir / Kur</span>
+        </button>
+
+        <button id="backupJsonBtn" type="button" role="menuitem" class="sb-mi" title="Tüm Oturumları JSON Yedekle">
+          <i data-lucide="archive" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span>Tüm çalışmaları yedekle</span>
+        </button>
+
+        <div class="sb-sep"></div>
+
+        <button id="legalToggleBtn" type="button" role="menuitem" aria-expanded="false" aria-controls="legalSubmenu" class="sb-mi">
+          <i data-lucide="scale" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span class="flex-1">Yasal Bilgiler</span>
+          <i data-lucide="chevron-down" class="sb-chev w-4 h-4 text-slate-400"></i>
+        </button>
+        <div id="legalSubmenu" class="hidden mx-1.5 mt-0.5 mb-1 p-1 rounded-xl bg-[#F6F5F1] border border-[#ECEAE3] space-y-0.5">
+          <button type="button" data-legal="usage" class="sb-sub">Kullanım Politikası</button>
+          <button type="button" data-legal="privacy" class="sb-sub">Gizlilik ve KVKK</button>
+          <button type="button" data-legal="terms" class="sb-sub">Hizmet Şartları</button>
+          <button type="button" data-legal="licenses" class="sb-sub">Yazılım Lisansları</button>
+        </div>
+
+        <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
+          <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span class="flex-1">Ozguler Forge Hakkında</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.26</span>
+        </button>
+
+        <div id="menuSignOutWrap" class="hidden">
+          <div class="sb-sep"></div>
+          <button id="signOutBtn" type="button" role="menuitem" class="sb-mi">
+            <i data-lucide="log-out" class="w-[18px] h-[18px] text-slate-600"></i>
+            <span>Çıkış yap</span>
+          </button>
         </div>
       </div>
 
-      <button id="openAboutBtn" type="button" class="w-full py-1.5 px-3 text-slate-500 hover:text-slate-800 text-[11px] rounded-lg flex items-center justify-between transition cursor-pointer">
-        <span class="flex items-center gap-1.5">
-          <i data-lucide="info" class="w-3.5 h-3.5"></i>
-          Ozguler Forge Hakkında
-        </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.25</span>
-      </button>
+      <div id="userArea" class="flex items-center gap-1.5">
+        <div class="flex-1 min-w-0">
+          <div id="userSignedOut">
+            <div id="googleBtnHost" class="flex justify-start"></div>
+            <button id="googleSetupBtn" type="button" class="hidden w-full py-2 px-3 bg-white hover:bg-[#F3F1EC] border border-[#E3E0D8] text-slate-700 text-xs font-medium rounded-xl flex items-center justify-center gap-2 transition cursor-pointer">
+              <svg class="w-4 h-4" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.3l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z"/><path fill="#FBBC05" d="M10.5 28.6A14.5 14.5 0 0 1 9.5 24c0-1.6.3-3.1.8-4.6l-7.9-6.1A23.9 23.9 0 0 0 0 24c0 3.9.9 7.5 2.6 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.9l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>
+              <span>Google ile Giriş Yap</span>
+            </button>
+          </div>
+          <div id="userSignedIn" class="hidden flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-[#EFEDE7] cursor-pointer transition" role="button" tabindex="0" aria-label="Hesap menüsü">
+            <img id="userAvatar" alt="" referrerpolicy="no-referrer" class="w-8 h-8 rounded-full bg-slate-200 shrink-0 object-cover" />
+            <div class="min-w-0 flex-1">
+              <div id="userName" class="text-[13px] font-semibold text-slate-800 truncate"></div>
+              <div id="userEmail" class="text-[11px] text-slate-500 truncate"></div>
+            </div>
+          </div>
+        </div>
+        <button id="accountMenuBtn" type="button" aria-haspopup="menu" aria-expanded="false" class="shrink-0 p-2 text-slate-500 hover:text-slate-900 hover:bg-[#EFEDE7] rounded-xl transition cursor-pointer" title="Menü" aria-label="Menüyü aç">
+          <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+        </button>
+      </div>
     </div>
   </aside>
 
@@ -586,9 +615,8 @@
     // Sunucu (proxy) adresi. Doluysa API anahtarı gerekmez; istekler bu adrese Google kimlik belgesiyle gider (proxy-worker.js).
     const PROXY_URL = '';
     const TOKEN_KEY = 'forge_ai_idtoken';
-    const MEMORY_KEY = 'forge_ai_memory';
     const WEB_KEY = 'forge_ai_websearch';
-    const getMemory = () => { try { return JSON.parse(localStorage.getItem(MEMORY_KEY) || '{}'); } catch (_) { return {}; } };
+    try { localStorage.removeItem('forge_ai_memory'); } catch (_) {}
     function getIdToken() {
       const t = localStorage.getItem(TOKEN_KEY);
       if (!t) return null;
@@ -1156,6 +1184,7 @@
       if (!bar) return;
       const n = selectedChats.size;
       bar.classList.toggle('hidden', n === 0);
+      els.chatList.dataset.selecting = n ? '1' : '';
       document.getElementById('bulkCount').textContent = n + ' seçili';
       const q = (els.searchChatsInput.value || '').toLowerCase();
       const shown = state.chats.filter(c => c.title.toLowerCase().includes(q));
@@ -1176,15 +1205,14 @@
       filtered.forEach(chat => {
         const active = chat.id === state.activeChatId;
         const item = document.createElement('div');
-        item.className = `group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs cursor-pointer transition ${
-          active ? 'bg-blue-50/80 text-blue-700 font-semibold border border-blue-100' : 'text-slate-600 hover:bg-slate-100/80'
+        item.className = `group flex items-center justify-between px-3 py-2 rounded-xl text-[13px] cursor-pointer transition ${
+          active ? 'bg-[#E9E7E0] text-slate-900 font-medium' : 'text-slate-700 hover:bg-[#EFEDE7]'
         }`;
         item.innerHTML = `
-          <div class="flex items-center gap-2 min-w-0 flex-1">
-            <span class="chat-sel-wrap flex items-center justify-center p-1.5 -ml-1.5 -my-1.5 shrink-0 cursor-pointer" title="Silmek için seç">
+          <div class="flex items-center min-w-0 flex-1">
+            <span class="chat-sel-wrap flex items-center shrink-0 cursor-pointer" title="Silmek için seç">
               <input type="checkbox" class="chat-sel w-3.5 h-3.5 accent-blue-600 cursor-pointer" ${selectedChats.has(chat.id) ? 'checked' : ''} aria-label="Sohbeti seç">
             </span>
-            <i data-lucide="message-square" class="w-3.5 h-3.5 shrink-0 ${active ? 'text-blue-600' : 'text-slate-400'}"></i>
             <span class="truncate">${escapeHtml(chat.title)}</span>
           </div>
           <button type="button" class="delete-chat opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 rounded-md transition" title="Sil">
@@ -1535,7 +1563,7 @@
         const timer = canFallback ? setTimeout(() => { if (!gotText) { timedOut = true; ac.abort(); } }, FIRST_TOKEN_MS) : null;
         try {
         updateProgress(2, apiContents.some(c => c.parts.some(part => part.inlineData)) ? 'Sohbeti ve eklenen görsel/PDF dosyalarını hazırlıyorum…' : 'Sohbet geçmişini ve talimatları hazırlıyorum…');
-        const systemText = state.systemPrompt + (getMemory().on !== false && getMemory().text ? `\n\nKullanıcı hakkında hatırlaman gereken notlar (kullanıcı kendisi yazdı):\n${getMemory().text}` : '') + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') ;
+        const systemText = state.systemPrompt + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') ;
         const webOn = localStorage.getItem(WEB_KEY) === '1';
         const requestBody = JSON.stringify(isOR ? {
           model: activeModel.model,
@@ -2111,7 +2139,7 @@
     window.addEventListener('focus', checkForUpdates);
 
 
-    // --- KAYNAKLAR, WEB ARAMA DÜĞMESİ, HAFIZA PENCERESİ ---
+    // --- KAYNAKLAR VE WEB ARAMA DÜĞMESİ ---
     function renderSources(row, list) {
       if (!row || !Array.isArray(list) || !list.length) return;
       const old = row.querySelector('.msg-sources'); if (old) old.remove();
@@ -2139,27 +2167,37 @@
       paint();
     })();
 
-    document.getElementById('openMemoryBtn').onclick = () => {
-      const mem = getMemory();
-      const wrap = document.createElement('div');
-      wrap.className = 'fixed inset-0 z-[100] flex items-start justify-center pt-16 px-4 bg-slate-900/30 backdrop-blur-[2px]';
-      wrap.innerHTML = '<div role="dialog" aria-modal="true" class="w-full max-w-md bg-white rounded-2xl shadow-float border border-slate-200 p-5">' +
-        '<h3 class="text-sm font-bold text-slate-900 mb-1">Forge AI Hafızam</h3>' +
-        '<p class="text-xs text-slate-500 mb-3">Yazdıklarınız yalnızca bu cihazda saklanır ve her sohbette Forge AI\'ya not olarak gönderilir. İstediğiniz zaman düzenleyin veya silin.</p>' +
-        '<textarea rows="6" placeholder="Örn: Adım Ümit. Mühendisim. Kısa ve maddeli yanıtları severim." class="mem-text w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:border-blue-500 resize-none"></textarea>' +
-        '<label class="flex items-center gap-2 mt-2 text-xs text-slate-600"><input type="checkbox" class="mem-on"> Hafızayı kullan</label>' +
-        '<div class="flex justify-between gap-2 mt-4"><button type="button" class="mem-clear px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 cursor-pointer">Tümünü sil</button>' +
-        '<div class="flex gap-2"><button type="button" class="mem-cancel px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer">Kapat</button>' +
-        '<button type="button" class="mem-save px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 cursor-pointer">Kaydet</button></div></div></div>';
-      const ta = wrap.querySelector('.mem-text'), on = wrap.querySelector('.mem-on');
-      ta.value = mem.text || ''; on.checked = mem.on !== false;
-      wrap.querySelector('.mem-cancel').onclick = () => wrap.remove();
-      wrap.querySelector('.mem-clear').onclick = () => { ta.value = ''; localStorage.removeItem(MEMORY_KEY); };
-      wrap.querySelector('.mem-save').onclick = () => { localStorage.setItem(MEMORY_KEY, JSON.stringify({ text: ta.value.trim(), on: on.checked })); wrap.remove(); };
-      wrap.addEventListener('click', (e) => { if (e.target === wrap) wrap.remove(); });
-      document.body.appendChild(wrap);
-      ta.focus();
-    };
+    // --- HESAP MENÜSÜ ve ARAMA ---
+    (function initAccountMenu() {
+      const menu = document.getElementById('accountMenu');
+      const btn = document.getElementById('accountMenuBtn');
+      const chip = document.getElementById('userSignedIn');
+      const setOpen = (open) => {
+        menu.classList.toggle('hidden', !open);
+        btn.setAttribute('aria-expanded', String(open));
+      };
+      const toggle = (e) => { e.stopPropagation(); setOpen(menu.classList.contains('hidden')); };
+      btn.onclick = toggle;
+      chip.onclick = toggle;
+      chip.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } };
+      menu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const b = e.target.closest('button');
+        if (!b || b.id === 'legalToggleBtn' || b.id === 'cloudBtn') return;
+        setOpen(false);
+      });
+      document.addEventListener('click', (e) => { if (!menu.contains(e.target)) setOpen(false); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+
+      const searchBtn = document.getElementById('searchToggleBtn');
+      const searchWrap = document.getElementById('searchWrap');
+      searchBtn.onclick = () => {
+        const show = searchWrap.classList.toggle('hidden') === false;
+        searchBtn.setAttribute('aria-expanded', String(show));
+        if (show) { els.searchChatsInput.focus(); }
+        else { els.searchChatsInput.value = ''; renderChatList(''); }
+      };
+    })();
 
     // --- GOOGLE İLE GİRİŞ ---
     function decodeJwt(token) {
@@ -2172,12 +2210,16 @@
       const outEl = document.getElementById('userSignedOut');
       if (currentUser) {
         inEl.classList.remove('hidden'); outEl.classList.add('hidden');
+        const me = document.getElementById('menuEmail'); me.textContent = currentUser.email || ''; me.classList.toggle('hidden', !currentUser.email);
+        document.getElementById('menuSignOutWrap').classList.remove('hidden');
         document.getElementById('userName').textContent = currentUser.name || '';
         document.getElementById('userEmail').textContent = currentUser.email || '';
         const av = document.getElementById('userAvatar');
         if (currentUser.picture) av.src = currentUser.picture; else av.removeAttribute('src');
       } else {
         inEl.classList.add('hidden'); outEl.classList.remove('hidden');
+        document.getElementById('menuEmail').classList.add('hidden');
+        document.getElementById('menuSignOutWrap').classList.add('hidden');
       }
     }
     function handleGoogleCredential(resp) {
@@ -2204,7 +2246,7 @@
       }
       google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredential, auto_select: true });
       if (PROXY_URL && currentUser && !getIdToken()) google.accounts.id.prompt();
-      google.accounts.id.renderButton(host, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', locale: 'tr', width: 232 });
+      google.accounts.id.renderButton(host, { theme: 'outline', size: 'large', text: 'signin_with', shape: 'pill', locale: 'tr', width: 200 });
     }
     document.getElementById('signOutBtn').onclick = () => {
       if (window.google && google.accounts && google.accounts.id) google.accounts.id.disableAutoSelect();

@@ -1,4 +1,12 @@
-# Forge AI (v6.9.20)
+# Forge AI (v6.9.26)
+
+## v6.9.26
+- **Kenar çubuğu yenilendi (Claude tarzı):** Düz satırlı gezinme (Yeni Çalışma, Ara), sade çalışma listesi; sohbet seçme kutusu üzerine gelince veya seçim yapılırken görünür.
+- **Google girişi en alta alındı:** Giriş düğmesi / hesap bilgisi sol alttadır; yanındaki “⋯” (veya hesap alanı) açılır hesap menüsünü açar. Motor Ayarları, bulut eşitleme, uygulamayı kur, yedekleme, hakkında ve çıkış bu menüdedir.
+- **Yasal metinler açılır karta alındı:** Menüde “Yasal Bilgiler” satırına basınca dört metin kartı açılır.
+- **“Hafızam” özelliği kaldırıldı:** Düğme, pencere ve sohbete not ekleme kodu silindi; cihazda kalan eski hafıza notu uygulama açılınca temizlenir.
+
+## v6.9.20
 
 ## v6.9.20
 - Gemini 4 Hydrogen istekleri güncel API gereksinimlerine uyarlandı: temperature ayarı kaldırıldı; Google Search aracı alanı güncellendi; eski temperature tercihi temizlenir. API anahtarı yardım metnine yetkilendirme/kısıtlama notu eklendi.
