@@ -178,6 +178,12 @@
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
         </div>
+        <div id="cloudSync" class="mt-1.5">
+          <button id="cloudBtn" type="button" class="w-full py-2 px-3 bg-white hover:bg-slate-100 border border-slate-200/80 text-slate-700 text-xs font-medium rounded-xl flex items-center justify-center gap-2 transition cursor-pointer">
+            <span id="cloudBtnText">☁️ Sohbetleri bulutla eşitle</span>
+          </button>
+          <p id="cloudStatus" class="hidden mt-1 text-[10px] text-slate-400 text-center leading-snug"></p>
+        </div>
       </div>
 
       <button id="installPwaBtn" type="button" class="w-full py-2 px-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition shadow-xs cursor-pointer">
@@ -203,7 +209,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.7</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.8</span>
       </button>
     </div>
   </aside>
@@ -1068,12 +1074,16 @@
       els.imageLightbox.classList.remove('hidden');
     };
 
+    // Bulut eşitleme (Firebase) modülü bu kancaları gerçek işlevlerle değiştirir.
+    window.forgeCloud = { push() {}, remove() {} };
+
     function syncStorage() {
       try {
         localStorage.setItem(KEYS.CHATS, JSON.stringify(state.chats));
       } catch (e) {
         console.warn('Yerel depolama sınırına ulaşıldı.');
       }
+      try { window.forgeCloud.push(); } catch (_) {}
     }
 
     function updateApiBadge() {
@@ -1327,6 +1337,7 @@
             chat.messages.forEach(m => { if (m.hasAttach) AttachDB.del(m.id); });
             state.chats = state.chats.filter(c => c.id !== chat.id);
             selectedChats.delete(chat.id);
+            try { window.forgeCloud.remove([chat.id]); } catch (_) {}
             if (state.activeChatId === chat.id) state.activeChatId = null;
             syncStorage();
             renderChatList(els.searchChatsInput.value);
@@ -1359,6 +1370,7 @@
       if (!ids.length) return;
       if (!(await forgeDialog('Seçilen ' + ids.length + ' çalışma kalıcı olarak silinsin mi?', { confirm: true, danger: true, okText: 'Sil' }))) return;
       state.chats.filter(c => selectedChats.has(c.id)).forEach(c => c.messages.forEach(m => { if (m.hasAttach) AttachDB.del(m.id); }));
+      try { window.forgeCloud.remove(ids); } catch (_) {}
       state.chats = state.chats.filter(c => !selectedChats.has(c.id));
       if (selectedChats.has(state.activeChatId)) state.activeChatId = null;
       selectedChats.clear();
@@ -2282,18 +2294,35 @@
     renderUserArea();
     initGoogleSignIn();
 
+    // Bulut modülünün (Firebase) uygulama durumuna eriştiği köprü
+    window.forgeBridge = {
+      getChats: () => state.chats,
+      isBusy: () => state.isGenerating,
+      activeId: () => state.activeChatId,
+      persist: () => { try { localStorage.setItem(KEYS.CHATS, JSON.stringify(state.chats)); } catch (_) {} },
+      addLocal: (c) => { state.chats.unshift(c); },
+      replaceLocal: (id, p) => { const c = state.chats.find(x => x.id === id); if (c) { c.title = p.title; c.messages = p.messages; } },
+      removeLocal: (id) => {
+        state.chats = state.chats.filter(c => c.id !== id);
+        selectedChats.delete(id);
+        if (state.activeChatId === id) state.activeChatId = null;
+      },
+      refresh: (full) => { renderChatList(els.searchChatsInput.value); if (full) renderMessages(); },
+      setUser: (u) => {
+        if (currentUser) return;
+        currentUser = u;
+        try { localStorage.setItem(KEYS.USER, JSON.stringify(u)); } catch (_) {}
+        renderUserArea();
+      }
+    };
+
     updateApiBadge();
     renderChatList();
     renderMessages();
   </script>
 
   <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-
-    // Your web app's Firebase configuration
+    // Firebase yapılandırması
     const firebaseConfig = {
       apiKey: "AIzaSyAlZLrHCBuvEUbgELeFumaL4q_mD_X7HT8",
       authDomain: "forge-ai-83cea.firebaseapp.com",
@@ -2303,9 +2332,160 @@
       appId: "1:912627097805:web:0de9478c8d0ba511ef4984"
     };
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    window.firebaseApp = app;
+    const V = "13.3.0";
+    const btn = document.getElementById('cloudBtn');
+    const btnText = document.getElementById('cloudBtnText');
+    const statusEl = document.getElementById('cloudStatus');
+    const setStatus = (t, err) => {
+      statusEl.textContent = t || '';
+      statusEl.classList.toggle('hidden', !t);
+      statusEl.className = 'mt-1 text-[10px] text-center leading-snug ' + (err ? 'text-rose-500' : 'text-slate-400') + (t ? '' : ' hidden');
+    };
+
+    try {
+      const [{ initializeApp }, A, F] = await Promise.all([
+        import(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`),
+        import(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`),
+        import(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`)
+      ]);
+      const app = initializeApp(firebaseConfig);
+      window.firebaseApp = app;
+      const B = window.forgeBridge;
+      const auth = A.getAuth(app);
+      const db = F.getFirestore(app);
+
+      const DEVICE = (() => {
+        let d = localStorage.getItem('forge_cloud_device');
+        if (!d) { d = Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('forge_cloud_device', d); }
+        return d;
+      })();
+      const META_KEY = 'forge_cloud_meta';
+      let meta = {};
+      try { meta = JSON.parse(localStorage.getItem(META_KEY) || '{}'); } catch (_) {}
+      const saveMeta = () => { try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (_) {} };
+      const hash = (str) => { let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return h + ':' + str.length; };
+      const contentOf = (c) => JSON.stringify({ title: c.title, messages: c.messages });
+      const MAX_DOC = 900 * 1024;
+
+      let uid = null, unsub = null, pushTimer = null, pushing = false;
+
+      const explain = (e) => {
+        const code = (e && e.code) || '';
+        if (code.includes('operation-not-allowed')) return 'Firebase Console > Authentication > Sign-in method bölümünde Google girişi etkinleştirilmemiş.';
+        if (code.includes('unauthorized-domain')) return 'Bu site adresi Firebase > Authentication > Settings > Authorized domains listesinde yok.';
+        if (code.includes('popup-blocked')) return 'Tarayıcı açılır pencereyi engelledi. Bu site için açılır pencerelere izin verin.';
+        if (code.includes('permission-denied')) return 'Firestore kuralları erişime izin vermiyor. Kuralları README\'deki gibi ayarlayın.';
+        if (code.includes('popup-closed') || code.includes('cancelled-popup')) return '';
+        return (e && e.message) || 'Bilinmeyen hata';
+      };
+
+      async function pushNow() {
+        if (!uid || pushing) return;
+        if (B.isBusy()) { schedulePush(); return; }
+        pushing = true;
+        try {
+          for (const c of [...B.getChats()]) {
+            const content = contentOf(c);
+            const h = hash(content);
+            if (meta[c.id] && meta[c.id].h === h) continue;
+            if (content.length > MAX_DOC) { setStatus('“' + c.title + '” çok büyük olduğu için eşitlenmedi.', true); continue; }
+            const t = Date.now();
+            await F.setDoc(F.doc(db, 'users', uid, 'chats', c.id), { title: c.title, messages: JSON.stringify(c.messages), updatedAt: t, deviceId: DEVICE });
+            meta[c.id] = { h, t };
+            saveMeta();
+          }
+          setStatus('Eşitlendi ✓ ' + new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }));
+        } catch (e) {
+          setStatus('Eşitleme hatası: ' + explain(e), true);
+        } finally { pushing = false; }
+      }
+      function schedulePush() {
+        if (!uid) return;
+        clearTimeout(pushTimer);
+        pushTimer = setTimeout(pushNow, 1500);
+      }
+
+      function listen() {
+        if (unsub) unsub();
+        setStatus('Eşitleniyor…');
+        unsub = F.onSnapshot(F.collection(db, 'users', uid, 'chats'), (snap) => {
+          let changed = false, activeAffected = false;
+          const activeId = B.activeId();
+          snap.docChanges().forEach((ch) => {
+            const id = ch.doc.id, d = ch.doc.data();
+            if (ch.type === 'removed') {
+              if (B.getChats().some(c => c.id === id) && !(B.isBusy() && activeId === id)) {
+                B.removeLocal(id); delete meta[id]; changed = true; if (id === activeId) activeAffected = true;
+              }
+              return;
+            }
+            if (d.deviceId === DEVICE && meta[id] && meta[id].t === d.updatedAt) return; // kendi yazdığımız
+            let msgs; try { msgs = JSON.parse(d.messages); } catch (_) { return; }
+            const local = B.getChats().find(c => c.id === id);
+            if (!local) {
+              const nc = { id, title: d.title, messages: msgs };
+              B.addLocal(nc); meta[id] = { h: hash(contentOf(nc)), t: d.updatedAt }; changed = true; return;
+            }
+            const m = meta[id];
+            const localDirty = !m || hash(contentOf(local)) !== m.h;
+            if (localDirty) return;                       // yerel değişiklik var, o gönderilecek
+            if (d.updatedAt <= m.t) return;
+            if (B.isBusy() && activeId === id) return;
+            B.replaceLocal(id, { title: d.title, messages: msgs });
+            meta[id] = { h: hash(contentOf(local)), t: d.updatedAt };
+            changed = true; if (id === activeId) activeAffected = true;
+          });
+          // Daha önce eşitlenmiş ama sunucuda artık olmayan sohbetler başka cihazda silinmiştir
+          if (!snap.metadata.fromCache) {
+            const remoteIds = new Set(snap.docs.map(x => x.id));
+            B.getChats().filter(c => meta[c.id] && !remoteIds.has(c.id) && !(B.isBusy() && B.activeId() === c.id)).forEach((c) => {
+              B.removeLocal(c.id); delete meta[c.id]; changed = true; if (c.id === activeId) activeAffected = true;
+            });
+          }
+          saveMeta();
+          if (changed) { B.persist(); B.refresh(activeAffected || !B.activeId()); }
+          setStatus('Eşitlendi ✓ ' + new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }));
+          schedulePush();
+        }, (e) => setStatus('Eşitleme hatası: ' + explain(e), true));
+      }
+
+      window.forgeCloud.push = schedulePush;
+      window.forgeCloud.remove = (ids) => {
+        ids.forEach((id) => {
+          delete meta[id];
+          if (uid) F.deleteDoc(F.doc(db, 'users', uid, 'chats', id)).catch((e) => setStatus('Silme hatası: ' + explain(e), true));
+        });
+        saveMeta();
+      };
+
+      A.onAuthStateChanged(auth, (user) => {
+        if (user) {
+          const lastUid = localStorage.getItem('forge_cloud_uid');
+          if (lastUid && lastUid !== user.uid) { meta = {}; saveMeta(); }   // farklı hesap: yerel sohbetler yeni hesaba yüklenir
+          localStorage.setItem('forge_cloud_uid', user.uid);
+          uid = user.uid;
+          B.setUser({ sub: user.uid, name: user.displayName || 'Kullanıcı', email: user.email || '', picture: user.photoURL || '' });
+          btnText.textContent = '☁️ Bulut eşitleme açık · Kapat';
+          listen();
+        } else {
+          uid = null; if (unsub) { unsub(); unsub = null; }
+          btnText.textContent = '☁️ Sohbetleri bulutla eşitle';
+          setStatus('');
+        }
+      });
+
+      btn.onclick = async () => {
+        if (uid) {
+          try { await A.signOut(auth); } catch (e) { setStatus(explain(e), true); }
+          return;
+        }
+        try { await A.signInWithPopup(auth, new A.GoogleAuthProvider()); }
+        catch (e) { const m = explain(e); if (m) forgeDialog('Bulut girişi tamamlanamadı: ' + m); }
+      };
+    } catch (e) {
+      console.warn('Firebase yüklenemedi:', e);
+      btn.onclick = () => forgeDialog('Bulut eşitleme şu an yüklenemedi (internet bağlantınızı kontrol edin).');
+    }
   </script>
 </body>
 </html>

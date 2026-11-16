@@ -1,7 +1,24 @@
-# Forge AI (v6.9.7)
+# Forge AI (v6.9.8)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.8
+- **Bulut eşitleme (Firebase):** Kenar çubuğundaki "☁️ Sohbetleri bulutla eşitle" düğmesi Google ile Firebase'e giriş yapar; sohbetler Firestore'a (`users/{uid}/chats/{sohbetId}`) yazılır ve diğer cihazlarda otomatik görünür. Silmeler de eşitlenir. Ekler (PDF/fotoğraf) cihazda kalır, eşitlenmez. Tek sohbet ~900 KB'ı aşarsa eşitlenmez.
+- **Kurulum (Firebase Console > forge-ai-83cea):**
+  1. Authentication > Sign-in method > **Google**'ı etkinleştirin.
+  2. Authentication > Settings > **Authorized domains** listesine sitenizin alan adını ekleyin.
+  3. Firestore Database oluşturun ve Rules bölümüne şunu yazın:
+     ```
+     rules_version = '2';
+     service cloud.firestore {
+       match /databases/{database}/documents {
+         match /users/{uid}/chats/{chatId} {
+           allow read, write: if request.auth != null && request.auth.uid == uid;
+         }
+       }
+     }
+     ```
 
 ## v6.9.7
 - Firebase kodu Firebase Console'un verdiği biçimle değiştirildi (`firebase-app.js` 13.3.0).
