@@ -209,7 +209,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.11</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.13</span>
       </button>
     </div>
   </aside>
@@ -308,7 +308,7 @@
               </div>
 
               <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
-                <span id="modelBadge" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl truncate max-w-full sm:max-w-[200px]">⚡ Forge 4</span>
+                <span id="modelBadge" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl truncate max-w-full sm:max-w-[200px]">⚡ Groq · Llama 3.1 8B</span>
                 <button type="button" id="stopBtn" class="hidden shrink-0 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
                   <i data-lucide="square" class="w-3 h-3 fill-current"></i>
                   <span>Durdur</span>
@@ -457,8 +457,22 @@
 
       <div class="space-y-4">
         <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Aktif Yapay Zekâ Sağlayıcısı</label>
+          <select id="providerSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500">
+            <option value="auto">Akıllı otomatik yönlendirme (önerilen)</option>
+            <option value="groq">Groq · llama-3.1-8b-instant</option>
+            <option value="gemini">Google Gemini</option>
+          </select>
+          <p class="mt-1 text-[10px] text-slate-500">Metin için Groq; görsel/PDF ve Google Web araması için Gemini seçilir. Kota veya bağlantı sorunu olursa diğer sağlayıcı denenir. Anahtarlarınız korunur.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Groq API Anahtarı</label>
+          <input type="password" id="groqApiKeyInput" placeholder="gsk_..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
+          <p class="mt-1 text-[10px] text-slate-500">Anahtarınızı console.groq.com adresinden alın. Tarayıcınızda saklanır.</p>
+        </div>
+        <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Anahtarı (Google)</label>
-          <input type="password" id="apiKeyInput" placeholder="AIzaSy..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
+          <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
         </div>
 
         <div>
@@ -565,10 +579,14 @@
     refreshIcons();
 
     const GEMINI_MODEL = 'gemini-4-hydrogen'; // API model kimliği (kullanıcıya gösterilmez)
-    const MODEL_LABEL = 'Forge 4'; // kullanıcıya görünen ad
+    const MODEL_LABEL = 'Forge 4'; // Gemini kullanıcıya görünen ad
+    const GROQ_MODEL = 'llama-3.1-8b-instant';
+    const GROQ_LABEL = 'Groq · Llama 3.1 8B';
 
     const KEYS = {
       API: 'forge_ai_gemini_api_key',
+      GROQ_API: 'forge_ai_groq_api_key',
+      PROVIDER: 'forge_ai_provider',
       SYSTEM: 'forge_ai_system_prompt',
       TEMP: 'forge_ai_temperature',
       CHATS: 'forge_ai_chats',
@@ -673,6 +691,8 @@
 
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
+      groqApiKey: localStorage.getItem(KEYS.GROQ_API) || '',
+      provider: localStorage.getItem(KEYS.PROVIDER) || 'auto',
       systemPrompt: localStorage.getItem(KEYS.SYSTEM) || BASE_IDENTITY,
       temperature: parseFloat(localStorage.getItem(KEYS.TEMP) || '0.7'),
       chats: JSON.parse(localStorage.getItem(KEYS.CHATS) || '[]'),
@@ -722,6 +742,8 @@
       aboutModal: document.getElementById('aboutModal'),
       installGuideModal: document.getElementById('installGuideModal'),
       apiKeyInput: document.getElementById('apiKeyInput'),
+      groqApiKeyInput: document.getElementById('groqApiKeyInput'),
+      providerSelect: document.getElementById('providerSelect'),
       tempSlider: document.getElementById('tempSlider'),
       tempValueLabel: document.getElementById('tempValueLabel'),
       systemPromptInput: document.getElementById('systemPromptInput')
@@ -1065,7 +1087,11 @@
     }
 
     function updateApiBadge() {
-      const valid = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
+      const hasGroq = Boolean(state.groqApiKey);
+      const hasGemini = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
+      const valid = state.provider === 'groq' ? hasGroq : state.provider === 'gemini' ? hasGemini : (hasGroq || hasGemini);
+      const badge = document.getElementById('modelBadge');
+      if (badge) badge.textContent = state.provider === 'auto' ? '⚡ Akıllı yönlendirme' : state.provider === 'groq' ? '⚡ ' + GROQ_LABEL : '⚡ ' + MODEL_LABEL;
       els.keyStatusBadge.className = `w-2 h-2 rounded-full ${valid ? 'bg-emerald-500' : 'bg-rose-500'}`;
       const warningEl = document.getElementById('noKeyWarning');
       if (warningEl) warningEl.classList.toggle('hidden', valid);
@@ -1358,7 +1384,7 @@
     };
 
     function getWelcomeScreenHtml() {
-      const hasValidKey = Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
+      const hasValidKey = state.provider === 'groq' ? Boolean(state.groqApiKey) : state.provider === 'gemini' ? Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza'))) : Boolean(state.groqApiKey || PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
       return `
         <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-2xl mx-auto text-center py-8">
           <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
@@ -1478,7 +1504,7 @@
       if (!text && !hasFiles) return;
       if (state.isGenerating) return;
 
-      if (!state.apiKey && !PROXY_URL) {
+      if (!(state.provider === 'groq' ? state.groqApiKey : state.provider === 'gemini' ? (state.apiKey || PROXY_URL) : (state.groqApiKey || state.apiKey || PROXY_URL))) {
         els.settingsModal.classList.remove('hidden');
         return;
       }
@@ -1554,7 +1580,9 @@
       const proseEl = bubble.querySelector('.prose');
       const actionsEl = bubble.querySelector('.msg-actions');
 
-      const selectedModel = GEMINI_MODEL;
+      let useGroq = state.provider !== 'gemini';
+      let selectedModel = useGroq ? GROQ_MODEL : GEMINI_MODEL;
+      let activeModelLabel = useGroq ? GROQ_LABEL : MODEL_LABEL;
       let usedModel = selectedModel;
 
       try {
@@ -1579,31 +1607,53 @@
         }
 
         const systemText = state.systemPrompt + (getMemory().on !== false && getMemory().text ? `\n\nKullanıcı hakkında hatırlaman gereken notlar (kullanıcı kendisi yazdı):\n${getMemory().text}` : '') + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') ;
-        const requestBody = JSON.stringify({
-          systemInstruction: { parts: [{ text: systemText}] },
-          contents: apiContents,
-          tools: localStorage.getItem(WEB_KEY) === '1' ? [{ google_search: {} }] : undefined,
-          generationConfig: { temperature: state.temperature }
-        });
-        if (requestBody.length > 19 * 1024 * 1024) {
-          throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
-        }
-
-        // API anahtarı URL yerine header ile gönderilir.
-        const hasGemini = Boolean(PROXY_URL || state.apiKey);
-        if (!hasGemini) throw new Error('API anahtarı yok. Ayarlar bölümünden Gemini API anahtarınızı girin.');
-        const attempts = [{ p: 'g', m: selectedModel }];
+        const needsGemini = apiContents.some(c => c.parts.some(part => part.inlineData)) || localStorage.getItem(WEB_KEY) === '1';
+        const groqMessages = [{ role: 'system', content: systemText }].concat(apiContents.map(c => ({
+          role: c.role === 'model' ? 'assistant' : 'user',
+          content: c.parts.filter(part => typeof part.text === 'string').map(part => part.text).join('\n')
+        })).filter(m => m.content));
+        const hasGroqKey = Boolean(state.groqApiKey);
+        const hasGeminiKey = Boolean(PROXY_URL || state.apiKey);
+        const preferred = state.provider === 'auto' ? (needsGemini ? 'g' : 'q') : (state.provider === 'gemini' ? 'g' : 'q');
+        const first = needsGemini ? 'g' : preferred;
+        const attempts = [];
+        if (first === 'q' && hasGroqKey) attempts.push({ p: 'q', m: GROQ_MODEL });
+        if (first === 'g' && hasGeminiKey) attempts.push({ p: 'g', m: GEMINI_MODEL });
+        const alternate = first === 'q' ? 'g' : 'q';
+        if (alternate === 'q' && hasGroqKey) attempts.push({ p: 'q', m: GROQ_MODEL });
+        if (alternate === 'g' && hasGeminiKey) attempts.push({ p: 'g', m: GEMINI_MODEL });
+        if (!attempts.length) throw new Error('Kullanılabilir API anahtarı bulunamadı. Akıllı yönlendirme için Groq ve/veya Gemini anahtarını Motor Ayarları bölümüne ekleyin.');
+        if (needsGemini && !hasGeminiKey) throw new Error('Bu istek görsel/PDF eki veya Google Web araması gerektiriyor; bunun için Gemini API anahtarı gerekli. Motor Ayarları bölümünden Gemini anahtarını ekleyin.');
 
         let response = null;
         let fellBack = false;
+        let lastProviderError = null;
         for (let i = 0; i < attempts.length; i++) {
           const at = attempts[i];
+          useGroq = at.p === 'q';
+          selectedModel = at.m;
+          activeModelLabel = useGroq ? GROQ_LABEL : MODEL_LABEL;
           let endpoint, headers, body;
-          const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
-          endpoint = `${base}/v1beta/models/${encodeURIComponent(at.m)}:streamGenerateContent?alt=sse`;
-          if (PROXY_URL && !getIdToken()) throw new Error('Oturumunuzun süresi doldu. Lütfen kenar çubuğundan Google ile yeniden giriş yapın.');
-          headers = Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
-          body = requestBody;
+          if (useGroq) {
+            endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+            headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.groqApiKey };
+            body = JSON.stringify({ model: GROQ_MODEL, messages: groqMessages, temperature: state.temperature, stream: true });
+          } else {
+            const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
+            endpoint = `${base}/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:streamGenerateContent?alt=sse`;
+            if (PROXY_URL && !getIdToken()) {
+              lastProviderError = new Error('Oturumunuzun süresi doldu. Google Gemini kullanımı için yeniden giriş yapın.');
+              continue;
+            }
+            headers = Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
+            body = JSON.stringify({
+              systemInstruction: { parts: [{ text: systemText }] },
+              contents: apiContents,
+              tools: localStorage.getItem(WEB_KEY) === '1' ? [{ google_search: {} }] : undefined,
+              generationConfig: { temperature: state.temperature }
+            });
+          }
+          if (body.length > 19 * 1024 * 1024) throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
           let netErr = null;
           try {
             response = await fetch(endpoint, { method: 'POST', signal: state.abortController.signal, headers, body });
@@ -1611,18 +1661,20 @@
             if (fe.name === 'AbortError') throw fe;
             netErr = fe;
           }
-          if (!netErr && response.ok) { usedModel = at.m; fellBack = i > 0; break; }
-          const label = MODEL_LABEL;
-          let e;
+          if (!netErr && response.ok) {
+            usedModel = at.m;
+            fellBack = i > 0;
+            break;
+          }
           let status = 0;
           if (netErr) {
-            e = new Error(`[${label}] Bağlantı kurulamadı: ${netErr.message}`);
+            lastProviderError = new Error(`[${activeModelLabel}] Bağlantı kurulamadı: ${netErr.message}`);
           } else {
             status = response.status;
             const errData = await response.json().catch(() => ({}));
-            const apiMsg = (errData.error && errData.error.message) || '';
+            const apiMsg = (errData.error && errData.error.message) || errData.message || '';
             const hints = {
-              400: 'İstek geçersiz (model bu içeriği/ayarı desteklemiyor olabilir).',
+              400: 'İstek geçersiz (model veya içerik desteklenmiyor olabilir).',
               401: 'API anahtarı geçersiz.',
               402: 'Bakiye/kredi yetersiz.',
               403: 'API anahtarının bu modele erişim izni yok veya anahtar kısıtlı.',
@@ -1630,12 +1682,12 @@
               429: 'Kota/oran sınırı aşıldı.',
               503: 'Model şu an yoğun, geçici olarak yanıt veremiyor.'
             };
-            e = new Error(`[${label} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
+            lastProviderError = new Error(`[${activeModelLabel} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
           }
-          const next = attempts[i + 1];
-          const retryable = Boolean(next) && (netErr || [429, 500, 502, 503].includes(status));
-          if (!retryable || !next) throw e;
+          // Diğer sağlayıcı kullanılabiliyorsa, sağlayıcıya özgü hata/kota/erişim sorunlarında otomatik geçiş yap.
+          if (i === attempts.length - 1) throw lastProviderError;
         }
+        if (!response || !response.ok) throw lastProviderError || new Error('Her iki sağlayıcı da yanıt vermedi.');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
@@ -1673,6 +1725,13 @@
             try {
               const parsed = JSON.parse(payload);
                             if (parsed.error) { streamError = parsed.error.message || 'Akış sırasında hata oluştu.'; continue; }
+              if (useGroq) {
+                const choice = parsed.choices && parsed.choices[0];
+                if (choice && choice.finish_reason) finishReason = choice.finish_reason;
+                const delta = choice && choice.delta && choice.delta.content;
+                if (typeof delta === 'string') { aiMsg.content += delta; scheduleRender(); }
+                continue;
+              }
               if (parsed.promptFeedback && parsed.promptFeedback.blockReason) blockReason = parsed.promptFeedback.blockReason;
               const cand = parsed.candidates && parsed.candidates[0];
               if (cand && cand.finishReason && cand.finishReason !== 'STOP') finishReason = cand.finishReason;
@@ -1695,12 +1754,12 @@
         if (sources.length) aiMsg.sources = sources;
 
         if (!aiMsg.content.trim()) {
-          if (streamError) throw new Error(`[${MODEL_LABEL}] ${streamError}`);
+          if (streamError) throw new Error(`[${activeModelLabel}] ${streamError}`);
           throw new Error(blockReason
             ? `İstek güvenlik filtresi tarafından engellendi (${blockReason}).`
             : `Model boş yanıt döndürdü${finishReason ? ' (' + finishReason + ')' : ''}. Lütfen tekrar deneyin.`);
         }
-        if (finishReason === 'MAX_TOKENS') {
+        if (finishReason === 'MAX_TOKENS' || (useGroq && finishReason === 'length')) {
           aiMsg.content += '\n\n*(Yanıt uzunluk sınırında kesildi. "Devam et" yazarak sürdürebilirsiniz.)*';
           flushRender();
         }
@@ -1720,7 +1779,7 @@
         if (discEl) {
           discEl.classList.remove('hidden');
           const note = discEl.querySelector('.msg-fallback-note');
-          const shownModel = MODEL_LABEL;
+          const shownModel = activeModelLabel;
           if (note && fellBack) note.textContent = ' (Önceki model yanıt vermedi; ' + shownModel + ' ile yanıtlandı.)';
           else if (note) note.textContent = ' (Model: ' + shownModel + ')';
           renderSources(bubble, aiMsg.sources);
@@ -1868,7 +1927,7 @@
       const msg = chat && chat.messages[idx];
       if (!msg || msg.role !== 'user') return;
       if (!newText) { forgeDialog('Soru boş olamaz.'); return; }
-      if (!state.apiKey && !PROXY_URL) { els.settingsModal.classList.remove('hidden'); return; }
+      if (!(state.provider === 'groq' ? state.groqApiKey : state.provider === 'gemini' ? (state.apiKey || PROXY_URL) : (state.groqApiKey || state.apiKey || PROXY_URL))) { els.settingsModal.classList.remove('hidden'); return; }
 
       // Metin değişmediyse yine de aynı soruya yeni yanıt üretilir (yeniden dene)
       const oldText = msg.content;
@@ -1937,6 +1996,8 @@
 
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
+      els.groqApiKeyInput.value = state.groqApiKey;
+      els.providerSelect.value = state.provider;
       els.tempSlider.value = state.temperature;
       els.tempValueLabel.textContent = state.temperature;
       els.systemPromptInput.value = state.systemPrompt;
@@ -1948,9 +2009,13 @@
 
     document.getElementById('saveSettingsBtn').onclick = () => {
       state.apiKey = els.apiKeyInput.value.trim();
+      state.groqApiKey = els.groqApiKeyInput.value.trim();
+      state.provider = ['auto', 'groq', 'gemini'].includes(els.providerSelect.value) ? els.providerSelect.value : 'auto';
       state.temperature = parseFloat(els.tempSlider.value);
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       localStorage.setItem(KEYS.API, state.apiKey);
+      localStorage.setItem(KEYS.GROQ_API, state.groqApiKey);
+      localStorage.setItem(KEYS.PROVIDER, state.provider);
       localStorage.setItem(KEYS.TEMP, state.temperature);
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
       updateApiBadge();
