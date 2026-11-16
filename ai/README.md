@@ -1,7 +1,10 @@
-# Forge AI (v6.9.8)
+# Forge AI (v6.9.9)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.9
+- `auth/configuration-not-found` hatası için açıklayıcı Türkçe mesaj eklendi (Authentication başlatılmamış).
 
 ## v6.9.8
 - **Bulut eşitleme (Firebase):** Kenar çubuğundaki "☁️ Sohbetleri bulutla eşitle" düğmesi Google ile Firebase'e giriş yapar; sohbetler Firestore'a (`users/{uid}/chats/{sohbetId}`) yazılır ve diğer cihazlarda otomatik görünür. Silmeler de eşitlenir. Ekler (PDF/fotoğraf) cihazda kalır, eşitlenmez. Tek sohbet ~900 KB'ı aşarsa eşitlenmez.
