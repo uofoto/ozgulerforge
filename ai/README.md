@@ -1,7 +1,10 @@
-# Forge AI (v6.9.2)
+# Forge AI (v6.9.3)
 
 **Geliştirici:** Ozguler Forge  
 **İletişim:** iletisim@ozgulerforge.com.tr
+
+## v6.9.3
+- **OpenRouter desteği:** Ayarlar'a "OpenRouter API Anahtarı" ve model adı alanı eklendi. Gemini kotası dolduğunda (429 vb.) istek otomatik olarak OpenRouter'a yönlenir; model menüsünden "🌐 OpenRouter" seçilerek doğrudan da kullanılabilir. Yalnızca OpenRouter anahtarı girilirse Gemini anahtarı gerekmez. Görsel, PDF ve Web araması (`plugins: web`) desteklenir.
 
 ## v6.9.2
 - "PRO" ibaresi kaldırıldı; ana ekran sadeleştirildi (4 öneri kartı kaldırıldı); mobilde sohbet kutusu büyütüldü (daha geniş yazı alanı, yalnızca simgeli düğmeler, 16 px yazı).
