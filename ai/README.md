@@ -1,4 +1,7 @@
-# Forge AI (v6.9.19)
+# Forge AI (v6.9.20)
+
+## v6.9.20
+- Gemini 4 Hydrogen istekleri güncel API gereksinimlerine uyarlandı: temperature ayarı kaldırıldı; Google Search aracı alanı güncellendi; eski temperature tercihi temizlenir. API anahtarı yardım metnine yetkilendirme/kısıtlama notu eklendi.
 
 ## v6.9.19
 - **Tek sağlayıcı: Google Gemini.** Groq ve sağlayıcı yönlendirme kodu kaldırıldı. Önceki sürümde tarayıcıda saklanan eski Groq anahtarı ve sağlayıcı seçimi uygulama açıldığında silinir.

@@ -227,7 +227,7 @@
           <i data-lucide="info" class="w-3.5 h-3.5"></i>
           Ozguler Forge Hakkında
         </span>
-        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.19</span>
+        <span id="versionLabelBadge" class="font-mono font-bold text-blue-600">v6.9.20</span>
       </button>
     </div>
   </aside>
@@ -426,17 +426,10 @@
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Anahtarı</label>
-          <p class="text-[10px] text-slate-500 mb-1">Forge AI yanıtları Google Gemini üzerinden oluşturur.</p>
+          <p class="text-[10px] text-slate-500 mb-1">Forge AI yanıtları Google Gemini üzerinden oluşturur. Google AI Studio’da Gemini API’ye kısıtlanmış veya yetkilendirme türünde bir anahtar kullanın; eski, kısıtlanmamış anahtarlar reddedilebilir.</p>
           <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
         </div>
 
-        <div>
-          <div class="flex justify-between items-center mb-1">
-            <label class="text-xs font-semibold text-slate-700">Yaratıcılık Dengesi (Temperature)</label>
-            <span id="tempValueLabel" class="text-xs font-mono font-semibold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md">0.7</span>
-          </div>
-          <input type="range" id="tempSlider" min="0" max="1.5" step="0.1" value="0.7" class="w-full accent-blue-600 cursor-pointer">
-        </div>
 
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Temel Sistem Talimatı</label>
@@ -553,14 +546,13 @@
     const KEYS = {
       API: 'forge_ai_gemini_api_key',
       SYSTEM: 'forge_ai_system_prompt',
-      TEMP: 'forge_ai_temperature',
       CHATS: 'forge_ai_chats',
       ACTIVE: 'forge_ai_active_chat',
       MODEL: 'forge_ai_v66_model',
       USER: 'forge_ai_user'
     };
 
-    try { localStorage.removeItem('forge_ai_groq_api_key'); localStorage.removeItem('forge_ai_provider'); } catch (_) {}
+    try { localStorage.removeItem('forge_ai_groq_api_key'); localStorage.removeItem('forge_ai_provider'); localStorage.removeItem('forge_ai_temperature'); } catch (_) {}
 
     // Google ile giriş için OAuth Web Client ID (Google Cloud Console > Credentials).
     // Boşsa giriş düğmesi kurulum bilgisi gösterir.
@@ -659,7 +651,6 @@
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
       systemPrompt: localStorage.getItem(KEYS.SYSTEM) || BASE_IDENTITY,
-      temperature: parseFloat(localStorage.getItem(KEYS.TEMP) || '0.7'),
       chats: JSON.parse(localStorage.getItem(KEYS.CHATS) || '[]'),
       activeChatId: null,
       attachedFiles: [],
@@ -704,8 +695,6 @@
       installGuideModal: document.getElementById('installGuideModal'),
       legalModal: document.getElementById('legalModal'),
       apiKeyInput: document.getElementById('apiKeyInput'),
-      tempSlider: document.getElementById('tempSlider'),
-      tempValueLabel: document.getElementById('tempValueLabel'),
       systemPromptInput: document.getElementById('systemPromptInput')
     };
 
@@ -1495,8 +1484,7 @@
         const requestBody = JSON.stringify({
           systemInstruction: { parts: [{ text: systemText }] },
           contents: apiContents,
-          tools: localStorage.getItem(WEB_KEY) === '1' ? [{ google_search: {} }] : undefined,
-          generationConfig: { temperature: state.temperature }
+          tools: localStorage.getItem(WEB_KEY) === '1' ? [{ googleSearch: {} }] : undefined
         });
         if (requestBody.length > 19 * 1024 * 1024) throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
         if (!PROXY_URL && !state.apiKey) throw new Error('Gemini API anahtarı yok. Forge AI Motor Ayarları bölümünden anahtarınızı girin.');
@@ -1842,21 +1830,16 @@
 
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
-      els.tempSlider.value = state.temperature;
-      els.tempValueLabel.textContent = state.temperature;
       els.systemPromptInput.value = state.systemPrompt;
       els.settingsModal.classList.remove('hidden');
     };
-    els.tempSlider.oninput = (e) => els.tempValueLabel.textContent = e.target.value;
     document.getElementById('closeSettingsBtn').onclick = () => els.settingsModal.classList.add('hidden');
     document.getElementById('cancelSettingsBtn').onclick = () => els.settingsModal.classList.add('hidden');
 
     document.getElementById('saveSettingsBtn').onclick = () => {
       state.apiKey = els.apiKeyInput.value.trim();
-      state.temperature = parseFloat(els.tempSlider.value);
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       localStorage.setItem(KEYS.API, state.apiKey);
-      localStorage.setItem(KEYS.TEMP, state.temperature);
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
       updateApiBadge();
       
