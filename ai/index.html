@@ -21,6 +21,31 @@
   <link rel="icon" type="image/png" href="icon-v2-192.png" />
   <link rel="apple-touch-icon" href="apple-touch-icon-v2.png" />
   
+
+  <script>
+    // Forge işareti: örs + çekiç + kıvılcım. Durumlar CSS ile sürülür (fm-loop, fm-once, fm-hot).
+    window.FORGE_MARK = '<svg class="fm" viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">' +
+      '<circle class="fm-heat" cx="14" cy="16" r="9" fill="#FB923C"/>' +
+      '<path class="fm-anvil" d="M4.5 17H26v2.5h-5c0 1.8.9 2.9 2.5 4.2V26H9v-2.3c1.6-1.3 2.5-2.4 2.5-4.2H9.8C7.2 19.5 5.6 18.6 4.5 17Z" fill="currentColor"/>' +
+      '<g class="fm-hammer"><path d="M13 14.2 25.5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><rect x="7.5" y="11.6" width="8.5" height="5" rx="1.3" fill="currentColor"/></g>' +
+      '<circle class="fm-sp" cx="10" cy="16.6" r=".9" style="--dx:-7px;--dy:-6px"/>' +
+      '<circle class="fm-sp" cx="13" cy="16.6" r=".8" style="--dx:-2px;--dy:-9px"/>' +
+      '<circle class="fm-sp" cx="15.5" cy="16.6" r=".9" style="--dx:5px;--dy:-7px"/>' +
+      '<circle class="fm-sp" cx="12" cy="16.6" r=".7" style="--dx:8px;--dy:-3px"/>' +
+      '<circle class="fm-ember" cx="9" cy="16.4" r=".8" style="--ex:2px;animation-delay:0s"/>' +
+      '<circle class="fm-ember" cx="15" cy="16.4" r=".7" style="--ex:-2px;animation-delay:.7s"/>' +
+      '<circle class="fm-ember" cx="21" cy="16.4" r=".8" style="--ex:3px;animation-delay:1.3s"/>' +
+      '</svg>';
+    window.hydrateForgeLogos = function (root) {
+      (root || document).querySelectorAll('[data-forge-logo]:not([data-fm-ready])').forEach(function (el) {
+        el.innerHTML = window.FORGE_MARK;
+        el.setAttribute('data-fm-ready', '1');
+        var m = el.getAttribute('data-fm');
+        if (m) el.classList.add('fm-' + m);
+      });
+    };
+  </script>
+
   <!-- Modern Tipografi: Plus Jakarta Sans & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,6 +156,44 @@
     .sb-sub .theme-check { opacity:0; }
     .sb-sub[aria-checked="true"] .theme-check { opacity:1; color:#2563EB; }
     html.dark .sb-sub[aria-checked="true"] .theme-check { color:#7AA2FF; }
+
+
+    /* ===== Forge işareti ===== */
+    .fm { display:block; width:100%; height:100%; overflow:visible; }
+    .fm-hammer { transform-origin:25.5px 5px; }
+    .fm-anvil { transform-origin:15px 20px; }
+    .fm-heat { opacity:0; filter:blur(3.5px); transform-box:fill-box; transform-origin:center; }
+    .fm-sp, .fm-ember { opacity:0; fill:#FDBA74; }
+    .fm-loop .fm-hammer { animation:fmStrike var(--fm-dur,1.4s) linear infinite; }
+    .fm-loop .fm-sp { animation:fmSpark var(--fm-dur,1.4s) ease-out infinite; }
+    .fm-loop .fm-anvil { animation:fmHit var(--fm-dur,1.4s) linear infinite; }
+    .fm-once .fm-hammer { animation:fmStrikeOnce 1.1s linear .35s 1 both; }
+    .fm-once .fm-sp { animation:fmSparkOnce 1.1s ease-out .35s 1 both; }
+    :is(.fm-hot, html.forge-busy .fm-brand) { animation:fmGlow 1.8s ease-in-out infinite; }
+    :is(.fm-hot, html.forge-busy .fm-brand) .fm-heat { animation:fmHeat 1.8s ease-in-out infinite; }
+    :is(.fm-hot, html.forge-busy .fm-brand) .fm-anvil { animation:fmAnvilHot 1.8s ease-in-out infinite; }
+    :is(.fm-hot, html.forge-busy .fm-brand) .fm-ember { animation:fmEmber 2s ease-out infinite; }
+    #forgeSplash .fs-tile { animation:fmGlow .9s ease-in-out infinite; }
+    @keyframes fmStrike { 0%,38% { transform:rotate(32deg); animation-timing-function:cubic-bezier(.7,0,1,.5); } 50% { transform:rotate(0deg); animation-timing-function:ease-out; } 56% { transform:rotate(5deg); animation-timing-function:ease-in; } 62%,78% { transform:rotate(0deg); animation-timing-function:ease-in-out; } 100% { transform:rotate(32deg); } }
+    @keyframes fmStrikeOnce { 0%,30% { transform:rotate(32deg); animation-timing-function:cubic-bezier(.7,0,1,.5); } 55% { transform:rotate(0deg); animation-timing-function:ease-out; } 68% { transform:rotate(5deg); animation-timing-function:ease-in; } 80%,100% { transform:rotate(0deg); } }
+    @keyframes fmSpark { 0%,49% { opacity:0; transform:translate(0,0); } 51% { opacity:1; } 78%,100% { opacity:0; transform:translate(var(--dx),var(--dy)); } }
+    @keyframes fmSparkOnce { 0%,54% { opacity:0; transform:translate(0,0); } 57% { opacity:1; } 90%,100% { opacity:0; transform:translate(var(--dx),var(--dy)); } }
+    @keyframes fmHit { 0%,49% { transform:translateY(0); } 52% { transform:translateY(.5px); } 60%,100% { transform:translateY(0); } }
+    @keyframes fmHeat { 0%,100% { opacity:.18; transform:scale(.85); } 50% { opacity:.8; transform:scale(1.2); } }
+    @keyframes fmAnvilHot { 0%,100% { fill:#fff; } 50% { fill:#FFD3A0; } }
+    @keyframes fmEmber { 0% { opacity:0; transform:translate(0,0); } 15% { opacity:.9; } 100% { opacity:0; transform:translate(var(--ex),-11px); } }
+    @keyframes fmGlow { 0%,100% { box-shadow:0 0 0 0 rgba(251,146,60,0); } 50% { box-shadow:0 0 16px 3px rgba(251,146,60,.55); } }
+    #forgeSplash { position:fixed; inset:0; z-index:300; background:#0F172A; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.9rem; animation:fsOut .5s ease 1.55s forwards; }
+    #forgeSplash .fs-tile { width:92px; height:92px; padding:22px; border-radius:26px; display:flex; align-items:center; justify-content:center; color:#fff; background:linear-gradient(135deg,#2563EB,#4F46E5,#7C3AED); --fm-dur:.9s; }
+    #forgeSplash .fs-word { color:#F8FAFC; font:700 1.7rem 'Plus Jakarta Sans',system-ui,sans-serif; letter-spacing:-.02em; opacity:0; animation:fsIn .5s ease .35s forwards; }
+    #forgeSplash .fs-sub { color:#64748B; font:500 .85rem 'Plus Jakarta Sans',system-ui,sans-serif; opacity:0; animation:fsIn .5s ease .55s forwards; }
+    @keyframes fsOut { to { opacity:0; visibility:hidden; } }
+    @keyframes fsIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    @media (prefers-reduced-motion: reduce) {
+      .fm *, .fm-brand, .fm-hot, #forgeSplash .fs-tile { animation:none !important; }
+      #forgeSplash .fs-word, #forgeSplash .fs-sub { animation:none !important; opacity:1; }
+      #forgeSplash { animation-delay:.5s; }
+    }
 
     /* ===== Koyu tema ===== */
     @media screen {
@@ -248,6 +311,24 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
 </head>
 <body class="h-dvh flex overflow-hidden antialiased selection:bg-blue-600/15 selection:text-blue-700">
 
+  <!-- AÇILIŞ: çekiç vuruşu -->
+  <div id="forgeSplash" aria-hidden="true">
+    <div class="fs-tile fm-brand"><span data-forge-logo data-fm="loop" class="block w-full h-full"></span></div>
+    <div class="fs-word">Forge AI</div>
+    <div class="fs-sub">Ozguler Forge</div>
+  </div>
+  <script>
+    (function () {
+      var el = document.getElementById('forgeSplash');
+      try {
+        if (sessionStorage.getItem('forge_splash')) { el.remove(); return; }
+        sessionStorage.setItem('forge_splash', '1');
+      } catch (e) {}
+      window.hydrateForgeLogos(el);
+      setTimeout(function () { if (el.parentNode) el.remove(); }, 2300);
+    })();
+  </script>
+
   <div id="printArea" class="hidden prose max-w-none"></div>
 
   <!-- SÜRÜKLE-BIRAK (DRAG & DROP) KATMANI -->
@@ -277,11 +358,8 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
     <!-- Üst: marka -->
     <div class="px-4 pt-4 pb-2 flex items-center justify-between">
       <div class="flex items-center gap-2.5 select-none">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/25">
-          <svg class="w-4.5 h-4.5" style="width:1.1rem;height:1.1rem" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"></path>
-            <circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity="0.25"></circle>
-          </svg>
+        <div class="fm-brand w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/25">
+          <span data-forge-logo class="block w-[22px] h-[22px]"></span>
         </div>
         <span class="font-bold text-2xl tracking-tight text-slate-900">Forge AI</span>
       </div>
@@ -341,6 +419,13 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
           <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="dark" class="sb-sub"><i data-lucide="moon" class="w-4 h-4"></i><span class="flex-1">Koyu</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
         </div>
 
+        <button id="soundToggleBtn" type="button" role="menuitemcheckbox" aria-checked="true" class="sb-mi">
+          <i data-lucide="volume-2" class="snd-on w-[18px] h-[18px] text-slate-600"></i>
+          <i data-lucide="volume-x" class="snd-off hidden w-[18px] h-[18px] text-slate-600"></i>
+          <span class="flex-1">Tamamlanma sesi</span>
+          <span id="soundState" class="text-sm text-slate-400">Açık</span>
+        </button>
+
         <div id="cloudSync">
           <button id="cloudBtn" type="button" role="menuitem" class="sb-mi">
             <i data-lucide="cloud" class="w-[18px] h-[18px] text-slate-600"></i>
@@ -360,6 +445,11 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
         </button>
 
         <div class="sb-sep"></div>
+
+        <button id="startTourBtn" type="button" role="menuitem" class="sb-mi">
+          <i data-lucide="sparkles" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span>Gücümü göster (tur)</span>
+        </button>
 
         <button id="openGuideBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="book-open" class="w-[18px] h-[18px] text-slate-600"></i>
@@ -381,7 +471,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.29</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.30</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -523,7 +613,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
 
           <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Forge AI <span data-app-version>v6.9.29</span></span>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Forge AI <span data-app-version>v6.9.30</span></span>
           </div>
         </div>
         </div>
@@ -669,7 +759,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.29</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.30</span>
         </div>
       </div>
 
@@ -679,6 +769,23 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
     </div>
   </div>
 
+
+  <!-- TANITIM TURU -->
+  <div id="tourModal" class="hidden fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+    <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-xl max-h-[94vh] overflow-y-auto shadow-float">
+      <div class="px-6 py-5 flex items-center gap-4" style="background:#0F172A">
+        <div class="fm-brand w-14 h-14 rounded-2xl flex items-center justify-center text-white shrink-0" style="background:linear-gradient(135deg,#2563EB,#4F46E5,#7C3AED)">
+          <span id="tourLogo" data-forge-logo class="block w-8 h-8"></span>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div id="tourTitle" class="text-white font-bold text-lg leading-tight">Forge AI turu</div>
+          <div id="tourDots" class="flex items-center gap-1.5 mt-2"></div>
+        </div>
+        <button id="tourCloseBtn" type="button" class="p-1.5 rounded-lg hover:bg-white/10" style="color:#94A3B8" aria-label="Kapat"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <div id="tourBody" class="p-6"></div>
+    </div>
+  </div>
 
   <!-- KULLANIM KILAVUZU PENCERESİ -->
   <div id="guideModal" class="hidden fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
@@ -748,6 +855,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
         try { window.lucide.createIcons(); } catch (e) {}
       }
+      if (window.hydrateForgeLogos) window.hydrateForgeLogos();
     }
     refreshIcons();
 
@@ -1455,11 +1563,8 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
       const hasValidKey = keyOk();
       return `
         <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-3xl mx-auto text-center py-8">
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
-            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2v4m0 12v4M2 12h4m12 0h4m-3.17-6.83l-2.83 2.83m-8 8l-2.83 2.83m0-13.66l2.83 2.83m8 8l2.83 2.83"></path>
-              <circle cx="12" cy="12" r="3.5" fill="currentColor" fill-opacity="0.25"></circle>
-            </svg>
+          <div class="fm-brand w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
+            <span data-forge-logo data-fm="once" class="block w-10 h-10"></span>
           </div>
           
           <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
@@ -1476,6 +1581,14 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
               <p class="text-amber-700">Sol alttaki <strong>Forge AI Motor Ayarları</strong> bölümüne API erişim anahtarınızı kaydedin.</p>
             </div>
           </div>
+
+          <button type="button" onclick="startForgeTour()" class="group w-full max-w-lg text-left p-4 rounded-2xl border border-blue-200 bg-blue-50 hover:bg-blue-100 flex items-center gap-4 transition cursor-pointer">
+            <span class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shrink-0"><i data-lucide="sparkles" class="w-5 h-5"></i></span>
+            <span class="min-w-0">
+              <span class="block text-base font-semibold text-slate-900">Gücümü göster</span>
+              <span class="block text-sm text-slate-600 mt-0.5 leading-snug">Bir proje klasörü seç; kodunu okuyup sana mimari bir özet çıkarayım.</span>
+            </span>
+          </button>
 
         </div>
       `;
@@ -1542,8 +1655,8 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
       } else {
         msgTextStore.set(row, content || '');
         row.innerHTML = `
-          <div class="w-8 h-8 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-2xs shrink-0 mt-0.5">
-            <i data-lucide="cpu" class="w-4 h-4"></i>
+          <div class="forge-avatar w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-2xs shrink-0 mt-0.5">
+            <span data-forge-logo class="block w-[19px] h-[19px]"></span>
           </div>
           <div class="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 sm:p-5 shadow-2xs">
             <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="forge-progress not-prose py-1" aria-live="polite"><div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2"><p data-progress-detail class="text-xs font-semibold text-slate-700">Forge AI isteğinizi hazırlıyor…</p><span data-elapsed-time class="text-[10px] font-mono text-slate-400 tabular-nums">Geçen süre: 00:00</span></div><ol class="space-y-1.5 text-xs text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI isteğiniz için uygun motoru seçiyor</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI hizmetine bağlanıyor</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI yanıtınızı oluşturuyor</span></li></ol></div>'}</div>
@@ -1650,6 +1763,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
 
     async function generateReply(currentChat, attachSave) {
       state.isGenerating = true;
+      document.documentElement.classList.add('forge-busy');
       state.abortController = new AbortController();
       els.sendBtn.classList.add('hidden');
       els.stopBtn.classList.remove('hidden');
@@ -1658,6 +1772,8 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
       currentChat.messages.push(aiMsg);
       const bubble = createMessageBubble('assistant', '');
       refreshIcons();
+      const liveAvatar = bubble.querySelector('.forge-avatar');
+      if (liveAvatar) liveAvatar.classList.add('fm-hot');
       const proseEl = bubble.querySelector('.prose');
       const actionsEl = bubble.querySelector('.msg-actions');
       const progressEl = bubble.querySelector('.forge-progress');
@@ -1920,6 +2036,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
         }
         syncStorage();
 
+        if (window.ForgeSound) ForgeSound.complete();
         const htmlMatch = aiMsg.content.match(/```html\s*([\s\S]*?)```/i);
         if (htmlMatch && htmlMatch[1]) {
           openArtifactPreview({
@@ -1947,6 +2064,8 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
       } finally {
         clearInterval(elapsedTimer);
         state.isGenerating = false;
+        document.documentElement.classList.remove('forge-busy');
+        if (liveAvatar) liveAvatar.classList.remove('fm-hot');
         state.abortController = null;
         els.stopBtn.classList.add('hidden');
         els.sendBtn.classList.remove('hidden');
@@ -2230,6 +2349,367 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
 
 
 
+
+    // --- SES KİMLİĞİ: "Tamamlandı" sesi (Web Audio ile üretilir, dosya gerekmez) ---
+    window.ForgeSound = (function () {
+      const KEY = 'forge_ai_sound';
+      let ctx = null;
+      const enabled = () => { try { return localStorage.getItem(KEY) !== '0'; } catch (_) { return true; } };
+      function ensure() {
+        if (!ctx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null; ctx = new AC(); }
+        if (ctx.state === 'suspended') ctx.resume();
+        return ctx;
+      }
+      function tone(c, t, freq, dur, gain, dest) {
+        const o = c.createOscillator(), h = c.createOscillator(), g = c.createGain(), hg = c.createGain();
+        o.type = 'sine'; o.frequency.setValueAtTime(freq, t);
+        h.type = 'triangle'; h.frequency.setValueAtTime(freq * 2, t); hg.gain.value = 0.16;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(gain, t + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); h.connect(hg); hg.connect(g); g.connect(dest);
+        o.start(t); h.start(t); o.stop(t + dur + 0.05); h.stop(t + dur + 0.05);
+      }
+      function complete(force) {
+        if (!force && !enabled()) return;
+        const c = ensure(); if (!c) return;
+        const t = c.currentTime + 0.02;
+        const master = c.createGain(); master.gain.value = 0.5;
+        const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5200;
+        const dl = c.createDelay(); dl.delayTime.value = 0.14;
+        const fb = c.createGain(); fb.gain.value = 0.27;
+        const wet = c.createGain(); wet.gain.value = 0.32;
+        master.connect(lp); lp.connect(c.destination);
+        lp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(c.destination);
+        tone(c, t, 3136, 0.05, 0.06, master);          // örse çekiç vuruşu: kısa metalik "tık"
+        tone(c, t + 0.03, 783.99, 0.55, 0.22, master); // G5
+        tone(c, t + 0.12, 1174.66, 0.8, 0.2, master);  // D6 (saf beşli, yukarı)
+        tone(c, t + 0.12, 2349.32, 0.5, 0.035, master);// hafif parıltı
+        setTimeout(() => { try { master.disconnect(); lp.disconnect(); dl.disconnect(); fb.disconnect(); wet.disconnect(); } catch (_) {} }, 2500);
+      }
+      const unlock = () => { ensure(); };
+      ['pointerdown', 'keydown'].forEach((ev) => window.addEventListener(ev, unlock, { once: true, passive: true }));
+      return { complete, enabled, setEnabled: (v) => { try { localStorage.setItem(KEY, v ? '1' : '0'); } catch (_) {} } };
+    })();
+    (function initSoundToggle() {
+      const btn = document.getElementById('soundToggleBtn');
+      const paint = () => {
+        const on = ForgeSound.enabled();
+        btn.setAttribute('aria-checked', String(on));
+        document.getElementById('soundState').textContent = on ? 'Açık' : 'Kapalı';
+        btn.querySelectorAll('.snd-on').forEach((e) => e.classList.toggle('hidden', !on));
+        btn.querySelectorAll('.snd-off').forEach((e) => e.classList.toggle('hidden', on));
+      };
+      btn.onclick = () => { const on = !ForgeSound.enabled(); ForgeSound.setEnabled(on); paint(); refreshIcons(); if (on) ForgeSound.complete(true); };
+      paint();
+    })();
+
+    // --- TANITIM TURU: "Bir proje seç, kodunu okuyayım, mimari özet çıkaralım" ---
+    (function initForgeTour() {
+      const NAME_KEY = 'forge_ai_name', DONE_KEY = 'forge_ai_onboarded';
+      const modal = document.getElementById('tourModal');
+      const body = document.getElementById('tourBody');
+      const dots = document.getElementById('tourDots');
+      const logo = document.getElementById('tourLogo');
+      const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'out', '.next', '.nuxt', '.cache', 'coverage', 'vendor', '__pycache__', '.venv', 'venv', 'env', 'target', 'bin', 'obj', '.idea', '.vscode', '.gradle', 'pods', '.dart_tool', '.turbo', '.svelte-kit', '.parcel-cache', '.pytest_cache', '.mypy_cache']);
+      const TEXT_EXT = new Set('js jsx ts tsx mjs cjs json html htm css scss sass less vue svelte py rb php java kt kts swift go rs c h cpp hpp cs sql sh bash ps1 bat yml yaml toml ini cfg conf md txt xml gradle properties dart lua r scala ex exs graphql proto tf prisma'.split(' '));
+      const TEXT_NAMES = new Set(['dockerfile', 'makefile', 'procfile', 'gemfile', 'rakefile', 'cmakelists.txt']);
+      const SKIP_NAMES = /(^|\/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml|composer\.lock|cargo\.lock|poetry\.lock|\.ds_store)$|\.min\.(js|css)$|\.map$/i;
+      const LANG = { js:'JavaScript', jsx:'JavaScript', mjs:'JavaScript', cjs:'JavaScript', ts:'TypeScript', tsx:'TypeScript', py:'Python', java:'Java', kt:'Kotlin', kts:'Kotlin', swift:'Swift', go:'Go', rs:'Rust', rb:'Ruby', php:'PHP', c:'C', h:'C', cpp:'C++', hpp:'C++', cs:'C#', html:'HTML', htm:'HTML', css:'CSS', scss:'CSS', sass:'CSS', less:'CSS', vue:'Vue', svelte:'Svelte', sql:'SQL', sh:'Shell', bash:'Shell', ps1:'Shell', bat:'Shell', dart:'Dart', lua:'Lua', scala:'Scala', ex:'Elixir', exs:'Elixir' };
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      let step = 0, cancelled = false, project = null;
+
+      const getName = () => (currentUser && currentUser.name ? String(currentUser.name).split(' ')[0] : (localStorage.getItem(NAME_KEY) || ''));
+      const kb = (n) => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(0) + ' KB' : (n / 1048576).toFixed(1) + ' MB';
+      const redact = (t) => t
+        .replace(/AIza[0-9A-Za-z_\-]{30,}/g, '[GİZLENDİ]')
+        .replace(/\bsk-[A-Za-z0-9_\-]{20,}/g, '[GİZLENDİ]')
+        .replace(/\bgh[pousr]_[A-Za-z0-9]{30,}/g, '[GİZLENDİ]')
+        .replace(/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, '[GİZLENDİ]');
+      const btn = (id, label, cls) => `<button id="${id}" type="button" class="${cls}">${label}</button>`;
+      const PRIMARY = 'px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-xl shadow-sm transition cursor-pointer';
+      const GHOST = 'px-4 py-2.5 text-sm font-medium text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100 transition cursor-pointer';
+
+      function paintLogo(mode) {
+        logo.classList.remove('fm-loop', 'fm-once');
+        logo.innerHTML = window.FORGE_MARK;
+        if (mode) logo.classList.add('fm-' + mode);
+      }
+      function setDots() {
+        dots.innerHTML = [0, 1, 2].map((i) => `<span class="h-1.5 rounded-full transition-all ${i === step ? 'w-6' : 'w-1.5'}" style="background:${i === step ? '#60A5FA' : '#334155'}"></span>`).join('');
+      }
+      function close(markDone) {
+        cancelled = true;
+        modal.classList.add('hidden');
+        if (markDone !== false) { try { localStorage.setItem(DONE_KEY, '1'); } catch (_) {} }
+      }
+
+      function render() {
+        setDots();
+        if (step === 0) renderWelcome();
+        else if (step === 1) renderPick();
+        else renderRead();
+        refreshIcons();
+      }
+
+      function renderWelcome() {
+        paintLogo('once');
+        const name = getName();
+        body.innerHTML = `
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">${name ? 'Merhaba, ' + escapeHtml(name) + '!' : 'Merhaba!'}</h2>
+          <p class="mt-2 text-base text-slate-600 leading-relaxed">Ben Forge AI. 30 saniyede gücümü göstereyim: bir proje seç, <strong>ben kodunu okuyayım</strong>, sana <strong>mimari bir özet</strong> çıkaralım.</p>
+          ${name ? '' : `<label class="block mt-5 text-sm font-medium text-slate-700">Sana nasıl hitap edeyim?
+            <input id="tourName" type="text" maxlength="40" autocomplete="given-name" placeholder="Adın" class="mt-1.5 w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"></label>`}
+          <div class="mt-6 flex items-center justify-between gap-3">
+            ${btn('tourSkip', 'Şimdi değil', GHOST)}
+            ${btn('tourNext', 'Başla', PRIMARY)}
+          </div>`;
+        document.getElementById('tourSkip').onclick = () => close(true);
+        document.getElementById('tourNext').onclick = () => {
+          const inp = document.getElementById('tourName');
+          if (inp && inp.value.trim()) { try { localStorage.setItem(NAME_KEY, inp.value.trim()); } catch (_) {} }
+          step = 1; render();
+        };
+        const inp = document.getElementById('tourName'); if (inp) setTimeout(() => inp.focus(), 50);
+      }
+
+      function renderPick() {
+        paintLogo(null);
+        const ready = keyOk();
+        const name = getName();
+        body.innerHTML = `
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">${name ? escapeHtml(name) + ', b' : 'B'}ir proje seç</h2>
+          <p class="mt-2 text-base text-slate-600 leading-relaxed">Klasörü cihazında okurum; yalnızca metin/kod dosyalarının özeti yanıt için Google Gemini'ye gönderilir. <strong>node_modules</strong>, <strong>.git</strong>, <strong>.env</strong> gibi klasör ve dosyalar atlanır; anahtar benzeri değerler gizlenir.</p>
+          ${ready ? '' : `<div class="mt-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200/80 text-sm text-amber-900">Analiz için önce <strong>Forge AI Motor Ayarları</strong>'na API anahtarını kaydetmelisin.
+            <div class="mt-2">${btn('tourOpenSettings', 'Motor Ayarları’nı aç', 'px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg cursor-pointer')}</div></div>`}
+          <div class="mt-5 grid gap-3 ${ready ? '' : 'opacity-50 pointer-events-none'}">
+            <button id="tourPickDir" type="button" class="text-left p-4 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition flex items-center gap-4 cursor-pointer">
+              <span class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="folder-open" class="w-5 h-5"></i></span>
+              <span><span class="block text-base font-semibold text-slate-900">Proje klasörü seç</span><span class="block text-sm text-slate-500 mt-0.5">Bilgisayarındaki bir kod projesini okuyayım.</span></span>
+            </button>
+            <button id="tourPickSelf" type="button" class="text-left p-4 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition flex items-center gap-4 cursor-pointer">
+              <span class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="flame" class="w-5 h-5"></i></span>
+              <span><span class="block text-base font-semibold text-slate-900">Forge AI'ın kendi kodunu oku</span><span class="block text-sm text-slate-500 mt-0.5">Hazır proje yok mu? Beni kendi içimden analiz edeyim.</span></span>
+            </button>
+          </div>
+          <div class="mt-5 flex items-center justify-between gap-3">
+            ${btn('tourBack', 'Geri', GHOST)}
+            <span class="text-xs text-slate-400">Seçtiğin dosyalar sohbete ek olarak eklenir.</span>
+          </div>`;
+        document.getElementById('tourBack').onclick = () => { step = 0; render(); };
+        const os = document.getElementById('tourOpenSettings');
+        if (os) os.onclick = () => { close(false); els.settingsModal.classList.remove('hidden'); };
+        document.getElementById('tourPickSelf').onclick = () => { project = { name: 'forge-ai', source: { type: 'self' } }; step = 2; render(); };
+        document.getElementById('tourPickDir').onclick = async () => {
+          if (window.showDirectoryPicker) {
+            try {
+              const h = await window.showDirectoryPicker({ mode: 'read' });
+              project = { name: h.name, source: { type: 'handle', handle: h } };
+              step = 2; render();
+            } catch (e) { if (e && e.name !== 'AbortError') pickWithInput(); }
+          } else pickWithInput();
+        };
+      }
+      function pickWithInput() {
+        const inp = document.createElement('input');
+        inp.type = 'file'; inp.multiple = true; inp.setAttribute('webkitdirectory', ''); inp.className = 'hidden';
+        inp.onchange = () => {
+          const files = Array.from(inp.files || []);
+          inp.remove();
+          if (!files.length) return;
+          const root = ((files[0].webkitRelativePath || '').split('/')[0]) || 'proje';
+          project = { name: root, source: { type: 'files', files } };
+          step = 2; render();
+        };
+        document.body.appendChild(inp);
+        inp.click();
+      }
+
+      // ---- okuma ----
+      const wantedName = (name) => {
+        const low = name.toLowerCase();
+        if (SKIP_NAMES.test(low)) return false;
+        if (low === '.env' || (low.startsWith('.env') && !low.endsWith('.example') && !low.endsWith('.sample'))) return false;
+        if (TEXT_NAMES.has(low)) return true;
+        const i = low.lastIndexOf('.');
+        return i > -1 && TEXT_EXT.has(low.slice(i + 1));
+      };
+      async function collect(ui) {
+        const items = []; let visited = 0, skipped = 0, truncated = false;
+        const src = project.source;
+        const tick = async () => { ui(visited, items.length); await sleep(0); };
+        if (src.type === 'handle') {
+          const walk = async (dir, prefix, depth) => {
+            for await (const [name, h] of dir.entries()) {
+              if (cancelled || truncated) return;
+              if (h.kind === 'directory') {
+                if (IGNORE_DIRS.has(name.toLowerCase()) || depth >= 8) continue;
+                await walk(h, prefix + name + '/', depth + 1);
+              } else {
+                visited++;
+                if (visited > 4000) { truncated = true; return; }
+                if (!wantedName(name)) { skipped++; continue; }
+                const file = await h.getFile();
+                if (file.size > 400 * 1024) { skipped++; continue; }
+                items.push({ path: prefix + name, size: file.size, file });
+                if (visited % 15 === 0) await tick();
+              }
+            }
+          };
+          await walk(src.handle, '', 0);
+        } else if (src.type === 'files') {
+          for (const f of src.files) {
+            if (cancelled) return { items, skipped, truncated };
+            const parts = (f.webkitRelativePath || f.name).split('/');
+            const rel = parts.slice(1);
+            const dirs = rel.slice(0, -1);
+            visited++;
+            if (visited > 4000) { truncated = true; break; }
+            if (dirs.some((d) => IGNORE_DIRS.has(d.toLowerCase())) || dirs.length > 8) continue;
+            const name = parts[parts.length - 1];
+            if (!wantedName(name) || f.size > 400 * 1024) { skipped++; continue; }
+            items.push({ path: rel.join('/') || name, size: f.size, file: f });
+            if (visited % 60 === 0) await tick();
+          }
+        } else {
+          for (const n of ['README.md', 'manifest.json', 'sw.js', 'index.html']) {
+            try {
+              const res = await fetch('./' + n, { cache: 'no-store' });
+              if (!res.ok) continue;
+              const text = await res.text();
+              visited++; items.push({ path: n, size: text.length, text });
+              await tick();
+            } catch (_) {}
+          }
+          if (!items.some((i) => i.path === 'index.html')) throw new Error('Kendi kodum bu adresten okunamadı (dosya olarak açılmış olabilir). Bir proje klasörü seçmeyi dene.');
+        }
+        return { items, skipped, truncated };
+      }
+      const prio = (p) => {
+        const b = p.split('/').pop().toLowerCase();
+        if (/^readme/.test(b)) return 0;
+        if (['package.json', 'pyproject.toml', 'requirements.txt', 'go.mod', 'cargo.toml', 'pom.xml', 'build.gradle', 'composer.json', 'gemfile', 'pubspec.yaml', 'dockerfile', 'docker-compose.yml', 'docker-compose.yaml', 'manifest.json'].includes(b)) return 1;
+        if (/^(index|main|app|server|manage|program|__main__)\./.test(b)) return 2;
+        return 3 + Math.min(p.split('/').length, 6);
+      };
+      const DEPS = { react:'React', next:'Next.js', vue:'Vue', nuxt:'Nuxt', svelte:'Svelte', '@angular/core':'Angular', express:'Express', fastify:'Fastify', '@nestjs/core':'NestJS', vite:'Vite', webpack:'Webpack', tailwindcss:'Tailwind', typescript:'TypeScript', jest:'Jest', vitest:'Vitest', prisma:'Prisma', mongoose:'MongoDB', firebase:'Firebase', electron:'Electron', three:'Three.js', django:'Django', flask:'Flask', fastapi:'FastAPI', pandas:'Pandas', numpy:'NumPy', torch:'PyTorch', tensorflow:'TensorFlow' };
+      function detectTech(items, texts) {
+        const found = new Set();
+        const pj = texts.get('package.json');
+        if (pj) { try { const j = JSON.parse(pj); Object.keys(Object.assign({}, j.dependencies, j.devDependencies)).forEach((d) => { if (DEPS[d]) found.add(DEPS[d]); }); } catch (_) {} }
+        ['requirements.txt', 'pyproject.toml'].forEach((f) => { const t = (texts.get(f) || '').toLowerCase(); Object.keys(DEPS).forEach((d) => { if (/^[a-z]+$/.test(d) && new RegExp('(^|[^a-z])' + d + '([^a-z]|$)').test(t)) found.add(DEPS[d]); }); });
+        items.forEach((i) => { const b = i.path.toLowerCase(); if (b.endsWith('dockerfile')) found.add('Docker'); if (b.startsWith('.github/workflows')) found.add('GitHub Actions'); });
+        const idx = texts.get('index.html') || '';
+        if (idx.includes('cdn.tailwindcss.com')) found.add('Tailwind');
+        if (idx.includes('firebasejs')) found.add('Firebase');
+        if (idx.includes('generativelanguage.googleapis.com')) found.add('Gemini API');
+        if (texts.has('sw.js') || idx.includes('serviceWorker')) found.add('PWA');
+        return [...found];
+      }
+
+      async function renderRead() {
+        paintLogo('loop');
+        cancelled = false;
+        const name = getName();
+        body.innerHTML = `
+          <h2 class="text-2xl font-bold text-slate-900 tracking-tight">${name ? escapeHtml(name) + ', k' : 'K'}odu okuyorum…</h2>
+          <p id="tourStatus" class="mt-2 text-base text-slate-600">Dosyalar taranıyor</p>
+          <div class="mt-5 grid grid-cols-3 gap-3 text-center">
+            <div class="rounded-xl bg-slate-50 border border-slate-200/80 py-3"><div id="stFiles" class="text-xl font-bold text-slate-900 tabular-nums">0</div><div class="text-xs text-slate-500">Dosya</div></div>
+            <div class="rounded-xl bg-slate-50 border border-slate-200/80 py-3"><div id="stRead" class="text-xl font-bold text-slate-900 tabular-nums">0</div><div class="text-xs text-slate-500">Okunan</div></div>
+            <div class="rounded-xl bg-slate-50 border border-slate-200/80 py-3"><div id="stSize" class="text-xl font-bold text-slate-900 tabular-nums">0 B</div><div class="text-xs text-slate-500">Boyut</div></div>
+          </div>
+          <div id="tourChips" class="mt-4 flex flex-wrap gap-2 min-h-[2rem]"></div>
+          <div class="mt-5 flex justify-start">${btn('tourCancel', 'Vazgeç', GHOST)}</div>`;
+        document.getElementById('tourCancel').onclick = () => { cancelled = true; step = 1; render(); };
+        const $ = (id) => document.getElementById(id);
+        const status = (t) => { const e = $('tourStatus'); if (e) e.textContent = t; };
+        try {
+          const { items, skipped, truncated } = await collect((v, n) => { if ($('stFiles')) $('stFiles').textContent = String(n); status('Dosyalar taranıyor · ' + v + ' öğe gezildi'); });
+          if (cancelled) return;
+          if (!items.length) throw new Error('Bu klasörde okunabilir kod/metin dosyası bulamadım. Başka bir proje klasörü dene.');
+          items.sort((a, b) => prio(a.path) - prio(b.path) || a.size - b.size || a.path.localeCompare(b.path));
+          $('stFiles').textContent = String(items.length);
+          status('Önemli dosyalar okunuyor');
+
+          const isSelf = project.source.type === 'self';
+          const BUDGET = isSelf ? 140000 : 180000;
+          let used = 0, read = 0, bytes = 0; const blocks = []; const texts = new Map();
+          for (const it of items) {
+            if (cancelled) return;
+            if (used >= BUDGET) break;
+            let text;
+            try { text = it.text != null ? it.text : await it.file.text(); } catch (_) { continue; }
+            const cap = isSelf ? 90000 : (prio(it.path) <= 1 ? 9000 : 12000);
+            texts.set(it.path.toLowerCase(), text);
+            let t = redact(text);
+            let note = '';
+            if (t.length > cap) { t = t.slice(0, cap); note = ' [kırpıldı]'; }
+            used += t.length; read++; bytes += it.size;
+            blocks.push(`=== DOSYA: ${it.path} (${kb(it.size)})${note} ===\n${t}`);
+            $('stRead').textContent = String(read); $('stSize').textContent = kb(bytes);
+            if (read % 4 === 0) await sleep(0);
+          }
+          if (cancelled) return;
+
+          const langCount = {};
+          items.forEach((i) => { const e = i.path.split('.').pop().toLowerCase(); const l = LANG[e]; if (l) langCount[l] = (langCount[l] || 0) + 1; });
+          const langs = Object.entries(langCount).sort((a, b) => b[1] - a[1]).slice(0, 4);
+          const tech = detectTech(items, texts).slice(0, 8);
+          const chips = langs.map(([l, n]) => `<span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-sm font-medium">${escapeHtml(l)} · ${n}</span>`)
+            .concat(tech.map((t) => `<span class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium">${escapeHtml(t)}</span>`)).join('');
+          $('tourChips').innerHTML = chips;
+          status('Yapıyı çözümlüyorum…');
+          await sleep(1300);
+          if (cancelled) return;
+
+          const tree = items.map((i) => i.path).slice(0, 600).join('\n');
+          const digest = `# Proje: ${project.name}\nTaranan öğe: ${items.length} okunabilir dosya${skipped ? ', ' + skipped + ' dosya atlandı' : ''}${truncated ? ' (tarama sınırına ulaşıldı)' : ''}\nOkunan: ${read}/${items.length} dosya (içerik bütçesi nedeniyle bir kısmı okunmamış veya kırpılmış olabilir)\nDiller: ${langs.map(([l, n]) => l + ' ' + n).join(', ') || '-'}\nAlgılanan teknolojiler: ${tech.join(', ') || '-'}\n\n## DOSYA AĞACI\n${tree}${items.length > 600 ? '\n… (+' + (items.length - 600) + ' dosya)' : ''}\n\n## DOSYA İÇERİKLERİ\n\n${blocks.join('\n\n')}`;
+
+          status('Mimari özet hazırlanıyor…');
+          await sleep(500);
+          if (cancelled) return;
+          handOff(digest);
+        } catch (err) {
+          if (cancelled) return;
+          paintLogo(null);
+          body.innerHTML = `<h2 class="text-xl font-bold text-slate-900">Okuyamadım</h2>
+            <p class="mt-2 text-base text-slate-600">${escapeHtml(err && err.message ? err.message : 'Bilinmeyen hata')}</p>
+            <div class="mt-5 flex justify-between">${btn('tourErrBack', 'Geri dön', PRIMARY)}${btn('tourErrClose', 'Kapat', GHOST)}</div>`;
+          document.getElementById('tourErrBack').onclick = () => { step = 1; render(); };
+          document.getElementById('tourErrClose').onclick = () => close(true);
+        }
+      }
+
+      function handOff(digest) {
+        const who = getName();
+        const prompt = `Mimari özet: ${project.name} projesi. Ekteki dosyaları oku ve bana şunları çıkar: 1) Projenin amacı ve teknoloji yığını, 2) Klasör/modül yapısı ve her parçanın sorumluluğu, 3) Giriş noktasından sonuca ana akış (gerekirse metin tabanlı kısa bir şema), 4) Güçlü yönler ile risk ve teknik borçlar, 5) En değerli 3 iyileştirme önerisi. Dosyaların bir kısmı kırpılmış olabilir; emin olmadığın yerde varsayım yaptığını belirt.${who ? ' (Kullanıcının adı ' + who + '.)' : ''}`;
+        close(true);
+        if (state.isGenerating) { forgeDialog('Şu an bir yanıt üretiliyor. Bitince tekrar deneyin.'); return; }
+        state.activeChatId = null;
+        clearAllAttachments();
+        state.attachedFiles.push({ id: 'doc_' + Math.random().toString(36).slice(2, 9), name: 'proje-ozeti-' + String(project.name).replace(/[^\w.\-]+/g, '_') + '.txt', type: 'text', content: digest });
+        renderAttachmentsBar();
+        els.userInput.value = prompt;
+        sendMessage();
+      }
+
+      window.startForgeTour = function () {
+        cancelled = false; project = null; step = 0;
+        modal.classList.remove('hidden');
+        render();
+      };
+      document.getElementById('tourCloseBtn').onclick = () => close(true);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) close(true); });
+      document.getElementById('startTourBtn').onclick = () => window.startForgeTour();
+      // ilk açılışta bir kez otomatik başlat
+      try {
+        if (!localStorage.getItem(DONE_KEY)) {
+          setTimeout(() => { if (modal.classList.contains('hidden')) window.startForgeTour(); }, document.getElementById('forgeSplash') ? 2200 : 700);
+        }
+      } catch (_) {}
+    })();
+
     // --- TEMA (Sistem / Açık / Koyu) ---
     (function initTheme() {
       const KEY = 'forge_ai_theme';
@@ -2254,7 +2734,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
       if (mq.addEventListener) mq.addEventListener('change', () => { if (get() === 'system') paint(); });
       paint();
     })();
-    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.29'; });
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.30'; });
 
     // --- KULLANIM KILAVUZU ---
     const GUIDE_SECTIONS = [
@@ -2299,6 +2779,17 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
         'Sol alttaki Google düğmesiyle giriş yaptığınızda Forge AI size adınızla hitap eder.',
         '⋯ menüsündeki “Sohbetleri bulutla eşitle” sohbetlerinizi hesabınıza yazar ve diğer cihazlarınızda görünür kılar. Silmeler de eşitlenir.',
         'Ekler (PDF ve fotoğraf) cihazda kalır, eşitlenmez. Tek sohbet yaklaşık 900 KB’ı aşarsa eşitlenmez.'
+      ]],
+      ['Gücümü göster turu', [
+        'Karşılama ekranındaki “Gücümü göster” kartı veya ⋯ menüsündeki “Gücümü göster (tur)” turu başlatır; ilk açılışta tur kendiliğinden gelir.',
+        'Bir proje klasörü seçersiniz; Forge AI dosyaları cihazınızda okur, önemli olanları seçip sohbete ek olarak ekler ve mimari özet çıkarır.',
+        'node_modules, .git, dist gibi klasörler ile .env dosyaları atlanır; anahtar benzeri değerler gizlenir. Yalnızca metin/kod dosyalarının özeti yanıt için Gemini’ye gönderilir.',
+        'Klasör seçici Chrome ve Edge’de en iyi çalışır. Proje yoksa “Forge AI’ın kendi kodunu oku” seçeneğini deneyin.'
+      ]],
+      ['Sesler ve animasyonlar', [
+        'Yanıt tamamlandığında kısa bir “tamamlandı” sesi çalar. ⋯ menüsündeki “Tamamlanma sesi” ile kapatabilirsiniz.',
+        'Forge AI yanıt hazırlarken logo ve yanıt simgesi sıcak bir ısı ışıltısıyla parlar; açılışta ve tur sırasında çekiç örse vurur.',
+        'Cihazınızda “hareketi azalt” seçiliyse animasyonlar otomatik olarak kapanır.'
       ]],
       ['Uygulamayı cihaza kurma', [
         '⋯ menüsündeki veya üstteki “İndir” düğmesi Forge AI’yı uygulama olarak kurar. Kurulum penceresi açılmazsa tarayıcının menüsünden “Ana ekrana ekle” veya “Uygulamayı yükle” seçeneğini kullanın.',
@@ -2462,7 +2953,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
       menu.addEventListener('click', (e) => {
         e.stopPropagation();
         const b = e.target.closest('button');
-        if (!b || b.id === 'legalToggleBtn' || b.id === 'cloudBtn' || b.id === 'themeToggleBtn' || b.hasAttribute('data-theme-opt')) return;
+        if (!b || b.id === 'legalToggleBtn' || b.id === 'cloudBtn' || b.id === 'themeToggleBtn' || b.id === 'soundToggleBtn' || b.hasAttribute('data-theme-opt')) return;
         setOpen(false);
       });
       document.addEventListener('click', (e) => { if (!menu.contains(e.target)) setOpen(false); });
