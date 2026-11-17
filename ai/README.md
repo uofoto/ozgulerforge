@@ -1,4 +1,4 @@
-# Forge AI (v6.9.30)
+# Forge AI (v6.9.31)
 
 ## v6.9.27
 - **Okunabilirlik:** Kenar çubuğu 288 px → 320 px, sohbet sütunu genişletildi (768 → 896 px); menü, liste, yanıt ve yazı alanı fontları büyütüldü; 10–11 px’lik küçük yazılar 12–13 px’e çıkarıldı.

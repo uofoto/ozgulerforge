@@ -29,5 +29,47 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Yeni çalışma",
+      "short_name": "Yeni",
+      "url": "./index.html?action=new",
+      "icons": [
+        {
+          "src": "icon-v2-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Gücümü göster",
+      "short_name": "Tur",
+      "url": "./index.html?action=tour",
+      "icons": [
+        {
+          "src": "icon-v2-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Komut paleti",
+      "short_name": "Palet",
+      "url": "./index.html?action=palette",
+      "icons": [
+        {
+          "src": "icon-v2-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "categories": [
+    "productivity",
+    "utilities"
   ]
 }
