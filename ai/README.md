@@ -1,4 +1,10 @@
-# Forge AI (v6.9.31)
+# Forge AI (v6.9.32)
+
+## v6.9.32
+- **Yanıtın başına dön:** Uzun bir yanıtın içinde aşağı kaydırınca yazı kutusunun sağ üstünde "Yanıtın başına dön" düğmesi belirir; basınca o anki yanıtın en üstüne yumuşakça kayar. Yanıt akarken yukarı kaydırırsanız sayfa artık sizi zorla en alta çekmez (en alta inince otomatik takip yeniden başlar).
+- **Paylaş ve beğen / beğenme:** Her yanıtın altında "Paylaş" menüsü (cihazın paylaşım ekranı, WhatsApp, e-posta, metni kopyala, `.md` indir) ve 👍 / 👎 işaretleri eklendi. İşaret yanıtla birlikte sohbet kaydında tutulur (bulut eşitleme açıksa diğer cihazlarda da görünür); aynı düğmeye tekrar basınca kalkar.
+- **Limit uyarısı (Claude tarzı):** Kota/oran sınırı (HTTP 429) alınınca ham hata yerine "Kullanım sınırına ulaştınız" kartı gösterilir: sıfırlanma saati, canlı geri sayım, "Yeniden dene" (süre dolunca açılır) ve "Motor ayarları" düğmeleri. Yazı kutusunun üstünde de aynı bilgiyi veren ince bir uyarı şeridi durur; limit sıfırlanınca veya bir yanıt başarıyla gelince kaybolur. Sıfırlanma zamanı Google'ın `retryDelay` bilgisinden, günlük kotada Pasifik saatiyle gece yarısından (Gemini), OpenRouter'da `X-RateLimit-Reset` değerinden hesaplanır; bilgi yoksa "yaklaşık" etiketiyle 1 dakika gösterilir. Otomatik modda tüm motorlar limitteyse en yakın sıfırlanma gösterilir.
+
 
 ## v6.9.27
 - **Okunabilirlik:** Kenar çubuğu 288 px → 320 px, sohbet sütunu genişletildi (768 → 896 px); menü, liste, yanıt ve yazı alanı fontları büyütüldü; 10–11 px’lik küçük yazılar 12–13 px’e çıkarıldı.
