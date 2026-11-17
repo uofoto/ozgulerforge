@@ -1,4 +1,8 @@
-# Oforge AI (v6.9.34)
+# Oforge AI (v6.9.35)
+
+## v6.9.35
+- **Yanıt alanı sadeleşti:** Yanıtın etrafındaki kart (kenarlık, arka plan, gölge) kaldırıldı; metin sayfa genişliğini kullanır.
+- **Gemini tarzı alt çubuk:** Yanıtın altında yalnızca simgeler: 👍 👎 · Kopyala · Önizle/PDF (belge simgesi) · ⋯ menüsü (Sesli dinle, Paylaş…, WhatsApp, E-posta, Markdown indir). Kopyalayınca simge kısa süre ✓ olur. Uyarı ve yanıt süresi satırı altta küçük kalır.
 
 ## v6.9.34
 - **Yeni ad: Oforge AI.** "Forge AI" adı başka birçok yerde kullanıldığından uygulama "Oforge AI" oldu; arayüzdeki, yapay zekâ kimliğindeki, bildirimdeki, manifest'teki ve indirilen dosya adlarındaki tüm "Forge AI" ifadeleri değiştirildi. Dahili anahtarlar (`forge_ai_*`), Firebase projesi ve manifest `id` aynı kaldığı için sohbetler ve ayarlar korunur.

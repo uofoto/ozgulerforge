@@ -503,7 +503,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     /* v6.9.33 */
     #jumpTopBtn { transition: opacity .18s ease, transform .18s ease; }
     #jumpTopBtn.is-hidden { opacity: 0; transform: translateY(6px); pointer-events: none; }
-    .fb-btn svg { width: 15px; height: 15px; }
+    .fb-btn svg { width: 18px; height: 18px; }
     .fb-btn.is-on-up svg, .fb-btn.is-on-down svg { fill: currentColor; fill-opacity: .2; }
   </style>
 </head>
@@ -688,7 +688,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.34</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.35</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -841,7 +841,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
           <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.34</span></span>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.35</span></span>
           </div>
         </div>
         </div>
@@ -987,7 +987,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.34</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.35</span>
         </div>
       </div>
 
@@ -1570,11 +1570,14 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       if (span) {
         span.textContent = 'Kopyalandı ✓';
         span.classList.add('text-emerald-600');
-        setTimeout(() => {
-          span.textContent = 'Kopyala';
-          span.classList.remove('text-emerald-600');
-        }, 2000);
+        setTimeout(() => { span.textContent = 'Kopyala'; span.classList.remove('text-emerald-600'); }, 2000);
+        return;
       }
+      const old = btn.innerHTML;
+      btn.innerHTML = msgIcon('check');
+      btn.classList.add('text-emerald-600');
+      forgeToast('Yanıt panoya kopyalandı', 1400);
+      setTimeout(() => { btn.innerHTML = old; btn.classList.remove('text-emerald-600'); }, 1600);
     };
 
     window.previewFullResponse = function(content) {
@@ -1972,23 +1975,29 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     const FB_ICON_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>';
     const FB_ICON_DOWN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/></svg>';
 
-    // --- Yanıt altı işlem satırı (Önizle · Kopyala · Sesli Dinle · Paylaş · Beğen/Beğenme)
+    // --- Yanıt altı işlem satırı (Gemini tarzı simgeler): Beğen · Beğenme · Kopyala · Önizle/PDF · ⋯ (Dinle, Paylaş)
+    const MSG_ICONS = {
+      copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+      check: '<path d="M20 6 9 17l-5-5"/>',
+      doc: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+      more: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+      speak: '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>',
+      share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
+      wa: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+      mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+      dl: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>'
+    };
+    function msgIcon(name) {
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + MSG_ICONS[name] + '</svg>';
+    }
     function msgActionsHtml() {
-      const cls = 'hover:text-blue-600 flex items-center gap-1 transition cursor-pointer';
-      const fb = 'fb-btn p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer';
-      return `
-              <button type="button" data-action="preview" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 transition cursor-pointer"><span>👁️ Çalışmayı Önizle / PDF</span></button>
-              <span>•</span>
-              <button type="button" data-action="copy" class="${cls}"><span>Kopyala</span></button>
-              <span>•</span>
-              <button type="button" data-action="speak" class="${cls}"><span>Sesli Dinle</span></button>
-              <span>•</span>
-              <button type="button" data-action="share" class="${cls}" aria-haspopup="menu"><span>Paylaş</span></button>
-              <span class="flex items-center gap-0.5 ml-auto">
-                <button type="button" data-action="like" class="${fb} hover:text-emerald-600" title="Beğendim" aria-label="Beğendim" aria-pressed="false">${FB_ICON_UP}</button>
-                <button type="button" data-action="dislike" class="${fb} hover:text-rose-600" title="Beğenmedim" aria-label="Beğenmedim" aria-pressed="false">${FB_ICON_DOWN}</button>
-              </span>
-            `;
+      const ib = 'fb-btn p-2 rounded-full hover:bg-slate-100 hover:text-slate-700 transition cursor-pointer';
+      const btn = (act, label, icon, extra) => '<button type="button" data-action="' + act + '" class="' + ib + (extra ? ' ' + extra : '') + '" title="' + label + '" aria-label="' + label + '">' + icon + '</button>';
+      return btn('like', 'Beğendim', FB_ICON_UP, 'hover:!text-emerald-600').replace('class="', 'aria-pressed="false" class="') +
+             btn('dislike', 'Beğenmedim', FB_ICON_DOWN, 'hover:!text-rose-600').replace('class="', 'aria-pressed="false" class="') +
+             btn('copy', 'Kopyala', msgIcon('copy')) +
+             btn('preview', 'Önizle / PDF', msgIcon('doc')) +
+             btn('more', 'Diğer', msgIcon('more')).replace('class="', 'aria-haspopup="menu" class="');
     }
 
     function paintFeedback(row, fb) {
@@ -2033,7 +2042,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     try {
     document.addEventListener('click', (e) => {
       if (!sharePop) return;
-      if (e.target.closest('#sharePop') || e.target.closest('[data-action="share"]')) return;
+      if (e.target.closest('#sharePop') || e.target.closest('[data-action="more"]')) return;
       closeSharePopover();
     }, true);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSharePopover(); });
@@ -2051,13 +2060,10 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       const truncated = full.length > LIM;
       const short = truncated ? body.slice(0, LIM - SIGN.length - 1).trimEnd() + '…' + SIGN : full;
       const items = [];
-      if (navigator.share) items.push(['Paylaş…', async () => { try { await navigator.share({ title: 'Oforge AI yanıtı', text: full }); } catch (_) {} }]);
-      items.push(['WhatsApp', () => { window.open('https://wa.me/?text=' + encodeURIComponent(short), '_blank', 'noopener'); }]);
-      items.push(['E-posta', () => { window.location.href = 'mailto:?subject=' + encodeURIComponent('Oforge AI yanıtı') + '&body=' + encodeURIComponent(short); }]);
-      items.push(['Metni kopyala', async () => {
-        try { await navigator.clipboard.writeText(full); forgeToast('Yanıt panoya kopyalandı'); }
-        catch (_) { forgeToast('Kopyalanamadı'); }
-      }]);
+      items.push(['Sesli dinle', () => window.speakText(text), 'speak']);
+      if (navigator.share) items.push(['Paylaş…', async () => { try { await navigator.share({ title: 'Oforge AI yanıtı', text: full }); } catch (_) {} }, 'share']);
+      items.push(['WhatsApp', () => { window.open('https://wa.me/?text=' + encodeURIComponent(short), '_blank', 'noopener'); }, 'wa']);
+      items.push(['E-posta', () => { window.location.href = 'mailto:?subject=' + encodeURIComponent('Oforge AI yanıtı') + '&body=' + encodeURIComponent(short); }, 'mail']);
       items.push(['Markdown (.md) olarak indir', () => {
         const blob = new Blob([full], { type: 'text/markdown;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -2066,25 +2072,26 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         a.download = 'Oforge-AI-Yanit-' + new Date().toISOString().slice(0, 10) + '.md';
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-      }]);
+      }, 'dl']);
 
       const pop = document.createElement('div');
       pop.id = 'sharePop';
       pop.setAttribute('role', 'menu');
-      pop.className = 'fixed z-[70] w-60 bg-white border border-slate-200 rounded-2xl shadow-float p-1.5';
-      items.forEach(([label, fn]) => {
+      pop.className = 'fixed z-[70] w-64 bg-white border border-slate-200 rounded-2xl shadow-float p-1.5';
+      items.forEach(([label, fn, ico]) => {
         const b = document.createElement('button');
         b.type = 'button';
         b.setAttribute('role', 'menuitem');
-        b.className = 'w-full text-left px-3 py-2 rounded-xl text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition cursor-pointer';
-        b.textContent = label;
+        b.className = 'w-full text-left px-3 py-2 rounded-xl text-sm text-slate-700 hover:bg-slate-100 transition cursor-pointer flex items-center gap-3';
+        b.innerHTML = '<span class="w-[18px] h-[18px] shrink-0 text-slate-500 [&>svg]:w-full [&>svg]:h-full">' + msgIcon(ico) + '</span><span></span>';
+        b.lastChild.textContent = label;
         b.onclick = () => { closeSharePopover(); fn(); };
         pop.appendChild(b);
       });
       if (truncated) {
         const n = document.createElement('p');
         n.className = 'px-3 pt-1.5 pb-1 text-[11px] leading-snug text-slate-400';
-        n.textContent = 'WhatsApp ve e-postada uzun yanıt kısaltılır; tamamı için kopyala veya indir.';
+        n.textContent = 'WhatsApp ve e-postada uzun yanıt kısaltılır; tamamı için kopyalama simgesini veya indirmeyi kullanın.';
         pop.appendChild(n);
       }
       document.body.appendChild(pop);
@@ -2356,10 +2363,10 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           <div class="forge-avatar w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-2xs shrink-0 mt-0.5">
             <span data-forge-logo class="block w-[19px] h-[19px]"></span>
           </div>
-          <div class="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 sm:p-5 shadow-2xs">
+          <div class="flex-1 min-w-0 pt-1">
             <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="forge-progress not-prose py-1" aria-live="polite"><div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2"><p data-progress-detail class="text-xs font-semibold text-slate-700">Oforge AI isteğinizi hazırlıyor…</p><span data-elapsed-time class="text-[10px] font-mono text-slate-400 tabular-nums">Geçen süre: 00:00</span></div><ol class="space-y-1.5 text-xs text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI isteğiniz için uygun motoru seçiyor</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI hizmetine bağlanıyor</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI yanıtınızı oluşturuyor</span></li></ol></div>'}</div>
-            <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-[11px] text-slate-400 ${content ? '' : 'hidden'}">${msgActionsHtml()}</div>
-            <p class="msg-disclaimer mt-2 text-[10px] text-slate-400 ${content ? '' : 'hidden'}"><span>Oforge AI bir yapay zekâ modelidir, hata yapabilir. Önemli bilgileri doğrulayın.</span><span class="msg-fallback-note"></span></p>
+            <div class="msg-actions -ml-2 mt-2 flex flex-wrap items-center gap-0.5 text-slate-400 ${content ? '' : 'hidden'}">${msgActionsHtml()}</div>
+            <p class="msg-disclaimer mt-1 text-[11px] text-slate-400 ${content ? '' : 'hidden'}"><span>Oforge AI bir yapay zekâ modelidir, hata yapabilir. Önemli bilgileri doğrulayın.</span><span class="msg-fallback-note"></span></p>
           </div>
         `;
         if (content) {
@@ -2834,7 +2841,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       else if (action === 'preview') window.previewFullResponse(text);
       else if (action === 'copy') window.copyRawText(btn, text);
       else if (action === 'speak') window.speakText(text);
-      else if (action === 'share') openSharePopover(btn, text);
+      else if (action === 'more') openSharePopover(btn, text);
       else if (action === 'like') toggleFeedback(row, 'up');
       else if (action === 'dislike') toggleFeedback(row, 'down');
       else if (action === 'limit-retry') retryAfterLimit(row);
@@ -3594,7 +3601,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       paint();
       return { get, set, contrast, toggleContrast, NAMES };
     })();
-    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.34'; });
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.35'; });
 
     // --- KULLANIM KILAVUZU ---
     const GUIDE_SECTIONS = [
