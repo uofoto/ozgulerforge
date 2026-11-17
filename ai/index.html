@@ -53,7 +53,7 @@
   <!-- Tipografi: Inter + sistem yazı tipleri (SF Pro, Roboto Flex, Segoe UI) & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Syne:wght@800&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Manrope:wght@800&family=Sora:wght@400&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS & İkonlar -->
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -165,15 +165,20 @@
 
     /* ===== Oforge AI logo yazısı ===== */
     .owm { display:inline-flex; align-items:baseline; white-space:nowrap; line-height:1; font-size:var(--owm-s,1.5rem); }
-    .owm-o { font-family:Syne,Outfit,Inter,system-ui,sans-serif; font-weight:800; letter-spacing:-.04em; margin-right:.015em;
+    .owm-o { font-family:Manrope,Outfit,Inter,system-ui,sans-serif; font-weight:800; letter-spacing:-.03em; margin-right:.01em;
       background:linear-gradient(140deg,#FBBF24 0%,#F97316 48%,#E11D48 100%); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
       font-size:1.14em; display:inline-block; transform:translateY(.02em); }
     .owm-f { font-family:Outfit,Inter,system-ui,-apple-system,'Segoe UI',sans-serif; font-weight:600; letter-spacing:-.035em; color:inherit; }
-    .owm-ai { font-family:Outfit,Inter,system-ui,sans-serif; font-weight:500; font-size:.5em; letter-spacing:.2em; margin-left:.55em; padding:.28em .5em .22em .7em; border-radius:999px; align-self:center;
+    .owm-ai { font-family:Outfit,Inter,system-ui,sans-serif; font-weight:500; font-size:.5em; letter-spacing:.2em; padding:.28em .5em .22em .7em; border-radius:999px; display:block;
       color:#4F46E5; background:rgba(79,70,229,.1); }
     html.dark .owm-ai { color:#A5B4FC; background:rgba(129,140,248,.16); }
     html.forge .owm-ai { color:#FDBA74; background:rgba(251,146,60,.16); }
     #forgeSplash .owm-ai { color:#A5B4FC; background:rgba(129,140,248,.16); }
+
+    .owm-aiwrap { display:inline-flex; flex-direction:column; align-items:center; gap:.08em; margin-left:.55em; align-self:center; }
+    .owm-sub { font-family:Sora,Outfit,Inter,system-ui,sans-serif; font-weight:400; font-size:max(.2em,.5rem); letter-spacing:.2em; text-indent:.2em; line-height:1; color:#64748B; }
+    html.dark .owm-sub { color:#94A3B8; } html.forge .owm-sub { color:#BDB0A2; } #forgeSplash .owm-sub { color:#94A3B8; }
+    .owm-md .owm-sub { display:none; }
     .owm-md { --owm-s:1.05rem; } .owm-lg { --owm-s:1.6rem; } .owm-xl { --owm-s:2.6rem; } .owm-hero { --owm-s:clamp(2.4rem,7vw,3.4rem); }
 
     /* ===== Forge işareti ===== */
@@ -507,7 +512,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
   <!-- AÇILIŞ: çekiç vuruşu -->
   <div id="forgeSplash" aria-hidden="true">
     <div class="fs-tile fm-brand"><span data-forge-logo data-fm="loop" class="block w-full h-full"></span></div>
-    <div class="fs-word"><span class="owm owm-xl" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></div>
+    <div class="fs-word"><span class="owm owm-xl" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-aiwrap" aria-hidden="true"><span class="owm-ai">AI</span><span class="owm-sub">asistanı</span></span></span></div>
     <div class="fs-sub">Ozguler Forge</div>
   </div>
   <script>
@@ -554,7 +559,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <div class="fm-brand w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/25">
           <span data-forge-logo class="block w-[22px] h-[22px]"></span>
         </div>
-        <span class="text-slate-900"><span class="owm owm-lg" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></span>
+        <span class="text-slate-900"><span class="owm owm-lg" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-aiwrap" aria-hidden="true"><span class="owm-ai">AI</span><span class="owm-sub">asistanı</span></span></span></span>
       </div>
       <button id="closeSidebarBtn" type="button" class="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-[#EFEDE7]" aria-label="Menüyü kapat">
         <i data-lucide="x" class="w-5 h-5"></i>
@@ -730,7 +735,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
 
-          <span class="text-slate-800 truncate"><span class="owm owm-md" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></span>
+          <span class="text-slate-800 truncate"><span class="owm owm-md" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-aiwrap" aria-hidden="true"><span class="owm-ai">AI</span><span class="owm-sub">asistanı</span></span></span></span>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
@@ -954,7 +959,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <i data-lucide="cpu" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-slate-900"><span class="owm owm-md" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></h3>
+            <h3 class="text-slate-900"><span class="owm owm-md" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-aiwrap" aria-hidden="true"><span class="owm-ai">AI</span><span class="owm-sub">asistanı</span></span></span></h3>
             <p class="text-xs text-slate-500">Ozguler Forge Yapay Zeka Platformu</p>
           </div>
         </div>
@@ -1920,7 +1925,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <span data-forge-logo data-fm="once" class="block w-10 h-10"></span>
           </div>
           
-          <h1 class="text-slate-900 mb-2"><span class="owm owm-hero" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></h1>
+          <h1 class="text-slate-900"><span class="owm owm-hero" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-aiwrap" aria-hidden="true"><span class="owm-ai">AI</span><span class="owm-sub">asistanı</span></span></span></h1>
           <p class="text-sm sm:text-base text-slate-500 max-w-md mb-8 leading-relaxed">
             ${(currentUser && currentUser.name) ? 'Merhaba, ' + escapeHtml(String(currentUser.name).split(' ')[0]) + '. ' : ''}Size nasıl yardımcı olabilirim?
           </p>
