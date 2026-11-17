@@ -21,9 +21,9 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="manifest" href="manifest.json?v=2" />
-  <link rel="icon" type="image/png" href="icon-v2-192.png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon-v2.png" />
+  <link rel="manifest" href="manifest.json?v=4" />
+  <link rel="icon" type="image/png" href="icon-v4-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon-v4.png" />
   
 
   <script>
@@ -699,7 +699,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.37</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.39</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -852,7 +852,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
           <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.37</span></span>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.39</span></span>
           </div>
         </div>
         </div>
@@ -998,7 +998,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.37</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.39</span>
         </div>
       </div>
 
@@ -3465,7 +3465,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       function done(title, ms, content) {
         if (!enabled() || !document.hidden || ms < 8000) return;
         const body = String(content || '').replace(/[#*`>_\[\]]/g, '').replace(/\s+/g, ' ').trim().slice(0, 110) || 'Yanıtınız hazır.';
-        const opts = { body, icon: './icon-v2-192.png', badge: './icon-v2-192.png', tag: 'forge-done', renotify: true };
+        const opts = { body, icon: './icon-v4-192.png', badge: './icon-v4-192.png', tag: 'forge-done', renotify: true };
         const t = 'Oforge AI · yanıt hazır' + (title ? ': ' + String(title).slice(0, 40) : '');
         const fallback = () => { try { new Notification(t, opts); } catch (_) {} };
         if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) navigator.serviceWorker.getRegistration().then((r) => (r ? r.showNotification(t, opts) : fallback())).catch(fallback);
@@ -3626,7 +3626,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       paint();
       return { get, set, contrast, toggleContrast, NAMES };
     })();
-    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.37'; });
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.39'; });
 
     // --- KULLANIM KILAVUZU ---
     const GUIDE_SECTIONS = [

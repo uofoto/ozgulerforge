@@ -1,4 +1,7 @@
-# Oforge AI (v6.9.37)
+# Oforge AI (v6.9.39)
+
+## v6.9.39
+- **Simge = çekiç ve örs:** Uygulama/ana ekran simgesi ve mobil açılış (splash) görseli, eski güneş simgesi yerine Oforge'un çekiç-örs sembolüyle yenilendi (mavi→mor zemin, beyaz sembol): `icon-v4-192.png`, `icon-v4-512.png`, `icon-v4-maskable-512.png`, `apple-touch-icon-v4.png`. Sayfa içi açılış ekranında da çekiç-örs kutusu duruyor. Telefonda eski simge önbellekte kalabilir; uygulamayı kaldırıp yeniden kurun.
 
 ## v6.9.37
 - **Yanıt üslubu:** Her istekte kısa, öz ve mobilde okunur yanıt kuralları (`ANSWER_STYLE`) modele eklenir: doğrudan cevap, gereksiz giriş/kapanış yok, çoğu yanıt ~150 kelime altı, kısa paragraf/madde, emoji yok. **Tablo artık yalnızca kullanıcı isterse** kullanılır; karşılaştırmalar maddelerle yazılır. Kurallar kayıtlı sistem isteminden bağımsız eklendiği için eski ayarı olanlarda da geçerlidir.
@@ -133,7 +136,7 @@
 11. Bağımlılık sürümleri sabitlendi; `user-scalable=no` kaldırıldı.
 
 ## Dağıtım
-Tüm dosyaları aynı klasöre yükleyin: `index.html`, `sw.js`, `manifest.json`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png`, `apple-touch-icon.png`. HTTPS gereklidir. Sonraki sürümlerde `sw.js` içindeki `CACHE_NAME` değerini artırın.
+Tüm dosyaları aynı klasöre yükleyin: `index.html`, `sw.js`, `manifest.json`, `icon-v4-192.png`, `icon-v4-512.png`, `icon-v4-maskable-512.png`, `apple-touch-icon-v4.png`. HTTPS gereklidir. Sonraki sürümlerde `sw.js` içindeki `CACHE_NAME` değerini artırın.
 
 ## Bilinen sınırlar
 - API anahtarı tarayıcıda (localStorage) tutulur: yalnızca kişisel kullanım içindir. Herkese açık dağıtım için bir sunucu tarafı proxy gerekir.
