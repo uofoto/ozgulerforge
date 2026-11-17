@@ -1,4 +1,7 @@
-# Forge AI (v6.9.32)
+# Forge AI (v6.9.33)
+
+## v6.9.33
+- **PDF çıktısı düzeltildi:** "Çalışmayı Önizle / PDF" → "PDF" ile alınan çıktı boş sayfa veriyordu; yazdırma alanı gizli kaldığı için hiçbir şey çizilmiyordu. Artık yalnızca yazdırırken açılır, uygulamanın geri kalanı çıktıdan çıkarılır, uzun yanıtlar birden çok sayfaya bölünür, koyu temada da metin siyah kalır, kod blokları taşmadan satır kıvırır.
 
 ## v6.9.32
 - **Yanıtın başına dön:** Uzun bir yanıtın içinde aşağı kaydırınca yazı kutusunun sağ üstünde "Yanıtın başına dön" düğmesi belirir; basınca o anki yanıtın en üstüne yumuşakça kayar. Yanıt akarken yukarı kaydırırsanız sayfa artık sizi zorla en alta çekmez (en alta inince otomatik takip yeniden başlar).

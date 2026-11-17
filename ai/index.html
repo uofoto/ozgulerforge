@@ -466,12 +466,22 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     }
 
     @media print {
-      body * { visibility: hidden; }
-      #printArea, #printArea * { visibility: visible; }
-      #printArea { position: absolute; left: 0; top: 0; width: 100%; padding: 24px; background: white; }
+      @page { margin: 14mm; }
+      html, body { height: auto !important; min-height: 0 !important; overflow: visible !important; background: #fff !important; color: #0F172A !important; }
+      body > *:not(#printArea) { display: none !important; }
+      /* #printArea normalde "hidden" (display:none); yalnızca yazdırırken açılır */
+      #printArea, #printArea.hidden { display: block !important; position: static !important; width: auto !important; max-width: none !important; padding: 0 !important; margin: 0 !important; background: #fff !important; visibility: visible !important; }
+      html #printArea, html #printArea :where(p, li, h1, h2, h3, h4, h5, h6, td, th, strong, em, blockquote, span, div) { color: #0F172A !important; }
+      #printArea a { color: #1D4ED8 !important; }
+      #printArea pre { background: #F1F5F9 !important; color: #0F172A !important; white-space: pre-wrap !important; word-break: break-word; border: 1px solid #E2E8F0; }
+      #printArea pre code { background: transparent !important; color: inherit !important; }
+      #printArea table { border-collapse: collapse; }
+      #printArea th, #printArea td { border: 1px solid #CBD5E1; padding: 4px 8px; }
+      #printArea h1, #printArea h2, #printArea h3, #printArea pre, #printArea table, #printArea blockquote { break-inside: avoid; }
+      #printArea .code-wrapper button, #printArea [data-action] { display: none !important; }
     }
 
-    /* v6.9.32 */
+    /* v6.9.33 */
     #jumpTopBtn { transition: opacity .18s ease, transform .18s ease; }
     #jumpTopBtn.is-hidden { opacity: 0; transform: translateY(6px); pointer-events: none; }
     .fb-btn svg { width: 15px; height: 15px; }
@@ -659,7 +669,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.32</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.33</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -812,7 +822,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
           <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Forge AI <span data-app-version>v6.9.32</span></span>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Forge AI <span data-app-version>v6.9.33</span></span>
           </div>
         </div>
         </div>
@@ -958,7 +968,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.32</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.33</span>
         </div>
       </div>
 
@@ -1937,7 +1947,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       els.userInput.focus();
     };
 
-    // ===== v6.9.32 · Yanıtın başına dön · Paylaş / Beğen · Limit uyarısı =====
+    // ===== v6.9.33 · Yanıtın başına dön · Paylaş / Beğen · Limit uyarısı =====
     const LIMIT_KEY = 'forge_ai_limit_state';
     let limitBannerTimer = null;
     let sharePop = null;
@@ -2003,6 +2013,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
     // --- Paylaş menüsü
     function closeSharePopover() { if (sharePop) { sharePop.remove(); sharePop = null; } }
+    try {
     document.addEventListener('click', (e) => {
       if (!sharePop) return;
       if (e.target.closest('#sharePop') || e.target.closest('[data-action="share"]')) return;
@@ -2010,6 +2021,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     }, true);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSharePopover(); });
     els.messagesContainer.addEventListener('scroll', closeSharePopover, { passive: true });
+    } catch (e) { console.warn('Forge AI: paylaş menüsü başlatılamadı', e); }
 
     function openSharePopover(btn, text) {
       if (sharePop && sharePop._btn === btn) { closeSharePopover(); return; }
@@ -2219,22 +2231,27 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       limitBannerTimer = setInterval(paint, 1000);
     }
     (function initLimitBanner() {
+    try {
       const close = document.getElementById('limitBannerClose');
       if (close) close.onclick = () => { clearInterval(limitBannerTimer); document.getElementById('limitBanner').classList.add('hidden'); };
       showLimitBanner();
+    } catch (e) { console.warn('Forge AI: initLimitBanner başlatılamadı', e); }
     })();
 
     // --- Akış sırasında kullanıcı yukarı kaydırdıysa otomatik alta çekme
     (function initAutoStick() {
+    try {
       const c = els.messagesContainer;
       state.autoStick = true;
       c.addEventListener('wheel', (e) => { if (e.deltaY < 0) state.autoStick = false; }, { passive: true });
       c.addEventListener('touchmove', () => { state.autoStick = false; }, { passive: true });
       c.addEventListener('scroll', () => { if (c.scrollHeight - c.scrollTop - c.clientHeight < 80) state.autoStick = true; }, { passive: true });
+    } catch (e) { console.warn('Forge AI: initAutoStick başlatılamadı', e); }
     })();
 
     // --- "Yanıtın başına dön" düğmesi
     (function initJumpTop() {
+    try {
       const c = els.messagesContainer;
       const btn = document.getElementById('jumpTopBtn');
       if (!c || !btn) return;
@@ -2267,6 +2284,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         c.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       });
       schedule();
+    } catch (e) { console.warn('Forge AI: initJumpTop başlatılamadı', e); }
     })();
 
     function renderMessages() {
@@ -3559,7 +3577,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       paint();
       return { get, set, contrast, toggleContrast, NAMES };
     })();
-    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.32'; });
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.33'; });
 
     // --- KULLANIM KILAVUZU ---
     const GUIDE_SECTIONS = [
