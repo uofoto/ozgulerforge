@@ -1,4 +1,10 @@
-# Oforge AI (v6.9.35)
+# Oforge AI (v6.9.36)
+
+## v6.9.36
+- **Yeni motorlar:** "Oforge 1.5 Flash" (gemini-1.5-flash), "Oforge 2.0 Flash" (gemini-2.0-flash) ve "Oforge 2.5 Flash" (gemini-2.5-flash) motor menüsüne eklendi; üçü de fotoğraf destekler. 1.5 Flash yalnızca elle seçilir (Otomatik moda dahil değildir); Google bu modeli kapatmış olabilir, 404 gelirse 2.0/2.5 kullanın.
+- **Fotoğraf ekleme düzeltildi:** Aynı fotoğraf kaldırılıp tekrar seçilince tetiklenmiyordu (dosya seçici sıfırlanmıyordu). Ayrıca HEIC/okunamayan görseller artık sessizce yutulmuyor, uyarı veriliyor; şeffaf PNG'ler siyah çıkmıyor; seçici tüm görsel türlerini kabul ediyor. Otomatik modda fotoğraf varsa yalnızca görsel destekleyen motorlar denenir.
+- **Yanıt hazırlanırken Manus tarzı durum:** Adım listesi artık varsayılan olarak kapalıdır; yalnızca "Düşünülüyor…" (animasyonlu noktalar) ve geçen süre görünür. Üzerine basınca adımlar açılır. Yazma aşamasında "Yanıt yazılıyor…" olur.
+
 
 ## v6.9.35
 - **Yanıt alanı sadeleşti:** Yanıtın etrafındaki kart (kenarlık, arka plan, gölge) kaldırıldı; metin sayfa genişliğini kullanır.

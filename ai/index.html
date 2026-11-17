@@ -372,8 +372,19 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
     .prose.is-streaming > p:last-child::after, .prose.is-streaming > :is(ul,ol):last-child > li:last-child::after { content:""; display:inline-block; width:.5rem; height:1.05em; margin-left:2px; vertical-align:text-bottom; background:currentColor; opacity:.55; border-radius:1px; animation:fmCaret 1s steps(1) infinite; }
     @keyframes fmCaret { 50% { opacity:0; } }
     .forge-progress [data-progress-detail] { animation:fmPulse 1.6s ease-in-out infinite; }
+    .forge-progress .fm-psum { display:flex; align-items:center; gap:.6rem; cursor:pointer; user-select:none; list-style:none; font-size:.95rem; color:#64748B; padding:.25rem 0; }
+    .forge-progress .fm-psum::-webkit-details-marker { display:none; }
+    .forge-progress .fm-psum:hover { color:#334155; }
+    .forge-progress .fm-spin { width:14px; height:14px; border-radius:50%; border:2px solid #CBD5E1; border-top-color:#2563EB; animation:fmSpin .8s linear infinite; flex:none; }
+    .forge-progress .fm-ptime { font-family:ui-monospace,monospace; font-size:.75rem; color:#94A3B8; font-variant-numeric:tabular-nums; }
+    .forge-progress .fm-chev { margin-left:.1rem; transition:transform .2s; color:#94A3B8; }
+    .forge-progress[open] .fm-chev { transform:rotate(180deg); }
+    .forge-progress .fm-pbody { margin:.4rem 0 .2rem .45rem; padding-left:.9rem; border-left:2px solid #E2E8F0; }
+    .fm-dots::after { content:""; display:inline-block; width:1.2em; text-align:left; animation:fmDots 1.4s steps(1) infinite; }
+    @keyframes fmDots { 0% { content:""; } 25% { content:"."; } 50% { content:".."; } 75% { content:"..."; } }
+    @keyframes fmSpin { to { transform:rotate(360deg); } }
     @keyframes fmPulse { 50% { opacity:.55; } }
-    @media (prefers-reduced-motion: reduce) { .fm-enter, .forge-progress [data-progress-detail], .prose.is-streaming > p:last-child::after { animation:none !important; } }
+    @media (prefers-reduced-motion: reduce) { .fm-dots::after { animation:none !important; content:"..."; } .fm-spin { animation:none !important; } .fm-enter, .forge-progress [data-progress-detail], .prose.is-streaming > p:last-child::after { animation:none !important; } }
 
     /* ===== Komut paleti ===== */
     .cmdk-row { display:flex; align-items:center; gap:.75rem; width:100%; padding:.625rem .75rem; border-radius:.75rem; text-align:left; font-size:.9375rem; color:#334155; cursor:pointer; }
@@ -688,7 +699,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.35</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.36</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -801,7 +812,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             
             <div class="flex items-center justify-between gap-2 pt-2 mt-1 border-t border-slate-100 px-1">
               <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
-                <input type="file" id="imageInput" class="hidden" accept="image/jpeg,image/png,image/webp,image/gif" multiple />
+                <input type="file" id="imageInput" class="hidden" accept="image/*,.heic,.heif,.avif,.jpg,.jpeg,.png,.webp,.gif" multiple />
                 <button type="button" id="attachImageBtn" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Çoklu Fotoğraf Yükle">
                   <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
                   <span class="hidden sm:inline">Fotoğraf</span>
@@ -841,7 +852,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
           <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.35</span></span>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.36</span></span>
           </div>
         </div>
         </div>
@@ -987,7 +998,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.35</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.36</span>
         </div>
       </div>
 
@@ -1106,6 +1117,9 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     const MODELS = [
       { id: 'auto', label: 'Forge Otomatik', auto: true },
       { id: 'f1', label: 'Forge 1', provider: 'gemini',     model: 'gemini-4-hydrogen', vision: true, desc: 'Gemini 4 Hydrogen, fotoğraf destekler' },
+      { id: 'g25', label: 'Oforge 2.5 Flash', provider: 'gemini', model: 'gemini-2.5-flash', vision: true, desc: 'Gemini 2.5 Flash, fotoğraf destekler' },
+      { id: 'g20', label: 'Oforge 2.0 Flash', provider: 'gemini', model: 'gemini-2.0-flash', vision: true, desc: 'Gemini 2.0 Flash, fotoğraf destekler' },
+      { id: 'g15', label: 'Oforge 1.5 Flash', provider: 'gemini', model: 'gemini-1.5-flash', vision: true, noAuto: true, desc: 'Gemini 1.5 Flash, fotoğraf destekler' },
       { id: 'f2', label: 'Forge 2', provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', desc: 'Nemotron 3 Ultra' },
       { id: 'f3', label: 'Forge 3', provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free', desc: 'Nemotron 3.5 Lightning' },
       { id: 'f4', label: 'Forge 4', provider: 'openrouter', model: 'google/gemma-4-31b-it:free', vision: true, desc: 'Gemma 4 31B, fotoğraf destekler' },
@@ -1123,7 +1137,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     }
     function keyOk() {
       const m = curModel();
-      return m.auto ? MODELS.some(x => !x.auto && hasKeyFor(x)) : hasKeyFor(m);
+      return m.auto ? MODELS.some(x => !x.auto && !x.noAuto && hasKeyFor(x)) : hasKeyFor(m);
     }
 
     const KEYS = {
@@ -1637,46 +1651,48 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       if (warningEl) warningEl.classList.toggle('hidden', valid);
     }
 
+    function isImageFile(file) {
+      return (file.type && file.type.startsWith('image/')) || /\.(jpe?g|png|webp|gif|bmp|avif|heic|heif)$/i.test(file.name || '');
+    }
+
     function handleMultipleImages(files) {
       if (!files || files.length === 0) return;
-      Array.from(files).forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX_DIM = 1600;
-            let width = img.width;
-            let height = img.height;
-
-            if (width > MAX_DIM || height > MAX_DIM) {
-              if (width > height) {
-                height = Math.round((height * MAX_DIM) / width);
-                width = MAX_DIM;
-              } else {
-                width = Math.round((width * MAX_DIM) / height);
-                height = MAX_DIM;
-              }
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            const optimizedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-            state.attachedImages.push({
-              id: 'img_' + Math.random().toString(36).substring(2, 9),
-              name: file.name,
-              dataUrl: optimizedDataUrl
-            });
-            renderAttachmentsBar();
-
-          };
-          img.src = e.target.result;
+      const failed = [];
+      const MAX_DIM = 1600;
+      const addImage = (file, source, w, h) => {
+        let width = w, height = h;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) { height = Math.round((height * MAX_DIM) / width); width = MAX_DIM; }
+          else { width = Math.round((width * MAX_DIM) / height); height = MAX_DIM; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, width, height); // şeffaf PNG'ler siyah çıkmasın
+        ctx.drawImage(source, 0, 0, width, height);
+        state.attachedImages.push({
+          id: 'img_' + Math.random().toString(36).substring(2, 9),
+          name: file.name || 'fotoğraf.jpg',
+          dataUrl: canvas.toDataURL('image/jpeg', 0.92)
+        });
+        renderAttachmentsBar();
+      };
+      const loadOne = (file) => new Promise((resolve) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => { try { addImage(file, img, img.naturalWidth || img.width, img.naturalHeight || img.height); } catch (_) { failed.push(file.name); } URL.revokeObjectURL(url); resolve(); };
+        img.onerror = async () => {
+          URL.revokeObjectURL(url);
+          try {
+            const bmp = await createImageBitmap(file);
+            addImage(file, bmp, bmp.width, bmp.height);
+          } catch (_) { failed.push(file.name || 'görsel'); }
+          resolve();
         };
-        reader.readAsDataURL(file);
+        img.src = url;
+      });
+      Promise.all(Array.from(files).filter(isImageFile).map(loadOne)).then(() => {
+        if (failed.length) alert('Bu fotoğraf okunamadı (HEIC/HEIF gibi desteklenmeyen bir biçim olabilir): ' + failed.join(', ') + '\nLütfen JPG, PNG veya WEBP olarak ekleyin.');
       });
     }
 
@@ -1792,8 +1808,8 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       const files = e.dataTransfer?.files;
       if (!files || files.length === 0) return;
       
-      const imgFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
-      const docFiles = Array.from(files).filter(f => !f.type.startsWith('image/'));
+      const imgFiles = Array.from(files).filter(isImageFile);
+      const docFiles = Array.from(files).filter(f => !isImageFile(f));
       if (imgFiles.length > 0) handleMultipleImages(imgFiles);
       if (docFiles.length > 0) handleMultipleDocuments(docFiles);
     });
@@ -1810,10 +1826,10 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     });
 
     document.getElementById('attachImageBtn').onclick = () => els.imageInput.click();
-    els.imageInput.onchange = (e) => handleMultipleImages(e.target.files);
+    els.imageInput.onchange = (e) => { const f = Array.from(e.target.files || []); e.target.value = ''; handleMultipleImages(f); };
 
     document.getElementById('attachFileBtn').onclick = () => els.fileInput.click();
-    els.fileInput.onchange = (e) => handleMultipleDocuments(e.target.files);
+    els.fileInput.onchange = (e) => { const f = Array.from(e.target.files || []); e.target.value = ''; handleMultipleDocuments(f); };
 
     function toggleSidebar(show) {
       els.sidebar.classList.toggle('-translate-x-full', !show);
@@ -2364,7 +2380,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <span data-forge-logo class="block w-[19px] h-[19px]"></span>
           </div>
           <div class="flex-1 min-w-0 pt-1">
-            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="forge-progress not-prose py-1" aria-live="polite"><div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2"><p data-progress-detail class="text-xs font-semibold text-slate-700">Oforge AI isteğinizi hazırlıyor…</p><span data-elapsed-time class="text-[10px] font-mono text-slate-400 tabular-nums">Geçen süre: 00:00</span></div><ol class="space-y-1.5 text-xs text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI isteğiniz için uygun motoru seçiyor</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI hizmetine bağlanıyor</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI yanıtınızı oluşturuyor</span></li></ol></div>'}</div>
+            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<details class="forge-progress not-prose py-1" aria-live="polite"><summary class="fm-psum"><span class="fm-spin" aria-hidden="true"></span><span data-progress-label class="fm-dots">Düşünülüyor</span><span data-elapsed-time class="fm-ptime">00:00</span><svg class="fm-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="fm-pbody"><p data-progress-detail class="text-sm font-medium text-slate-600 mb-2">Oforge AI isteğinizi hazırlıyor…</p><ol class="space-y-1.5 text-sm text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI isteğiniz için uygun motoru seçiyor</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI hizmetine bağlanıyor</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI yanıtınızı oluşturuyor</span></li></ol></div></details>'}</div>
             <div class="msg-actions -ml-2 mt-2 flex flex-wrap items-center gap-0.5 text-slate-400 ${content ? '' : 'hidden'}">${msgActionsHtml()}</div>
             <p class="msg-disclaimer mt-1 text-[11px] text-slate-400 ${content ? '' : 'hidden'}"><span>Oforge AI bir yapay zekâ modelidir, hata yapabilir. Önemli bilgileri doğrulayın.</span><span class="msg-fallback-note"></span></p>
           </div>
@@ -2489,6 +2505,8 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         progressStep = Math.max(progressStep, step);
         const detailEl = progressEl.querySelector('[data-progress-detail]');
         if (detailEl && detail) detailEl.textContent = detail;
+        const labelEl = progressEl.querySelector('[data-progress-label]');
+        if (labelEl) labelEl.textContent = progressStep >= 4 ? 'Yanıt yazılıyor' : 'Düşünülüyor';
         progressEl.querySelectorAll('[data-progress-step]').forEach((item) => {
           const index = Number(item.dataset.progressStep);
           const mark = item.querySelector('[data-progress-mark]');
@@ -2514,7 +2532,12 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         }
 
         const sel = curModel();
-        const candidates = sel.auto ? MODELS.filter(m => !m.auto && hasKeyFor(m)) : [sel];
+        let candidates = sel.auto ? MODELS.filter(m => !m.auto && !m.noAuto && hasKeyFor(m)) : [sel];
+        // Fotoğraf varsa Otomatik modda yalnızca görsel okuyabilen motorlar denenir.
+        if (sel.auto && hist.some(h => h.images && h.images.length)) {
+          const vis = candidates.filter(m => m.vision);
+          if (vis.length) candidates = vis;
+        }
         if (!candidates.length || !hasKeyFor(candidates[0])) throw new Error('API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini veya OpenRouter anahtarınızı girin.');
 
         const runAttempt = async (activeModel, canFallback) => {
@@ -3601,7 +3624,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       paint();
       return { get, set, contrast, toggleContrast, NAMES };
     })();
-    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.35'; });
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.36'; });
 
     // --- KULLANIM KILAVUZU ---
     const GUIDE_SECTIONS = [
