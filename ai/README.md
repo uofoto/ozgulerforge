@@ -1,4 +1,8 @@
-# Forge AI (v6.9.33)
+# Oforge AI (v6.9.34)
+
+## v6.9.34
+- **Yeni ad: Oforge AI.** "Forge AI" adı başka birçok yerde kullanıldığından uygulama "Oforge AI" oldu; arayüzdeki, yapay zekâ kimliğindeki, bildirimdeki, manifest'teki ve indirilen dosya adlarındaki tüm "Forge AI" ifadeleri değiştirildi. Dahili anahtarlar (`forge_ai_*`), Firebase projesi ve manifest `id` aynı kaldığı için sohbetler ve ayarlar korunur.
+- **Yeni logo yazısı:** "O" harfi Syne fontuyla amber→turuncu→gül gradyanında, "forge" Outfit fontuyla, "AI" küçük aralıklı rozet olarak yazılır (açılış ekranı, kenar çubuğu, üst çubuk, karşılama, hakkında).
 
 ## v6.9.33
 - **PDF çıktısı düzeltildi:** "Çalışmayı Önizle / PDF" → "PDF" ile alınan çıktı boş sayfa veriyordu; yazdırma alanı gizli kaldığı için hiçbir şey çizilmiyordu. Artık yalnızca yazdırırken açılır, uygulamanın geri kalanı çıktıdan çıkarılır, uzun yanıtlar birden çok sayfaya bölünür, koyu temada da metin siyah kalır, kod blokları taşmadan satır kıvırır.

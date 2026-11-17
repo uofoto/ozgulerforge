@@ -1,8 +1,8 @@
 {
   "id": "/ai/forge-ai-studio",
-  "name": "Forge AI",
-  "short_name": "Forge AI",
-  "description": "Ozguler Forge - Forge AI Çoklu Belge ve Yapay Zeka Asistanı",
+  "name": "Oforge AI",
+  "short_name": "Oforge AI",
+  "description": "Ozguler Forge - Oforge AI Çoklu Belge ve Yapay Zeka Asistanı",
   "lang": "tr",
   "start_url": "./index.html",
   "scope": "./",

@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0F172A" />
-  <meta name="description" content="Forge AI - Ozguler Forge Çoklu Belge ve Fotoğraf Asistanı" />
+  <meta name="description" content="Oforge AI - Ozguler Forge Çoklu Belge ve Fotoğraf Asistanı" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Forge AI</title>
+  <title>Oforge AI</title>
   <script>
     (function () {
       try {
@@ -53,7 +53,7 @@
   <!-- Tipografi: Inter + sistem yazı tipleri (SF Pro, Roboto Flex, Segoe UI) & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Syne:wght@800&family=Outfit:wght@500;600&display=swap" rel="stylesheet">
   
   <!-- Tailwind CSS & İkonlar -->
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -161,6 +161,20 @@
     .sb-sub[aria-checked="true"] .theme-check { opacity:1; color:#2563EB; }
     html.dark .sb-sub[aria-checked="true"] .theme-check { color:#7AA2FF; }
 
+
+
+    /* ===== Oforge AI logo yazısı ===== */
+    .owm { display:inline-flex; align-items:baseline; white-space:nowrap; line-height:1; font-size:var(--owm-s,1.5rem); }
+    .owm-o { font-family:Syne,Outfit,Inter,system-ui,sans-serif; font-weight:800; letter-spacing:-.04em; margin-right:.015em;
+      background:linear-gradient(140deg,#FBBF24 0%,#F97316 48%,#E11D48 100%); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent;
+      font-size:1.14em; display:inline-block; transform:translateY(.02em); }
+    .owm-f { font-family:Outfit,Inter,system-ui,-apple-system,'Segoe UI',sans-serif; font-weight:600; letter-spacing:-.035em; color:inherit; }
+    .owm-ai { font-family:Outfit,Inter,system-ui,sans-serif; font-weight:500; font-size:.5em; letter-spacing:.2em; margin-left:.55em; padding:.28em .5em .22em .7em; border-radius:999px; align-self:center;
+      color:#4F46E5; background:rgba(79,70,229,.1); }
+    html.dark .owm-ai { color:#A5B4FC; background:rgba(129,140,248,.16); }
+    html.forge .owm-ai { color:#FDBA74; background:rgba(251,146,60,.16); }
+    #forgeSplash .owm-ai { color:#A5B4FC; background:rgba(129,140,248,.16); }
+    .owm-md { --owm-s:1.05rem; } .owm-lg { --owm-s:1.6rem; } .owm-xl { --owm-s:2.6rem; } .owm-hero { --owm-s:clamp(2.4rem,7vw,3.4rem); }
 
     /* ===== Forge işareti ===== */
     .fm { display:block; width:100%; height:100%; overflow:visible; }
@@ -493,7 +507,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
   <!-- AÇILIŞ: çekiç vuruşu -->
   <div id="forgeSplash" aria-hidden="true">
     <div class="fs-tile fm-brand"><span data-forge-logo data-fm="loop" class="block w-full h-full"></span></div>
-    <div class="fs-word">Forge AI</div>
+    <div class="fs-word"><span class="owm owm-xl" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></div>
     <div class="fs-sub">Ozguler Forge</div>
   </div>
   <script>
@@ -540,7 +554,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <div class="fm-brand w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/25">
           <span data-forge-logo class="block w-[22px] h-[22px]"></span>
         </div>
-        <span class="font-bold text-2xl tracking-tight text-slate-900">Forge AI</span>
+        <span class="text-slate-900"><span class="owm owm-lg" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></span>
       </div>
       <button id="closeSidebarBtn" type="button" class="md:hidden p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-[#EFEDE7]" aria-label="Menüyü kapat">
         <i data-lucide="x" class="w-5 h-5"></i>
@@ -592,7 +606,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
         <button id="openSettingsBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="settings" class="w-[18px] h-[18px] text-slate-600"></i>
-          <span class="flex-1">Forge AI Motor Ayarları</span>
+          <span class="flex-1">Oforge AI Motor Ayarları</span>
           <span id="keyStatusBadge" class="w-2 h-2 rounded-full bg-rose-500" title="Motor Bağlantı Durumu"></span>
         </button>
 
@@ -669,7 +683,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.33</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.34</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -716,7 +730,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <i data-lucide="menu" class="w-5 h-5"></i>
           </button>
 
-          <span class="font-bold text-base text-slate-800 truncate">Forge AI</span>
+          <span class="text-slate-800 truncate"><span class="owm owm-md" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></span>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
@@ -747,7 +761,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           </button>
 
           <div id="slashMenu" class="hidden absolute bottom-full left-0 mb-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-float p-1.5 z-30 space-y-0.5">
-            <div class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Hızlı Forge AI Komutları</div>
+            <div class="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Hızlı Oforge AI Komutları</div>
             <button type="button" onclick="applySlashCmd('/ozetle Eklediğim çoklu belgeleri ve PDF\'leri karşılaştırarak analiz et ve özetle.')" class="w-full text-left px-2.5 py-2 rounded-xl hover:bg-blue-50 text-xs flex items-center gap-2 transition cursor-pointer">
               <span class="font-mono font-bold text-blue-600">/ozetle</span>
               <span class="text-slate-600 truncate">Tüm Belgeleri Özetle & Karşılaştır</span>
@@ -776,7 +790,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <textarea
               id="userInput"
               rows="1"
-              placeholder="Forge AI'ya yazın..."
+              placeholder="Oforge AI'ya yazın..."
               class="w-full bg-transparent text-slate-900 placeholder-slate-400 text-base sm:text-[17px] px-2 py-1 min-h-[64px] sm:min-h-0 focus:outline-none resize-none max-h-44 leading-relaxed"
             ></textarea>
             
@@ -822,7 +836,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
           <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Forge AI <span data-app-version>v6.9.33</span></span>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.34</span></span>
           </div>
         </div>
         </div>
@@ -837,7 +851,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <i data-lucide="sparkles" class="w-4 h-4"></i>
           </div>
           <div class="min-w-0">
-            <h2 id="previewTitle" class="text-xs sm:text-sm font-bold text-slate-900 truncate">Forge AI Önizleme</h2>
+            <h2 id="previewTitle" class="text-xs sm:text-sm font-bold text-slate-900 truncate">Oforge AI Önizleme</h2>
             <span id="previewSubtitle" class="text-[10px] text-slate-400 block -mt-0.5">Canlı çalışma ve belge önizlemesi</span>
           </div>
         </div>
@@ -875,7 +889,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           </div>
           <p class="text-xs font-medium text-slate-600">Önizleme alanı hazır</p>
           <p class="text-[11px] max-w-xs leading-relaxed">
-            Forge AI ile oluşturduğunuz web sayfaları, belgeler ve kod çıktıları burada görüntülenir.
+            Oforge AI ile oluşturduğunuz web sayfaları, belgeler ve kod çıktıları burada görüntülenir.
           </p>
         </div>
 
@@ -895,7 +909,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-slate-900">Forge AI Motor Yapılandırması</h3>
+            <h3 class="text-base font-bold text-slate-900">Oforge AI Motor Yapılandırması</h3>
             <p class="text-[11px] text-slate-400">API erişim anahtarı ve parametreler</p>
           </div>
         </div>
@@ -907,7 +921,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       <div class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Gemini API Anahtarı</label>
-          <p class="text-[10px] text-slate-500 mb-1">Forge AI yanıtları Google Gemini üzerinden oluşturur. Google AI Studio’da Gemini API’ye kısıtlanmış veya yetkilendirme türünde bir anahtar kullanın; eski, kısıtlanmamış anahtarlar reddedilebilir.</p>
+          <p class="text-[10px] text-slate-500 mb-1">Oforge AI yanıtları Google Gemini üzerinden oluşturur. Google AI Studio’da Gemini API’ye kısıtlanmış veya yetkilendirme türünde bir anahtar kullanın; eski, kısıtlanmamış anahtarlar reddedilebilir.</p>
           <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
         </div>
 
@@ -940,7 +954,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <i data-lucide="cpu" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-slate-900">Forge AI</h3>
+            <h3 class="text-slate-900"><span class="owm owm-md" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></h3>
             <p class="text-xs text-slate-500">Ozguler Forge Yapay Zeka Platformu</p>
           </div>
         </div>
@@ -950,7 +964,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       </div>
 
       <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-        <strong>Forge AI</strong>; metin, görsel ve belge ekleriyle çalışabilen; oluşturduğu web sayfaları, belgeler ve kodlar için canlı önizleme sunan yapay zeka asistanıdır.
+        <strong>Oforge AI</strong>; metin, görsel ve belge ekleriyle çalışabilen; oluşturduğu web sayfaları, belgeler ve kodlar için canlı önizleme sunan yapay zeka asistanıdır.
       </p>
 
       <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 space-y-2.5 text-xs">
@@ -968,7 +982,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.33</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.34</span>
         </div>
       </div>
 
@@ -1002,7 +1016,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           <span id="tourLogo" data-forge-logo class="block w-8 h-8"></span>
         </div>
         <div class="min-w-0 flex-1">
-          <div id="tourTitle" class="text-white font-bold text-lg leading-tight">Forge AI turu</div>
+          <div id="tourTitle" class="text-white font-bold text-lg leading-tight">Oforge AI turu</div>
           <div id="tourDots" class="flex items-center gap-1.5 mt-2"></div>
         </div>
         <button id="tourCloseBtn" type="button" class="p-1.5 rounded-lg hover:bg-white/10" style="color:#94A3B8" aria-label="Kapat"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -1017,7 +1031,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       <div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3">
         <div>
           <h3 id="guideTitle" class="text-lg font-bold text-slate-900">Kullanım Kılavuzu</h3>
-          <p class="text-sm text-slate-500 mt-0.5">Forge AI'yı en verimli kullanmanın kısa yolu.</p>
+          <p class="text-sm text-slate-500 mt-0.5">Oforge AI'yı en verimli kullanmanın kısa yolu.</p>
         </div>
         <button id="closeGuideBtn" type="button" class="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100" aria-label="Kapat"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
@@ -1048,7 +1062,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <i data-lucide="download" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-base font-bold text-slate-900">Forge AI Uygulamasını Yükle</h3>
+            <h3 class="text-base font-bold text-slate-900">Oforge AI Uygulamasını Yükle</h3>
             <p class="text-xs text-slate-500">Cihazınıza uygulama olarak kurun</p>
           </div>
         </div>
@@ -1133,7 +1147,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     const GOOGLE_CLIENT_ID = '278638845406-0u88a69tpajg2cc2vgt827m0j2kpp5qa.apps.googleusercontent.com';
     let currentUser = null;
 
-    // Tarayıcının yerel confirm/alert penceresi site adresini başlık yapar; bunun yerine "Forge AI" başlıklı özel pencere kullanılır.
+    // Tarayıcının yerel confirm/alert penceresi site adresini başlık yapar; bunun yerine "Oforge AI" başlıklı özel pencere kullanılır.
     function forgeDialog(message, opts) {
       opts = opts || {};
       return new Promise((resolve) => {
@@ -1143,7 +1157,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           '<div role="dialog" aria-modal="true" class="w-full max-w-sm bg-white rounded-2xl shadow-float border border-slate-200 p-5">' +
             '<div class="flex items-center gap-2 mb-2">' +
               '<div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-blue-600 to-violet-600"></div>' +
-              '<h3 class="text-sm font-bold text-slate-900">Forge AI</h3>' +
+              '<h3 class="text-sm font-bold text-slate-900">Oforge AI</h3>' +
             '</div>' +
             '<p class="forge-dlg-msg text-sm text-slate-600 leading-relaxed whitespace-pre-line"></p>' +
             '<div class="flex justify-end gap-2 mt-5">' +
@@ -1167,7 +1181,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     }
     try { currentUser = JSON.parse(localStorage.getItem(KEYS.USER) || 'null'); } catch (_) {}
 
-    const BASE_IDENTITY = 'Sen Ozguler Forge tarafından geliştirilen Forge AI adlı yapay zeka asistanısın. Kendini her zaman Forge AI olarak tanıt. Yanıtların net, yapılandırılmış, profesyonel ve Türkçe olmalıdır.';
+    const BASE_IDENTITY = 'Sen Ozguler Forge tarafından geliştirilen Oforge AI adlı yapay zeka asistanısın. Kendini her zaman Oforge AI olarak tanıt. Yanıtların net, yapılandırılmış, profesyonel ve Türkçe olmalıdır.';
 
     // Ekler (PDF / fotoğraf / belge metni) IndexedDB'de tutulur; böylece sonraki mesajlarda da modele gönderilebilir.
     const AttachDB = (() => {
@@ -1473,7 +1487,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       state.currentArtifact = artifact;
       els.previewPane.classList.remove('hidden');
       els.previewEmptyState.classList.add('hidden');
-      els.previewTitle.textContent = artifact.title || 'Forge AI Önizleme';
+      els.previewTitle.textContent = artifact.title || 'Oforge AI Önizleme';
 
       els.previewIframe.classList.add('hidden');
       els.previewDocumentView.classList.add('hidden');
@@ -1526,7 +1540,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     document.getElementById('printPdfBtn').onclick = () => {
       if (!state.currentArtifact || state.currentArtifact.type !== 'document') return;
       const printArea = document.getElementById('printArea');
-      printArea.innerHTML = `<div style="border-bottom:2px solid #2563EB;padding-bottom:8px;margin-bottom:16px;font-family:sans-serif;"><strong>Forge AI</strong> • Belge Çıktısı</div>` + parseMarkdownSafe(state.currentArtifact.content);
+      printArea.innerHTML = `<div style="border-bottom:2px solid #2563EB;padding-bottom:8px;margin-bottom:16px;font-family:sans-serif;"><strong>Oforge AI</strong> • Belge Çıktısı</div>` + parseMarkdownSafe(state.currentArtifact.content);
       window.print();
     };
 
@@ -1541,7 +1555,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `forge-ai-calisma.${state.currentArtifact.ext || 'txt'}`;
+      a.download = `oforge-ai-calisma.${state.currentArtifact.ext || 'txt'}`;
       a.click();
     };
 
@@ -1570,7 +1584,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         });
       } else {
         openArtifactPreview({
-          title: 'Forge AI Belge & Rapor Önizlemesi',
+          title: 'Oforge AI Belge & Rapor Önizlemesi',
           type: 'document',
           content: content,
           ext: 'md'
@@ -1906,9 +1920,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <span data-forge-logo data-fm="once" class="block w-10 h-10"></span>
           </div>
           
-          <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mb-2">
-            Forge AI
-          </h1>
+          <h1 class="text-slate-900 mb-2"><span class="owm owm-hero" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-ai" aria-hidden="true">AI</span></span></h1>
           <p class="text-sm sm:text-base text-slate-500 max-w-md mb-8 leading-relaxed">
             ${(currentUser && currentUser.name) ? 'Merhaba, ' + escapeHtml(String(currentUser.name).split(' ')[0]) + '. ' : ''}Size nasıl yardımcı olabilirim?
           </p>
@@ -1916,8 +1928,8 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           <div id="noKeyWarning" class="${hasValidKey ? 'hidden' : ''} w-full max-w-lg mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-left flex items-start gap-3 shadow-2xs">
             <i data-lucide="key-round" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
             <div class="text-xs text-amber-900 space-y-1">
-              <p class="font-semibold">Forge AI Motor Aktivasyonu Gerekli</p>
-              <p class="text-amber-700">Sol alttaki <strong>Forge AI Motor Ayarları</strong> bölümüne API erişim anahtarınızı kaydedin.</p>
+              <p class="font-semibold">Oforge AI Motor Aktivasyonu Gerekli</p>
+              <p class="text-amber-700">Sol alttaki <strong>Oforge AI Motor Ayarları</strong> bölümüne API erişim anahtarınızı kaydedin.</p>
             </div>
           </div>
 
@@ -2021,22 +2033,22 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     }, true);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSharePopover(); });
     els.messagesContainer.addEventListener('scroll', closeSharePopover, { passive: true });
-    } catch (e) { console.warn('Forge AI: paylaş menüsü başlatılamadı', e); }
+    } catch (e) { console.warn('Oforge AI: paylaş menüsü başlatılamadı', e); }
 
     function openSharePopover(btn, text) {
       if (sharePop && sharePop._btn === btn) { closeSharePopover(); return; }
       closeSharePopover();
       const body = String(text || '').trim();
       if (!body) return;
-      const SIGN = '\n\n— Forge AI ile oluşturuldu';
+      const SIGN = '\n\n— Oforge AI ile oluşturuldu';
       const full = body + SIGN;
       const LIM = 1500;
       const truncated = full.length > LIM;
       const short = truncated ? body.slice(0, LIM - SIGN.length - 1).trimEnd() + '…' + SIGN : full;
       const items = [];
-      if (navigator.share) items.push(['Paylaş…', async () => { try { await navigator.share({ title: 'Forge AI yanıtı', text: full }); } catch (_) {} }]);
+      if (navigator.share) items.push(['Paylaş…', async () => { try { await navigator.share({ title: 'Oforge AI yanıtı', text: full }); } catch (_) {} }]);
       items.push(['WhatsApp', () => { window.open('https://wa.me/?text=' + encodeURIComponent(short), '_blank', 'noopener'); }]);
-      items.push(['E-posta', () => { window.location.href = 'mailto:?subject=' + encodeURIComponent('Forge AI yanıtı') + '&body=' + encodeURIComponent(short); }]);
+      items.push(['E-posta', () => { window.location.href = 'mailto:?subject=' + encodeURIComponent('Oforge AI yanıtı') + '&body=' + encodeURIComponent(short); }]);
       items.push(['Metni kopyala', async () => {
         try { await navigator.clipboard.writeText(full); forgeToast('Yanıt panoya kopyalandı'); }
         catch (_) { forgeToast('Kopyalanamadı'); }
@@ -2046,7 +2058,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'Forge-AI-Yanit-' + new Date().toISOString().slice(0, 10) + '.md';
+        a.download = 'Oforge-AI-Yanit-' + new Date().toISOString().slice(0, 10) + '.md';
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
       }]);
@@ -2235,7 +2247,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       const close = document.getElementById('limitBannerClose');
       if (close) close.onclick = () => { clearInterval(limitBannerTimer); document.getElementById('limitBanner').classList.add('hidden'); };
       showLimitBanner();
-    } catch (e) { console.warn('Forge AI: initLimitBanner başlatılamadı', e); }
+    } catch (e) { console.warn('Oforge AI: initLimitBanner başlatılamadı', e); }
     })();
 
     // --- Akış sırasında kullanıcı yukarı kaydırdıysa otomatik alta çekme
@@ -2246,7 +2258,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       c.addEventListener('wheel', (e) => { if (e.deltaY < 0) state.autoStick = false; }, { passive: true });
       c.addEventListener('touchmove', () => { state.autoStick = false; }, { passive: true });
       c.addEventListener('scroll', () => { if (c.scrollHeight - c.scrollTop - c.clientHeight < 80) state.autoStick = true; }, { passive: true });
-    } catch (e) { console.warn('Forge AI: initAutoStick başlatılamadı', e); }
+    } catch (e) { console.warn('Oforge AI: initAutoStick başlatılamadı', e); }
     })();
 
     // --- "Yanıtın başına dön" düğmesi
@@ -2284,7 +2296,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         c.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
       });
       schedule();
-    } catch (e) { console.warn('Forge AI: initJumpTop başlatılamadı', e); }
+    } catch (e) { console.warn('Oforge AI: initJumpTop başlatılamadı', e); }
     })();
 
     function renderMessages() {
@@ -2340,9 +2352,9 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             <span data-forge-logo class="block w-[19px] h-[19px]"></span>
           </div>
           <div class="flex-1 min-w-0 bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 sm:p-5 shadow-2xs">
-            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="forge-progress not-prose py-1" aria-live="polite"><div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2"><p data-progress-detail class="text-xs font-semibold text-slate-700">Forge AI isteğinizi hazırlıyor…</p><span data-elapsed-time class="text-[10px] font-mono text-slate-400 tabular-nums">Geçen süre: 00:00</span></div><ol class="space-y-1.5 text-xs text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI isteğiniz için uygun motoru seçiyor</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI hizmetine bağlanıyor</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Forge AI yanıtınızı oluşturuyor</span></li></ol></div>'}</div>
+            <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<div class="forge-progress not-prose py-1" aria-live="polite"><div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 mb-2"><p data-progress-detail class="text-xs font-semibold text-slate-700">Oforge AI isteğinizi hazırlıyor…</p><span data-elapsed-time class="text-[10px] font-mono text-slate-400 tabular-nums">Geçen süre: 00:00</span></div><ol class="space-y-1.5 text-xs text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI isteğiniz için uygun motoru seçiyor</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI hizmetine bağlanıyor</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI yanıtınızı oluşturuyor</span></li></ol></div>'}</div>
             <div class="msg-actions mt-3 pt-2.5 border-t border-slate-100 flex flex-wrap items-center gap-3 text-[11px] text-slate-400 ${content ? '' : 'hidden'}">${msgActionsHtml()}</div>
-            <p class="msg-disclaimer mt-2 text-[10px] text-slate-400 ${content ? '' : 'hidden'}"><span>Forge AI bir yapay zekâ modelidir, hata yapabilir. Önemli bilgileri doğrulayın.</span><span class="msg-fallback-note"></span></p>
+            <p class="msg-disclaimer mt-2 text-[10px] text-slate-400 ${content ? '' : 'hidden'}"><span>Oforge AI bir yapay zekâ modelidir, hata yapabilir. Önemli bilgileri doğrulayın.</span><span class="msg-fallback-note"></span></p>
           </div>
         `;
         if (content) {
@@ -2476,7 +2488,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       };
 
       try {
-        updateProgress(0, 'Forge AI isteğinizi hazırlıyor…');
+        updateProgress(0, 'Oforge AI isteğinizi hazırlıyor…');
         await attachSave;
         updateProgress(1, 'Sohbet geçmişi ve ekleri kontrol ediliyor…');
         const hist = [];
@@ -2491,7 +2503,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
         const sel = curModel();
         const candidates = sel.auto ? MODELS.filter(m => !m.auto && hasKeyFor(m)) : [sel];
-        if (!candidates.length || !hasKeyFor(candidates[0])) throw new Error('API anahtarı yok. Forge AI Motor Ayarları bölümünden Gemini veya OpenRouter anahtarınızı girin.');
+        if (!candidates.length || !hasKeyFor(candidates[0])) throw new Error('API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini veya OpenRouter anahtarınızı girin.');
 
         const runAttempt = async (activeModel, canFallback) => {
         const activeModelLabel = activeModel.label;
@@ -2542,7 +2554,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         });
         if (requestBody.length > 19 * 1024 * 1024) throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
 
-        updateProgress(3, 'Forge AI uygun yanıtı hazırlamak için bağlantı kuruyor…');
+        updateProgress(3, 'Oforge AI uygun yanıtı hazırlamak için bağlantı kuruyor…');
         const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
         const endpoint = isOR ? 'https://openrouter.ai/api/v1/chat/completions' : `${base}/v1beta/models/${encodeURIComponent(activeModel.model)}:streamGenerateContent?alt=sse`;
         if (!isOR && PROXY_URL && !getIdToken()) throw new Error('Google hesabı oturumu süresi dolmuş. Lütfen yeniden giriş yapın.');
@@ -2571,7 +2583,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           if (status === 429 || (errData.error && errData.error.status === 'RESOURCE_EXHAUSTED')) httpErr.quota = detectQuotaInfo(errData, response.headers, isOR, activeModelLabel);
           throw httpErr;
         }
-        updateProgress(4, 'Forge AI yanıtınızı hazırlıyor…');
+        updateProgress(4, 'Oforge AI yanıtınızı hazırlıyor…');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
@@ -2619,7 +2631,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
                     if (u && /^https?:\/\//.test(u.url || '') && !sources.some(x => x.uri === u.url)) sources.push({ uri: u.url, title: u.title || u.url });
                   });
                   if (dl.content) {
-                    if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Forge AI yanıtınızı yazıyor…';
+                    if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Oforge AI yanıtınızı yazıyor…';
                     gotText = true;
                     aiMsg.content += dl.content;
                     scheduleRender();
@@ -2637,7 +2649,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
               const parts = cand && cand.content && cand.content.parts;
               if (Array.isArray(parts)) {
                 for (const p of parts) {
-                  if (p.text && !p.thought) { if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Forge AI yanıtınızı yazıyor…'; gotText = true; aiMsg.content += p.text; }
+                  if (p.text && !p.thought) { if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Oforge AI yanıtınızı yazıyor…'; gotText = true; aiMsg.content += p.text; }
                 }
                 scheduleRender();
               }
@@ -2735,7 +2747,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           applyLimitToMessage(aiMsg, err.quota);
           saveLimitState(err.quota);
         } else {
-          aiMsg.content = `> **Forge AI Motor Uyarısı:** ${err.message}\n\n*Lütfen motor ayarlarınızı kontrol edin.*`;
+          aiMsg.content = `> **Oforge AI Motor Uyarısı:** ${err.message}\n\n*Lütfen motor ayarlarınızı kontrol edin.*`;
         }
         if (!aiMsg.isLimit) aiMsg.content += `\n\n*İşlem süresi: ${formatElapsedTime(elapsedMs)}*`;
         if (progressEl) progressEl.remove();
@@ -2775,7 +2787,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ForgeAI-Yedek-${new Date().toISOString().slice(0,10)}.json`;
+      a.download = `OforgeAI-Yedek-${new Date().toISOString().slice(0,10)}.json`;
       a.click();
     };
 
@@ -2928,15 +2940,15 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     document.getElementById('exportChatBtn').onclick = () => {
       const chat = state.chats.find(c => c.id === state.activeChatId);
       if (!chat || chat.messages.length === 0) return;
-      let md = `# Forge AI Çalışma Kaydı: ${chat.title}\n*Kaynak: ozgulerforge.com.tr*\n\n---\n\n`;
+      let md = `# Oforge AI Çalışma Kaydı: ${chat.title}\n*Kaynak: ozgulerforge.com.tr*\n\n---\n\n`;
       chat.messages.forEach(m => {
-        md += `### ${m.role === 'user' ? 'Kullanıcı' : 'Forge AI'}\n${m.content}\n\n`;
+        md += `### ${m.role === 'user' ? 'Kullanıcı' : 'Oforge AI'}\n${m.content}\n\n`;
       });
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `ForgeAI-${chat.id}.md`;
+      a.download = `OforgeAI-${chat.id}.md`;
       a.click();
     };
 
@@ -2973,7 +2985,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       usage: {
         title: 'Kullanım Politikası',
         sections: [
-          ['Kabul edilebilir kullanım', 'Forge AI; hukuka uygun, güvenli ve başkalarının haklarına saygılı amaçlarla kullanılmalıdır. Hizmeti yasa dışı faaliyet, zararlı yazılım, dolandırıcılık, taciz veya güvenlik önlemlerini aşma amacıyla kullanmayın.'],
+          ['Kabul edilebilir kullanım', 'Oforge AI; hukuka uygun, güvenli ve başkalarının haklarına saygılı amaçlarla kullanılmalıdır. Hizmeti yasa dışı faaliyet, zararlı yazılım, dolandırıcılık, taciz veya güvenlik önlemlerini aşma amacıyla kullanmayın.'],
           ['İçerik ve ekler', 'Yüklediğiniz metin, görsel ve belgeleri kullanma yetkiniz olmalıdır. Başkasına ait kişisel, gizli veya telif korumalı bilgileri gerekli izin ve hukuki dayanak olmadan paylaşmayın.'],
           ['Yapay zekâ çıktıları', 'Yanıtlar otomatik oluşturulur; hatalı, eksik veya güncel olmayan bilgi içerebilir. Önemli kararlar öncesinde çıktıları bağımsız kaynaklardan doğrulayın.']
         ]
@@ -2990,7 +3002,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       terms: {
         title: 'Hizmet Şartları',
         sections: [
-          ['Hizmetin kapsamı', 'Forge AI; metin, görsel ve belge girdileriyle yapay zekâ yanıtı üretir. Hizmet ve özellikler zaman içinde değiştirilebilir, sınırlandırılabilir veya durdurulabilir.'],
+          ['Hizmetin kapsamı', 'Oforge AI; metin, görsel ve belge girdileriyle yapay zekâ yanıtı üretir. Hizmet ve özellikler zaman içinde değiştirilebilir, sınırlandırılabilir veya durdurulabilir.'],
           ['Kullanıcı sorumlulukları', 'Hesap ve API anahtarlarınızın güvenliğinden, paylaştığınız içerik üzerindeki haklardan ve oluşturulan çıktıları kullanmadan önce doğrulamaktan siz sorumlusunuz. API anahtarınızı herkese açık veya güvenilmeyen cihazlarda kullanmayın.'],
           ['Garanti ve sorumluluk sınırı', 'Hizmet “olduğu gibi” sunulur. Kesintisiz çalışma, çıktının doğruluğu veya belirli bir amaca uygunluğu garanti edilmez. Yapay zekâ çıktıları profesyonel hukuk, sağlık, mali veya benzeri danışmanlık yerine geçmez. Kanunen sınırlandırılamayan sorumluluklar saklıdır.'],
           ['Fikri haklar', 'Kullanıcı, yüklediği içerik için gerekli hak ve izinlere sahip olduğunu kabul eder. Çıktıların benzersizliği veya üçüncü kişilerin haklarını ihlal etmediği garanti edilmez; kullanım öncesi gerekli kontroller kullanıcıya aittir.']
@@ -3144,7 +3156,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         const name = getName();
         body.innerHTML = `
           <h2 class="text-2xl font-bold text-slate-900 tracking-tight">${name ? 'Merhaba, ' + escapeHtml(name) + '!' : 'Merhaba!'}</h2>
-          <p class="mt-2 text-base text-slate-600 leading-relaxed">Ben Forge AI. 30 saniyede gücümü göstereyim: bir proje seç, <strong>ben kodunu okuyayım</strong>, sana <strong>mimari bir özet</strong> çıkaralım.</p>
+          <p class="mt-2 text-base text-slate-600 leading-relaxed">Ben Oforge AI. 30 saniyede gücümü göstereyim: bir proje seç, <strong>ben kodunu okuyayım</strong>, sana <strong>mimari bir özet</strong> çıkaralım.</p>
           ${name ? '' : `<label class="block mt-5 text-sm font-medium text-slate-700">Sana nasıl hitap edeyim?
             <input id="tourName" type="text" maxlength="40" autocomplete="given-name" placeholder="Adın" class="mt-1.5 w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500"></label>`}
           <div class="mt-6 flex items-center justify-between gap-3">
@@ -3167,7 +3179,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         body.innerHTML = `
           <h2 class="text-2xl font-bold text-slate-900 tracking-tight">${name ? escapeHtml(name) + ', b' : 'B'}ir proje seç</h2>
           <p class="mt-2 text-base text-slate-600 leading-relaxed">Klasörü cihazında okurum; yalnızca metin/kod dosyalarının özeti yanıt için Google Gemini'ye gönderilir. <strong>node_modules</strong>, <strong>.git</strong>, <strong>.env</strong> gibi klasör ve dosyalar atlanır; anahtar benzeri değerler gizlenir.</p>
-          ${ready ? '' : `<div class="mt-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200/80 text-sm text-amber-900">Analiz için önce <strong>Forge AI Motor Ayarları</strong>'na API anahtarını kaydetmelisin.
+          ${ready ? '' : `<div class="mt-4 p-3.5 rounded-xl bg-amber-50 border border-amber-200/80 text-sm text-amber-900">Analiz için önce <strong>Oforge AI Motor Ayarları</strong>'na API anahtarını kaydetmelisin.
             <div class="mt-2">${btn('tourOpenSettings', 'Motor Ayarları’nı aç', 'px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg cursor-pointer')}</div></div>`}
           <div class="mt-5 grid gap-3 ${ready ? '' : 'opacity-50 pointer-events-none'}">
             <button id="tourPickDir" type="button" class="text-left p-4 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition flex items-center gap-4 cursor-pointer">
@@ -3176,7 +3188,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             </button>
             <button id="tourPickSelf" type="button" class="text-left p-4 rounded-2xl border border-slate-200 hover:border-blue-400 hover:bg-blue-50 transition flex items-center gap-4 cursor-pointer">
               <span class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><i data-lucide="flame" class="w-5 h-5"></i></span>
-              <span><span class="block text-base font-semibold text-slate-900">Forge AI'ın kendi kodunu oku</span><span class="block text-sm text-slate-500 mt-0.5">Hazır proje yok mu? Beni kendi içimden analiz edeyim.</span></span>
+              <span><span class="block text-base font-semibold text-slate-900">Oforge AI'ın kendi kodunu oku</span><span class="block text-sm text-slate-500 mt-0.5">Hazır proje yok mu? Beni kendi içimden analiz edeyim.</span></span>
             </button>
           </div>
           <div class="mt-5 flex items-center justify-between gap-3">
@@ -3417,7 +3429,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         if (!enabled() || !document.hidden || ms < 8000) return;
         const body = String(content || '').replace(/[#*`>_\[\]]/g, '').replace(/\s+/g, ' ').trim().slice(0, 110) || 'Yanıtınız hazır.';
         const opts = { body, icon: './icon-v2-192.png', badge: './icon-v2-192.png', tag: 'forge-done', renotify: true };
-        const t = 'Forge AI · yanıt hazır' + (title ? ': ' + String(title).slice(0, 40) : '');
+        const t = 'Oforge AI · yanıt hazır' + (title ? ': ' + String(title).slice(0, 40) : '');
         const fallback = () => { try { new Notification(t, opts); } catch (_) {} };
         if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) navigator.serviceWorker.getRegistration().then((r) => (r ? r.showNotification(t, opts) : fallback())).catch(fallback);
         else fallback();
@@ -3472,7 +3484,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         add('Görünüm', 'Yüksek kontrastı aç / kapat', 'contrast', () => ForgeTheme.toggleContrast(), 'erişilebilirlik kontrast', ForgeTheme.contrast() ? 'Açık' : 'Kapalı');
         add('Görünüm', 'Tamamlanma sesini aç / kapat', 'volume-2', click('soundToggleBtn'), 'ses sound', ForgeSound.enabled() ? 'Açık' : 'Kapalı');
         add('Görünüm', 'Bildirimleri aç / kapat', 'bell', click('notifyToggleBtn'), 'bildirim notification', ForgeNotify.enabled() ? 'Açık' : 'Kapalı');
-        add('Hesap ve veri', 'Forge AI Motor Ayarları', 'settings', click('openSettingsBtn'), 'api anahtar ayar key gemini');
+        add('Hesap ve veri', 'Oforge AI Motor Ayarları', 'settings', click('openSettingsBtn'), 'api anahtar ayar key gemini');
         add('Hesap ve veri', 'Sohbetleri bulutla eşitle', 'cloud', click('cloudBtn'), 'firebase google giriş sync');
         add('Hesap ve veri', 'Tüm çalışmaları yedekle (JSON)', 'archive', click('backupJsonBtn'), 'yedek backup');
         add('Hesap ve veri', 'Uygulamayı indir / kur', 'download', click('installPwaBtn'), 'pwa yükle ana ekran');
@@ -3577,19 +3589,19 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       paint();
       return { get, set, contrast, toggleContrast, NAMES };
     })();
-    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.33'; });
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.34'; });
 
     // --- KULLANIM KILAVUZU ---
     const GUIDE_SECTIONS = [
       ['Hızlı başlangıç', [
         'Alttaki yazı kutusuna sorunuzu yazın, Enter ile gönderin (alt satıra geçmek için Shift + Enter).',
-        'Forge AI’yı ilk kez kullanıyorsanız sol alttaki ⋯ menüsünden “Forge AI Motor Ayarları”nı açıp Gemini API anahtarınızı girin. Anahtar yalnızca bu tarayıcıda saklanır.',
+        'Oforge AI’yı ilk kez kullanıyorsanız sol alttaki ⋯ menüsünden “Oforge AI Motor Ayarları”nı açıp Gemini API anahtarınızı girin. Anahtar yalnızca bu tarayıcıda saklanır.',
         'Her konuşma sol listede bir “çalışma” olarak kaydedilir. Yeni bir konu için “Yeni Çalışma”ya basın.'
       ]],
       ['Belge ve fotoğraf ekleme', [
         'Yazı kutusunun altındaki “Fotoğraf” ve “PDF / Belgeler” düğmeleriyle birden fazla dosya ekleyebilirsiniz; dosyaları sohbet alanına sürükleyip bırakmak da yeterlidir.',
         'Desteklenen belgeler: PDF, TXT, MD, JSON, CSV, JS, PY, HTML, CSS, XML ve SQL. Fotoğraflar: JPG, PNG, WEBP, GIF.',
-        'Ekler cihazınızda saklanır; takip sorularında Forge AI ekleri görmeye devam eder. Tek istek yaklaşık 20 MB’ı aşarsa uyarı alırsınız, dosyaları azaltıp tekrar deneyin.'
+        'Ekler cihazınızda saklanır; takip sorularında Oforge AI ekleri görmeye devam eder. Tek istek yaklaşık 20 MB’ı aşarsa uyarı alırsınız, dosyaları azaltıp tekrar deneyin.'
       ]],
       ['Hızlı komutlar', [
         'Yazı kutusuna “/” yazınca komut menüsü açılır.',
@@ -3598,13 +3610,13 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         '/web-tasarla: tek dosyalık bir web sayfası üretir; sonucu “Önizle” ile görürsünüz.'
       ]],
       ['Web araması ve kaynaklar', [
-        'Yazı kutusundaki “Web” düğmesi açıkken Forge AI güncel bilgi için Google Arama kullanır.',
+        'Yazı kutusundaki “Web” düğmesi açıkken Oforge AI güncel bilgi için Google Arama kullanır.',
         'Kullanılan kaynak bağlantıları yanıtın altında gösterilir. Süre bilgisi “Web araması + yanıt” olarak etiketlenir.',
         'Güncel olmasına gerek olmayan sorularda düğmeyi kapalı tutmak yanıtı hızlandırır.'
       ]],
       ['Model seçimi', [
-        'Yazı kutusunun sağındaki menüden motoru seçersiniz. “Forge AI Otomatik” (varsayılan) basit soruları hafif modele, belge ve uzun analiz isteklerini güçlü modele yönlendirir.',
-        'Yanıtın altında hangi modelin kullanıldığı yazar. Kota dolarsa Forge AI otomatik olarak diğer modeli dener.'
+        'Yazı kutusunun sağındaki menüden motoru seçersiniz. “Oforge AI Otomatik” (varsayılan) basit soruları hafif modele, belge ve uzun analiz isteklerini güçlü modele yönlendirir.',
+        'Yanıtın altında hangi modelin kullanıldığı yazar. Kota dolarsa Oforge AI otomatik olarak diğer modeli dener.'
       ]],
       ['Yanıtlarla çalışma', [
         'Her yanıtın altında Önizle, Kopyala ve Sesli Dinle düğmeleri bulunur.',
@@ -3619,7 +3631,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         'Üstteki dışa aktar düğmesi geçerli sohbeti Markdown olarak kaydeder. ⋯ menüsündeki “Tüm çalışmaları yedekle” tüm çalışmaları JSON dosyası olarak indirir.'
       ]],
       ['Google ile giriş ve bulut eşitleme', [
-        'Sol alttaki Google düğmesiyle giriş yaptığınızda Forge AI size adınızla hitap eder.',
+        'Sol alttaki Google düğmesiyle giriş yaptığınızda Oforge AI size adınızla hitap eder.',
         '⋯ menüsündeki “Sohbetleri bulutla eşitle” sohbetlerinizi hesabınıza yazar ve diğer cihazlarınızda görünür kılar. Silmeler de eşitlenir.',
         'Ekler (PDF ve fotoğraf) cihazda kalır, eşitlenmez. Tek sohbet yaklaşık 900 KB’ı aşarsa eşitlenmez.'
       ]],
@@ -3629,7 +3641,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         'Palette: yeni çalışma, tema değiştirme, ses ve bildirim ayarı, yedekleme, hızlı komutlar, turu başlatma ve yasal metinler vardır.'
       ]],
       ['Zengin yanıtlar', [
-        'Diyagramlar: Forge AI akış/mimari şemalarını çizilebilir diyagram olarak verir; “Kod”, “SVG indir” ve “Kopyala” düğmeleri vardır.',
+        'Diyagramlar: Oforge AI akış/mimari şemalarını çizilebilir diyagram olarak verir; “Kod”, “SVG indir” ve “Kopyala” düğmeleri vardır.',
         'Matematik denklemleri LaTeX olarak güzel biçimde gösterilir. Tablolar kaydırılabilir kartta açılır ve “CSV kopyala” ile alınabilir.',
         'Kod değişiklikleri “diff” bloğunda eklenen/silinen satır renkleriyle ve +/− sayısıyla gösterilir. “Not / İpucu / Uyarı” kutuları da desteklenir.',
         'Diyagram ve denklemler ilk kullanımda küçük bir kütüphane indirir; çevrimdışıyken kaynak kod görünür.'
@@ -3639,24 +3651,24 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         'Tüm düğmeler klavyeyle kullanılabilir; odak halkaları görünürdür.'
       ]],
       ['Bildirimler ve çevrimdışı kullanım', [
-        '⋯ menüsü → Bildirimler açıksa, yanıt 8 saniyeden uzun sürüp siz başka sekmedeyken bitince bildirim alırsınız. Bildirime basınca Forge AI öne gelir.',
+        '⋯ menüsü → Bildirimler açıksa, yanıt 8 saniyeden uzun sürüp siz başka sekmedeyken bitince bildirim alırsınız. Bildirime basınca Oforge AI öne gelir.',
         'Uygulama kapalıyken (sunucudan) bildirim gönderilmez; bunun için ayrı bir sunucu gerekir. Sekme veya yüklü uygulama arka planda açık olmalıdır.',
         'Çevrimdışıyken uygulama ve kayıtlı çalışmalar açılır, üstte uyarı şeridi görünür; yeni yanıt için internet gerekir.',
         'Uygulamayı kurduktan sonra simgeye uzun basarak (veya sağ tıklayarak) “Yeni çalışma”, “Gücümü göster” ve “Komut paleti” kısayollarını kullanabilirsiniz.'
       ]],
       ['Gücümü göster turu', [
         'Karşılama ekranındaki “Gücümü göster” kartı veya ⋯ menüsündeki “Gücümü göster (tur)” turu başlatır; ilk açılışta tur kendiliğinden gelir.',
-        'Bir proje klasörü seçersiniz; Forge AI dosyaları cihazınızda okur, önemli olanları seçip sohbete ek olarak ekler ve mimari özet çıkarır.',
+        'Bir proje klasörü seçersiniz; Oforge AI dosyaları cihazınızda okur, önemli olanları seçip sohbete ek olarak ekler ve mimari özet çıkarır.',
         'node_modules, .git, dist gibi klasörler ile .env dosyaları atlanır; anahtar benzeri değerler gizlenir. Yalnızca metin/kod dosyalarının özeti yanıt için Gemini’ye gönderilir.',
-        'Klasör seçici Chrome ve Edge’de en iyi çalışır. Proje yoksa “Forge AI’ın kendi kodunu oku” seçeneğini deneyin.'
+        'Klasör seçici Chrome ve Edge’de en iyi çalışır. Proje yoksa “Oforge AI’ın kendi kodunu oku” seçeneğini deneyin.'
       ]],
       ['Sesler ve animasyonlar', [
         'Yanıt tamamlandığında kısa bir “tamamlandı” sesi çalar. ⋯ menüsündeki “Tamamlanma sesi” ile kapatabilirsiniz.',
-        'Forge AI yanıt hazırlarken logo ve yanıt simgesi sıcak bir ısı ışıltısıyla parlar; açılışta ve tur sırasında çekiç örse vurur.',
+        'Oforge AI yanıt hazırlarken logo ve yanıt simgesi sıcak bir ısı ışıltısıyla parlar; açılışta ve tur sırasında çekiç örse vurur.',
         'Cihazınızda “hareketi azalt” seçiliyse animasyonlar otomatik olarak kapanır.'
       ]],
       ['Uygulamayı cihaza kurma', [
-        '⋯ menüsündeki veya üstteki “İndir” düğmesi Forge AI’yı uygulama olarak kurar. Kurulum penceresi açılmazsa tarayıcının menüsünden “Ana ekrana ekle” veya “Uygulamayı yükle” seçeneğini kullanın.',
+        '⋯ menüsündeki veya üstteki “İndir” düğmesi Oforge AI’yı uygulama olarak kurar. Kurulum penceresi açılmazsa tarayıcının menüsünden “Ana ekrana ekle” veya “Uygulamayı yükle” seçeneğini kullanın.',
         'Uygulama güncellendiğinde, o sırada yazı yazmıyorsanız otomatik yenilenir; aksi halde “Yenile” bildirimi görürsünüz.'
       ]]
     ];
@@ -3732,7 +3744,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       const t = document.createElement('div');
       t.id = 'updateToast';
       t.className = 'fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] bg-slate-900 text-white text-xs rounded-xl shadow-float px-4 py-2.5 flex items-center gap-3';
-      t.innerHTML = '<span>Forge AI\'nın yeni sürümü hazır.</span>' +
+      t.innerHTML = '<span>Oforge AI\'nın yeni sürümü hazır.</span>' +
         '<button type="button" id="updateNowBtn" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-500 font-semibold cursor-pointer">Yenile</button>' +
         '<button type="button" id="updateLaterBtn" class="text-slate-400 hover:text-white cursor-pointer">Sonra</button>';
       document.body.appendChild(t);
