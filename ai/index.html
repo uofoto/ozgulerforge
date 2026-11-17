@@ -27,7 +27,7 @@
   
 
   <script>
-    // Forge işareti: örs + çekiç + kıvılcım. Durumlar CSS ile sürülür (fm-loop, fm-once, fm-hot).
+    // Oforge işareti: örs + çekiç + kıvılcım. Durumlar CSS ile sürülür (fm-loop, fm-once, fm-hot).
     window.FORGE_MARK = '<svg class="fm" viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">' +
       '<circle class="fm-heat" cx="14" cy="16" r="9" fill="#FB923C"/>' +
       '<path class="fm-anvil" d="M4.5 17H26v2.5h-5c0 1.8.9 2.9 2.5 4.2V26H9v-2.3c1.6-1.3 2.5-2.4 2.5-4.2H9.8C7.2 19.5 5.6 18.6 4.5 17Z" fill="currentColor"/>' +
@@ -181,7 +181,7 @@
     .owm-md .owm-sub { display:none; }
     .owm-md { --owm-s:1.05rem; } .owm-lg { --owm-s:1.6rem; } .owm-xl { --owm-s:2.6rem; } .owm-hero { --owm-s:clamp(2.4rem,7vw,3.4rem); }
 
-    /* ===== Forge işareti ===== */
+    /* ===== Oforge işareti ===== */
     .fm { display:block; width:100%; height:100%; overflow:visible; }
     .fm-hammer { transform-origin:25.5px 5px; }
     .fm-anvil { transform-origin:15px 20px; }
@@ -392,7 +392,7 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
     .cmdk-group { padding:.5rem .75rem .25rem; font-size:.75rem; font-weight:600; color:#94A3B8; }
     .cmdk-tag { margin-left:auto; font-size:.75rem; color:#94A3B8; white-space:nowrap; }
 
-    /* ===== Forge teması (koyu taban + ateş turuncusu) ===== */
+    /* ===== Oforge teması (koyu taban + ateş turuncusu) ===== */
     @media screen {
 html.forge .bg-white { background-color:#1F1A16 }
 html.forge .bg-white\/85 { background-color:rgba(21,17,14,.85) }
@@ -636,7 +636,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="system" class="sb-sub"><i data-lucide="monitor" class="w-4 h-4"></i><span class="flex-1">Sistem</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
           <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="light" class="sb-sub"><i data-lucide="sun" class="w-4 h-4"></i><span class="flex-1">Açık</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
           <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="dark" class="sb-sub"><i data-lucide="moon" class="w-4 h-4"></i><span class="flex-1">Koyu</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
-          <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="forge" class="sb-sub"><i data-lucide="flame" class="w-4 h-4"></i><span class="flex-1">Forge</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
+          <button type="button" role="menuitemradio" aria-checked="false" data-theme-opt="forge" class="sb-sub"><i data-lucide="flame" class="w-4 h-4"></i><span class="flex-1">Oforge</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
           <div class="sb-sep"></div>
           <button id="contrastToggleBtn" type="button" role="menuitemcheckbox" aria-checked="false" class="sb-sub"><i data-lucide="contrast" class="w-4 h-4"></i><span class="flex-1">Yüksek kontrast</span><i data-lucide="check" class="theme-check w-4 h-4"></i></button>
         </div>
@@ -699,7 +699,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.39</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.41</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -836,7 +836,6 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
               </div>
 
               <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
-                <select id="modelSelect" title="Motor seç" class="px-2.5 py-1.5 bg-blue-50/80 border border-blue-200/80 text-blue-900 font-semibold text-xs rounded-xl min-w-0 max-w-full sm:max-w-[340px] cursor-pointer focus:outline-none"></select>
                 <button type="button" id="stopBtn" class="hidden shrink-0 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
                   <i data-lucide="square" class="w-3 h-3 fill-current"></i>
                   <span>Durdur</span>
@@ -852,7 +851,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
           <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.39</span></span>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.41</span></span>
           </div>
         </div>
         </div>
@@ -943,10 +942,16 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">OpenRouter API Anahtarı</label>
-          <p class="text-[10px] text-slate-500 mb-1">Forge 1, 2, 3, 5 ve Forge Otomatik motorları için gerekir (ücretsiz modeller). openrouter.ai/keys adresinden alabilirsiniz.</p>
+          <p class="text-[10px] text-slate-500 mb-1">Oforge 1, 2, 3, 5 ve Oforge AI Otomatik motorları için gerekir (ücretsiz modeller). openrouter.ai/keys adresinden alabilirsiniz.</p>
           <input type="password" id="orKeyInput" placeholder="sk-or-v1-..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
         </div>
 
+
+        <details class="rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5">
+          <summary class="text-xs font-semibold text-slate-700 cursor-pointer select-none">Gelişmiş: motoru elle seç</summary>
+          <p class="text-[11px] text-slate-500 mt-2 mb-2 leading-relaxed">Varsayılan <b>Oforge AI Otomatik</b>: isteğin türüne göre uygun motoru kendisi seçer, kota dolarsa başka motora geçer ve hangi motorla yanıtladığını yazar. Yalnızca gerektiğinde elle seçin; elle seçilen motor fotoğraf/PDF okuyamıyorsa dosya gönderilmez.</p>
+          <select id="modelSelect" title="Motor seç" class="w-full px-2.5 py-2 bg-white border border-slate-200 text-slate-900 font-medium text-xs rounded-xl cursor-pointer focus:outline-none focus:border-blue-500"></select>
+        </details>
 
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">Temel Sistem Talimatı</label>
@@ -998,7 +1003,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.39</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.41</span>
         </div>
       </div>
 
@@ -1113,17 +1118,17 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     }
     refreshIcons();
 
-    // Kullanıcıya yalnızca "Forge X" adları gösterilir; gerçek model kimlikleri burada tutulur.
+    // Kullanıcıya yalnızca "Oforge X" adları gösterilir; gerçek model kimlikleri burada tutulur.
     const MODELS = [
-      { id: 'auto', label: 'Forge Otomatik', auto: true },
-      { id: 'f1', label: 'Forge 1', provider: 'gemini',     model: 'gemini-4-hydrogen', vision: true, desc: 'Gemini 4 Hydrogen, fotoğraf destekler' },
-      { id: 'g25', label: 'Oforge 2.5 Flash', provider: 'gemini', model: 'gemini-2.5-flash', vision: true, desc: 'Gemini 2.5 Flash, fotoğraf destekler' },
-      { id: 'g20', label: 'Oforge 2.0 Flash', provider: 'gemini', model: 'gemini-2.0-flash', vision: true, desc: 'Gemini 2.0 Flash, fotoğraf destekler' },
-      { id: 'g15', label: 'Oforge 1.5 Flash', provider: 'gemini', model: 'gemini-1.5-flash', vision: true, noAuto: true, desc: 'Gemini 1.5 Flash, fotoğraf destekler' },
-      { id: 'f2', label: 'Forge 2', provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', desc: 'Nemotron 3 Ultra' },
-      { id: 'f3', label: 'Forge 3', provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free', desc: 'Nemotron 3.5 Lightning' },
-      { id: 'f4', label: 'Forge 4', provider: 'openrouter', model: 'google/gemma-4-31b-it:free', vision: true, desc: 'Gemma 4 31B, fotoğraf destekler' },
-      { id: 'f5', label: 'Forge 5 (Kod)', provider: 'openrouter', model: 'cohere/north-mini-code:free', desc: 'North Mini Code' }
+      { id: 'auto', label: 'Oforge AI Otomatik', auto: true },
+      { id: 'f1', label: 'Oforge 1', provider: 'gemini', model: 'gemini-4-hydrogen', tier: 'strong', vision: true, pdf: true, desc: 'Gemini 4 Hydrogen, fotoğraf ve PDF destekler' },
+      { id: 'g25', label: 'Oforge 2.5 Flash', provider: 'gemini', model: 'gemini-2.5-flash', tier: 'strong', vision: true, pdf: true, desc: 'Gemini 2.5 Flash, fotoğraf ve PDF destekler' },
+      { id: 'g20', label: 'Oforge 2.0 Flash', provider: 'gemini', model: 'gemini-2.0-flash', tier: 'light', vision: true, pdf: true, desc: 'Gemini 2.0 Flash, hızlı, fotoğraf ve PDF destekler' },
+      { id: 'g15', label: 'Oforge 1.5 Flash', provider: 'gemini', model: 'gemini-1.5-flash', tier: 'light', vision: true, pdf: true, noAuto: true, desc: 'Gemini 1.5 Flash, fotoğraf ve PDF destekler' },
+      { id: 'f2', label: 'Oforge 2', provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', tier: 'strong', desc: 'Nemotron 3 Ultra, yalnızca metin' },
+      { id: 'f3', label: 'Oforge 3', provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free', tier: 'light', desc: 'Nemotron 3.5 Lightning, hızlı, yalnızca metin' },
+      { id: 'f4', label: 'Oforge 4', provider: 'openrouter', model: 'google/gemma-4-31b-it:free', tier: 'mid', vision: true, desc: 'Gemma 4 31B, fotoğraf destekler (PDF yok)' },
+      { id: 'f5', label: 'Oforge 5 (Kod)', provider: 'openrouter', model: 'cohere/north-mini-code:free', tier: 'code', desc: 'North Mini Code, yalnızca metin' }
     ];
     const OR_KEY_STORE = 'forge_ai_openrouter_api_key';
     function curModel() {
@@ -2344,7 +2349,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         if (m.sources) renderSources(r, m.sources);
         if (m.role === 'assistant' && Number.isFinite(m.elapsedMs)) {
           const note = r.querySelector('.msg-fallback-note');
-          if (note) note.textContent = ' · ' + (m.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(m.elapsedMs);
+          if (note) note.textContent = engineNoteText(m);
         }
         if (m.role === 'assistant' && m.feedback) paintFeedback(r, m.feedback);
         if (m.role === 'assistant' && m.isLimit) renderLimitCard(r, m, i === chat.messages.length - 1);
@@ -2472,6 +2477,88 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       await generateReply(currentChat, attachSave);
     }
 
+    // ===== Otomatik motor seçimi: istek türü, yetenekler, sağlık kaydı, hata sınıfları =====
+    const REQ_LABELS = { simple: 'basit soru', code: 'kod', analysis: 'analiz', document: 'belge incelemesi', pdf: 'PDF', vision: 'fotoğraf' };
+    const KIND_SHORT = { quota: 'kota dolu', network: 'bağlantı hatası', auth: 'anahtar sorunu', billing: 'bakiye yetersiz', notfound: 'bulunamadı', overloaded: 'yoğun', timeout: 'zaman aşımı', empty: 'boş yanıt', badrequest: 'isteği reddetti', other: 'hata' };
+    const FAIL_TITLES = {
+      network: 'Bağlantı kurulamadı', auth: 'API anahtarı sorunu', billing: 'Bakiye veya kredi yetersiz', notfound: 'Model bulunamadı',
+      overloaded: 'Model şu an yoğun', timeout: 'Yanıt zaman aşımına uğradı', unsupported: 'Bu motor eklenen dosyayı okuyamıyor',
+      toolarge: 'Ekler çok büyük', blocked: 'İstek engellendi', empty: 'Model boş yanıt verdi', badrequest: 'İstek kabul edilmedi',
+      mixed: 'Hiçbir motor yanıt veremedi', other: 'Motor hatası'
+    };
+    const FAIL_ADVICE = {
+      network: 'İnternet bağlantınızı kontrol edip tekrar deneyin. Bu bir kota sorunu değil.',
+      auth: 'Motor ayarlarından API anahtarınızı kontrol edin; anahtar geçersiz veya kısıtlı olabilir.',
+      billing: 'Sağlayıcı hesabınızdaki bakiyeyi kontrol edin.',
+      notfound: 'Bu model artık kullanılamıyor olabilir. Oforge AI Otomatik başka bir motor seçecektir.',
+      overloaded: 'Sağlayıcı geçici olarak yoğun. Biraz sonra tekrar deneyin.',
+      timeout: 'Motor zamanında yanıt vermedi. Tekrar deneyin.',
+      unsupported: 'Dosya bu motora gönderilmedi.',
+      toolarge: 'Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.',
+      blocked: 'İsteğiniz sağlayıcının güvenlik filtresine takıldı. İfadeyi değiştirip tekrar deneyin.',
+      empty: 'Tekrar deneyin.',
+      badrequest: 'Model bu içeriği kabul etmedi.',
+      mixed: 'Kota sorunları biraz beklemekle, bağlantı sorunları internetinizi kontrol etmekle düzelir.',
+      other: 'Motor ayarlarınızı kontrol edin.'
+    };
+    function mkErr(kind, message, extra) { const e = new Error(message); e.kind = kind; if (extra) Object.assign(e, extra); return e; }
+    function poolOf(m) { return m.provider === 'openrouter' ? (/:free$/.test(m.model) ? 'or-free' : 'or:' + m.model) : 'gemini:' + m.model; }
+
+    // Hangi motorun neden bir süre denenmeyeceğini hatırlar (aynı hatalı isteğin tekrar tekrar gönderilmesini önler).
+    const HEALTH_KEY = 'forge_ai_model_health';
+    const Health = {
+      all() { try { return JSON.parse(localStorage.getItem(HEALTH_KEY) || '{}') || {}; } catch (_) { return {}; } },
+      put(o) { try { localStorage.setItem(HEALTH_KEY, JSON.stringify(o)); } catch (_) {} },
+      set(key, kind, until, extra) { const o = this.all(); o[key] = Object.assign({ kind, until }, extra || {}); this.put(o); },
+      get(key) { const o = this.all(), e = o[key]; if (!e) return null; if (e.until <= Date.now()) { delete o[key]; this.put(o); return null; } return e; },
+      drop(keys) { const o = this.all(); keys.forEach(k => delete o[k]); this.put(o); },
+      clearAll() { try { localStorage.removeItem(HEALTH_KEY); } catch (_) {} }
+    };
+    function healthKeys(m) { return ['m:' + m.id, poolOf(m), 'p:' + m.provider]; }
+    function isCooled(m) { for (const k of healthKeys(m)) { const e = Health.get(k); if (e) return e; } return null; }
+    function recordHealth(m, e) {
+      const k = e.kind, now = Date.now();
+      if (k === 'notfound') Health.set('m:' + m.id, k, now + 12 * 3600e3);
+      else if (k === 'quota') Health.set(poolOf(m), 'quota', Math.max((e.quota && e.quota.resetAt) || 0, now + 30000), { quota: e.quota || null });
+      else if (k === 'auth' || k === 'billing') Health.set('p:' + m.provider, k, now + 10 * 60e3);
+      else if (k === 'network') Health.set('p:' + m.provider, k, now + 60e3);
+      else if (k === 'overloaded' || k === 'timeout' || k === 'empty') Health.set('m:' + m.id, k, now + 2 * 60e3);
+    }
+
+    function classifyRequest(text, need) {
+      const t = String(text || '').toLowerCase();
+      if (need.vision) return 'vision';
+      if (need.pdf) return 'pdf';
+      if (t.length > 3000) return 'document';
+      if (/```|(^|[^a-zçğıöşü])(kod|fonksiyon|script|debug|html|css|python|javascript|sql|regex|api)|(^|[^a-zçğıöşü])bug($|[^a-zçğıöşü])|hata ay/.test(t)) return 'code';
+      if (t.length > 500 || /analiz|incele|karşılaştır|değerlendir|strateji|ayrıntılı|detaylı|rapor|neden|nasıl çalış/.test(t)) return 'analysis';
+      return 'simple';
+    }
+    function rankModels(list, type) {
+      const order = type === 'simple' ? ['light', 'mid', 'strong', 'code'] : type === 'code' ? ['code', 'strong', 'mid', 'light'] : ['strong', 'mid', 'light', 'code'];
+      return list.map((m, i) => [m, i]).sort((a, b) => (order.indexOf(a[0].tier || 'mid') - order.indexOf(b[0].tier || 'mid')) || (a[1] - b[1])).map(x => x[0]);
+    }
+    function needText(need) { return [need.vision && 'fotoğraf', need.pdf && 'PDF'].filter(Boolean).join(' ve '); }
+
+    function engineNoteText(m) {
+      let s = '';
+      if (m.engine) {
+        s += ' · ' + m.engine;
+        if (m.engineWhy) s += ' (' + m.engineWhy + ' için seçildi)';
+        if (Array.isArray(m.engineSwitch) && m.engineSwitch.length) s += ' · otomatik geçiş: ' + m.engineSwitch.map(x => x.label + ' ' + (KIND_SHORT[x.kind] || 'hata')).join(', ');
+      }
+      if (Number.isFinite(m.elapsedMs)) s += ' · ' + (m.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(m.elapsedMs);
+      return s;
+    }
+    function formatFailure(err) {
+      const kind = err.kind || 'other';
+      let out = '> **' + (FAIL_TITLES[kind] || FAIL_TITLES.other) + '**\n> ' + (FAIL_ADVICE[kind] || FAIL_ADVICE.other);
+      const at = Array.isArray(err.attempts) ? err.attempts : [];
+      if (kind === 'mixed') out += '\n\n' + at.map(a => '- ' + a.model.label + ': ' + (KIND_SHORT[a.kind] || 'hata')).join('\n');
+      else if (err.message) out += '\n\n*Ayrıntı: ' + err.message + '*';
+      return out;
+    }
+
     async function generateReply(currentChat, attachSave) {
       state.isGenerating = true;
       document.documentElement.classList.add('forge-busy');
@@ -2534,13 +2621,36 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         }
 
         const sel = curModel();
-        let candidates = sel.auto ? MODELS.filter(m => !m.auto && !m.noAuto && hasKeyFor(m)) : [sel];
-        // Fotoğraf varsa Otomatik modda yalnızca görsel okuyabilen motorlar denenir.
-        if (sel.auto && hist.some(h => h.images && h.images.length)) {
-          const vis = candidates.filter(m => m.vision);
-          if (vis.length) candidates = vis;
+        if (navigator.onLine === false) throw mkErr('network', 'İnternet bağlantısı yok.');
+        const lastH = hist[hist.length - 1] || { images: [], pdfs: [], msgText: '' };
+        const need = { vision: hist.some(h => h.images && h.images.length > 0), pdf: hist.some(h => h.pdfs && h.pdfs.length > 0) };
+        const lastNeed = { vision: !!(lastH.images && lastH.images.length), pdf: !!(lastH.pdfs && lastH.pdfs.length) };
+        const reqType = classifyRequest(lastH.msgText, need);
+        let candidates;
+        if (sel.auto) {
+          const keyed = MODELS.filter(m => !m.auto && !m.noAuto && hasKeyFor(m));
+          if (!keyed.length) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini veya OpenRouter anahtarınızı girin.');
+          const capable = keyed.filter(m => (!need.vision || m.vision) && (!need.pdf || m.pdf));
+          if (!capable.length) throw mkErr('unsupported', 'Bu sohbette ' + needText(need) + ' var, ancak bunu okuyabilen bir motor için anahtar yok. Ayarlardan Gemini API anahtarı ekleyin.');
+          const live = capable.filter(m => !isCooled(m));
+          if (live.length) candidates = rankModels(live, reqType);
+          else {
+            const cooled = capable.map(isCooled);
+            if (cooled.every(c => c.kind === 'quota' && c.quota)) {
+              const first = cooled.reduce((x, y) => (x.until <= y.until ? x : y));
+              throw mkErr('quota', 'Tüm uygun motorların kotası dolu.', { quota: first.quota });
+            }
+            candidates = rankModels(capable, reqType);
+          }
+        } else {
+          if (!hasKeyFor(sel)) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden ' + (sel.provider === 'openrouter' ? 'OpenRouter' : 'Gemini') + ' anahtarınızı girin.');
+          if ((lastNeed.vision && !sel.vision) || (lastNeed.pdf && !sel.pdf)) {
+            throw mkErr('unsupported', sel.label + ' ' + needText({ vision: lastNeed.vision && !sel.vision, pdf: lastNeed.pdf && !sel.pdf }) + ' okuyamıyor. Ayarlar → Gelişmiş bölümünden "Oforge AI Otomatik" seçeneğini seçin.');
+          }
+          const c = isCooled(sel);
+          if (c && c.kind === 'quota' && c.quota) throw mkErr('quota', sel.label + ' kotası dolu.', { quota: Object.assign({}, c.quota, { model: sel.label }) });
+          candidates = [sel];
         }
-        if (!candidates.length || !hasKeyFor(candidates[0])) throw new Error('API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini veya OpenRouter anahtarınızı girin.');
 
         const runAttempt = async (activeModel, canFallback) => {
         const activeModelLabel = activeModel.label;
@@ -2554,17 +2664,18 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           h.images.forEach(img => {
             const match = img.dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
             if (match) {
-              parts.push({ inlineData: { mimeType: match[1], data: match[2] } });
-              if (activeModel.vision) orParts.push({ type: 'image_url', image_url: { url: img.dataUrl } });
-              else orParts.push({ type: 'text', text: '[Not: Kullanıcı bir fotoğraf ekledi ancak bu motor görselleri okuyamıyor. Bunu kullanıcıya söyle ve görsel destekleyen bir motor (Forge 1, Forge 4 veya Forge Otomatik) seçmesini öner.]' });
+              if (activeModel.vision) { parts.push({ inlineData: { mimeType: match[1], data: match[2] } }); orParts.push({ type: 'image_url', image_url: { url: img.dataUrl } }); }
+              else orParts.push({ type: 'text', text: '[Not: Sohbette bir fotoğraf var ancak bu motor görselleri okuyamıyor; fotoğraf gönderilmedi. Gerekirse kullanıcıya Oforge AI Otomatik motorunu seçmesini öner.]' });
             }
           });
           h.pdfs.forEach(pdf => {
-            parts.push({ inlineData: { mimeType: pdf.mimeType, data: pdf.base64Data } });
-            orParts.push({ type: 'file', file: { filename: pdf.name || 'belge.pdf', file_data: 'data:application/pdf;base64,' + pdf.base64Data } });
+            if (activeModel.pdf) {
+              parts.push({ inlineData: { mimeType: pdf.mimeType, data: pdf.base64Data } });
+              orParts.push({ type: 'file', file: { filename: pdf.name || 'belge.pdf', file_data: 'data:application/pdf;base64,' + pdf.base64Data } });
+            } else orParts.push({ type: 'text', text: '[Not: Sohbette bir PDF var ancak bu motor PDF okuyamıyor; dosya gönderilmedi.]' });
           });
-          if (parts.length === 0) continue;
-          apiContents.push({ role: h.role === 'assistant' ? 'model' : 'user', parts });
+          if (parts.length === 0 && orParts.length === 0) continue;
+          if (parts.length) apiContents.push({ role: h.role === 'assistant' ? 'model' : 'user', parts });
           if (h.role === 'assistant') orMessages.push({ role: 'assistant', content: h.msgText || '' });
           else orMessages.push({ role: 'user', content: orParts.every(p => p.type === 'text') ? orParts.map(p => p.text).join('\n') : orParts });
         }
@@ -2589,19 +2700,19 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           contents: apiContents,
           tools: webOn ? [{ googleSearch: {} }] : undefined
         });
-        if (requestBody.length > 19 * 1024 * 1024) throw new Error('Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor. Daha az veya daha küçük dosya ekleyin ya da yeni bir çalışma başlatın.');
+        if (requestBody.length > 19 * 1024 * 1024) throw mkErr('toolarge', 'Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor.');
 
         updateProgress(3, 'Oforge AI uygun yanıtı hazırlamak için bağlantı kuruyor…');
         const base = PROXY_URL ? PROXY_URL.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
         const endpoint = isOR ? 'https://openrouter.ai/api/v1/chat/completions' : `${base}/v1beta/models/${encodeURIComponent(activeModel.model)}:streamGenerateContent?alt=sse`;
-        if (!isOR && PROXY_URL && !getIdToken()) throw new Error('Google hesabı oturumu süresi dolmuş. Lütfen yeniden giriş yapın.');
+        if (!isOR && PROXY_URL && !getIdToken()) throw mkErr('auth', 'Google hesabı oturumu süresi dolmuş. Lütfen yeniden giriş yapın.');
         const headers = isOR ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + state.orKey } : Object.assign({ 'Content-Type': 'application/json' }, PROXY_URL ? { 'Authorization': 'Bearer ' + (getIdToken() || '') } : { 'x-goog-api-key': state.apiKey });
         let response;
         try {
           response = await fetch(endpoint, { method: 'POST', signal: ac.signal, headers, body: requestBody });
         } catch (netErr) {
           if (netErr.name === 'AbortError') throw netErr;
-          throw new Error(`[${activeModelLabel}] Bağlantı kurulamadı: ${netErr.message}`);
+          throw mkErr('network', `[${activeModelLabel}] Bağlantı kurulamadı: ${netErr.message}`);
         }
         if (!response.ok) {
           const status = response.status;
@@ -2617,7 +2728,8 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             503: 'Model şu an yoğun, geçici olarak yanıt veremiyor.'
           };
           const httpErr = new Error(`[${activeModelLabel} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
-          if (status === 429 || (errData.error && errData.error.status === 'RESOURCE_EXHAUSTED')) httpErr.quota = detectQuotaInfo(errData, response.headers, isOR, activeModelLabel);
+          if (status === 429 || (errData.error && errData.error.status === 'RESOURCE_EXHAUSTED')) { httpErr.kind = 'quota'; httpErr.quota = detectQuotaInfo(errData, response.headers, isOR, activeModelLabel); }
+          else httpErr.kind = (status === 401 || status === 403) ? 'auth' : status === 402 ? 'billing' : status === 404 ? 'notfound' : status >= 500 ? 'overloaded' : status === 400 ? 'badrequest' : 'other';
           throw httpErr;
         }
         updateProgress(4, 'Oforge AI yanıtınızı hazırlıyor…');
@@ -2695,14 +2807,18 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         }
 
         if (!aiMsg.content.trim()) {
-          if (streamError) throw new Error(`[${activeModelLabel}] ${streamError}`);
-          throw new Error(blockReason
-            ? `İstek güvenlik filtresi tarafından engellendi (${blockReason}).`
-            : `Model boş yanıt döndürdü${finishReason ? ' (' + finishReason + ')' : ''}. Lütfen tekrar deneyin.`);
+          if (streamError) {
+            const se = mkErr(/quota|rate.?limit|resource.?exhausted|429/i.test(streamError) ? 'quota' : 'other', `[${activeModelLabel}] ${streamError}`);
+            if (se.kind === 'quota') se.quota = detectQuotaInfo({ error: { message: streamError } }, null, isOR, activeModelLabel);
+            throw se;
+          }
+          if (blockReason) throw mkErr('blocked', `İstek güvenlik filtresi tarafından engellendi (${blockReason}).`);
+          throw mkErr('empty', `[${activeModelLabel}] Model boş yanıt döndürdü${finishReason ? ' (' + finishReason + ')' : ''}.`);
         }
         return { sources, finishReason, flushRender };
         } catch (e) {
-          if (timedOut && e.name === 'AbortError') throw new Error(`[${activeModelLabel}] ${FIRST_TOKEN_MS / 1000} sn içinde yanıt gelmedi.`);
+          if (timedOut && e.name === 'AbortError') throw mkErr('timeout', `[${activeModelLabel}] ${FIRST_TOKEN_MS / 1000} sn içinde yanıt gelmedi.`);
+          if (e.name !== 'AbortError' && !e.kind) e.kind = (e instanceof TypeError) ? 'network' : 'other';
           throw e;
         } finally {
           if (timer) clearTimeout(timer);
@@ -2710,26 +2826,40 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         }
         };
 
-        const errs = [];
-        const quotaHits = [];
+        const attempts = [];
+        const MAX_ATTEMPTS = 3;           // aynı istek en fazla 3 motora gönderilir
+        const skipProviders = new Set(), skipPools = new Set();
+        const usable = (m) => !skipProviders.has(m.provider) && !skipPools.has(poolOf(m));
         let r = null, usedModel = null;
-        for (let ci = 0; ci < candidates.length; ci++) {
+        for (let ci = 0; ci < candidates.length && attempts.length < MAX_ATTEMPTS; ci++) {
           const cm = candidates[ci];
-          const hasNext = ci < candidates.length - 1;
+          if (!usable(cm)) continue;
+          const hasNext = candidates.slice(ci + 1).some(usable) && attempts.length < MAX_ATTEMPTS - 1;
           aiMsg.content = '';
-          try { r = await runAttempt(cm, hasNext); usedModel = cm; break; }
+          try { r = await runAttempt(cm, hasNext); usedModel = cm; Health.drop(healthKeys(cm)); break; }
           catch (e) {
             if (e.name === 'AbortError') throw e;
-            errs.push(e.message);
-            if (e.quota) quotaHits.push(e.quota);
-            if (hasNext) updateProgress(3, `${cm.label} yanıt vermedi; ${candidates[ci + 1].label} deneniyor…`);
+            e.kind = e.kind || 'other';
+            recordHealth(cm, e);
+            attempts.push({ model: cm, label: cm.label, kind: e.kind, message: e.message, quota: e.quota || null });
+            if (e.kind === 'toolarge' || e.kind === 'blocked') break;               // aynı isteği başka motora göndermek işe yaramaz
+            if (e.kind === 'network' && navigator.onLine === false) break;           // çevrimdışıyken denemeye gerek yok
+            if (e.kind === 'auth' || e.kind === 'billing' || e.kind === 'network') skipProviders.add(cm.provider);
+            if (e.kind === 'quota') skipPools.add(poolOf(cm));
+            const nextM = candidates.slice(ci + 1).find(usable);
+            if (nextM && attempts.length < MAX_ATTEMPTS) updateProgress(3, `${cm.label}: ${KIND_SHORT[e.kind] || 'hata'}. ${nextM.label} deneniyor…`);
           }
         }
         if (!r) {
-          const allErr = new Error(errs.join(' | '));
-          if (quotaHits.length && quotaHits.length === errs.length) allErr.quota = quotaHits.reduce((x, y) => (x.resetAt <= y.resetAt ? x : y));
+          const allErr = new Error(attempts.map(a => a.message).join(' | '));
+          allErr.attempts = attempts;
+          allErr.kind = !attempts.length ? 'other' : attempts.every(a => a.kind === attempts[0].kind) ? attempts[0].kind : 'mixed';
+          if (attempts.length && attempts.every(a => a.kind === 'quota' && a.quota)) allErr.quota = attempts.map(a => a.quota).reduce((x, y) => (x.resetAt <= y.resetAt ? x : y));
           throw allErr;
         }
+        aiMsg.engine = usedModel.label;
+        aiMsg.engineWhy = sel.auto ? REQ_LABELS[reqType] : '';
+        aiMsg.engineSwitch = attempts.map(a => ({ label: a.label, kind: a.kind }));
         const flushRender = r.flushRender;
 
         updateElapsedTime();
@@ -2754,9 +2884,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         if (discEl) {
           discEl.classList.remove('hidden');
           const note = discEl.querySelector('.msg-fallback-note');
-          const shownModel = usedModel.label;
-          if (note) note.textContent = curModel().auto ? ' · ' + shownModel : '';
-          if (note) note.textContent += ' · ' + (aiMsg.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(aiMsg.elapsedMs);
+          if (note) note.textContent = engineNoteText(aiMsg);
           renderSources(bubble, aiMsg.sources);
         }
         syncStorage();
@@ -2784,7 +2912,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           applyLimitToMessage(aiMsg, err.quota);
           saveLimitState(err.quota);
         } else {
-          aiMsg.content = `> **Oforge AI Motor Uyarısı:** ${err.message}\n\n*Lütfen motor ayarlarınızı kontrol edin.*`;
+          aiMsg.content = formatFailure(err);
         }
         if (!aiMsg.isLimit) aiMsg.content += `\n\n*İşlem süresi: ${formatElapsedTime(elapsedMs)}*`;
         if (progressEl) progressEl.remove();
@@ -3005,6 +3133,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       localStorage.setItem(KEYS.API, state.apiKey);
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
+      Health.clearAll();
       updateApiBadge();
       
       const warningEl = document.getElementById('noKeyWarning');
@@ -3517,7 +3646,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         add('Hızlı eylemler', 'Resmi yazı taslağı (/resmi-yazi)', 'mail', () => applySlashCmd('/resmi-yazi Kurumsal, resmi ve akıcı bir dille dilekçe / proje teklif yazısı taslağı oluştur: '), 'dilekçe teklif');
         add('Hızlı eylemler', 'Web sayfası tasarla (/web-tasarla)', 'layout-template', () => applySlashCmd('/web-tasarla Tek dosya halinde modern ve şık bir HTML/Tailwind web sayfası tasarla: '), 'html site tasarım');
         add('Hızlı eylemler', 'Gücümü göster: projemi oku, mimari özet çıkar', 'sparkles', () => window.startForgeTour(), 'tur proje kod mimari');
-        [['system', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu'], ['forge', 'Forge']].forEach(([k, n]) => add('Görünüm', 'Tema: ' + n, 'sun-moon', () => ForgeTheme.set(k), 'tema görünüm renk', th === k ? 'Etkin' : ''));
+        [['system', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu'], ['forge', 'Oforge']].forEach(([k, n]) => add('Görünüm', 'Tema: ' + n, 'sun-moon', () => ForgeTheme.set(k), 'tema görünüm renk', th === k ? 'Etkin' : ''));
         add('Görünüm', 'Yüksek kontrastı aç / kapat', 'contrast', () => ForgeTheme.toggleContrast(), 'erişilebilirlik kontrast', ForgeTheme.contrast() ? 'Açık' : 'Kapalı');
         add('Görünüm', 'Tamamlanma sesini aç / kapat', 'volume-2', click('soundToggleBtn'), 'ses sound', ForgeSound.enabled() ? 'Açık' : 'Kapalı');
         add('Görünüm', 'Bildirimleri aç / kapat', 'bell', click('notifyToggleBtn'), 'bildirim notification', ForgeNotify.enabled() ? 'Açık' : 'Kapalı');
@@ -3594,10 +3723,10 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       } catch (_) {}
     })();
 
-    // --- TEMA: Sistem / Açık / Koyu / Forge + Yüksek kontrast ---
+    // --- TEMA: Sistem / Açık / Koyu / Oforge + Yüksek kontrast ---
     window.ForgeTheme = (function initTheme() {
       const KEY = 'forge_ai_theme', CKEY = 'forge_ai_contrast';
-      const NAMES = { system: 'Sistem', light: 'Açık', dark: 'Koyu', forge: 'Forge' };
+      const NAMES = { system: 'Sistem', light: 'Açık', dark: 'Koyu', forge: 'Oforge' };
       const mq = window.matchMedia('(prefers-color-scheme: dark)');
       const mqc = window.matchMedia('(prefers-contrast: more)');
       const meta = document.querySelector('meta[name="theme-color"]');
@@ -3626,7 +3755,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       paint();
       return { get, set, contrast, toggleContrast, NAMES };
     })();
-    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.39'; });
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.41'; });
 
     // --- KULLANIM KILAVUZU ---
     const GUIDE_SECTIONS = [
@@ -3652,8 +3781,8 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         'Güncel olmasına gerek olmayan sorularda düğmeyi kapalı tutmak yanıtı hızlandırır.'
       ]],
       ['Model seçimi', [
-        'Yazı kutusunun sağındaki menüden motoru seçersiniz. “Oforge AI Otomatik” (varsayılan) basit soruları hafif modele, belge ve uzun analiz isteklerini güçlü modele yönlendirir.',
-        'Yanıtın altında hangi modelin kullanıldığı yazar. Kota dolarsa Oforge AI otomatik olarak diğer modeli dener.'
+        'Motor seçmeniz gerekmez: “Oforge AI Otomatik” (varsayılan) isteğin türünü anlar; basit soruları hafif modele, belge, PDF, fotoğraf ve uzun analizleri güçlü ve dosya okuyabilen modele yönlendirir. Elle seçim yalnızca Ayarlar → Gelişmiş bölümündedir.',
+        'Yanıtın altında hangi motorun kullanıldığı ve otomatik geçiş olduysa nedeni yazar. Kota dolarsa ya da model kullanılamıyorsa en fazla üç motor denenir; kota ve bağlantı hataları ayrı gösterilir.'
       ]],
       ['Yanıtlarla çalışma', [
         'Her yanıtın altında Önizle, Kopyala ve Sesli Dinle düğmeleri bulunur.',
@@ -3684,7 +3813,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         'Diyagram ve denklemler ilk kullanımda küçük bir kütüphane indirir; çevrimdışıyken kaynak kod görünür.'
       ]],
       ['Tema ve erişilebilirlik', [
-        '⋯ menüsü → Tema: Sistem, Açık, Koyu veya Forge (koyu taban, ateş turuncusu vurgu). “Yüksek kontrast” seçeneği metin ve kenarlık kontrastını artırır; cihazınızda “kontrastı artır” açıksa kendiliğinden devreye girer.',
+        '⋯ menüsü → Tema: Sistem, Açık, Koyu veya Oforge (koyu taban, ateş turuncusu vurgu). “Yüksek kontrast” seçeneği metin ve kenarlık kontrastını artırır; cihazınızda “kontrastı artır” açıksa kendiliğinden devreye girer.',
         'Tüm düğmeler klavyeyle kullanılabilir; odak halkaları görünürdür.'
       ]],
       ['Bildirimler ve çevrimdışı kullanım', [
@@ -3974,7 +4103,6 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       sel.onchange = () => {
         try { localStorage.setItem(KEYS.MODEL, sel.value); } catch (_) {}
         updateApiBadge();
-        if (!keyOk()) els.settingsModal.classList.remove('hidden');
       };
     })();
 

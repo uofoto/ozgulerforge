@@ -1,4 +1,16 @@
-# Oforge AI (v6.9.39)
+# Oforge AI (v6.9.41)
+
+## v6.9.41
+- **Adlandırma:** Arayüzde görünen "Forge" ifadeleri "Oforge" oldu: motor adları (Oforge 1–5), tema adı ve ilgili yardım metinleri. Şirket adı "Ozguler Forge" ile dahili anahtarlar/sınıflar (`forge_ai_*`, `html.forge` vb.) değişmedi, böylece sohbetler ve ayarlar korunur.
+
+## v6.9.40
+- **Oforge AI Otomatik geliştirildi:** İstek türü algılanır (basit soru, kod, analiz, belge, PDF, fotoğraf). Basit sorular hafif modele, belge/PDF/fotoğraf/uzun analiz güçlü modele, kod istekleri kod modeline yönlendirilir. Her model için yetenek tanımlıdır (`tier`, `vision`, `pdf`); PDF yalnızca Gemini motorlarına, fotoğraf Gemini ve Oforge 4'e gider.
+- **Desteklenmeyen motora dosya gönderilmez:** Otomatik modda yalnızca dosyayı okuyabilen motorlar denenir. Elle seçilen motor okuyamıyorsa istek hiç gönderilmeden açıklayıcı mesaj gösterilir; eski eklerin yerine "dosya gönderilmedi" notu konur.
+- **Hata türleri ayrıldı:** kota, bağlantı, anahtar, bakiye, model bulunamadı, yoğunluk, zaman aşımı, boş yanıt, güvenlik engeli, ek çok büyük. Her biri kendi başlığı ve çözüm önerisiyle gösterilir (artık her hatada "motor ayarlarını kontrol edin" yazmaz). Kota hatasında önceki limit kartı korunur.
+- **Gereksiz tekrar yok:** Bir istek en fazla 3 motora gönderilir. Motor sağlığı hatırlanır: 404 → 12 saat, kota → sıfırlanma saatine kadar (OpenRouter `:free` modelleri tek havuz sayılır), anahtar/bakiye → 10 dk, bağlantı → 1 dk, yoğunluk/zaman aşımı/boş yanıt → 2 dk. Ek çok büyükse veya güvenlik filtresine takıldıysa başka motor denenmez; çevrimdışıyken istek gönderilmez. Ayarlar kaydedilince bu kayıt sıfırlanır.
+- **Geçiş açıklanır:** Yanıtın altında kullanılan motor, seçilme nedeni ve olduysa otomatik geçiş yazar (örn. "Oforge 2.5 Flash (belge incelemesi için seçildi) · otomatik geçiş: Oforge 1 kota dolu"). Kayıtlı sohbetlerde de görünür.
+- **Motor seçici gelişmiş ayarlara taşındı:** Yazı kutusunda artık motor menüsü yok; elle seçim Ayarlar → "Gelişmiş: motoru elle seç" altında. Varsayılan "Oforge AI Otomatik".
+
 
 ## v6.9.39
 - **Simge = çekiç ve örs:** Uygulama/ana ekran simgesi ve mobil açılış (splash) görseli, eski güneş simgesi yerine Oforge'un çekiç-örs sembolüyle yenilendi (mavi→mor zemin, beyaz sembol): `icon-v4-192.png`, `icon-v4-512.png`, `icon-v4-maskable-512.png`, `apple-touch-icon-v4.png`. Sayfa içi açılış ekranında da çekiç-örs kutusu duruyor. Telefonda eski simge önbellekte kalabilir; uygulamayı kaldırıp yeniden kurun.
