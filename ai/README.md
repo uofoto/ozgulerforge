@@ -1,4 +1,7 @@
-# Oforge AI (v6.9.36)
+# Oforge AI (v6.9.37)
+
+## v6.9.37
+- **Yanıt üslubu:** Her istekte kısa, öz ve mobilde okunur yanıt kuralları (`ANSWER_STYLE`) modele eklenir: doğrudan cevap, gereksiz giriş/kapanış yok, çoğu yanıt ~150 kelime altı, kısa paragraf/madde, emoji yok. **Tablo artık yalnızca kullanıcı isterse** kullanılır; karşılaştırmalar maddelerle yazılır. Kurallar kayıtlı sistem isteminden bağımsız eklendiği için eski ayarı olanlarda da geçerlidir.
 
 ## v6.9.36
 - **Yeni motorlar:** "Oforge 1.5 Flash" (gemini-1.5-flash), "Oforge 2.0 Flash" (gemini-2.0-flash) ve "Oforge 2.5 Flash" (gemini-2.5-flash) motor menüsüne eklendi; üçü de fotoğraf destekler. 1.5 Flash yalnızca elle seçilir (Otomatik moda dahil değildir); Google bu modeli kapatmış olabilir, 404 gelirse 2.0/2.5 kullanın.

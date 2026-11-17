@@ -699,7 +699,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.36</span>
+          <span id="versionLabelBadge" class="font-mono text-[11px] font-bold text-blue-600">v6.9.37</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -852,7 +852,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
           <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
             <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.36</span></span>
+            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.37</span></span>
           </div>
         </div>
         </div>
@@ -998,7 +998,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.36</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.37</span>
         </div>
       </div>
 
@@ -1306,7 +1306,9 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
 
     // --- ZENGİN YANIT BİLEŞENLERİ (Mermaid, LaTeX, tablo, uyarı kutusu, diff) ---
-    const RICH_UI_HINT = '\n\nBiçim ipuçları (yalnızca gerçekten işe yarıyorsa kullan): akış/mimari diyagramı için ```mermaid bloğu; matematik için blok halinde $$…$$, satır içi \\( … \\); kod değişikliklerini ```diff bloğu ile; dikkat çeken notlar için "> [!NOTE]", "> [!TIP]", "> [!WARNING]" biçimli alıntılar; karşılaştırmalar için Markdown tablosu.';
+    const RICH_UI_HINT = '\n\nBiçim ipuçları (yalnızca gerçekten işe yarıyorsa kullan): akış/mimari diyagramı için ```mermaid bloğu; matematik için blok halinde $$…$$, satır içi \\( … \\); kod değişikliklerini ```diff bloğu ile; dikkat çeken notlar için "> [!NOTE]", "> [!TIP]", "> [!WARNING]" biçimli alıntılar; karşılaştırmaları tablo yerine kısa maddelerle yap.';
+    // Yanıt üslubu: her istekte eklenir (kayıtlı sistem istemi eski olsa bile geçerli olur).
+    const ANSWER_STYLE = '\n\nYanıt üslubu kuralları (her zaman uy):\n- Önce doğrudan cevabı ver. "Elbette", "Harika soru" gibi giriş ve "umarım yardımcı olmuştur" gibi kapanış cümleleri yazma; aynı şeyi tekrar etme.\n- Kısa soruya 1-3 cümleyle cevap ver. Çoğu yanıt kısa ve öz olsun (yaklaşık 150 kelimeyi geçmesin). Yalnızca kullanıcı ayrıntı, uzun metin, kod ya da adım adım anlatım isterse uzat.\n- Yalnızca sorulanı yanıtla; istenmeyen ek bilgi, alternatif ya da uyarı listesi ekleme.\n- Telefonda rahat okunacak biçimde yaz: kısa paragraflar, gerekirse en çok 5 kısa madde, az başlık, az kalın yazı, emoji yok.\n- TABLO KULLANMA. Karşılaştırmaları kısa maddelerle ya da "A: …, B: …" biçiminde yaz. Yalnızca kullanıcı açıkça tablo isterse tablo kullan.\n- Emin olmadığın bilgiyi uydurma; bilmiyorsan ya da bilgi güncel olmayabilirse bunu kısaca söyle.\n- Gerekmedikçe soru sorma; sorarsan en fazla bir kısa soru sor.';
     const _loaded = {};
     function loadOnce(url, kind) {
       if (_loaded[url]) return _loaded[url];
@@ -2575,7 +2577,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         const timer = canFallback ? setTimeout(() => { if (!gotText) { timedOut = true; ac.abort(); } }, FIRST_TOKEN_MS) : null;
         try {
         updateProgress(2, apiContents.some(c => c.parts.some(part => part.inlineData)) ? 'Sohbeti ve eklenen görsel/PDF dosyalarını hazırlıyorum…' : 'Sohbet geçmişini ve talimatları hazırlıyorum…');
-        const systemText = state.systemPrompt + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') + RICH_UI_HINT;
+        const systemText = state.systemPrompt + (currentUser ? `\n\nSohbet ettiğin kullanıcının adı: ${currentUser.name}. Gerektiğinde ona adıyla hitap edebilirsin.` : '') + RICH_UI_HINT + ANSWER_STYLE;
         const webOn = localStorage.getItem(WEB_KEY) === '1';
         const requestBody = JSON.stringify(isOR ? {
           model: activeModel.model,
@@ -3624,7 +3626,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       paint();
       return { get, set, contrast, toggleContrast, NAMES };
     })();
-    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.36'; });
+    document.querySelectorAll('[data-app-version]').forEach((el) => { el.textContent = 'v6.9.37'; });
 
     // --- KULLANIM KILAVUZU ---
     const GUIDE_SECTIONS = [
