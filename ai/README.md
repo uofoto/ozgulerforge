@@ -1,4 +1,4 @@
-# Oforge AI (v6.9.44)
+# Oforge AI (v6.9.45)
 
 ## Proje yapısı
 Derleme gerektirmez; tarayıcı ES modülleri kullanır. Bir web sunucusundan yayınlanır (`file://` ile açılmaz).
@@ -25,6 +25,15 @@ tools/bump-version.mjs  sürümü ve import haritasını günceller
 **Kurallar:** Yalnızca `storage.js` localStorage'a dokunur. `engines/` DOM'a ve `app.js`'e dokunmaz; arayüzle yalnızca `hooks` geri çağrıları üzerinden konuşur. Yeni sağlayıcı eklemek = `engines/providers/` altına bir dosya + `providers/index.js`'e bir satır.
 
 **Yayınlamadan önce:** `node tools/bump-version.mjs 6.9.44` (sürümü ve import haritasını günceller), sonra `npm test`.
+
+## v6.9.45
+- **İki motor:** Arayüzde yalnızca **AI Ultra 3.8** (varsayılan, güçlü) ve **AI Lite** (hızlı) vardır; Ayarlar → "Motor" altında seçilir, "Otomatik" ve eski "Oforge 1–5" adları kalktı. Her motorun arkasında sırayla denenen yedek modeller durur (`engines/models.js`: Ultra → f1, g25, f2; Lite → g20, f3, f4); kota/hata olursa aynı motorun sıradaki modeline geçilir. Eski sürümden kalan motor seçimi (`auto`, `f1`…) AI Ultra 3.8'e döner. Gemini 1.5 Flash ve kod modeli (Oforge 5) çıkarıldı.
+- **Cevap alanı sadeleşti:** Yanıt altındaki "(basit soru için seçildi)", "otomatik geçiş…" ve motor adı notları kaldırıldı; yalnızca kısa uyarı ve süre kalır. "Gücümü göster" (karşılama kartı, ⋯ menüsü, komut paleti, kılavuz, PWA kısayolu, ilk açılışta otomatik tur), "© 2026 Ozguler Forge" ve "Oforge AI v…" alt satırı kaldırıldı (sürüm "Hakkında" penceresinde durur).
+- **Doyurucu yanıtlar:** `prompts.js` içindeki "~150 kelime", "1-3 cümle", "yalnızca sorulanı yanıtla" sınırları kalktı; yanıt artık gerekçeli ve örnekli, mantık sırasıyla yazılır.
+- **Önemli cümle uyarı kutusu:** Model kritik cümleyi `> [!IMPORTANT]` / `> [!WARNING]` / `> [!TIP]` kutusuyla verir (en çok 1–2 kutu).
+- **Akademik kaynak linki:** Akademik/bilimsel istekler algılanır (`classifyRequest` → `academic`) ve o istekte web araması (Google Arama) kendiliğinden açılır; model "Kaynaklar" başlığı altında tıklanabilir bağlantı verir, uyduramaz; bulamazsa Google Akademik arama bağlantısı verir.
+- **Alternatif yönlendirme:** Her yanıtın altında 3 öneri düğmesi çıkar (konuyu derinleştir / farklı yaklaşım / kısa özet); dokununca soru olarak gönderilir. Model bloğu `[[ONERI]]…[[/ONERI]]` ile yazar, arayüz metinden ayıklar; düğmeler yalnızca son yanıtta görünür ve sohbet yeniden açılınca korunur.
+- **Düzeltme:** Akış bittikten hemen sonra bekleyen bir ekran karesi, zenginleştirilmiş görünümün (uyarı kutuları vb.) üzerine yazabiliyordu; artık yazmıyor.
 
 ## v6.9.44
 - **Yeni logo: "Of" monogramı:** Çekiç-örs işareti yerine turuncu→kırmızı degradeli "O" ve beyaz "f" harfleri geldi (`forge-mark.js`). Simgeler `icon-v5-192.png`, `icon-v5-512.png`, `icon-v5-maskable-512.png`, `apple-touch-icon-v5.png`; `manifest.json` ve `index.html` v5'e, bildirim simgesi de v5'e geçti. Logo kutuları (açılış, kenar çubuğu, tur, karşılama, yanıt avatarı) mavi→mor degrade yerine koyu `#0F1629` zemin kullanır. Animasyon: döngüde hafif nabız (`fm-of-mark`), karşılamada tek seferlik beliriş. Telefonda eski simge önbellekte kalabilir; uygulamayı kaldırıp yeniden kurun.

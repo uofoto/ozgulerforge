@@ -1,11 +1,11 @@
     import { APP_VERSION, KEYS, LEGACY_KEYS, PROXY_URL, GOOGLE_CLIENT_ID } from './config.js';
     import { storage, loadChats } from './storage.js';
-    import { MODELS, curModel, keyOk as engineKeyOk } from './engines/models.js';
+    import { ENGINES, curModel, keyOk as engineKeyOk } from './engines/models.js';
     import { mkErr, formatFailure, KIND_SHORT } from './engines/errors.js';
     import { Health } from './engines/health.js';
     import { REQ_LABELS, planRequest } from './engines/router.js';
     import { runWithFallback } from './engines/index.js';
-    import { BASE_IDENTITY, buildSystemText } from './prompts.js';
+    import { BASE_IDENTITY, buildSystemText, SUGGEST_OPEN, SUGGEST_CLOSE } from './prompts.js';
 
     function refreshIcons() {
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -813,13 +813,6 @@
             </div>
           </div>
 
-          <button type="button" onclick="startForgeTour()" class="group w-full max-w-lg text-left p-4 rounded-2xl border border-blue-200 bg-blue-50 hover:bg-blue-100 flex items-center gap-4 transition cursor-pointer">
-            <span class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shrink-0"><i data-lucide="sparkles" class="w-5 h-5"></i></span>
-            <span class="min-w-0">
-              <span class="block text-base font-semibold text-slate-900">Gücümü göster</span>
-              <span class="block text-sm text-slate-600 mt-0.5 leading-snug">Bir proje klasörü seç; kodunu okuyup sana mimari bir özet çıkarayım.</span>
-            </span>
-          </button>
 
         </div>
       `;
@@ -1151,6 +1144,7 @@
       chat.messages.forEach((m, i) => {
         const r = createMessageBubble(m.role, m.content, m.filesSummary, m.imagesCount, i);
         if (m.sources) renderSources(r, m.sources);
+        if (m.role === 'assistant' && m.suggestions && i === chat.messages.length - 1) renderSuggestions(r, m.suggestions);
         if (m.role === 'assistant' && Number.isFinite(m.elapsedMs)) {
           const note = r.querySelector('.msg-fallback-note');
           if (note) note.textContent = engineNoteText(m);
@@ -1193,7 +1187,7 @@
           <div class="flex-1 min-w-0 pt-1">
             <div class="prose max-w-none">${content ? parseMarkdownSafe(content) : '<details class="forge-progress not-prose py-1" aria-live="polite"><summary class="fm-psum"><span class="fm-spin" aria-hidden="true"></span><span data-progress-label class="fm-dots">Düşünülüyor</span><span data-elapsed-time class="fm-ptime">00:00</span><svg class="fm-chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary><div class="fm-pbody"><p data-progress-detail class="text-sm font-medium text-slate-600 mb-2">Oforge AI isteğinizi hazırlıyor…</p><ol class="space-y-1.5 text-sm text-slate-500"><li data-progress-step="0" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center text-blue-600">●</span><span>Mesajı ve sohbet bağlamını hazırlıyorum</span></li><li data-progress-step="1" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Sohbet geçmişi ve ekleri kontrol ediyorum</span></li><li data-progress-step="2" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI isteğiniz için uygun motoru seçiyor</span></li><li data-progress-step="3" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI hizmetine bağlanıyor</span></li><li data-progress-step="4" class="flex items-center gap-2"><span data-progress-mark class="w-4 text-center">○</span><span>Oforge AI yanıtınızı oluşturuyor</span></li></ol></div></details>'}</div>
             <div class="msg-actions -ml-2 mt-2 flex flex-wrap items-center gap-0.5 text-slate-400 ${content ? '' : 'hidden'}">${msgActionsHtml()}</div>
-            <p class="msg-disclaimer mt-1 text-[11px] text-slate-400 ${content ? '' : 'hidden'}"><span>Oforge AI bir yapay zekâ modelidir, hata yapabilir. Önemli bilgileri doğrulayın.</span><span class="msg-fallback-note"></span></p>
+            <p class="msg-disclaimer mt-1 text-[11px] text-slate-400 ${content ? '' : 'hidden'}"><span>Yapay zekâ hata yapabilir; önemli bilgileri doğrulayın.</span><span class="msg-fallback-note"></span></p>
           </div>
         `;
         if (content) {
@@ -1283,14 +1277,37 @@
 
     // ===== Motor mantığı engines/ klasörüne taşındı; burada yalnızca ekranda gösterilen not metni kalır =====
     function engineNoteText(m) {
-      let s = '';
-      if (m.engine) {
-        s += ' · ' + m.engine;
-        if (m.engineWhy) s += ' (' + m.engineWhy + ' için seçildi)';
-        if (Array.isArray(m.engineSwitch) && m.engineSwitch.length) s += ' · otomatik geçiş: ' + m.engineSwitch.map(x => x.label + ' ' + (KIND_SHORT[x.kind] || 'hata')).join(', ');
-      }
-      if (Number.isFinite(m.elapsedMs)) s += ' · ' + (m.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(m.elapsedMs);
-      return s;
+      return Number.isFinite(m.elapsedMs) ? ' · ' + (m.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(m.elapsedMs) : '';
+    }
+
+    // ===== Alternatif yönlendirme: yanıtın sonundaki [[ONERI]] bloğu düğmelere çevrilir, metinden çıkarılır =====
+    const SUGGEST_RE = new RegExp('\\n*' + SUGGEST_OPEN.replace(/[[\]]/g, '\\$&') + '([\\s\\S]*?)(?:' + SUGGEST_CLOSE.replace(/[[\]\/]/g, '\\$&') + '|$)');
+    function splitSuggestions(text) {
+      const src = String(text || '');
+      const m = SUGGEST_RE.exec(src);
+      if (!m) return { text: src, list: [] };
+      const list = m[1].split('\n').map(l => l.replace(/^\s*(?:[-*\u2022]|\d+[.)])\s*/, '').replace(/^["\u201c\u201d]|["\u201c\u201d]$/g, '').trim()).filter(l => l.length > 2 && l.length <= 100).slice(0, 3);
+      return { text: src.slice(0, m.index).trimEnd(), list };
+    }
+    // Akış sırasında henüz tamamlanmamış öneri bloğunu da gizler.
+    function hideSuggestions(text) {
+      const t = String(text || ''), i = t.indexOf('[[O');
+      return i >= 0 ? t.slice(0, i).trimEnd() : t.replace(/\n*\[{1,2}(?:O(?:N(?:E(?:R(?:I)?)?)?)?)?$/, '');
+    }
+    function renderSuggestions(row, list) {
+      if (!row) return;
+      const old = row.querySelector('.msg-suggest'); if (old) old.remove();
+      if (!Array.isArray(list) || !list.length) return;
+      const box = document.createElement('div');
+      box.className = 'msg-suggest mt-3 flex flex-col items-start gap-1.5';
+      list.forEach((t) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'fm-chip'; b.textContent = t;
+        b.onclick = () => { if (state.isGenerating) return; els.userInput.value = t; els.chatForm.requestSubmit(); };
+        box.appendChild(b);
+      });
+      const d = row.querySelector('.msg-disclaimer');
+      if (d) d.parentNode.insertBefore(box, d); else row.appendChild(box);
     }
 
     async function generateReply(currentChat, attachSave) {
@@ -1359,20 +1376,21 @@
         const { candidates, reqType } = planRequest({ selected: sel, hist, creds: engineCreds() });
 
         // Akış ekrana kare başına en fazla bir kez yansıtılır.
-        let renderQueued = false;
-        const flushRender = () => {
+        let renderQueued = false, streamDone = false;
+        const flushRender = (force) => {
           renderQueued = false;
-          proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
+          if (streamDone && force !== true) return;   // bekleyen kare, son (zenginleştirilmiş) görünümün üzerine yazmasın
+          proseEl.innerHTML = parseMarkdownSafe(hideSuggestions(aiMsg.content));
           if (state.autoStick !== false) els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
         };
         const scheduleRender = () => {
-          if (!renderQueued) { renderQueued = true; requestAnimationFrame(flushRender); }
+          if (!renderQueued) { renderQueued = true; requestAnimationFrame(() => flushRender()); }
         };
 
         const r = await runWithFallback({
           candidates, hist,
           systemText: buildSystemText(state.systemPrompt, currentUser),
-          webOn: storage.get(KEYS.WEB) === '1',
+          webOn: storage.get(KEYS.WEB) === '1' || reqType === 'academic',
           creds: { apiKey: state.apiKey, orKey: state.orKey, getIdToken },
           signal: state.abortController.signal,
           hooks: {
@@ -1381,7 +1399,7 @@
               if (stage === 'prepare') updateProgress(2, info.media ? 'Sohbeti ve eklenen görsel/PDF dosyalarını hazırlıyorum…' : 'Sohbet geçmişini ve talimatları hazırlıyorum…');
               else if (stage === 'connect') updateProgress(3, 'Oforge AI uygun yanıtı hazırlamak için bağlantı kuruyor…');
               else if (stage === 'stream') updateProgress(4, 'Oforge AI yanıtınızı hazırlıyor…');
-              else if (stage === 'switch') updateProgress(3, `${info.from.label}: ${KIND_SHORT[info.kind] || 'hata'}. ${info.to.label} deneniyor…`);
+              else if (stage === 'switch') updateProgress(3, 'Yanıt için yedek model deneniyor…');
             },
             onText: (piece) => {
               if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Oforge AI yanıtınızı yazıyor…';
@@ -1391,19 +1409,19 @@
           }
         });
         aiMsg.engine = r.model.label;
-        aiMsg.engineWhy = sel.auto ? REQ_LABELS[reqType] : '';
-        aiMsg.engineSwitch = r.attempts.map(a => ({ label: a.label, kind: a.kind }));
 
         updateElapsedTime();
         clearInterval(elapsedTimer);
         aiMsg.elapsedMs = elapsedMs;
-        aiMsg.webSearch = storage.get(KEYS.WEB) === '1';
+        aiMsg.webSearch = storage.get(KEYS.WEB) === '1' || reqType === 'academic';
         if (progressEl) progressEl.remove();
-        flushRender();
+        { const sp = splitSuggestions(aiMsg.content); aiMsg.content = sp.text; aiMsg.suggestions = sp.list; }
+        streamDone = true;
+        flushRender(true);
         if (r.sources.length) aiMsg.sources = r.sources;
         if (r.finishReason === 'MAX_TOKENS') {
           aiMsg.content += '\n\n*(Yanıt uzunluk sınırında kesildi. "Devam et" yazarak sürdürebilirsiniz.)*';
-          flushRender();
+          flushRender(true);
         }
 
         enhanceRenderedContent(proseEl);
@@ -1419,6 +1437,7 @@
           if (note) note.textContent = engineNoteText(aiMsg);
           renderSources(bubble, aiMsg.sources);
         }
+        renderSuggestions(bubble, aiMsg.suggestions);
         syncStorage();
 
         if (window.ForgeSound) ForgeSound.complete();
@@ -2096,13 +2115,7 @@
       };
       document.getElementById('tourCloseBtn').onclick = () => close(true);
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) close(true); });
-      document.getElementById('startTourBtn').onclick = () => window.startForgeTour();
-      // ilk açılışta bir kez otomatik başlat
-      try {
-        if (!storage.get(KEYS.ONBOARDED)) {
-          setTimeout(() => { if (modal.classList.contains('hidden')) window.startForgeTour(); }, document.getElementById('forgeSplash') ? 2200 : 700);
-        }
-      } catch (_) {}
+      // "Gücümü göster" turu arayüzden kaldırıldı (giriş noktası yok, otomatik başlamaz); kod ileride yeniden kullanılabilir.
     })();
 
 
@@ -2174,7 +2187,6 @@
         add('Hızlı eylemler', 'Belgeleri özetle (/ozetle)', 'files', () => applySlashCmd("/ozetle Eklediğim çoklu belgeleri ve PDF'leri karşılaştırarak analiz et ve özetle."), 'pdf belge özet');
         add('Hızlı eylemler', 'Resmi yazı taslağı (/resmi-yazi)', 'mail', () => applySlashCmd('/resmi-yazi Kurumsal, resmi ve akıcı bir dille dilekçe / proje teklif yazısı taslağı oluştur: '), 'dilekçe teklif');
         add('Hızlı eylemler', 'Web sayfası tasarla (/web-tasarla)', 'layout-template', () => applySlashCmd('/web-tasarla Tek dosya halinde modern ve şık bir HTML/Tailwind web sayfası tasarla: '), 'html site tasarım');
-        add('Hızlı eylemler', 'Gücümü göster: projemi oku, mimari özet çıkar', 'sparkles', () => window.startForgeTour(), 'tur proje kod mimari');
         [['system', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu'], ['forge', 'Oforge']].forEach(([k, n]) => add('Görünüm', 'Tema: ' + n, 'sun-moon', () => ForgeTheme.set(k), 'tema görünüm renk', th === k ? 'Etkin' : ''));
         add('Görünüm', 'Yüksek kontrastı aç / kapat', 'contrast', () => ForgeTheme.toggleContrast(), 'erişilebilirlik kontrast', ForgeTheme.contrast() ? 'Açık' : 'Kapalı');
         add('Görünüm', 'Tamamlanma sesini aç / kapat', 'volume-2', click('soundToggleBtn'), 'ses sound', ForgeSound.enabled() ? 'Açık' : 'Kapalı');
@@ -2308,9 +2320,10 @@
         'Kullanılan kaynak bağlantıları yanıtın altında gösterilir. Süre bilgisi “Web araması + yanıt” olarak etiketlenir.',
         'Güncel olmasına gerek olmayan sorularda düğmeyi kapalı tutmak yanıtı hızlandırır.'
       ]],
-      ['Model seçimi', [
-        'Motor seçmeniz gerekmez: “Oforge AI Otomatik” (varsayılan) isteğin türünü anlar; basit soruları hafif modele, belge, PDF, fotoğraf ve uzun analizleri güçlü ve dosya okuyabilen modele yönlendirir. Elle seçim yalnızca Ayarlar → Gelişmiş bölümündedir.',
-        'Yanıtın altında hangi motorun kullanıldığı ve otomatik geçiş olduysa nedeni yazar. Kota dolarsa ya da model kullanılamıyorsa en fazla üç motor denenir; kota ve bağlantı hataları ayrı gösterilir.'
+      ['Motorlar', [
+        'İki motor vardır: “AI Ultra 3.8” (varsayılan) en güçlü ve ayrıntılı yanıtı verir; “AI Lite” günlük sorular için daha hızlıdır. Seçim Ayarlar bölümündedir.',
+        'Bir model kota ya da bağlantı nedeniyle yanıt veremezse Oforge AI aynı motorun yedek modeline kendiliğinden geçer; kota ve bağlantı hataları ayrı gösterilir.',
+        'Yanıtın altındaki öneri düğmeleri konuyu derinleştirmek ya da farklı bir yönden devam etmek içindir; dokununca soru olarak gönderilir.'
       ]],
       ['Yanıtlarla çalışma', [
         'Her yanıtın altında Önizle, Kopyala ve Sesli Dinle düğmeleri bulunur.',
@@ -2348,13 +2361,7 @@
         '⋯ menüsü → Bildirimler açıksa, yanıt 8 saniyeden uzun sürüp siz başka sekmedeyken bitince bildirim alırsınız. Bildirime basınca Oforge AI öne gelir.',
         'Uygulama kapalıyken (sunucudan) bildirim gönderilmez; bunun için ayrı bir sunucu gerekir. Sekme veya yüklü uygulama arka planda açık olmalıdır.',
         'Çevrimdışıyken uygulama ve kayıtlı çalışmalar açılır, üstte uyarı şeridi görünür; yeni yanıt için internet gerekir.',
-        'Uygulamayı kurduktan sonra simgeye uzun basarak (veya sağ tıklayarak) “Yeni çalışma”, “Gücümü göster” ve “Komut paleti” kısayollarını kullanabilirsiniz.'
-      ]],
-      ['Gücümü göster turu', [
-        'Karşılama ekranındaki “Gücümü göster” kartı veya ⋯ menüsündeki “Gücümü göster (tur)” turu başlatır; ilk açılışta tur kendiliğinden gelir.',
-        'Bir proje klasörü seçersiniz; Oforge AI dosyaları cihazınızda okur, önemli olanları seçip sohbete ek olarak ekler ve mimari özet çıkarır.',
-        'node_modules, .git, dist gibi klasörler ile .env dosyaları atlanır; anahtar benzeri değerler gizlenir. Yalnızca metin/kod dosyalarının özeti yanıt için Gemini’ye gönderilir.',
-        'Klasör seçici Chrome ve Edge’de en iyi çalışır. Proje yoksa “Oforge AI’ın kendi kodunu oku” seçeneğini deneyin.'
+        'Uygulamayı kurduktan sonra simgeye uzun basarak (veya sağ tıklayarak) “Yeni çalışma” ve “Komut paleti” kısayollarını kullanabilirsiniz.'
       ]],
       ['Sesler ve animasyonlar', [
         'Yanıt tamamlandığında kısa bir “tamamlandı” sesi çalar. ⋯ menüsündeki “Tamamlanma sesi” ile kapatabilirsiniz.',
@@ -2623,9 +2630,9 @@
 
     (function initModelSelect() {
       const sel = document.getElementById('modelSelect');
-      MODELS.forEach((m) => {
+      ENGINES.forEach((m) => {
         const o = document.createElement('option');
-        o.value = m.id; o.textContent = '⚡ ' + m.label + (m.desc ? ': ' + m.desc : '');
+        o.value = m.id; o.textContent = m.label + ': ' + m.desc;
         sel.appendChild(o);
       });
       sel.value = curModel().id;
