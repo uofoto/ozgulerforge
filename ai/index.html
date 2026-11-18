@@ -212,6 +212,8 @@
     #forgeSplash .fs-sub { color:#64748B; font:500 .85rem Inter,system-ui,-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif; opacity:0; animation:fsIn .5s ease .55s forwards; }
     @keyframes fsOut { to { opacity:0; visibility:hidden; } }
     @keyframes fsIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+    #forgeSplash .fm-loop .fm-hammer, #forgeSplash .fm-loop .fm-sp, #forgeSplash .fm-loop .fm-anvil { animation-delay:-.34s; }
+    #forgeSplash .fs-word, #forgeSplash .fs-sub { opacity:1; animation:none; }
     @media (prefers-reduced-motion: reduce) {
       .fm *, .fm-brand, .fm-hot, #forgeSplash .fs-tile { animation:none !important; }
       #forgeSplash .fs-word, #forgeSplash .fs-sub { animation:none !important; opacity:1; }
@@ -853,10 +855,6 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             </div>
           </form>
 
-          <div class="mt-2.5 flex items-center justify-between text-xs text-slate-400 px-1 gap-2">
-            <span>© 2026 <strong>Ozguler Forge</strong></span>
-            <span class="font-mono font-semibold text-slate-500" title="Uygulama sürümü">Oforge AI <span data-app-version>v6.9.41</span></span>
-          </div>
         </div>
         </div>
       </div>
@@ -1360,18 +1358,19 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     const CALLOUTS = { note: ['ℹ️', 'Not', 'note'], tip: ['💡', 'İpucu', 'tip'], warning: ['⚠️', 'Uyarı', 'warn'], important: ['📌', 'Önemli', 'imp'], caution: ['🛑', 'Dikkat', 'caution'] };
     const CALLOUT_ALIAS = { note: 'note', not: 'note', tip: 'tip', ipucu: 'tip', warning: 'warning', uyari: 'warning', important: 'important', onemli: 'important', caution: 'caution', dikkat: 'caution' };
     function calloutKey(w) {
-      const k = String(w || '').toLocaleLowerCase('tr').replace(/ı/g, 'i').replace(/İ/g, 'i').replace(/i̇/g, 'i').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ç/g, 'c').replace(/ğ/g, 'g');
+      const k = String(w || '').normalize('NFC').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');
       return CALLOUT_ALIAS[k] || null;
     }
-    const CALLOUT_RE = /^\s*\[!([A-Za-zÇĞİıÖŞÜçğöşü]+)\]\s*(<br\s*\/?>)?\s*/;
+    const CALLOUT_RE = /^\s*\[!([^\]\s]{2,14})\]\s*(<br\s*\/?>)?\s*/;
+    const CALLOUT_HTML_RE = /^((?:\s|<(?!br)[^>]*>)*)\[![^\]\s]{2,14}\]((?:<\/[a-z0-9]+>)*)\s*(?:<br\s*\/?>)?\s*/i;
     function enhanceRich(container) {
       container.querySelectorAll('pre > code.language-mermaid').forEach((code) => { code.parentElement.replaceWith(buildDiagramCard(code.textContent || '')); });
       container.querySelectorAll('blockquote').forEach((bq) => {
         const p = bq.firstElementChild; if (!p || bq.classList.contains('fm-callout')) return;
-        const m = CALLOUT_RE.exec(p.textContent || ''); if (!m) return;
+        const m = CALLOUT_RE.exec((p.textContent || '').normalize('NFC')); if (!m) return;
         const key = calloutKey(m[1]); if (!key) return;
         const c = CALLOUTS[key];
-        p.innerHTML = p.innerHTML.replace(CALLOUT_RE, '');
+        p.innerHTML = p.innerHTML.normalize('NFC').replace(CALLOUT_HTML_RE, '$1$2');
         if (!p.textContent.trim()) p.remove();
         const t = document.createElement('div'); t.className = 'fm-callout-title'; t.textContent = c[0] + ' ' + c[1];
         bq.insertBefore(t, bq.firstChild); bq.classList.add('fm-callout', 'fm-callout-' + c[2]);
@@ -1956,22 +1955,6 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             ${(currentUser && currentUser.name) ? 'Merhaba, ' + escapeHtml(String(currentUser.name).split(' ')[0]) + '. ' : ''}Size nasıl yardımcı olabilirim?
           </p>
 
-          <div id="noKeyWarning" class="${hasValidKey ? 'hidden' : ''} w-full max-w-lg mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-left flex items-start gap-3 shadow-2xs">
-            <i data-lucide="key-round" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
-            <div class="text-xs text-amber-900 space-y-1">
-              <p class="font-semibold">Oforge AI Motor Aktivasyonu Gerekli</p>
-              <p class="text-amber-700">Sol alttaki <strong>Oforge AI Motor Ayarları</strong> bölümüne API erişim anahtarınızı kaydedin.</p>
-            </div>
-          </div>
-
-          <button type="button" onclick="startForgeTour()" class="group w-full max-w-lg text-left p-4 rounded-2xl border border-blue-200 bg-blue-50 hover:bg-blue-100 flex items-center gap-4 transition cursor-pointer">
-            <span class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shrink-0"><i data-lucide="sparkles" class="w-5 h-5"></i></span>
-            <span class="min-w-0">
-              <span class="block text-base font-semibold text-slate-900">Gücümü göster</span>
-              <span class="block text-sm text-slate-600 mt-0.5 leading-snug">Bir proje klasörü seç; kodunu okuyup sana mimari bir özet çıkarayım.</span>
-            </span>
-          </button>
-
         </div>
       `;
     }
@@ -2547,7 +2530,6 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       let s = '';
       if (m.engine) {
         s += ' · ' + m.engine;
-        if (m.engineWhy) s += ' (' + m.engineWhy + ' için seçildi)';
         if (Array.isArray(m.engineSwitch) && m.engineSwitch.length) s += ' · otomatik geçiş: ' + m.engineSwitch.map(x => x.label + ' ' + (KIND_SHORT[x.kind] || 'hata')).join(', ');
       }
       if (Number.isFinite(m.elapsedMs)) s += ' · ' + (m.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(m.elapsedMs);
