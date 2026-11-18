@@ -12,10 +12,7 @@ const U = 'AI Ultra 3.8', L = 'AI Lite';
 export const MODELS = [
   { id: 'f1', engine: 'ultra', label: U, provider: 'gemini', model: 'gemini-4-hydrogen', tier: 'strong', vision: true, pdf: true },
   { id: 'g25', engine: 'ultra', label: U, provider: 'gemini', model: 'gemini-2.5-flash', tier: 'strong', vision: true, pdf: true },
-  { id: 'f2', engine: 'ultra', label: U, provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', tier: 'strong' },
-  { id: 'g20', engine: 'lite', label: L, provider: 'gemini', model: 'gemini-2.0-flash', tier: 'light', vision: true, pdf: true },
-  { id: 'f3', engine: 'lite', label: L, provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free', tier: 'light' },
-  { id: 'f4', engine: 'lite', label: L, provider: 'openrouter', model: 'google/gemma-4-31b-it:free', tier: 'mid', vision: true }
+  { id: 'g20', engine: 'lite', label: L, provider: 'gemini', model: 'gemini-2.0-flash', tier: 'light', vision: true, pdf: true }
 ];
 
 // Seçili motor (ENGINES öğesi). Kayıtlı değer geçersizse (eski sürümlerden kalan "auto", "f1"… dahil) AI Ultra 3.8.

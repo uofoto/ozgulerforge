@@ -22,7 +22,7 @@ export function rankModels(list, type) {
 export function needText(need) { return [need.vision && 'fotoğraf', need.pdf && 'PDF'].filter(Boolean).join(' ve '); }
 
 // selected: seçili motor (curModel()). hist: [{ role, msgText, images, pdfs }]. creds: { apiKey, orKey }.
-// Seçili motorun yedek modelleri arasından anahtarı olan, isteği okuyabilen ve sağlıklı olanları sıralar.
+// Seçili motorun modelleri arasından anahtarı olan, isteği okuyabilen ve sağlıklı olanları sıralar.
 // Döndürür: { candidates, reqType, need }. Uygun motor yoksa mkErr(...) fırlatır.
 export function planRequest({ selected, hist, creds }) {
   const sel = selected;
@@ -30,7 +30,7 @@ export function planRequest({ selected, hist, creds }) {
   const need = { vision: hist.some(h => h.images && h.images.length > 0), pdf: hist.some(h => h.pdfs && h.pdfs.length > 0) };
   const reqType = classifyRequest(lastH.msgText, need);
   const keyed = poolFor(sel).filter(m => hasKeyFor(m, creds));
-  if (!keyed.length) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini veya OpenRouter anahtarınızı girin.');
+  if (!keyed.length) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini API anahtarınızı girin.');
   const capable = keyed.filter(m => (!need.vision || m.vision) && (!need.pdf || m.pdf));
   if (!capable.length) throw mkErr('unsupported', 'Bu sohbette ' + needText(need) + ' var, ancak ' + sel.label + ' bunu okumak için Gemini API anahtarı gerektirir. Ayarlardan Gemini API anahtarı ekleyin.');
   let candidates;
