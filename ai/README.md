@@ -1,5 +1,11 @@
 # Oforge AI (v6.9.58)
 
+## v6.9.59
+- **Doğal anlatım ve düşünce standardı:** `prompts.js` yeniden düzenlendi. Mekanik giriş/kapanışlar, her yanıta zorunlu uyarı kutusu ve otomatik üç öneri dayatması kaldırıldı. Doğal Türkçe, gerekçeli muhakeme, doğruluk ve bağlama uygun derinlik öne alındı.
+- **Görev türüne göre düşünme:** `engines/router.js` felsefi düşünme ve yazarlık isteklerini ayrı sınıflandırır. AI Ultra 3.8 için akademik, felsefi, analitik, belge, kod ve yazarlık görevlerinde `high`; gündelik sorularda `medium` düşünme seviyesi gönderilir. AI Lite hız odaklı `low` seviyesinde kalır.
+- **Korunanlar:** v6.9.58 sohbet, kullanıcı kontrollü hafıza, yanıt uzunluğu, çalışma alanı, yanıt düzenleme, görsel/PDF ve PWA işlevleri korunmuştur.
+- **Test:** 48 otomatik test başarılı.
+
 ## Proje yapısı
 Derleme gerektirmez; tarayıcı ES modülleri kullanır. Bir web sunucusundan yayınlanır (`file://` ile açılmaz).
 
