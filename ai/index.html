@@ -1123,7 +1123,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       return MODELS.find(m => m.id === id) || MODELS[0];
     }
     function hasKeyFor(m) {
-      return Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
+      return Boolean(PROXY_URL || (state.apiKey && state.apiKey.length >= 20 && !/\s/.test(state.apiKey)));
     }
     function keyOk() {
       const m = curModel();
