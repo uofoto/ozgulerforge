@@ -795,7 +795,7 @@
       const hasValidKey = keyOk();
       return `
         <div id="welcomeScreen" class="welcome-screen min-h-full flex flex-col items-center justify-center max-w-3xl mx-auto text-center py-8">
-          <div class="welcome-spark" aria-hidden="true"><i data-lucide="sparkles"></i></div>
+          <div class="welcome-logo" data-forge-logo aria-hidden="true"></div>
           <h1 class="welcome-title">Nereden başlayalım?</h1>
           <p class="welcome-subtitle">
             ${(currentUser && currentUser.name) ? 'Merhaba, ' + escapeHtml(String(currentUser.name).split(' ')[0]) + '. ' : ''}Size nasıl yardımcı olabilirim?
