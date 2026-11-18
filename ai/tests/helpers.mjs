@@ -10,7 +10,7 @@ export function installLocalStorage(initial = {}) {
   return globalThis.localStorage;
 }
 
-export const CREDS = { apiKey: 'AIzaFAKEKEY', orKey: 'sk-or-FAKE', getIdToken: () => null };
+export const CREDS = { apiKey: 'AIzaFAKEKEY01234567890123456789', orKey: 'sk-or-FAKE', getIdToken: () => null };
 
 export const sse = (...objs) => objs.map(o => (o === '[DONE]' ? 'data: [DONE]\n\n' : 'data: ' + JSON.stringify(o) + '\n\n')).join('');
 export const gText = (t, extra) => ({ candidates: [Object.assign({ content: { parts: [{ text: t }] } }, extra || {})] });

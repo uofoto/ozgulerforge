@@ -13,20 +13,30 @@ const { hasMedia } = await import('../engines/media.js');
 const { runWithFallback } = await import('../engines/index.js');
 const { buildSystemText, BASE_IDENTITY, RICH_UI_HINT, ANSWER_STYLE, SUGGEST_OPEN, SUGGEST_CLOSE } = await import('../prompts.js');
 
-const M = (id) => MODELS.find(m => m.id === id);
+// Eski sağlayıcı/akış senaryoları, uygulamanın canlı kataloğundan bağımsız test fikstürleri kullanır.
+// Üretimde yalnızca Ultra ve Lite Gemini motorları açıktır.
+const FIXTURES = {
+  g25: { id: 'g25', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'gemini', model: 'gemini-2.5-flash', thinking: 'medium', tier: 'strong', vision: true, pdf: true },
+  g20: { id: 'g20', engine: 'lite', label: 'AI Lite', provider: 'gemini', model: 'gemini-test-lite', thinking: 'low', tier: 'light', vision: true, pdf: true },
+  f1: { id: 'f1', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'openrouter', model: 'test/strong:free', tier: 'strong', vision: false, pdf: false },
+  f2: { id: 'f2', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'openrouter', model: 'test/text:free', tier: 'mid', vision: false, pdf: false },
+  f3: { id: 'f3', engine: 'lite', label: 'AI Lite', provider: 'openrouter', model: 'test/lite:free', tier: 'light', vision: false, pdf: false },
+  f4: { id: 'f4', engine: 'lite', label: 'AI Lite', provider: 'openrouter', model: 'test/vision', tier: 'light', vision: true, pdf: false }
+};
+const M = (id) => MODELS.find(m => m.id === id) || FIXTURES[id];
 const E = (id) => ENGINES.find(e => e.id === id);
 const ids = (list) => list.map(m => m.id);
 const textHist = (t) => [{ role: 'user', msgText: t, images: [], pdfs: [] }];
 const IMG = { dataUrl: 'data:image/png;base64,AAAA' };
 const PDF = { mimeType: 'application/pdf', base64Data: 'BBBB', name: 'a.pdf' };
-const GEM = { apiKey: 'AIzaX', orKey: '', getIdToken: () => null };
+const GEM = { apiKey: 'AIza' + 'X'.repeat(24), orKey: '', getIdToken: () => null };
 const ORK = { apiKey: '', orKey: 'sk-or', getIdToken: () => null };
 
 test.beforeEach(() => installLocalStorage());
 
 // ---------------- models / anahtar kontrolü ----------------
-test('hasKeyFor: Gemini anahtarı AIza ile başlamalı, OpenRouter için orKey yeterli', () => {
-  assert.equal(hasKeyFor(M('g25'), { apiKey: 'AIzaX', orKey: '' }), true);
+test('hasKeyFor: Gemini için yeterli uzunlukta anahtar, OpenRouter için orKey gerekir', () => {
+  assert.equal(hasKeyFor(M('g25'), { apiKey: 'AIza' + 'X'.repeat(24), orKey: '' }), true);
   assert.equal(hasKeyFor(M('g25'), { apiKey: 'yanlis', orKey: '' }), false);
   assert.equal(hasKeyFor(M('f2'), { apiKey: '', orKey: 'k' }), true);
   assert.equal(hasKeyFor(M('f2'), { apiKey: 'AIzaX', orKey: '' }), false);
@@ -48,7 +58,7 @@ test('keyOk / curModel: kayıtlı motor seçilir, geçersizse AI Ultra 3.8', () 
   assert.equal(curModel().id, 'ultra');
   localStorage.setItem('forge_ai_v66_model', 'auto');
   assert.equal(curModel().id, 'ultra');
-  assert.equal(keyOk(ORK), true);
+  assert.equal(keyOk(ORK), false); // Canlı katalogda OpenRouter modeli bulunmuyor
 });
 
 test('poolOf: OpenRouter :free modelleri tek havuzu paylaşır', () => {
@@ -70,9 +80,9 @@ test('classifyRequest', () => {
 });
 
 test('rankModels: tür önceliğine göre sıralar, eşitte katalog sırasını korur', () => {
-  assert.deepEqual(ids(rankModels(poolFor(E('lite')), 'simple')), ['g20', 'f3', 'f4']);
-  assert.deepEqual(ids(rankModels(poolFor(E('ultra')), 'analysis')), ['f1', 'g25', 'f2']);
-  assert.deepEqual(ids(rankModels(MODELS, 'analysis')), ['f1', 'g25', 'f2', 'f4', 'g20', 'f3']);
+  assert.deepEqual(ids(rankModels(poolFor(E('lite')), 'simple')), ['lite35']);
+  assert.deepEqual(ids(rankModels(poolFor(E('ultra')), 'analysis')), ['ultra38']);
+  assert.deepEqual(ids(rankModels(MODELS, 'analysis')), ['ultra38', 'lite35']);
 });
 
 test('classifyRequest: akademik istekler ayrılır (kaynak için web araması açılır)', () => {
@@ -84,12 +94,12 @@ test('classifyRequest: akademik istekler ayrılır (kaynak için web araması a�
 
 test('planRequest: yalnızca seçili motorun yedek modelleri, anahtarı olanlar', () => {
   const u = planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: CREDS });
-  assert.deepEqual(ids(u.candidates), ['f1', 'g25', 'f2']);
+  assert.deepEqual(ids(u.candidates), ['ultra38']);
   assert.equal(u.reqType, 'simple');
   const l = planRequest({ selected: E('lite'), hist: textHist('merhaba'), creds: CREDS });
-  assert.deepEqual(ids(l.candidates), ['g20', 'f3', 'f4']);
-  assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM }).candidates), ['f1', 'g25']);
-  assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: ORK }).candidates), ['f2']);
+  assert.deepEqual(ids(l.candidates), ['lite35']);
+  assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM }).candidates), ['ultra38']);
+  assert.throws(() => planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: ORK }), (e) => e.kind === 'auth');
 });
 
 test('planRequest: anahtar yoksa auth hatası', () => {
@@ -101,22 +111,20 @@ test('planRequest: fotoğraf varsa yalnızca görsel okuyabilen modeller', () =>
   const p = planRequest({ selected: E('ultra'), hist, creds: CREDS });
   assert.ok(p.candidates.every(m => m.vision));
   assert.equal(p.reqType, 'vision');
-  assert.deepEqual(ids(planRequest({ selected: E('lite'), hist, creds: ORK }).candidates), ['f4']);
-  assert.throws(() => planRequest({ selected: E('ultra'), hist, creds: ORK }), (e) => e.kind === 'unsupported');
+  assert.deepEqual(ids(planRequest({ selected: E('lite'), hist, creds: GEM }).candidates), ['lite35']);
+  assert.throws(() => planRequest({ selected: E('ultra'), hist, creds: ORK }), (e) => e.kind === 'auth');
 });
 
 test('planRequest: PDF için yalnızca PDF okuyan model; yoksa unsupported', () => {
   const hist = [{ role: 'user', msgText: 'oku', images: [], pdfs: [PDF] }];
   assert.ok(planRequest({ selected: E('ultra'), hist, creds: GEM }).candidates.every(m => m.pdf));
-  assert.throws(() => planRequest({ selected: E('lite'), hist, creds: ORK }), (e) => e.kind === 'unsupported');
+  assert.deepEqual(ids(planRequest({ selected: E('lite'), hist, creds: GEM }).candidates), ['lite35']);
+  assert.throws(() => planRequest({ selected: E('lite'), hist, creds: ORK }), (e) => e.kind === 'auth');
 });
 
 test('planRequest: kotası dolu modeller atlanır; hepsi doluysa quota hatası (en erken sıfırlanma, motor adıyla)', () => {
-  const soon = Date.now() + 60000, later = Date.now() + 120000;
-  Health.set(poolOf(M('f1')), 'quota', soon, { quota: { resetAt: soon } });
-  const p = planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM });
-  assert.deepEqual(ids(p.candidates), ['g25']);
-  Health.set(poolOf(M('g25')), 'quota', later, { quota: { resetAt: later } });
+  const soon = Date.now() + 60000;
+  Health.set(poolOf(M('ultra38')), 'quota', soon, { quota: { resetAt: soon } });
   assert.throws(() => planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM }), (e) => e.kind === 'quota' && e.quota.resetAt === soon && e.quota.model === 'AI Ultra 3.8');
 });
 
@@ -209,7 +217,7 @@ test('hasMedia: yalnızca motorun gerçekten göndereceği ekleri sayar', () => 
 test('uç nokta ve başlıklar: doğrudan Gemini, proxy, OpenRouter', () => {
   assert.equal(gemini.endpoint(M('g25'), ''), 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse');
   assert.equal(gemini.endpoint(M('g25'), 'https://p.example/'), 'https://p.example/v1beta/models/gemini-2.5-flash:streamGenerateContent?alt=sse');
-  assert.equal(gemini.headers(GEM, '')['x-goog-api-key'], 'AIzaX');
+  assert.equal(gemini.headers(GEM, '')['x-goog-api-key'], GEM.apiKey);
   assert.equal(gemini.headers({ getIdToken: () => 'tok' }, 'https://p')['Authorization'], 'Bearer tok');
   assert.throws(() => gemini.checkAuth({ getIdToken: () => null }, 'https://p'), (e) => e.kind === 'auth');
   assert.doesNotThrow(() => gemini.checkAuth(GEM, ''));
@@ -253,7 +261,7 @@ test('başarılı Gemini denemesi: olay sırası ve metin parçaları', async ()
   assert.deepEqual(events.text, ['Mer', 'haba']);
   assert.deepEqual(events.stages.map(s => s[0]), ['prepare', 'connect', 'stream']);
   assert.equal(events.stages[0][1], false); assert.equal(events.starts, 1);
-  assert.equal(f.calls[0].init.headers['x-goog-api-key'], 'AIzaFAKEKEY');
+  assert.equal(f.calls[0].init.headers['x-goog-api-key'], CREDS.apiKey);
 });
 
 test('başarılı OpenRouter denemesi', async () => {
@@ -358,11 +366,11 @@ test('ilk metin zaman aşımı: yedek motor varsa timeout kaydedilir ve sıradak
   assert.equal(Health.get('m:g25').kind, 'timeout');
 });
 
-test('yedek motor yoksa zaman aşımı beklenmez (tek aday)', async () => {
+test('yedek motor yoksa da takılı kalan istek zaman aşımına uğrar', async () => {
   const controller = new AbortController();
   const { p } = run(['g25'], { gem: [{ hang: true }] }, { controller, opts: { firstTokenMs: 10 } });
   setTimeout(() => controller.abort(), 60);
-  await assert.rejects(p, (e) => e.name === 'AbortError');
+  await assert.rejects(p, (e) => e.kind === 'timeout');
 });
 
 test('yanıt kuralları: doyurucu yanıt, önemli cümle kutusu, akademik kaynak bağlantısı ve alternatif öneri bloğu', () => {
