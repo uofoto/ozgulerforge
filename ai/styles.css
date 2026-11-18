@@ -130,6 +130,17 @@
     .fm-once .fm-of-mark { animation:fmOfOnce .85s cubic-bezier(.22,1,.36,1) .25s 1 both; }
     @keyframes fmOfPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.06); } }
     @keyframes fmOfOnce { 0% { opacity:.4; transform:scale(.86); } 65% { opacity:1; transform:scale(1.04); } 100% { opacity:1; transform:scale(1); } }
+    /* ===== Alternatif yönlendirme kartları (yanıt altı) ===== */
+    .msg-suggest { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.5rem; margin-top:.9rem; max-width:44rem; }
+    .fm-sg { display:flex; flex-direction:column; justify-content:space-between; gap:.5rem; min-height:4.25rem; text-align:left; padding:.7rem .85rem; border-radius:1rem; border:1px solid transparent; background:#F1F4F8; color:#475569; font-size:.8125rem; line-height:1.35; font-weight:500; cursor:pointer; transition:background .15s, border-color .15s, transform .15s; }
+    .fm-sg:hover { background:#E6ECF4; border-color:#D5DEEA; }
+    .fm-sg:active { transform:scale(.985); }
+    .fm-sg-ic { width:15px; height:15px; color:#94A3B8; flex:none; }
+    html.dark .fm-sg { background:rgba(255,255,255,.06); color:#CBD5E1; }
+    html.dark .fm-sg:hover { background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.12); }
+    html.forge .fm-sg { background:#1F1A16; color:#D8CDBF; border-color:#3D3329; }
+    html.forge .fm-sg:hover { background:#2A231D; }
+    html.hc .fm-sg { border-color:currentColor; }
     @keyframes fsOut { to { opacity:0; visibility:hidden; } }
     @keyframes fsIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
     @media (prefers-reduced-motion: reduce) {

@@ -18,7 +18,7 @@
     LEGACY_KEYS.forEach((k) => storage.remove(k));
 
     // Motor katmanı anahtarları parametre olarak alır; durum (state) bu dosyada kalır.
-    function engineCreds() { return { apiKey: state.apiKey, orKey: state.orKey }; }
+    function engineCreds() { return { apiKey: state.apiKey }; }
     function keyOk() { return engineKeyOk(engineCreds()); }
 
     function getIdToken() {
@@ -107,7 +107,6 @@
 
     let state = {
       apiKey: storage.get(KEYS.API, ''),
-      orKey: storage.get(KEYS.OR_API, ''),
       systemPrompt: storage.get(KEYS.SYSTEM, '') || BASE_IDENTITY,
       chats: loadChats(),
       activeChatId: null,
@@ -1294,15 +1293,19 @@
       const t = String(text || ''), i = t.indexOf('[[O');
       return i >= 0 ? t.slice(0, i).trimEnd() : t.replace(/\n*\[{1,2}(?:O(?:N(?:E(?:R(?:I)?)?)?)?)?$/, '');
     }
+    const SG_ARROW = '<svg class="fm-sg-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>';
     function renderSuggestions(row, list) {
       if (!row) return;
       const old = row.querySelector('.msg-suggest'); if (old) old.remove();
       if (!Array.isArray(list) || !list.length) return;
       const box = document.createElement('div');
-      box.className = 'msg-suggest mt-3 flex flex-col items-start gap-1.5';
+      box.className = 'msg-suggest';
       list.forEach((t) => {
         const b = document.createElement('button');
-        b.type = 'button'; b.className = 'fm-chip'; b.textContent = t;
+        b.type = 'button'; b.className = 'fm-sg';
+        const lbl = document.createElement('span'); lbl.textContent = t;
+        b.appendChild(lbl);
+        b.insertAdjacentHTML('beforeend', SG_ARROW);
         b.onclick = () => { if (state.isGenerating) return; els.userInput.value = t; els.chatForm.requestSubmit(); };
         box.appendChild(b);
       });
@@ -1391,7 +1394,7 @@
           candidates, hist,
           systemText: buildSystemText(state.systemPrompt, currentUser),
           webOn: storage.get(KEYS.WEB) === '1' || reqType === 'academic',
-          creds: { apiKey: state.apiKey, orKey: state.orKey, getIdToken },
+          creds: { apiKey: state.apiKey, getIdToken },
           signal: state.abortController.signal,
           hooks: {
             onAttemptStart: () => { aiMsg.content = ''; },
@@ -1670,7 +1673,6 @@
 
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
-      document.getElementById('orKeyInput').value = state.orKey;
       els.systemPromptInput.value = state.systemPrompt;
       els.settingsModal.classList.remove('hidden');
     };
@@ -1679,8 +1681,7 @@
 
     document.getElementById('saveSettingsBtn').onclick = () => {
       state.apiKey = els.apiKeyInput.value.trim();
-      state.orKey = document.getElementById('orKeyInput').value.trim();
-      storage.set(KEYS.OR_API, state.orKey);
+      storage.remove(KEYS.OR_API);   // OpenRouter kaldırıldı; eski kayıtlı anahtar silinir
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       storage.set(KEYS.API, state.apiKey);
       storage.set(KEYS.SYSTEM, state.systemPrompt);
@@ -2322,7 +2323,7 @@
       ]],
       ['Motorlar', [
         'İki motor vardır: “AI Ultra 3.8” (varsayılan) en güçlü ve ayrıntılı yanıtı verir; “AI Lite” günlük sorular için daha hızlıdır. Seçim Ayarlar bölümündedir.',
-        'Bir model kota ya da bağlantı nedeniyle yanıt veremezse Oforge AI aynı motorun yedek modeline kendiliğinden geçer; kota ve bağlantı hataları ayrı gösterilir.',
+        'Kota ya da bağlantı hatası olursa nedeni ayrı bir kartta gösterilir; AI Ultra 3.8 gerekirse yedek modeline kendiliğinden geçer.',
         'Yanıtın altındaki öneri düğmeleri konuyu derinleştirmek ya da farklı bir yönden devam etmek içindir; dokununca soru olarak gönderilir.'
       ]],
       ['Yanıtlarla çalışma', [
