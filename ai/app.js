@@ -794,13 +794,10 @@
     function getWelcomeScreenHtml() {
       const hasValidKey = keyOk();
       return `
-        <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-3xl mx-auto text-center py-8">
-          <div class="fm-brand w-16 h-16 rounded-2xl bg-[#0F1629] border border-slate-700/40 flex items-center justify-center text-white shadow-xl mb-5">
-            <span data-forge-logo data-fm="once" class="block w-10 h-10"></span>
-          </div>
-          
-          <h1 class="text-slate-900"><span class="owm owm-hero" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-aiwrap" aria-hidden="true"><span class="owm-ai">AI</span><span class="owm-sub">asistanı</span></span></span></h1>
-          <p class="text-sm sm:text-base text-slate-500 max-w-md mb-8 leading-relaxed">
+        <div id="welcomeScreen" class="welcome-screen min-h-full flex flex-col items-center justify-center max-w-3xl mx-auto text-center py-8">
+          <div class="welcome-spark" aria-hidden="true"><i data-lucide="sparkles"></i></div>
+          <h1 class="welcome-title">Nereden başlayalım?</h1>
+          <p class="welcome-subtitle">
             ${(currentUser && currentUser.name) ? 'Merhaba, ' + escapeHtml(String(currentUser.name).split(' ')[0]) + '. ' : ''}Size nasıl yardımcı olabilirim?
           </p>
 

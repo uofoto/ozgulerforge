@@ -448,3 +448,50 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     #jumpTopBtn.is-hidden { opacity: 0; transform: translateY(6px); pointer-events: none; }
     .fb-btn svg { width: 18px; height: 18px; }
     .fb-btn.is-on-up svg, .fb-btn.is-on-down svg { fill: currentColor; fill-opacity: .2; }
+
+
+/* v6.9.53 · Sade mobil ana ekran: Gemini/Oforge esintili, özellikleri koruyan düzen */
+.welcome-screen { width:100%; padding:2rem 1rem; }
+.welcome-spark {
+  width:3.25rem; height:3.25rem; display:grid; place-items:center; margin-bottom:1.15rem;
+  color:#2563EB; border-radius:1.15rem; background:linear-gradient(145deg,#EEF4FF,#F5F3FF);
+}
+.welcome-spark svg { width:1.8rem; height:1.8rem; stroke-width:1.8; }
+.welcome-title { margin:0; color:#111827; font-size:clamp(1.8rem,4vw,2.65rem); line-height:1.15; font-weight:500; letter-spacing:-.045em; }
+.welcome-subtitle { margin:.85rem 0 0; color:#64748B; font-size:1rem; line-height:1.6; }
+
+@media (max-width: 639px) {
+  body { background:#F8FAFC; }
+  #messagesContainer { padding:1rem .85rem 1.25rem !important; }
+  #welcomeScreen { min-height:100%; justify-content:center; padding:1.5rem .75rem 2rem; }
+  .welcome-spark { width:3rem; height:3rem; margin-bottom:1rem; border-radius:1.1rem; }
+  .welcome-title { font-size:2rem; }
+  .welcome-subtitle { max-width:19rem; margin-top:.65rem; font-size:.95rem; }
+  #noKeyWarning { max-width:100%; margin-top:1.5rem; margin-bottom:0; padding:.75rem .85rem; border-radius:1rem; }
+  #chatForm {
+    padding:.8rem .85rem .7rem !important; border-radius:1.65rem !important;
+    border-color:#E5EAF1 !important; box-shadow:0 8px 28px rgba(15,23,42,.07) !important;
+  }
+  #userInput { min-height:3.1rem !important; max-height:8rem !important; padding:.35rem .25rem !important; font-size:1.02rem !important; line-height:1.5 !important; }
+  #chatForm > div:last-child { padding-top:.55rem !important; margin-top:.35rem !important; border-top-color:#F1F5F9 !important; }
+  #chatForm button { min-height:2.55rem; }
+  #sendBtn { width:2.65rem; height:2.65rem; justify-content:center; padding:0 !important; border-radius:999px !important; }
+  #sendBtn span { display:none; }
+  #sendBtn svg { width:1.15rem; height:1.15rem; }
+  #attachImageBtn, #attachFileBtn, #micBtn, #webSearchBtn { width:2.45rem; height:2.45rem; justify-content:center; padding:.55rem !important; border-radius:999px !important; }
+  #chatForm .border-t { border-top:0 !important; }
+  main > header { height:3.65rem !important; padding-left:.75rem !important; padding-right:.75rem !important; background:rgba(255,255,255,.92) !important; }
+  #openSidebarBtn { margin-left:0 !important; }
+  #togglePreviewPaneBtn, #headerInstallBtn { width:2.45rem; height:2.45rem; justify-content:center; padding:.55rem !important; border-radius:999px !important; }
+  #togglePreviewPaneBtn svg, #headerInstallBtn svg { width:1.05rem; height:1.05rem; }
+  #limitBanner { font-size:.78rem; }
+  #attachmentsPreviewBar { max-height:6rem; }
+}
+
+html.dark .welcome-title { color:#F8FAFC; }
+html.dark .welcome-spark { background:linear-gradient(145deg,#1E3A8A,#312E81); color:#BFDBFE; }
+html.dark .welcome-subtitle { color:#94A3B8; }
+@media (max-width:639px) {
+  html.dark #chatForm { background:#111827 !important; border-color:#334155 !important; }
+  html.dark #chatForm .border-t { border-color:#334155 !important; }
+}
