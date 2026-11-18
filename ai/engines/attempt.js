@@ -22,7 +22,7 @@ export async function runAttempt(model, canFallback, ctx) {
   const relay = () => ac.abort();
   signal.addEventListener('abort', relay);
   let timedOut = false, gotText = false;
-  const timer = canFallback ? setTimeout(() => { if (!gotText) { timedOut = true; ac.abort(); } }, firstTokenMs) : null;
+  const timer = setTimeout(() => { if (!gotText) { timedOut = true; ac.abort(); } }, firstTokenMs);   // yedek motor olmasa da sonsuza dek dönmesin
   try {
     hooks.onStage('prepare', { media: hasMedia(hist, model) });
     const requestBody = provider.buildBody({ model, hist, systemText, webOn });

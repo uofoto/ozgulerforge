@@ -9,8 +9,8 @@ export const ENGINES = [
   { id: 'lite', label: 'AI Lite', desc: 'Hızlı motor: günlük sorular için; fotoğraf ve PDF okur' }
 ];
 export const MODELS = [
-  { id: 'ultra38', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'gemini', model: 'gemini-3.8-flash', tier: 'strong', vision: true, pdf: true },
-  { id: 'lite35', engine: 'lite', label: 'AI Lite', provider: 'gemini', model: 'gemini-3.5-flash-lite', tier: 'light', vision: true, pdf: true }
+  { id: 'ultra38', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'gemini', model: 'gemini-3.8-flash', thinking: 'low', tier: 'strong', vision: true, pdf: true },
+  { id: 'lite35', engine: 'lite', label: 'AI Lite', provider: 'gemini', model: 'gemini-3.5-flash-lite', thinking: 'minimal', tier: 'light', vision: true, pdf: true }
 ];
 
 // Seçili motor (ENGINES öğesi). Kayıtlı değer geçersizse (eski sürümlerden kalan "auto", "f1"… dahil) AI Ultra 3.8.
