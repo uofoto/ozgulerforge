@@ -360,6 +360,10 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
     .mermaid-card.show-src .mermaid-src { display:block; }
     .mermaid-card.show-src .mermaid-body { display:none; }
     .fm-math-d { display:block; overflow-x:auto; padding:.5rem 0; text-align:center; }
+    .fm-chip { padding:.35rem .8rem; border-radius:9999px; border:1px solid #E2E8F0; background:#fff; color:#475569; font-size:.75rem; line-height:1.3; cursor:pointer; transition:all .15s; text-align:left; }
+    .fm-chip:hover { border-color:#93C5FD; color:#1D4ED8; background:#EFF6FF; }
+    html.dark .fm-chip { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.12); color:#CBD5E1; }
+    html.dark .fm-chip:hover { border-color:#7AA2FF; color:#BFD2FF; background:rgba(122,162,255,.12); }
     .prose .fm-callout { border-left:4px solid var(--c); background:var(--bg); padding:1rem; border-radius:0 .75rem .75rem 0; margin:1.5rem 0; color:inherit; }
     .fm-callout-title { display:flex; align-items:center; gap:.5rem; font-weight:600; margin-bottom:.5rem; color:var(--c); }
     .fm-callout-note { --c:#2563EB; --bg:rgba(37,99,235,.08); } .fm-callout-tip { --c:#059669; --bg:rgba(5,150,105,.08); }
@@ -1302,7 +1306,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     // --- ZENGİN YANIT BİLEŞENLERİ (Mermaid, LaTeX, tablo, uyarı kutusu, diff) ---
     const RICH_UI_HINT = '\n\nBiçim ipuçları (yalnızca gerçekten işe yarıyorsa kullan): akış/mimari diyagramı için ```mermaid bloğu; matematik için blok halinde $$…$$, satır içi \\( … \\); kod değişikliklerini ```diff bloğu ile; karşılaştırmaları tablo yerine kısa maddelerle yap.\nVurgu kutuları için YALNIZCA Türkçe etiketleri kullan, İngilizce etiket (NOTE, TIP, WARNING, IMPORTANT, CAUTION) yazma: "> [!ÖNEMLİ]" (cevabın en kritik cümlesi), "> [!NOT]", "> [!İPUCU]", "> [!UYARI]", "> [!DİKKAT]" (risk ya da tehlike). Etiketi alıntının ilk satırına tek başına yaz, vurgulanacak cümleyi altına yaz. Bir cevapta en çok 1-2 kutu kullan.';
     // Yanıt üslubu: her istekte eklenir (kayıtlı sistem istemi eski olsa bile geçerli olur).
-    const ANSWER_STYLE = '\n\nYanıt üslubu kuralları (her zaman uy):\n- Soruyu tatmin edici ve eksiksiz yanıtla. Önce doğrudan cevabı ver, ardından nedenini, önemli ayrıntıları ve uygunsa bir örneği anlat. "Neden", "nasıl", "nedir", "anlat", "açıkla" gibi açıklama isteyen sorularda konuyu başlıklar ya da maddelerle derinlemesine işle; tek cümlelik, baştan savma cevap verme.\n- Uzunluğu sorunun niteliğine göre ayarla: selam, evet/hayır ya da çok basit bir olgu sorusuna kısa cevap yeterlidir. Bilgi, açıklama, karşılaştırma, analiz, tavsiye ve bilimsel ya da felsefi konularda ayrıntılı, yapılandırılmış ve bilgi dolu yanıt ver (genelde 200-500 kelime, gerekirse daha uzun).\n- "Elbette", "Harika soru" gibi boş girişler ve "umarım yardımcı olmuştur" gibi kapanışlar yazma; dolgu yerine içerik ver, aynı şeyi tekrar etme.\n- Kullanıcının asıl ihtiyacını düşün: işine yarayacak önemli bir ek bilgi, uyarı ya da sonraki adım varsa kısaca ekle.\n- Okunaklı yaz: kısa paragraflar, gerektiğinde başlık, madde ve kalın vurgu; emoji yok. Kullanıcı açıkça istemedikçe tablo kullanma, karşılaştırmayı maddelerle yap.\n- Bilimsel, tıbbi, tarihsel ya da istatistiksel bilgi verdiğinde cevabın sonuna "Kaynaklar" başlığı ekle ve dayandığın kaynakları yaz: kurum, yazar, yayın ya da makale adı ve yıl (örn. NASA, WHO, Nature dergisi, ilgili ders kitabı). Yalnızca gerçekten var olduğundan emin olduğun kaynakları yaz. Web adresi (URL) uydurma; web araması açıksa arama sonuçlarındaki kaynakları kullan, kapalıysa tam bağlantı için yazı kutusundaki Web düğmesini açmasını öner. Emin olduğun bir kaynak yoksa uydurma, bunu açıkça söyle.\n- Cevabın en önemli cümlesini ya da sonucunu > [!ÖNEMLİ] kutusuyla vurgula; gerektiğinde > [!UYARI] veya > [!İPUCU] kullan.\n- Emin olmadığın bilgiyi uydurma; bilmiyorsan ya da bilgi güncel olmayabilirse bunu kısaca söyle.\n- Gerekmedikçe soru sorma; sorarsan en fazla bir kısa soru sor.';
+    const ANSWER_STYLE = '\n\nYanıt üslubu kuralları (her zaman uy):\n- Soruyu tatmin edici ve eksiksiz yanıtla. Önce doğrudan cevabı ver, ardından nedenini, önemli ayrıntıları ve uygunsa bir örneği anlat. "Neden", "nasıl", "nedir", "anlat", "açıkla" gibi açıklama isteyen sorularda konuyu başlıklar ya da maddelerle derinlemesine işle; tek cümlelik, baştan savma cevap verme.\n- Uzunluğu sorunun niteliğine göre ayarla: selam, evet/hayır ya da çok basit bir olgu sorusuna kısa cevap yeterlidir. Bilgi, açıklama, karşılaştırma, analiz, tavsiye ve bilimsel ya da felsefi konularda ayrıntılı, yapılandırılmış ve bilgi dolu yanıt ver (genelde 200-500 kelime, gerekirse daha uzun).\n- "Elbette", "Harika soru" gibi boş girişler ve "umarım yardımcı olmuştur" gibi kapanışlar yazma; dolgu yerine içerik ver, aynı şeyi tekrar etme.\n- Kullanıcının asıl ihtiyacını düşün: işine yarayacak önemli bir ek bilgi, uyarı ya da sonraki adım varsa kısaca ekle.\n- Okunaklı yaz: kısa paragraflar, gerektiğinde başlık, madde ve kalın vurgu; emoji yok. Kullanıcı açıkça istemedikçe tablo kullanma, karşılaştırmayı maddelerle yap.\n- Bilimsel, tıbbi, tarihsel ya da istatistiksel bilgi verdiğinde cevabın sonuna "Kaynaklar" başlığı ekle ve dayandığın kaynakları yaz: kurum, yazar, yayın ya da makale adı ve yıl (örn. NASA, WHO, Nature dergisi, ilgili ders kitabı). Yalnızca gerçekten var olduğundan emin olduğun kaynakları yaz. Web adresi (URL) uydurma; web araması açıksa arama sonuçlarındaki kaynakları kullan, kapalıysa tam bağlantı için yazı kutusundaki Web düğmesini açmasını öner. Emin olduğun bir kaynak yoksa uydurma, bunu açıkça söyle.\n- Cevabın en önemli cümlesini ya da sonucunu > [!ÖNEMLİ] kutusuyla vurgula; gerektiğinde > [!UYARI] veya > [!İPUCU] kullan.\n- Emin olmadığın bilgiyi uydurma; bilmiyorsan ya da bilgi güncel olmayabilirse bunu kısaca söyle.\n- Cevabın en sonuna (Kaynaklar bölümünden de sonra) kullanıcının tek tıkla sorabileceği 2-3 devam önerisi ekle. Yeni bir blok aç, ilk satıra yalnızca [[ÖNERİLER]] yaz, sonraki satırlara her öneriyi "- " ile ve kullanıcının ağzından, en fazla 8 kelimelik bir istek olarak yaz (örn. "- Bunu bir örnekle açıkla", "- Daha ayrıntılı anlat"). Öneriler konuya özgü ve işe yarar olsun. Selamlaşma, çok kısa sohbet, hata ve reddetme cevaplarında öneri ekleme. Bu blok dışında "şunu da yapabilirim", "ister misin?" gibi ayrı cümleler yazma.\n- Gerekmedikçe soru sorma; sorarsan en fazla bir kısa soru sor.';
     const _loaded = {};
     function loadOnce(url, kind) {
       if (_loaded[url]) return _loaded[url];
@@ -2348,6 +2352,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           if (note) note.textContent = engineNoteText(m);
         }
         if (m.role === 'assistant' && m.feedback) paintFeedback(r, m.feedback);
+        if (m.role === 'assistant' && m.suggestions && !m.isLimit && i === chat.messages.length - 1) renderSuggestions(r, m.suggestions);
         if (m.role === 'assistant' && m.isLimit) renderLimitCard(r, m, i === chat.messages.length - 1);
       });
       els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
@@ -2414,6 +2419,8 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         els.settingsModal.classList.remove('hidden');
         return;
       }
+
+      document.querySelectorAll('.msg-suggest').forEach(n => n.remove());
 
       if (!text && state.attachedImages.length > 0) {
         text = 'Eklediğim fotoğrafları ışık, renk dengesi ve kompozisyon açısından analiz et.';
@@ -2742,7 +2749,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         let renderQueued = false;
         const flushRender = () => {
           renderQueued = false;
-          proseEl.innerHTML = parseMarkdownSafe(aiMsg.content);
+          proseEl.innerHTML = parseMarkdownSafe(splitSuggestions(aiMsg.content).body);
           if (state.autoStick !== false) els.messagesContainer.scrollTop = els.messagesContainer.scrollHeight;
         };
         const scheduleRender = () => {
@@ -2862,6 +2869,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         clearInterval(elapsedTimer);
         aiMsg.elapsedMs = elapsedMs;
         aiMsg.webSearch = localStorage.getItem(WEB_KEY) === '1';
+        { const sg = splitSuggestions(aiMsg.content); aiMsg.content = sg.body; if (sg.items.length) aiMsg.suggestions = sg.items; else delete aiMsg.suggestions; }
         if (progressEl) progressEl.remove();
         flushRender();
         if (r.sources.length) aiMsg.sources = r.sources;
@@ -2882,6 +2890,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           const note = discEl.querySelector('.msg-fallback-note');
           if (note) note.textContent = engineNoteText(aiMsg);
           renderSources(bubble, aiMsg.sources);
+          if (aiMsg.suggestions) renderSuggestions(bubble, aiMsg.suggestions);
         }
         syncStorage();
 
@@ -3946,6 +3955,32 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
 
     // --- KAYNAKLAR VE WEB ARAMA DÜĞMESİ ---
+    // Devam önerileri: model bunları cevabın sonunda tek akışta yazar (ek istek yok, hız kaybı yok).
+    function splitSuggestions(text) {
+      const t = String(text || '');
+      const i = t.indexOf('[[ÖNERİ');
+      if (i < 0) return { body: t.replace(/\s*\[{1,2}[ÖNERİ]{0,4}$/, ''), items: [] };
+      const body = t.slice(0, i).replace(/\s+$/, '');
+      const items = t.slice(i).split('\n').slice(1)
+        .map(l => l.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, '').trim())
+        .filter(x => x && !/^\[\[/.test(x) && x.length <= 90).slice(0, 3);
+      return { body, items };
+    }
+    function renderSuggestions(row, items) {
+      if (!row || !Array.isArray(items) || !items.length) return;
+      const old = row.querySelector('.msg-suggest'); if (old) old.remove();
+      const box = document.createElement('div');
+      box.className = 'msg-suggest mt-3 flex flex-wrap gap-2';
+      items.slice(0, 3).forEach((t) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'fm-chip'; b.textContent = t;
+        b.onclick = () => { if (state.isGenerating) return; els.userInput.value = t; sendMessage(); };
+        box.appendChild(b);
+      });
+      const d = row.querySelector('.msg-disclaimer');
+      if (d) d.parentNode.insertBefore(box, d.nextSibling); else row.appendChild(box);
+    }
+
     function renderSources(row, list) {
       if (!row || !Array.isArray(list) || !list.length) return;
       const old = row.querySelector('.msg-sources'); if (old) old.remove();
