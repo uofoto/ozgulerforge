@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { installLocalStorage, CREDS, sse, gText, orText, fakeFetch, abortError } from './helpers.mjs';
 
 const { MODELS, ENGINES, hasKeyFor, keyOk, curModel, poolOf, poolFor } = await import('../engines/models.js');
-const { classifyRequest, rankModels, planRequest } = await import('../engines/router.js');
+const { classifyRequest, rankModels, planRequest, thinkingLevelFor } = await import('../engines/router.js');
 const { detectQuotaInfo, parseRetrySeconds, nextUtcMidnight } = await import('../engines/quota.js');
 const { formatFailure, mkErr } = await import('../engines/errors.js');
 const { Health, isCooled, recordHealth, healthKeys } = await import('../engines/health.js');
@@ -73,9 +73,14 @@ test('classifyRequest', () => {
   assert.equal(classifyRequest('bir python fonksiyon yaz', none), 'code');
   assert.equal(classifyRequest('```js\nlet a\n```', none), 'code');
   assert.equal(classifyRequest('bunu ayrıntılı analiz et', none), 'analysis');
+  assert.equal(classifyRequest('hakikat ve insan doğası üzerine düşün', none), 'philosophy');
+  assert.equal(classifyRequest('özgür irade nedir?', none), 'philosophy');
+  assert.equal(classifyRequest('etik ve adalet üzerine düşün', none), 'philosophy');
+  assert.equal(classifyRequest('bu konuda özgün bir deneme yaz', none), 'writing');
   assert.equal(classifyRequest('x'.repeat(600), none), 'analysis');
   assert.equal(classifyRequest('x'.repeat(3100), none), 'document');
   assert.equal(classifyRequest('merhaba', { vision: true, pdf: true }), 'vision');
+  assert.equal(classifyRequest('fotoğrafın kompozisyonunu ve ışığını ayrıntılı değerlendir', { vision: true, pdf: false }), 'vision_analysis');
   assert.equal(classifyRequest('merhaba', { vision: false, pdf: true }), 'pdf');
 });
 
@@ -96,6 +101,15 @@ test('planRequest: yalnızca seçili motorun yedek modelleri, anahtarı olanlar'
   const u = planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: CREDS });
   assert.deepEqual(ids(u.candidates), ['ultra38']);
   assert.equal(u.reqType, 'simple');
+  assert.equal(u.candidates[0].thinking, 'medium');
+  const deep = planRequest({ selected: E('ultra'), hist: textHist('Hakikat nedir? İnsan neden kendi inançlarına tutunur?'), creds: GEM });
+  assert.equal(deep.reqType, 'philosophy');
+  assert.equal(deep.candidates[0].thinking, 'high');
+  const visualDeep = planRequest({ selected: E('ultra'), hist: [{ role: 'user', msgText: 'Fotoğrafın kompozisyonunu ve ışığını ayrıntılı değerlendir', images: [IMG], pdfs: [] }], creds: GEM });
+  assert.equal(visualDeep.reqType, 'vision_analysis');
+  assert.equal(visualDeep.candidates[0].thinking, 'high');
+  const liteDeep = planRequest({ selected: E('lite'), hist: textHist('Hakikat nedir?'), creds: GEM });
+  assert.equal(liteDeep.candidates[0].thinking, 'low');
   const l = planRequest({ selected: E('lite'), hist: textHist('merhaba'), creds: CREDS });
   assert.deepEqual(ids(l.candidates), ['lite35']);
   assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM }).candidates), ['ultra38']);
@@ -373,11 +387,12 @@ test('yedek motor yoksa da takılı kalan istek zaman aşımına uğrar', async 
   await assert.rejects(p, (e) => e.kind === 'timeout');
 });
 
-test('yanıt kuralları: doyurucu yanıt, önemli cümle kutusu, akademik kaynak bağlantısı ve alternatif öneri bloğu', () => {
-  assert.ok(!/150 kelime/.test(ANSWER_STYLE), 'kısa yanıt sınırı kalkmış olmalı');
-  assert.ok(ANSWER_STYLE.includes('doyurucu'));
-  assert.ok(ANSWER_STYLE.includes('> [!IMPORTANT]') && ANSWER_STYLE.includes('> [!WARNING]'));
-  assert.ok(ANSWER_STYLE.includes('Kaynaklar') && ANSWER_STYLE.includes('uydurma'));
+test('yanıt kuralları: doğal dil, düşünsel derinlik, doğruluk ve isteğe bağlı takip önerileri', () => {
+  assert.ok(ANSWER_STYLE.includes('MUHAKEME KALİTESİ'));
+  assert.ok(ANSWER_STYLE.includes('FELSEFİ DERİNLİK'));
+  assert.ok(ANSWER_STYLE.includes('DOĞRULUK VE ENTELEKTÜEL DÜRÜSTLÜK'));
+  assert.ok(ANSWER_STYLE.includes('Her cevabın sonuna otomatik öneri'));
   assert.ok(ANSWER_STYLE.includes(SUGGEST_OPEN) && ANSWER_STYLE.includes(SUGGEST_CLOSE));
-  assert.ok(!ANSWER_STYLE.includes('alternatif ya da uyarı listesi ekleme'));
+  assert.ok(!ANSWER_STYLE.includes('her yanıtın en sonuna'));
+  assert.ok(!ANSWER_STYLE.includes('en fazla 1-2 kutu'));
 });
