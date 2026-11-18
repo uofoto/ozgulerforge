@@ -1,6 +1,7 @@
 # Oforge AI (v6.9.41)
 
 ## v6.9.41
+- **Motorlar ikiye indirildi (hız):** Yalnızca "Oforge Ultra 3.8" (`gemini-3.8-flash`, güçlü) ve "Oforge Lite" (`gemini-3.5-flash-lite`, hızlı) kaldı; Gemini 4 Hydrogen, 2.5/2.0/1.5 Flash ve tüm OpenRouter modelleri ile OpenRouter anahtar alanı kaldırıldı. Otomatik mod basit soruları Lite'a, kod/analiz/belge/PDF/fotoğrafı Ultra'ya yönlendirir; biri hata verirse diğerine geçer. Eski elle seçili motor kaydı otomatik olarak "Oforge AI Otomatik"e döner.
 - **Adlandırma:** Arayüzde görünen "Forge" ifadeleri "Oforge" oldu: motor adları (Oforge 1–5), tema adı ve ilgili yardım metinleri. Şirket adı "Ozguler Forge" ile dahili anahtarlar/sınıflar (`forge_ai_*`, `html.forge` vb.) değişmedi, böylece sohbetler ve ayarlar korunur.
 
 ## v6.9.40

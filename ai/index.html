@@ -940,13 +940,6 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
           <input type="password" id="apiKeyInput" placeholder="AIzaSy..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">OpenRouter API Anahtarı</label>
-          <p class="text-[10px] text-slate-500 mb-1">Oforge 1, 2, 3, 5 ve Oforge AI Otomatik motorları için gerekir (ücretsiz modeller). openrouter.ai/keys adresinden alabilirsiniz.</p>
-          <input type="password" id="orKeyInput" placeholder="sk-or-v1-..." autocomplete="off" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:bg-white focus:border-blue-500 font-mono">
-        </div>
-
-
         <details class="rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5">
           <summary class="text-xs font-semibold text-slate-700 cursor-pointer select-none">Gelişmiş: motoru elle seç</summary>
           <p class="text-[11px] text-slate-500 mt-2 mb-2 leading-relaxed">Varsayılan <b>Oforge AI Otomatik</b>: isteğin türüne göre uygun motoru kendisi seçer, kota dolarsa başka motora geçer ve hangi motorla yanıtladığını yazar. Yalnızca gerektiğinde elle seçin; elle seçilen motor fotoğraf/PDF okuyamıyorsa dosya gönderilmez.</p>
@@ -1121,28 +1114,20 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     // Kullanıcıya yalnızca "Oforge X" adları gösterilir; gerçek model kimlikleri burada tutulur.
     const MODELS = [
       { id: 'auto', label: 'Oforge AI Otomatik', auto: true },
-      { id: 'f1', label: 'Oforge 1', provider: 'gemini', model: 'gemini-4-hydrogen', tier: 'strong', vision: true, pdf: true, desc: 'Gemini 4 Hydrogen, fotoğraf ve PDF destekler' },
-      { id: 'g25', label: 'Oforge 2.5 Flash', provider: 'gemini', model: 'gemini-2.5-flash', tier: 'strong', vision: true, pdf: true, desc: 'Gemini 2.5 Flash, fotoğraf ve PDF destekler' },
-      { id: 'g20', label: 'Oforge 2.0 Flash', provider: 'gemini', model: 'gemini-2.0-flash', tier: 'light', vision: true, pdf: true, desc: 'Gemini 2.0 Flash, hızlı, fotoğraf ve PDF destekler' },
-      { id: 'g15', label: 'Oforge 1.5 Flash', provider: 'gemini', model: 'gemini-1.5-flash', tier: 'light', vision: true, pdf: true, noAuto: true, desc: 'Gemini 1.5 Flash, fotoğraf ve PDF destekler' },
-      { id: 'f2', label: 'Oforge 2', provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', tier: 'strong', desc: 'Nemotron 3 Ultra, yalnızca metin' },
-      { id: 'f3', label: 'Oforge 3', provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free', tier: 'light', desc: 'Nemotron 3.5 Lightning, hızlı, yalnızca metin' },
-      { id: 'f4', label: 'Oforge 4', provider: 'openrouter', model: 'google/gemma-4-31b-it:free', tier: 'mid', vision: true, desc: 'Gemma 4 31B, fotoğraf destekler (PDF yok)' },
-      { id: 'f5', label: 'Oforge 5 (Kod)', provider: 'openrouter', model: 'cohere/north-mini-code:free', tier: 'code', desc: 'North Mini Code, yalnızca metin' }
+      { id: 'ultra', label: 'Oforge Ultra 3.8', provider: 'gemini', model: 'gemini-3.8-flash', tier: 'strong', vision: true, pdf: true, desc: 'Gemini 3.8, güçlü; fotoğraf ve PDF destekler' },
+      { id: 'lite', label: 'Oforge Lite', provider: 'gemini', model: 'gemini-3.5-flash-lite', tier: 'light', vision: true, pdf: true, desc: 'Gemini Lite, çok hızlı; fotoğraf ve PDF destekler' }
     ];
-    const OR_KEY_STORE = 'forge_ai_openrouter_api_key';
     function curModel() {
       let id = null;
       try { id = localStorage.getItem('forge_ai_v66_model'); } catch (_) {}
       return MODELS.find(m => m.id === id) || MODELS[0];
     }
     function hasKeyFor(m) {
-      if (m.provider === 'openrouter') return Boolean(state.orKey);
       return Boolean(PROXY_URL || (state.apiKey && state.apiKey.startsWith('AIza')));
     }
     function keyOk() {
       const m = curModel();
-      return m.auto ? MODELS.some(x => !x.auto && !x.noAuto && hasKeyFor(x)) : hasKeyFor(m);
+      return m.auto ? MODELS.some(x => !x.auto && hasKeyFor(x)) : hasKeyFor(m);
     }
 
     const KEYS = {
@@ -1251,7 +1236,6 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
     let state = {
       apiKey: localStorage.getItem(KEYS.API) || '',
-      orKey: localStorage.getItem('forge_ai_openrouter_api_key') || '',
       systemPrompt: localStorage.getItem(KEYS.SYSTEM) || BASE_IDENTITY,
       chats: JSON.parse(localStorage.getItem(KEYS.CHATS) || '[]'),
       activeChatId: null,
@@ -2628,8 +2612,8 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
         const reqType = classifyRequest(lastH.msgText, need);
         let candidates;
         if (sel.auto) {
-          const keyed = MODELS.filter(m => !m.auto && !m.noAuto && hasKeyFor(m));
-          if (!keyed.length) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini veya OpenRouter anahtarınızı girin.');
+          const keyed = MODELS.filter(m => !m.auto && hasKeyFor(m));
+          if (!keyed.length) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini API anahtarınızı girin.');
           const capable = keyed.filter(m => (!need.vision || m.vision) && (!need.pdf || m.pdf));
           if (!capable.length) throw mkErr('unsupported', 'Bu sohbette ' + needText(need) + ' var, ancak bunu okuyabilen bir motor için anahtar yok. Ayarlardan Gemini API anahtarı ekleyin.');
           const live = capable.filter(m => !isCooled(m));
@@ -2643,7 +2627,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
             candidates = rankModels(capable, reqType);
           }
         } else {
-          if (!hasKeyFor(sel)) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden ' + (sel.provider === 'openrouter' ? 'OpenRouter' : 'Gemini') + ' anahtarınızı girin.');
+          if (!hasKeyFor(sel)) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini API anahtarınızı girin.');
           if ((lastNeed.vision && !sel.vision) || (lastNeed.pdf && !sel.pdf)) {
             throw mkErr('unsupported', sel.label + ' ' + needText({ vision: lastNeed.vision && !sel.vision, pdf: lastNeed.pdf && !sel.pdf }) + ' okuyamıyor. Ayarlar → Gelişmiş bölümünden "Oforge AI Otomatik" seçeneğini seçin.');
           }
@@ -3119,7 +3103,6 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
-      document.getElementById('orKeyInput').value = state.orKey;
       els.systemPromptInput.value = state.systemPrompt;
       els.settingsModal.classList.remove('hidden');
     };
@@ -3128,8 +3111,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
 
     document.getElementById('saveSettingsBtn').onclick = () => {
       state.apiKey = els.apiKeyInput.value.trim();
-      state.orKey = document.getElementById('orKeyInput').value.trim();
-      localStorage.setItem(OR_KEY_STORE, state.orKey);
+      try { localStorage.removeItem('forge_ai_openrouter_api_key'); } catch (_) {}
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       localStorage.setItem(KEYS.API, state.apiKey);
       localStorage.setItem(KEYS.SYSTEM, state.systemPrompt);
