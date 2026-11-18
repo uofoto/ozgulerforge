@@ -5,7 +5,7 @@
     import { Health } from './engines/health.js';
     import { REQ_LABELS, planRequest } from './engines/router.js';
     import { runWithFallback } from './engines/index.js';
-    import { BASE_IDENTITY, buildSystemText, SUGGEST_OPEN, SUGGEST_CLOSE } from './prompts.js';
+    import { BASE_IDENTITY, LEGACY_IDENTITY, buildSystemText, SUGGEST_OPEN, SUGGEST_CLOSE } from './prompts.js';
 
     function refreshIcons() {
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -107,7 +107,7 @@
 
     let state = {
       apiKey: storage.get(KEYS.API, ''),
-      systemPrompt: storage.get(KEYS.SYSTEM, '') || BASE_IDENTITY,
+      systemPrompt: (storage.get(KEYS.SYSTEM, '') && storage.get(KEYS.SYSTEM, '') !== LEGACY_IDENTITY) ? storage.get(KEYS.SYSTEM, '') : BASE_IDENTITY,
       chats: loadChats(),
       activeChatId: null,
       attachedFiles: [],
