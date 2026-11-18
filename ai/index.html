@@ -26,7 +26,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon-v5.png" />
   
 
-  <script src="./forge-mark.js?v=6.9.54"></script>
+  <script src="./forge-mark.js?v=6.9.55"></script>
 
   <!-- Tipografi: Inter + sistem yazı tipleri (SF Pro, Roboto Flex, Segoe UI) & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,26 +65,26 @@
   <script type="importmap">
     {
       "imports": {
-        "./config.js": "./config.js?v=6.9.54",
-        "./engines/attempt.js": "./engines/attempt.js?v=6.9.54",
-        "./engines/errors.js": "./engines/errors.js?v=6.9.54",
-        "./engines/health.js": "./engines/health.js?v=6.9.54",
-        "./engines/index.js": "./engines/index.js?v=6.9.54",
-        "./engines/media.js": "./engines/media.js?v=6.9.54",
-        "./engines/models.js": "./engines/models.js?v=6.9.54",
-        "./engines/providers/gemini.js": "./engines/providers/gemini.js?v=6.9.54",
-        "./engines/providers/index.js": "./engines/providers/index.js?v=6.9.54",
-        "./engines/providers/openrouter.js": "./engines/providers/openrouter.js?v=6.9.54",
-        "./engines/quota.js": "./engines/quota.js?v=6.9.54",
-        "./engines/router.js": "./engines/router.js?v=6.9.54",
-        "./engines/stream.js": "./engines/stream.js?v=6.9.54",
-        "./prompts.js": "./prompts.js?v=6.9.54",
-        "./storage.js": "./storage.js?v=6.9.54"
+        "./config.js": "./config.js?v=6.9.55",
+        "./engines/attempt.js": "./engines/attempt.js?v=6.9.55",
+        "./engines/errors.js": "./engines/errors.js?v=6.9.55",
+        "./engines/health.js": "./engines/health.js?v=6.9.55",
+        "./engines/index.js": "./engines/index.js?v=6.9.55",
+        "./engines/media.js": "./engines/media.js?v=6.9.55",
+        "./engines/models.js": "./engines/models.js?v=6.9.55",
+        "./engines/providers/gemini.js": "./engines/providers/gemini.js?v=6.9.55",
+        "./engines/providers/index.js": "./engines/providers/index.js?v=6.9.55",
+        "./engines/providers/openrouter.js": "./engines/providers/openrouter.js?v=6.9.55",
+        "./engines/quota.js": "./engines/quota.js?v=6.9.55",
+        "./engines/router.js": "./engines/router.js?v=6.9.55",
+        "./engines/stream.js": "./engines/stream.js?v=6.9.55",
+        "./prompts.js": "./prompts.js?v=6.9.55",
+        "./storage.js": "./storage.js?v=6.9.55"
       }
     }
   </script>
   <!-- importmap:end -->
-  <link rel="stylesheet" href="./styles.css?v=6.9.54" />
+  <link rel="stylesheet" href="./styles.css?v=6.9.55" />
 </head>
 <body class="h-dvh flex overflow-hidden antialiased selection:bg-blue-600/15 selection:text-blue-700">
 
@@ -182,9 +182,9 @@
       <div id="accountMenu" role="menu" class="hidden absolute bottom-full left-3 right-3 mb-1 bg-white border border-[#E3E0D8] rounded-2xl shadow-float p-1.5 z-50 max-h-[75vh] overflow-y-auto">
         <div id="menuEmail" class="hidden px-3 pt-1.5 pb-1 text-xs text-slate-500 truncate"></div>
 
-        <button id="openPaletteBtn" type="button" role="menuitem" class="sb-mi">
+        <button id="openPaletteBtn" type="button" role="menuitem" class="hidden" aria-hidden="true" tabindex="-1">
           <i data-lucide="command" class="w-[18px] h-[18px] text-slate-600"></i>
-          <span class="flex-1">Komut paleti</span>
+          <span class="flex-1">Araçlar ve hızlı işlemler</span>
           <kbd data-kbd-k class="text-xs font-sans text-slate-400">Ctrl K</kbd>
         </button>
 
@@ -194,6 +194,8 @@
           <span id="keyStatusBadge" class="w-2 h-2 rounded-full bg-rose-500" title="Motor Bağlantı Durumu"></span>
         </button>
 
+        <details class="mx-1.5 my-1 rounded-xl border border-[#ECEAE3] px-2.5 py-1.5">
+          <summary class="cursor-pointer list-none flex items-center justify-between text-sm font-medium text-slate-600">Tercihler <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i></summary>
         <button id="themeToggleBtn" type="button" role="menuitem" aria-expanded="false" aria-controls="themeSubmenu" class="sb-mi">
           <i data-lucide="sun-moon" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Tema</span>
@@ -221,6 +223,7 @@
           <span class="flex-1">Bildirimler</span>
           <span id="notifyState" class="text-sm text-slate-400">Kapalı</span>
         </button>
+        </details>
 
         <div id="cloudSync">
           <button id="cloudBtn" type="button" role="menuitem" class="sb-mi">
@@ -261,7 +264,7 @@
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" data-app-version class="font-mono text-[11px] font-bold text-blue-600">v6.9.54</span>
+          <span id="versionLabelBadge" data-app-version class="font-mono text-[11px] font-bold text-blue-600">v6.9.55</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -373,28 +376,22 @@
             ></textarea>
             
             <div class="flex items-center justify-between gap-2 pt-2 mt-1 border-t border-slate-100 px-1">
-              <div class="flex items-center gap-0.5 sm:gap-1 shrink-0">
+              <div class="flex items-center gap-1 shrink-0 relative">
                 <input type="file" id="imageInput" class="hidden" accept="image/*,.heic,.heif,.avif,.jpg,.jpeg,.png,.webp,.gif" multiple />
-                <button type="button" id="attachImageBtn" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-blue-50/70 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Çoklu Fotoğraf Yükle">
-                  <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
-                  <span class="hidden sm:inline">Fotoğraf</span>
-                </button>
-
                 <input type="file" id="fileInput" class="hidden" accept=".pdf,.txt,.md,.json,.csv,.js,.py,.html,.css,.xml,.sql" multiple />
-                <button type="button" id="attachFileBtn" class="p-2 text-slate-600 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Çoklu PDF veya Belge Yükle">
-                  <i data-lucide="files" class="w-4 h-4 text-indigo-600"></i>
-                  <span class="hidden sm:inline">PDF / Belgeler</span>
+                <button type="button" id="attachMenuBtn" aria-expanded="false" aria-controls="attachMenu" class="w-9 h-9 rounded-full border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition flex items-center justify-center" title="Dosya ve araç ekle" aria-label="Dosya ve araç ekle">
+                  <i data-lucide="plus" class="w-5 h-5"></i>
                 </button>
-
-                <button type="button" id="micBtn" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Sesle Yazdır">
-                  <i data-lucide="mic" class="w-4 h-4"></i>
-                  <span class="hidden sm:inline" id="micLabel">Sesli</span>
-                </button>
-
-                <button type="button" id="webSearchBtn" aria-pressed="false" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-xl transition flex items-center gap-1.5 text-xs font-medium cursor-pointer" title="Web'de ara ve kaynak göster">
-                  <i data-lucide="globe" class="w-4 h-4"></i>
-                  <span class="hidden sm:inline">Web</span>
-                </button>
+                <div id="attachMenu" class="hidden absolute bottom-full left-0 mb-2 w-52 bg-white border border-slate-200 rounded-xl shadow-float p-1.5 z-40">
+                  <button type="button" id="attachImageMenuItem" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm text-slate-700 flex items-center gap-2"><i data-lucide="image" class="w-4 h-4 text-slate-500"></i>Fotoğraf ekle</button>
+                  <button type="button" id="attachFileMenuItem" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm text-slate-700 flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>PDF / belge ekle</button>
+                  <button type="button" id="attachVoiceMenuItem" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm text-slate-700 flex items-center gap-2"><i data-lucide="mic" class="w-4 h-4 text-slate-500"></i>Sesle yazdır</button>
+                  <button type="button" id="attachWebMenuItem" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm text-slate-700 flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-slate-500"></i><span id="attachWebLabel">Web araması: kapalı</span></button>
+                </div>
+                <button type="button" id="attachImageBtn" class="hidden" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" id="attachFileBtn" class="hidden" tabindex="-1" aria-hidden="true"></button>
+                <button type="button" id="micBtn" class="hidden" tabindex="-1" aria-hidden="true" title="Sesle Yazdır"><span id="micLabel">Sesli</span></button>
+                <button type="button" id="webSearchBtn" aria-pressed="false" class="hidden" tabindex="-1" aria-hidden="true" title="Web'de ara ve kaynak göster"></button>
               </div>
 
               <div class="flex items-center gap-2 min-w-0 flex-1 justify-end">
@@ -503,10 +500,15 @@
           <select id="modelSelect" title="Motor seç" class="w-full px-2.5 py-2 bg-white border border-slate-200 text-slate-900 font-medium text-xs rounded-xl cursor-pointer focus:outline-none focus:border-blue-500"></select>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">Temel Sistem Talimatı</label>
-          <textarea id="systemPromptInput" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-blue-500 leading-relaxed"></textarea>
-        </div>
+        <details class="group rounded-xl border border-slate-200 px-3 py-2.5">
+          <summary class="cursor-pointer list-none flex items-center justify-between text-xs font-semibold text-slate-600">
+            <span>Gelişmiş ayarlar</span><i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 transition group-open:rotate-180"></i>
+          </summary>
+          <div class="pt-3">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Temel sistem talimatı</label>
+            <textarea id="systemPromptInput" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-800 focus:outline-none focus:bg-white focus:border-blue-500 leading-relaxed"></textarea>
+          </div>
+        </details>
       </div>
 
       <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
@@ -553,7 +555,7 @@
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.54</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.55</span>
         </div>
       </div>
 
@@ -659,8 +661,8 @@
     </div>
   </div>
 
-  <script type="module" src="./app.js?v=6.9.54"></script>
+  <script type="module" src="./app.js?v=6.9.55"></script>
 
-  <script type="module" src="./cloud.js?v=6.9.54"></script>
+  <script type="module" src="./cloud.js?v=6.9.55"></script>
 </body>
 </html>

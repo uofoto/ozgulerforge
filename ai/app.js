@@ -216,7 +216,7 @@
       renderDiagram(body);
       return card;
     }
-    const CALLOUTS = { NOTE: ['ℹ️', 'Not', 'note'], TIP: ['💡', 'İpucu', 'tip'], WARNING: ['⚠️', 'Uyarı', 'warn'], IMPORTANT: ['📌', 'Önemli', 'imp'], CAUTION: ['🛑', 'Dikkat', 'caution'] };
+    const CALLOUTS = { NOTE: ['Not', 'note'], TIP: ['İpucu', 'tip'], WARNING: ['Uyarı', 'warn'], IMPORTANT: ['Önemli', 'imp'], CAUTION: ['Dikkat', 'caution'] };
     function enhanceRich(container) {
       container.querySelectorAll('pre > code.language-mermaid').forEach((code) => { code.parentElement.replaceWith(buildDiagramCard(code.textContent || '')); });
       container.querySelectorAll('blockquote').forEach((bq) => {
@@ -225,7 +225,7 @@
         const c = CALLOUTS[m[1].toUpperCase()];
         p.innerHTML = p.innerHTML.replace(/^\s*\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*(<br\s*\/?>)?\s*/i, '');
         if (!p.textContent.trim()) p.remove();
-        const t = document.createElement('div'); t.className = 'fm-callout-title'; t.textContent = c[0] + ' ' + c[1];
+        const t = document.createElement('div'); t.className = 'fm-callout-title'; t.textContent = c[0];
         bq.insertBefore(t, bq.firstChild); bq.classList.add('fm-callout', 'fm-callout-' + c[2]);
       });
       container.querySelectorAll('table').forEach((t) => {
@@ -685,6 +685,24 @@
 
     document.getElementById('attachFileBtn').onclick = () => els.fileInput.click();
     els.fileInput.onchange = (e) => { const f = Array.from(e.target.files || []); e.target.value = ''; handleMultipleDocuments(f); };
+
+    // Tek ekleme menüsü: mevcut dosya/ses/web işlevlerini koruyarak araçları tek noktada toplar.
+    (function initAttachMenu() {
+      const menu = document.getElementById('attachMenu');
+      const trigger = document.getElementById('attachMenuBtn');
+      const close = () => { menu.classList.add('hidden'); trigger.setAttribute('aria-expanded', 'false'); };
+      trigger.addEventListener('click', (e) => { e.stopPropagation(); const open = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !open); trigger.setAttribute('aria-expanded', String(open)); });
+      document.getElementById('attachImageMenuItem').onclick = () => { close(); els.imageInput.click(); };
+      document.getElementById('attachFileMenuItem').onclick = () => { close(); els.fileInput.click(); };
+      document.getElementById('attachVoiceMenuItem').onclick = () => { close(); document.getElementById('micBtn').click(); };
+      document.getElementById('attachWebMenuItem').onclick = () => { document.getElementById('webSearchBtn').click(); paintAttachWebLabel(); };
+      function paintAttachWebLabel() { const on = document.getElementById('webSearchBtn').getAttribute('aria-pressed') === 'true'; document.getElementById('attachWebLabel').textContent = 'Web araması: ' + (on ? 'açık' : 'kapalı'); }
+      document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) close(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+      const web = document.getElementById('webSearchBtn');
+      new MutationObserver(paintAttachWebLabel).observe(web, { attributes: true, attributeFilter: ['aria-pressed'] });
+      paintAttachWebLabel();
+    })();
 
     function toggleSidebar(show) {
       els.sidebar.classList.toggle('-translate-x-full', !show);
@@ -1531,6 +1549,8 @@
       };
     } else {
       document.getElementById('micBtn').classList.add('hidden');
+      const voiceItem = document.getElementById('attachVoiceMenuItem');
+      if (voiceItem) voiceItem.classList.add('hidden');
     }
 
     els.chatForm.onsubmit = sendMessage;
@@ -1637,11 +1657,8 @@
     els.userInput.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = this.scrollHeight + 'px';
-      if (this.value.trim() === '/') {
-        els.slashMenu.classList.remove('hidden');
-      } else {
-        els.slashMenu.classList.add('hidden');
-      }
+      // Hızlı komutlar Ctrl/⌘+K komut paletinde tek yerde sunulur.
+      els.slashMenu.classList.add('hidden');
     });
 
     els.userInput.addEventListener('keydown', function(e) {
@@ -2189,11 +2206,12 @@
         add('Görünüm', 'Yüksek kontrastı aç / kapat', 'contrast', () => ForgeTheme.toggleContrast(), 'erişilebilirlik kontrast', ForgeTheme.contrast() ? 'Açık' : 'Kapalı');
         add('Görünüm', 'Tamamlanma sesini aç / kapat', 'volume-2', click('soundToggleBtn'), 'ses sound', ForgeSound.enabled() ? 'Açık' : 'Kapalı');
         add('Görünüm', 'Bildirimleri aç / kapat', 'bell', click('notifyToggleBtn'), 'bildirim notification', ForgeNotify.enabled() ? 'Açık' : 'Kapalı');
-        add('Hesap ve veri', 'Oforge AI Motor Ayarları', 'settings', click('openSettingsBtn'), 'api anahtar ayar key gemini');
+        add('Hesap ve veri', 'Motor ve gelişmiş ayarlar', 'settings', click('openSettingsBtn'), 'api anahtar ayar key gemini gelişmiş');
         add('Hesap ve veri', 'Sohbetleri bulutla eşitle', 'cloud', click('cloudBtn'), 'firebase google giriş sync');
         add('Hesap ve veri', 'Tüm çalışmaları yedekle (JSON)', 'archive', click('backupJsonBtn'), 'yedek backup');
         add('Hesap ve veri', 'Uygulamayı indir / kur', 'download', click('installPwaBtn'), 'pwa yükle ana ekran');
         add('Yardım', 'Kullanım kılavuzu', 'book-open', click('openGuideBtn'), 'yardım nasıl');
+        add('Yardım', 'Tanıtım turunu başlat', 'route', () => window.startForgeTour(), 'ilk kullanım tanıtım tur proje');
         add('Yardım', 'Ozguler Forge hakkında', 'info', click('openAboutBtn'), 'sürüm iletişim');
         [['usage', 'Kullanım Politikası'], ['privacy', 'Gizlilik ve KVKK'], ['terms', 'Hizmet Şartları'], ['licenses', 'Yazılım Lisansları']].forEach(([k, n]) => add('Yasal', n, 'scale', () => document.querySelector('[data-legal="' + k + '"]').click(), 'yasal hukuk'));
         state.chats.slice(0, 60).forEach((c) => add('Geçmiş', c.title || 'Başlıksız çalışma', 'message-square', () => { state.activeChatId = c.id; renderChatList(els.searchChatsInput.value); renderMessages(); toggleSidebar(false); }, 'çalışma sohbet geçmiş'));
@@ -2343,7 +2361,7 @@
       ['Komut paleti (Ctrl / ⌘ + K)', [
         'Ctrl + K (Mac’te ⌘ + K) ile paleti açın; sol paneldeki “Ara” da aynı paleti açar.',
         'Komutları, ayarları ve geçmiş çalışmaları yazarak arayın (yazım hatalarını ve Türkçe karakterleri tolere eder). ↑ ↓ ile gezin, Enter ile çalıştırın, Esc ile kapatın.',
-        'Palette: yeni çalışma, tema değiştirme, ses ve bildirim ayarı, yedekleme, hızlı komutlar, turu başlatma ve yasal metinler vardır.'
+        'Komut paleti: yeni çalışma, tema, ayarlar, yedekleme ve hızlı komutlara tek arama alanından erişebilirsiniz. Tanıtım turu otomatik başlamaz; yalnızca açıkça istenirse kullanılır.'
       ]],
       ['Zengin yanıtlar', [
         'Diyagramlar: Oforge AI akış/mimari şemalarını çizilebilir diyagram olarak verir; “Kod”, “SVG indir” ve “Kopyala” düğmeleri vardır.',
