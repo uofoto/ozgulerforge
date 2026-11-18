@@ -26,7 +26,9 @@ export const gemini = {
     return JSON.stringify({
       systemInstruction: { parts: [{ text: systemText }] },
       contents: this.buildContents(hist, model),
-      tools: webOn ? [{ googleSearch: {} }] : undefined
+      tools: webOn ? [{ googleSearch: {} }] : undefined,
+      // Gemini 3.x varsayılan olarak uzun "düşünür" (yavaş); düzeyi düşürerek ilk yanıt hızlandırılır.
+      generationConfig: model.thinking ? { thinkingConfig: { thinkingLevel: model.thinking } } : undefined
     });
   },
 
