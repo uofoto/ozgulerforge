@@ -23,7 +23,7 @@ export function poolFor(engine) { return MODELS.filter(m => m.engine === engine.
 // creds: { apiKey, orKey }
 export function hasKeyFor(m, creds) {
   if (m.provider === 'openrouter') return Boolean(creds.orKey);
-  return Boolean(PROXY_URL || (creds.apiKey && creds.apiKey.startsWith('AIza')));
+  return Boolean(PROXY_URL || (creds.apiKey && creds.apiKey.trim().length >= 20));   // Önek denetimi yok: Google'ın yeni anahtarları "AIza" ile başlamayabilir
 }
 
 export function keyOk(creds) {
