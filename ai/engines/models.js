@@ -2,23 +2,28 @@
 import { KEYS, PROXY_URL } from '../config.js';
 import { storage } from '../storage.js';
 
-// Kullanıcıya yalnızca "Oforge X" adları gösterilir; gerçek model kimlikleri burada tutulur.
+// Kullanıcıya yalnızca iki motor gösterilir: "AI Ultra 3.8" ve "AI Lite".
+// Her motorun arkasında sırayla denenen yedek modeller vardır (kota/hata olursa sıradaki devreye girer); gerçek model kimlikleri burada tutulur.
+export const ENGINES = [
+  { id: 'ultra', label: 'AI Ultra 3.8', desc: 'En güçlü motor: ayrıntılı, derin yanıtlar; fotoğraf ve PDF okur' },
+  { id: 'lite', label: 'AI Lite', desc: 'Hızlı motor: günlük sorular için; fotoğraf ve PDF okur' }
+];
+const U = 'AI Ultra 3.8', L = 'AI Lite';
 export const MODELS = [
-  { id: 'auto', label: 'Oforge AI Otomatik', auto: true },
-  { id: 'f1', label: 'Oforge 1', provider: 'gemini', model: 'gemini-4-hydrogen', tier: 'strong', vision: true, pdf: true, desc: 'Gemini 4 Hydrogen, fotoğraf ve PDF destekler' },
-  { id: 'g25', label: 'Oforge 2.5 Flash', provider: 'gemini', model: 'gemini-2.5-flash', tier: 'strong', vision: true, pdf: true, desc: 'Gemini 2.5 Flash, fotoğraf ve PDF destekler' },
-  { id: 'g20', label: 'Oforge 2.0 Flash', provider: 'gemini', model: 'gemini-2.0-flash', tier: 'light', vision: true, pdf: true, desc: 'Gemini 2.0 Flash, hızlı, fotoğraf ve PDF destekler' },
-  { id: 'g15', label: 'Oforge 1.5 Flash', provider: 'gemini', model: 'gemini-1.5-flash', tier: 'light', vision: true, pdf: true, noAuto: true, desc: 'Gemini 1.5 Flash, fotoğraf ve PDF destekler' },
-  { id: 'f2', label: 'Oforge 2', provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', tier: 'strong', desc: 'Nemotron 3 Ultra, yalnızca metin' },
-  { id: 'f3', label: 'Oforge 3', provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free', tier: 'light', desc: 'Nemotron 3.5 Lightning, hızlı, yalnızca metin' },
-  { id: 'f4', label: 'Oforge 4', provider: 'openrouter', model: 'google/gemma-4-31b-it:free', tier: 'mid', vision: true, desc: 'Gemma 4 31B, fotoğraf destekler (PDF yok)' },
-  { id: 'f5', label: 'Oforge 5 (Kod)', provider: 'openrouter', model: 'cohere/north-mini-code:free', tier: 'code', desc: 'North Mini Code, yalnızca metin' }
+  { id: 'f1', engine: 'ultra', label: U, provider: 'gemini', model: 'gemini-4-hydrogen', tier: 'strong', vision: true, pdf: true },
+  { id: 'g25', engine: 'ultra', label: U, provider: 'gemini', model: 'gemini-2.5-flash', tier: 'strong', vision: true, pdf: true },
+  { id: 'f2', engine: 'ultra', label: U, provider: 'openrouter', model: 'nvidia/nemotron-3-ultra-550b-a55b:free', tier: 'strong' },
+  { id: 'g20', engine: 'lite', label: L, provider: 'gemini', model: 'gemini-2.0-flash', tier: 'light', vision: true, pdf: true },
+  { id: 'f3', engine: 'lite', label: L, provider: 'openrouter', model: 'nvidia/nemotron-3.5-lightning:free', tier: 'light' },
+  { id: 'f4', engine: 'lite', label: L, provider: 'openrouter', model: 'google/gemma-4-31b-it:free', tier: 'mid', vision: true }
 ];
 
+// Seçili motor (ENGINES öğesi). Kayıtlı değer geçersizse (eski sürümlerden kalan "auto", "f1"… dahil) AI Ultra 3.8.
 export function curModel() {
   const id = storage.get(KEYS.MODEL);
-  return MODELS.find(m => m.id === id) || MODELS[0];
+  return ENGINES.find(e => e.id === id) || ENGINES[0];
 }
+export function poolFor(engine) { return MODELS.filter(m => m.engine === engine.id); }
 
 // creds: { apiKey, orKey }
 export function hasKeyFor(m, creds) {
@@ -27,8 +32,7 @@ export function hasKeyFor(m, creds) {
 }
 
 export function keyOk(creds) {
-  const m = curModel();
-  return m.auto ? MODELS.some(x => !x.auto && !x.noAuto && hasKeyFor(x, creds)) : hasKeyFor(m, creds);
+  return poolFor(curModel()).some(x => hasKeyFor(x, creds));
 }
 
 // Aynı kota havuzunu paylaşan motorları aynı anahtara indirger (OpenRouter :free modelleri tek havuz).

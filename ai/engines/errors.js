@@ -11,7 +11,7 @@ export const FAIL_ADVICE = {
   network: 'İnternet bağlantınızı kontrol edip tekrar deneyin. Bu bir kota sorunu değil.',
   auth: 'Motor ayarlarından API anahtarınızı kontrol edin; anahtar geçersiz veya kısıtlı olabilir.',
   billing: 'Sağlayıcı hesabınızdaki bakiyeyi kontrol edin.',
-  notfound: 'Bu model artık kullanılamıyor olabilir. Oforge AI Otomatik başka bir motor seçecektir.',
+  notfound: 'Bu model artık kullanılamıyor olabilir. Yedek modele geçilecektir; sorun sürerse biraz sonra tekrar deneyin.',
   overloaded: 'Sağlayıcı geçici olarak yoğun. Biraz sonra tekrar deneyin.',
   timeout: 'Motor zamanında yanıt vermedi. Tekrar deneyin.',
   unsupported: 'Dosya bu motora gönderilmedi.',
