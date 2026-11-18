@@ -24,7 +24,7 @@ tools/bump-version.mjs  sürümü ve import haritasını günceller
 
 **Kurallar:** Yalnızca `storage.js` localStorage'a dokunur. `engines/` DOM'a ve `app.js`'e dokunmaz; arayüzle yalnızca `hooks` geri çağrıları üzerinden konuşur. Yeni sağlayıcı eklemek = `engines/providers/` altına bir dosya + `providers/index.js`'e bir satır.
 
-**Yayınlamadan önce:** `node tools/bump-version.mjs 6.9.44` (sürümü ve import haritasını günceller), sonra `npm test`.
+**Yayınlamadan önce:** `node tools/bump-version.mjs <yeni-sürüm>` komutuyla sürümü ve import haritasını güncelleyin (ör. `node tools/bump-version.mjs 6.9.59`), ardından `npm test` çalıştırın.
 
 ## v6.9.58
 - **Akıllı başlangıç:** Boş başlangıç ekranına araştırma, metin geliştirme ve fotoğraf yorumlama için üç sade, tıklanabilir öneri eklendi.
@@ -207,7 +207,17 @@ tools/bump-version.mjs  sürümü ve import haritasını günceller
 11. Bağımlılık sürümleri sabitlendi; `user-scalable=no` kaldırıldı.
 
 ## Dağıtım
-Tüm dosyaları aynı klasöre yükleyin: `index.html`, `sw.js`, `manifest.json`, `icon-v4-192.png`, `icon-v4-512.png`, `icon-v4-maskable-512.png`, `apple-touch-icon-v4.png`. HTTPS gereklidir. Sonraki sürümlerde `sw.js` içindeki `CACHE_NAME` değerini artırın.
+
+Projeyi, aşağıdaki dosyaları ve klasörleri koruyarak web sunucusunda yayınlayın:
+
+- Uygulama dosyaları: `index.html`, `styles.css`, `app.js`, `cloud.js`, `config.js`, `forge-mark.js`, `prompts.js` ve `storage.js`
+- PWA dosyaları: `manifest.json` ve `sw.js`
+- Simge dosyaları: `icon-v5-192.png`, `icon-v5-512.png`, `icon-v5-maskable-512.png` ve `apple-touch-icon-v5.png`
+- `engines/` klasörünün tamamı (alt klasörleri ve modülleriyle birlikte)
+
+Dosyaların ZIP içindeki dizin yapısını koruyun; HTML, JavaScript ve stil dosyalarıyla simgeler uygulamanın beklediği göreli konumlarda bulunmalıdır. Site HTTPS üzerinden yayınlanmalıdır. Uygulamayı `file://` adresinden açmayın; ES modülleri ve PWA özellikleri için bir web sunucusu kullanın.
+
+Yeni sürümü yayınlamadan önce `node tools/bump-version.mjs <yeni-sürüm>` komutuyla sürüm ve import haritası değerlerini güncelleyin, ardından `npm test` çalıştırın. Bu arşivdeki `sw.js` yalnızca bildirim tıklama davranışını tanımlıyor; içinde `CACHE_NAME` bulunmadığından bu dosyada artırılacak bir önbellek adı yoktur.
 
 ## Bilinen sınırlar
 - API anahtarı tarayıcıda (localStorage) tutulur: yalnızca kişisel kullanım içindir. Herkese açık dağıtım için bir sunucu tarafı proxy gerekir.
