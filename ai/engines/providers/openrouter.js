@@ -13,7 +13,7 @@ export const openrouter = {
         const match = img.dataUrl.match(DATA_URL);
         if (match) {
           if (model.vision) orParts.push({ type: 'image_url', image_url: { url: img.dataUrl } });
-          else orParts.push({ type: 'text', text: '[Not: Sohbette bir fotoğraf var ancak bu motor görselleri okuyamıyor; fotoğraf gönderilmedi. Gerekirse kullanıcıya Oforge AI Otomatik motorunu seçmesini öner.]' });
+          else orParts.push({ type: 'text', text: '[Not: Sohbette bir fotoğraf var ancak bu motor görselleri okuyamıyor; fotoğraf gönderilmedi. Gerekirse kullanıcıdan fotoğrafı tekrar göndermesini ya da içeriğini yazmasını iste.]' });
         }
       });
       h.pdfs.forEach(pdf => {
