@@ -3,17 +3,30 @@ import { poolFor, hasKeyFor } from './models.js';
 import { isCooled } from './health.js';
 import { mkErr } from './errors.js';
 
-export const REQ_LABELS = { simple: 'basit soru', code: 'kod', analysis: 'analiz', document: 'belge incelemesi', pdf: 'PDF', vision: 'fotoğraf', academic: 'akademik' };
+export const REQ_LABELS = {
+  simple: 'basit soru', code: 'kod', analysis: 'analiz', document: 'belge incelemesi',
+  pdf: 'PDF', vision: 'fotoğraf', vision_analysis: 'fotoğraf analizi', academic: 'akademik', philosophy: 'felsefi düşünme',
+  writing: 'yazarlık'
+};
 
 export function classifyRequest(text, need) {
   const t = String(text || '').toLowerCase();
-  if (need.vision) return 'vision';
+  if (need.vision) return /analiz|ayrıntılı|detaylı|değerlendir|kompozisyon|estetik|ışık|renk|ton|derinlik|yorumla|karşılaştır/.test(t) ? 'vision_analysis' : 'vision';
   if (need.pdf) return 'pdf';
   if (/akademik|makale|tez\b|makalesi|literatür|kaynakça|kaynak göster|atıf|hakemli|bilimsel|araştırma (ödev|öner|soru)|apa |dergi/.test(t.slice(0, 800))) return 'academic';
-  if (t.length > 3000) return 'document';
   if (/```|(^|[^a-zçğıöşü])(kod|fonksiyon|script|debug|html|css|python|javascript|sql|regex|api)|(^|[^a-zçğıöşü])bug($|[^a-zçğıöşü])|hata ay/.test(t)) return 'code';
-  if (t.length > 500 || /analiz|incele|karşılaştır|değerlendir|strateji|ayrıntılı|detaylı|rapor|neden|nasıl çalış/.test(t)) return 'analysis';
+  if (t.length > 3000) return 'document';
+  if (/felsef|varoluş|ontoloji|epistemoloji|etik|ahlak|özgür irade|özgürlük|bilinç|hakikat|insan doğası|adalet|erdem|anlam arayışı|yaşamın anlamı|sanatın anlamı/.test(t)) return 'philosophy';
+  if (/deneme yaz|makale yaz|konuşma metni|öykü yaz|hikâye yaz|şiir yaz|metni yeniden yaz|üslubunu geliştir|daha etkili yaz|editörlük|redakte/.test(t)) return 'writing';
+  if (t.length > 500 || /analiz|incele|karşılaştır|değerlendir|strateji|ayrıntılı|detaylı|rapor|neden|nasıl çalış|tartış|sorgula/.test(t)) return 'analysis';
   return 'simple';
+}
+
+export function thinkingLevelFor(model, reqType) {
+  // Lite hız odaklı kalır. Ultra ise karmaşık muhakeme gerektiren görevlerde daha fazla düşünme bütçesi kullanır.
+  if (model.engine === 'lite' || model.tier === 'light') return 'low';
+  if (['academic', 'philosophy', 'analysis', 'document', 'code', 'writing', 'pdf', 'vision_analysis'].includes(reqType)) return 'high';
+  return 'medium';
 }
 export function rankModels(list, type) {
   const order = type === 'simple' ? ['light', 'mid', 'strong', 'code'] : type === 'code' ? ['code', 'strong', 'mid', 'light'] : ['strong', 'mid', 'light', 'code'];
@@ -44,5 +57,6 @@ export function planRequest({ selected, hist, creds }) {
     }
     candidates = rankModels(capable, reqType);
   }
+  candidates = candidates.map(m => m.provider === 'gemini' ? { ...m, thinking: thinkingLevelFor(m, reqType) } : m);
   return { candidates, reqType, need };
 }
