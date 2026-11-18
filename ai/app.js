@@ -694,7 +694,6 @@
       trigger.addEventListener('click', (e) => { e.stopPropagation(); const open = menu.classList.contains('hidden'); menu.classList.toggle('hidden', !open); trigger.setAttribute('aria-expanded', String(open)); });
       document.getElementById('attachImageMenuItem').onclick = () => { close(); els.imageInput.click(); };
       document.getElementById('attachFileMenuItem').onclick = () => { close(); els.fileInput.click(); };
-      document.getElementById('attachVoiceMenuItem').onclick = () => { close(); document.getElementById('micBtn').click(); };
       document.getElementById('attachWebMenuItem').onclick = () => { document.getElementById('webSearchBtn').click(); paintAttachWebLabel(); };
       function paintAttachWebLabel() { const on = document.getElementById('webSearchBtn').getAttribute('aria-pressed') === 'true'; document.getElementById('attachWebLabel').textContent = 'Web araması: ' + (on ? 'açık' : 'kapalı'); }
       document.addEventListener('click', (e) => { if (!menu.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) close(); });
@@ -1527,6 +1526,7 @@
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
+      document.getElementById('micBtn').classList.remove('hidden');
       const recognition = new SpeechRecognition();
       recognition.lang = 'tr-TR';
       recognition.interimResults = false;
@@ -1549,8 +1549,6 @@
       };
     } else {
       document.getElementById('micBtn').classList.add('hidden');
-      const voiceItem = document.getElementById('attachVoiceMenuItem');
-      if (voiceItem) voiceItem.classList.add('hidden');
     }
 
     els.chatForm.onsubmit = sendMessage;

@@ -84,7 +84,7 @@
     }
   </script>
   <!-- importmap:end -->
-  <link rel="stylesheet" href="./styles.css?v=6.9.56" />
+  <link rel="stylesheet" href="./styles.css?v=6.9.57" />
 </head>
 <body class="h-dvh flex overflow-hidden antialiased selection:bg-blue-600/15 selection:text-blue-700">
 
@@ -385,12 +385,13 @@
                 <div id="attachMenu" class="hidden absolute bottom-full left-0 mb-2 w-52 bg-white border border-slate-200 rounded-xl shadow-float p-1.5 z-40">
                   <button type="button" id="attachImageMenuItem" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm text-slate-700 flex items-center gap-2"><i data-lucide="image" class="w-4 h-4 text-slate-500"></i>Fotoğraf ekle</button>
                   <button type="button" id="attachFileMenuItem" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm text-slate-700 flex items-center gap-2"><i data-lucide="file-text" class="w-4 h-4 text-slate-500"></i>PDF / belge ekle</button>
-                  <button type="button" id="attachVoiceMenuItem" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm text-slate-700 flex items-center gap-2"><i data-lucide="mic" class="w-4 h-4 text-slate-500"></i>Sesle yazdır</button>
                   <button type="button" id="attachWebMenuItem" class="w-full text-left px-3 py-2.5 rounded-lg hover:bg-slate-50 text-sm text-slate-700 flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-slate-500"></i><span id="attachWebLabel">Web araması: kapalı</span></button>
                 </div>
                 <button type="button" id="attachImageBtn" class="hidden" tabindex="-1" aria-hidden="true"></button>
                 <button type="button" id="attachFileBtn" class="hidden" tabindex="-1" aria-hidden="true"></button>
-                <button type="button" id="micBtn" class="hidden" tabindex="-1" aria-hidden="true" title="Sesle Yazdır"><span id="micLabel">Sesli</span></button>
+                <button type="button" id="micBtn" class="w-9 h-9 rounded-full border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition flex items-center justify-center" title="Sesle yazdır" aria-label="Sesle yazdır">
+                  <i data-lucide="mic" class="w-4 h-4"></i><span id="micLabel" class="sr-only">Sesli</span>
+                </button>
                 <button type="button" id="webSearchBtn" aria-pressed="false" class="hidden" tabindex="-1" aria-hidden="true" title="Web'de ara ve kaynak göster"></button>
               </div>
 
