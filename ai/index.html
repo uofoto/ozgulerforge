@@ -21,25 +21,32 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="manifest" href="manifest.json?v=4" />
-  <link rel="icon" type="image/png" href="icon-v4-192.png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon-v4.png" />
+  <link rel="manifest" href="manifest.json?v=5" />
+  <link rel="icon" type="image/png" href="icon-v5-192.png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon-v5.png" />
   
 
   <script>
-    // Oforge işareti: örs + çekiç + kıvılcım. Durumlar CSS ile sürülür (fm-loop, fm-once, fm-hot).
+    // Oforge işareti: "Of" monogramı. Durumlar CSS ile sürülür (fm-loop, fm-once, fm-hot).
     window.FORGE_MARK = '<svg class="fm" viewBox="0 0 32 32" fill="none" aria-hidden="true" focusable="false">' +
-      '<circle class="fm-heat" cx="14" cy="16" r="9" fill="#FB923C"/>' +
-      '<path class="fm-anvil" d="M4.5 17H26v2.5h-5c0 1.8.9 2.9 2.5 4.2V26H9v-2.3c1.6-1.3 2.5-2.4 2.5-4.2H9.8C7.2 19.5 5.6 18.6 4.5 17Z" fill="currentColor"/>' +
-      '<g class="fm-hammer"><path d="M13 14.2 25.5 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><rect x="7.5" y="11.6" width="8.5" height="5" rx="1.3" fill="currentColor"/></g>' +
-      '<circle class="fm-sp" cx="10" cy="16.6" r=".9" style="--dx:-7px;--dy:-6px"/>' +
-      '<circle class="fm-sp" cx="13" cy="16.6" r=".8" style="--dx:-2px;--dy:-9px"/>' +
-      '<circle class="fm-sp" cx="15.5" cy="16.6" r=".9" style="--dx:5px;--dy:-7px"/>' +
-      '<circle class="fm-sp" cx="12" cy="16.6" r=".7" style="--dx:8px;--dy:-3px"/>' +
-      '<circle class="fm-ember" cx="9" cy="16.4" r=".8" style="--ex:2px;animation-delay:0s"/>' +
-      '<circle class="fm-ember" cx="15" cy="16.4" r=".7" style="--ex:-2px;animation-delay:.7s"/>' +
-      '<circle class="fm-ember" cx="21" cy="16.4" r=".8" style="--ex:3px;animation-delay:1.3s"/>' +
-      '</svg>';
+      '<defs>' +
+        '<linearGradient id="ofGradMain" x1="3" y1="7" x2="17" y2="25" gradientUnits="userSpaceOnUse">' +
+          '<stop offset="0%" stop-color="#FBBF24"/>' +
+          '<stop offset="52%" stop-color="#F97316"/>' +
+          '<stop offset="100%" stop-color="#E11D48"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="ofGradInner" x1="15" y1="8" x2="8" y2="24" gradientUnits="userSpaceOnUse">' +
+          '<stop offset="0%" stop-color="#FB923C"/>' +
+          '<stop offset="100%" stop-color="#EA580C" stop-opacity="0.85"/>' +
+        '</linearGradient>' +
+      '</defs>' +
+      '<circle class="fm-heat" cx="13" cy="17" r="9.5" fill="#FB923C"/>' +
+      '<g class="fm-of-mark">' +
+        '<path d="M11.6 7.5C6.8 7.5 3.2 11.4 3.2 16.8C3.2 22.2 6.8 26 11.6 26C16.1 26 19.3 22.6 19.7 17.7H15.5C15.1 20.6 13.7 22.4 11.6 22.4C9.1 22.4 7.4 20.1 7.4 16.8C7.4 13.5 9.1 11.1 11.6 11.1C13.8 11.1 15.2 12.9 15.5 15.7H19.7C19.3 10.9 16.1 7.5 11.6 7.5Z" fill="url(#ofGradMain)"/>' +
+        '<path d="M11.6 7.5C14.8 7.5 17.5 9.3 18.8 12.2C16.8 10.4 14.3 9.7 11.6 10.4C8.9 11.1 7.4 13.6 7.4 16.8C7.4 13.5 9.1 11.1 11.6 11.1Z" fill="url(#ofGradInner)"/>' +
+        '<path d="M25.4 7.4C21.6 7.4 19.6 9.6 19.6 13.6V14.4H18.3C16.2 14.4 14.8 15.6 14.3 17.8C15.4 17.1 16.6 16.9 18.1 16.9H19.6V26H23.7V16.9H27.2V13.8H23.7V13.3C23.7 11.5 24.5 10.6 26.2 10.6C26.9 10.6 27.5 10.7 28 10.9L28.5 7.8C27.6 7.5 26.6 7.4 25.4 7.4Z" fill="#FFFFFF"/>' +
+      '</g>' +
+    '</svg>';
     window.hydrateForgeLogos = function (root) {
       (root || document).querySelectorAll('[data-forge-logo]:not([data-fm-ready])').forEach(function (el) {
         el.innerHTML = window.FORGE_MARK;
@@ -207,7 +214,12 @@
     @keyframes fmEmber { 0% { opacity:0; transform:translate(0,0); } 15% { opacity:.9; } 100% { opacity:0; transform:translate(var(--ex),-11px); } }
     @keyframes fmGlow { 0%,100% { box-shadow:0 0 0 0 rgba(251,146,60,0); } 50% { box-shadow:0 0 16px 3px rgba(251,146,60,.55); } }
     #forgeSplash { position:fixed; inset:0; z-index:300; background:#0F172A; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.9rem; animation:fsOut .5s ease 1.55s forwards; }
-    #forgeSplash .fs-tile { width:92px; height:92px; padding:22px; border-radius:26px; display:flex; align-items:center; justify-content:center; color:#fff; background:linear-gradient(135deg,#2563EB,#4F46E5,#7C3AED); --fm-dur:.9s; }
+    #forgeSplash .fs-tile { width:96px; height:96px; padding:16px; border-radius:26px; display:flex; align-items:center; justify-content:center; color:#fff; background:#0F1629; border:1px solid rgba(251,146,60,.25); }
+    .fm-of-mark { transform-origin:16px 16.8px; }
+    .fm-loop .fm-of-mark { animation:fmOfPulse var(--fm-dur,1.4s) ease-in-out infinite; }
+    .fm-once .fm-of-mark { animation:fmOfOnce .85s cubic-bezier(.22,1,.36,1) .25s 1 both; }
+    @keyframes fmOfPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.06); } }
+    @keyframes fmOfOnce { 0% { opacity:.4; transform:scale(.86); } 65% { opacity:1; transform:scale(1.04); } 100% { opacity:1; transform:scale(1); } }
     #forgeSplash .fs-word { color:#F8FAFC; font:700 1.7rem Inter,system-ui,-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif; letter-spacing:-.02em; opacity:0; animation:fsIn .5s ease .35s forwards; }
     #forgeSplash .fs-sub { color:#64748B; font:500 .85rem Inter,system-ui,-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif; opacity:0; animation:fsIn .5s ease .55s forwards; }
     @keyframes fsOut { to { opacity:0; visibility:hidden; } }
@@ -573,7 +585,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
     <!-- Üst: marka -->
     <div class="px-4 pt-4 pb-2 flex items-center justify-between">
       <div class="flex items-center gap-2.5 select-none">
-        <div class="fm-brand w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-sm shadow-blue-600/25">
+        <div class="fm-brand w-8 h-8 rounded-lg bg-[#0F1629] border border-slate-700/40 flex items-center justify-center text-white shadow-sm">
           <span data-forge-logo class="block w-[22px] h-[22px]"></span>
         </div>
         <span class="text-slate-900"><span class="owm owm-lg" role="img" aria-label="Oforge AI"><span class="owm-o" aria-hidden="true">O</span><span class="owm-f" aria-hidden="true">forge</span><span class="owm-aiwrap" aria-hidden="true"><span class="owm-ai">AI</span><span class="owm-sub">asistanı</span></span></span></span>
@@ -1028,7 +1040,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
   <div id="tourModal" class="hidden fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
     <div class="bg-white border border-slate-200 rounded-3xl w-full max-w-xl max-h-[94vh] overflow-y-auto shadow-float">
       <div class="px-6 py-5 flex items-center gap-4" style="background:#0F172A">
-        <div class="fm-brand w-14 h-14 rounded-2xl flex items-center justify-center text-white shrink-0" style="background:linear-gradient(135deg,#2563EB,#4F46E5,#7C3AED)">
+        <div class="fm-brand w-14 h-14 rounded-2xl flex items-center justify-center text-white shrink-0" style="background:#0F1629;border:1px solid rgba(251,146,60,.25)">
           <span id="tourLogo" data-forge-logo class="block w-8 h-8"></span>
         </div>
         <div class="min-w-0 flex-1">
@@ -1946,7 +1958,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       const hasValidKey = keyOk();
       return `
         <div id="welcomeScreen" class="min-h-full flex flex-col items-center justify-center max-w-3xl mx-auto text-center py-8">
-          <div class="fm-brand w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-xl shadow-blue-600/25 mb-5">
+          <div class="fm-brand w-16 h-16 rounded-2xl bg-[#0F1629] border border-slate-700/40 flex items-center justify-center text-white shadow-xl mb-5">
             <span data-forge-logo data-fm="once" class="block w-10 h-10"></span>
           </div>
           
@@ -2367,7 +2379,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       } else {
         msgTextStore.set(row, content || '');
         row.innerHTML = `
-          <div class="forge-avatar w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-2xs shrink-0 mt-0.5">
+          <div class="forge-avatar w-8 h-8 rounded-xl bg-[#0F1629] border border-slate-700/40 flex items-center justify-center text-white shadow-2xs shrink-0 mt-0.5">
             <span data-forge-logo class="block w-[19px] h-[19px]"></span>
           </div>
           <div class="flex-1 min-w-0 pt-1">
@@ -3579,7 +3591,7 @@ html.hc.dark .code-wrapper, html.hc.dark .code-wrapper pre, html.hc.dark .fm-car
       function done(title, ms, content) {
         if (!enabled() || !document.hidden || ms < 8000) return;
         const body = String(content || '').replace(/[#*`>_\[\]]/g, '').replace(/\s+/g, ' ').trim().slice(0, 110) || 'Yanıtınız hazır.';
-        const opts = { body, icon: './icon-v4-192.png', badge: './icon-v4-192.png', tag: 'forge-done', renotify: true };
+        const opts = { body, icon: './icon-v5-192.png', badge: './icon-v5-192.png', tag: 'forge-done', renotify: true };
         const t = 'Oforge AI · yanıt hazır' + (title ? ': ' + String(title).slice(0, 40) : '');
         const fallback = () => { try { new Notification(t, opts); } catch (_) {} };
         if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) navigator.serviceWorker.getRegistration().then((r) => (r ? r.showNotification(t, opts) : fallback())).catch(fallback);
