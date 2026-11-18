@@ -1,7 +1,47 @@
-# Oforge AI (v6.9.41)
+# Oforge AI (v6.9.44)
+
+## Proje yapısı
+Derleme gerektirmez; tarayıcı ES modülleri kullanır. Bir web sunucusundan yayınlanır (`file://` ile açılmaz).
+
+```
+index.html            iskelet + import haritası (sürüm önbellek koruması)
+styles.css            stiller
+app.js                arayüz ve uygulama durumu (sohbet, ekler, ayarlar, ilerleme göstergesi)
+cloud.js              Firebase bulut eşitleme
+config.js             sürüm, depolama anahtarları (KEYS), proxy ve Google ayarları
+storage.js            localStorage'a açılan TEK kapı (hata vermez, bozuk veriyi yedekler)
+prompts.js            modele her istekte eklenen kimlik/üslup metinleri
+engines/              DOM'a dokunmayan motor katmanı
+  models.js           motor kataloğu, anahtar var mı, kota havuzu
+  router.js           istek türü, aday motor sırası
+  index.js            yedek motora geçme (en fazla 3 deneme)
+  attempt.js          tek denemeyi çalıştırır: istek → akış → hata sınıfı
+  providers/          gemini.js, openrouter.js (istek gövdesi, adres, akış olayı)
+  stream.js errors.js quota.js health.js media.js
+tests/                birim testleri (`npm test`, ~1 sn)
+tools/bump-version.mjs  sürümü ve import haritasını günceller
+```
+
+**Kurallar:** Yalnızca `storage.js` localStorage'a dokunur. `engines/` DOM'a ve `app.js`'e dokunmaz; arayüzle yalnızca `hooks` geri çağrıları üzerinden konuşur. Yeni sağlayıcı eklemek = `engines/providers/` altına bir dosya + `providers/index.js`'e bir satır.
+
+**Yayınlamadan önce:** `node tools/bump-version.mjs 6.9.44` (sürümü ve import haritasını günceller), sonra `npm test`.
+
+## v6.9.44
+- **Yeni logo: "Of" monogramı:** Çekiç-örs işareti yerine turuncu→kırmızı degradeli "O" ve beyaz "f" harfleri geldi (`forge-mark.js`). Simgeler `icon-v5-192.png`, `icon-v5-512.png`, `icon-v5-maskable-512.png`, `apple-touch-icon-v5.png`; `manifest.json` ve `index.html` v5'e, bildirim simgesi de v5'e geçti. Logo kutuları (açılış, kenar çubuğu, tur, karşılama, yanıt avatarı) mavi→mor degrade yerine koyu `#0F1629` zemin kullanır. Animasyon: döngüde hafif nabız (`fm-of-mark`), karşılamada tek seferlik beliriş. Telefonda eski simge önbellekte kalabilir; uygulamayı kaldırıp yeniden kurun.
+- **Sürüm etiketleri:** `index.html` içindeki statik `v6.9.41` etiketleri düzeltildi; rozete `data-app-version` eklendi ve `bump-version` bu etiketleri de güncelliyor. Açılış ekranında logo arkasındaki sıcak parıltı (`fm-heat`) artık çalışıyor.
+
+## v6.9.43
+- **Motor katmanı ayrıldı (`engines/`):** model kataloğu, hata sınıfları, kota, sağlık kaydı, istek yönlendirme, Gemini/OpenRouter sağlayıcıları, akış okuyucu ve yedek motora geçme mantığı DOM'dan bağımsız modüllere taşındı. `generateReply` yaklaşık 440 satırdan 140'a indi; yalnızca ilerleme göstergesi ve ekrana yazma kaldı. Davranış değişmedi (36 senaryoluk karşılaştırma testiyle doğrulandı).
+- **Depolama tek kapıdan:** `app.js` ve `cloud.js` içindeki tüm `localStorage` çağrıları `storage.js`'e, anahtar adları `config.js`'e taşındı. Depolama kapalı/dolu/bozuk olsa da uygulama çökmez. Kayıtlı sohbet verisi bozuksa sessizce boş liste açılıp üzerine yazılmaz; ham veri `forge_ai_chats_corrupt_backup` anahtarına yedeklenir.
+- **Düzeltme:** Bulut düğmesine basıldığında Firebase yüklenememişse (örn. çevrimdışı) bildirim yerine `forgeDialog is not defined` hatası oluşuyordu (v6.9.42'de modüle geçişle başlamıştı). Diyalog artık köprü (`forgeBridge.dialog`) üzerinden kullanılıyor.
+- **Önbellek koruması:** `index.html` içindeki import haritası her modülün adresine `?v=<sürüm>` ekler; yeni `index.html` ile eski modüllerin karışması engellenir.
+- **Testler:** `npm test` motor mantığını (yönlendirme, kota, sağlık, sağlayıcı istekleri, yedek motora geçme, iptal, zaman aşımı) ve depolamayı tarayıcısız doğrular.
+
+## v6.9.42
+- **Kod yapısı:** Tek dosyalık `index.html` (4.282 satır) parçalandı: `styles.css` (stiller), `app.js` (uygulama, ES modülü), `cloud.js` (Firebase bulut eşitleme, ES modülü) ve `forge-mark.js` (logo işareti). Davranış ve görünüm değişmedi (eski sürümle yan yana test edildi, ekran görüntüsü birebir aynı). Tema/açılış betikleri ve Tailwind ayarı, açılışta titreme olmaması için `index.html` içinde kaldı.
+- **Dikkat:** Dosyalar artık ES modülü olduğundan `file://` ile açılmaz; yerelde denemek için bir web sunucusu gerekir (örn. `python3 -m http.server`). Yayınlarken `index.html` içindeki `?v=` değerlerini sürümle birlikte artırın (önbellek).
 
 ## v6.9.41
-- **Motorlar ikiye indirildi (hız):** Yalnızca "Oforge Ultra 3.8" (`gemini-3.8-flash`, güçlü) ve "Oforge Lite" (`gemini-3.5-flash-lite`, hızlı) kaldı; Gemini 4 Hydrogen, 2.5/2.0/1.5 Flash ve tüm OpenRouter modelleri ile OpenRouter anahtar alanı kaldırıldı. Otomatik mod basit soruları Lite'a, kod/analiz/belge/PDF/fotoğrafı Ultra'ya yönlendirir; biri hata verirse diğerine geçer. Eski elle seçili motor kaydı otomatik olarak "Oforge AI Otomatik"e döner.
 - **Adlandırma:** Arayüzde görünen "Forge" ifadeleri "Oforge" oldu: motor adları (Oforge 1–5), tema adı ve ilgili yardım metinleri. Şirket adı "Ozguler Forge" ile dahili anahtarlar/sınıflar (`forge_ai_*`, `html.forge` vb.) değişmedi, böylece sohbetler ve ayarlar korunur.
 
 ## v6.9.40

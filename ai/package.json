@@ -1,0 +1,10 @@
+{
+  "name": "oforge-ai",
+  "private": true,
+  "type": "module",
+  "description": "Oforge AI: bağımlılıksız, derleme gerektirmeyen PWA. Bu dosya yalnızca testleri çalıştırmak içindir.",
+  "scripts": {
+    "test": "node --test && node tools/bump-version.mjs --check",
+    "bump": "node tools/bump-version.mjs"
+  }
+}
