@@ -26,6 +26,15 @@ tools/bump-version.mjs  sürümü ve import haritasını günceller
 
 **Yayınlamadan önce:** `node tools/bump-version.mjs 6.9.44` (sürümü ve import haritasını günceller), sonra `npm test`.
 
+## v6.9.58
+- **Akıllı başlangıç:** Boş başlangıç ekranına araştırma, metin geliştirme ve fotoğraf yorumlama için üç sade, tıklanabilir öneri eklendi.
+- **Kullanıcı kontrollü hafıza:** Kullanıcı kendi notlarını açıkça ekleyebilir, düzenleyebilir veya silebilir. Notlar cihazda saklanır ve yalnızca ilgili olduğunda modele aktarılır.
+- **Yanıt uzunluğu:** Kısa, dengeli ve ayrıntılı seçenekleri yazı alanının yanında sunulur; tercih saklanır.
+- **Güvenilir çalışma alanı:** Her çalışmaya özel notlar eklenebilir; sohbetle ve sohbet yedeğiyle birlikte saklanır.
+- **Yanıtı düzenleme:** Yanıt menüsüne kısaltma, genişletme, yeniden yazma ve belgeye dönüştürme işlemleri eklendi.
+- **Ses ve mobil:** Sesle yazdırma düğmesinde etkin durum ve tekrarlı başlatma kontrolü iyileştirildi. Yeni kontroller küçük ekranlarda tek satırda ve sade biçimde düzenlendi.
+- **Korunanlar:** Var olan sohbetler, motorlar, API ayarları, tema, renk, dosya ekleri, web araması ve mevcut bağlantılar değiştirilmedi.
+
 ## v6.9.45
 - **İki motor:** Arayüzde yalnızca **AI Ultra 3.8** (varsayılan, güçlü) ve **AI Lite** (hızlı) vardır; Ayarlar → "Motor" altında seçilir, "Otomatik" ve eski "Oforge 1–5" adları kalktı. Her motor şu anda tek bir Gemini modeline bağlıdır (`engines/models.js`: Ultra → `gemini-3.8-flash`; Lite → `gemini-3.5-flash-lite`). Bu sürümde sağlayıcılar arası yedek model zinciri etkin değildir. Eski sürümden kalan motor seçimi (`auto`, `f1`…) AI Ultra 3.8'e döner. Gemini 1.5 Flash ve kod modeli (Oforge 5) çıkarıldı.
 - **Cevap alanı sadeleşti:** Yanıt altındaki "(basit soru için seçildi)", "otomatik geçiş…" ve motor adı notları kaldırıldı; yalnızca kısa uyarı ve süre kalır. "Gücümü göster" (karşılama kartı, ⋯ menüsü, komut paleti, kılavuz, PWA kısayolu, ilk açılışta otomatik tur), "© 2026 Ozguler Forge" ve "Oforge AI v…" alt satırı kaldırıldı (sürüm "Hakkında" penceresinde durur).

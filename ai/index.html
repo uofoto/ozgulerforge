@@ -26,7 +26,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon-v5.png" />
   
 
-  <script src="./forge-mark.js?v=6.9.55"></script>
+  <script src="./forge-mark.js?v=6.9.58"></script>
 
   <!-- Tipografi: Inter + sistem yazı tipleri (SF Pro, Roboto Flex, Segoe UI) & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,26 +65,26 @@
   <script type="importmap">
     {
       "imports": {
-        "./config.js": "./config.js?v=6.9.55",
-        "./engines/attempt.js": "./engines/attempt.js?v=6.9.55",
-        "./engines/errors.js": "./engines/errors.js?v=6.9.55",
-        "./engines/health.js": "./engines/health.js?v=6.9.55",
-        "./engines/index.js": "./engines/index.js?v=6.9.55",
-        "./engines/media.js": "./engines/media.js?v=6.9.55",
-        "./engines/models.js": "./engines/models.js?v=6.9.55",
-        "./engines/providers/gemini.js": "./engines/providers/gemini.js?v=6.9.55",
-        "./engines/providers/index.js": "./engines/providers/index.js?v=6.9.55",
-        "./engines/providers/openrouter.js": "./engines/providers/openrouter.js?v=6.9.55",
-        "./engines/quota.js": "./engines/quota.js?v=6.9.55",
-        "./engines/router.js": "./engines/router.js?v=6.9.55",
-        "./engines/stream.js": "./engines/stream.js?v=6.9.55",
-        "./prompts.js": "./prompts.js?v=6.9.55",
-        "./storage.js": "./storage.js?v=6.9.55"
+        "./config.js": "./config.js?v=6.9.58",
+        "./engines/attempt.js": "./engines/attempt.js?v=6.9.58",
+        "./engines/errors.js": "./engines/errors.js?v=6.9.58",
+        "./engines/health.js": "./engines/health.js?v=6.9.58",
+        "./engines/index.js": "./engines/index.js?v=6.9.58",
+        "./engines/media.js": "./engines/media.js?v=6.9.58",
+        "./engines/models.js": "./engines/models.js?v=6.9.58",
+        "./engines/providers/gemini.js": "./engines/providers/gemini.js?v=6.9.58",
+        "./engines/providers/index.js": "./engines/providers/index.js?v=6.9.58",
+        "./engines/providers/openrouter.js": "./engines/providers/openrouter.js?v=6.9.58",
+        "./engines/quota.js": "./engines/quota.js?v=6.9.58",
+        "./engines/router.js": "./engines/router.js?v=6.9.58",
+        "./engines/stream.js": "./engines/stream.js?v=6.9.58",
+        "./prompts.js": "./prompts.js?v=6.9.58",
+        "./storage.js": "./storage.js?v=6.9.58"
       }
     }
   </script>
   <!-- importmap:end -->
-  <link rel="stylesheet" href="./styles.css?v=6.9.57" />
+  <link rel="stylesheet" href="./styles.css?v=6.9.58" />
 </head>
 <body class="h-dvh flex overflow-hidden antialiased selection:bg-blue-600/15 selection:text-blue-700">
 
@@ -188,6 +188,11 @@
           <kbd data-kbd-k class="text-xs font-sans text-slate-400">Ctrl K</kbd>
         </button>
 
+        <button id="openMemoryBtn" type="button" role="menuitem" class="sb-mi">
+          <i data-lucide="brain" class="w-[18px] h-[18px] text-slate-600"></i>
+          <span class="flex-1">Akıllı hafızam</span>
+        </button>
+
         <button id="openSettingsBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="settings" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Oforge AI Motor Ayarları</span>
@@ -264,7 +269,7 @@
         <button id="openAboutBtn" type="button" role="menuitem" class="sb-mi">
           <i data-lucide="info" class="w-[18px] h-[18px] text-slate-600"></i>
           <span class="flex-1">Ozguler Forge Hakkında</span>
-          <span id="versionLabelBadge" data-app-version class="font-mono text-[11px] font-bold text-blue-600">v6.9.55</span>
+          <span id="versionLabelBadge" data-app-version class="font-mono text-[11px] font-bold text-blue-600">v6.9.58</span>
         </button>
 
         <div id="menuSignOutWrap" class="hidden">
@@ -315,6 +320,9 @@
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
+          <button id="workspaceNotesBtn" type="button" class="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition cursor-pointer" title="Bu çalışmanın notları" aria-label="Çalışma notları">
+            <i data-lucide="notebook-pen" class="w-4 h-4"></i>
+          </button>
           <button id="togglePreviewPaneBtn" type="button" class="px-2.5 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-600 bg-slate-100/90 hover:bg-blue-50 border border-slate-200/80 rounded-xl transition flex items-center gap-1.5 cursor-pointer" title="Üretilen Çalışma Önizlemesi">
             <i data-lucide="panel-right" class="w-3.5 h-3.5 text-blue-600"></i>
             <span class="hidden sm:inline">Önizleme</span>
@@ -389,6 +397,12 @@
                 </div>
                 <button type="button" id="attachImageBtn" class="hidden" tabindex="-1" aria-hidden="true"></button>
                 <button type="button" id="attachFileBtn" class="hidden" tabindex="-1" aria-hidden="true"></button>
+                <label class="answer-length-wrap" title="Yanıt uzunluğu">
+                  <i data-lucide="text" class="w-3.5 h-3.5 text-slate-400"></i>
+                  <select id="answerLengthSelect" aria-label="Yanıt uzunluğu">
+                    <option value="short">Kısa</option><option value="balanced" selected>Dengeli</option><option value="detailed">Ayrıntılı</option>
+                  </select>
+                </label>
                 <button type="button" id="micBtn" class="w-9 h-9 rounded-full border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition flex items-center justify-center" title="Sesle yazdır" aria-label="Sesle yazdır">
                   <i data-lucide="mic" class="w-4 h-4"></i><span id="micLabel" class="sr-only">Sesli</span>
                 </button>
@@ -472,6 +486,22 @@
   </div>
 
   <!-- AYARLAR MODALI -->
+  <div id="memoryModal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-xs flex items-center justify-center p-4">
+    <section class="w-full max-w-lg bg-white rounded-2xl shadow-float border border-slate-200 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="memoryTitle">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between"><div><h3 id="memoryTitle" class="font-semibold text-slate-900">Akıllı hafızam</h3><p class="text-xs text-slate-500 mt-1">Yalnızca sizin yazıp kaydettiğiniz notlar kullanılır.</p></div><button id="closeMemoryBtn" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-lg" aria-label="Kapat"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+      <div class="p-5"><textarea id="memoryInput" rows="6" maxlength="5000" placeholder="Önemli tercihlerinizi, çalışma biçiminizi veya devam eden projelerinizle ilgili hatırlatmak istediklerinizi yazın..." class="w-full border border-slate-200 rounded-xl p-3 text-sm text-slate-800 leading-relaxed focus:outline-none focus:border-blue-500 resize-y"></textarea><p class="text-[11px] text-slate-400 mt-2">Bu notlar bu cihazda saklanır; sohbetlere yalnızca ilgili olduğunda eklenir. İstediğiniz zaman düzenleyebilir veya silebilirsiniz.</p></div>
+      <div class="px-5 py-3 border-t border-slate-100 flex justify-between gap-2"><button id="clearMemoryBtn" type="button" class="px-3 py-2 text-xs font-semibold text-slate-500 hover:text-rose-600">Hafızayı temizle</button><div class="flex gap-2"><button id="cancelMemoryBtn" type="button" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Vazgeç</button><button id="saveMemoryBtn" type="button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">Kaydet</button></div></div>
+    </section>
+  </div>
+
+  <div id="workspaceModal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-xs flex items-center justify-center p-4">
+    <section class="w-full max-w-lg bg-white rounded-2xl shadow-float border border-slate-200 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="workspaceTitle">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between"><div><h3 id="workspaceTitle" class="font-semibold text-slate-900">Çalışma notları</h3><p class="text-xs text-slate-500 mt-1">Bu çalışmaya ait notlar ve hatırlatmalar</p></div><button id="closeWorkspaceBtn" type="button" class="p-2 text-slate-400 hover:text-slate-700 rounded-lg" aria-label="Kapat"><i data-lucide="x" class="w-4 h-4"></i></button></div>
+      <div class="p-5"><textarea id="workspaceNotes" rows="8" placeholder="Bu çalışmanın hedeflerini, kararlarını, yapılacakları ve önemli notlarını burada tutun..." class="w-full border border-slate-200 rounded-xl p-3 text-sm text-slate-800 leading-relaxed focus:outline-none focus:border-blue-500 resize-y"></textarea><p class="text-[11px] text-slate-400 mt-2">Notlar ilgili sohbetle birlikte saklanır ve sohbet yedeğine dahildir.</p></div>
+      <div class="px-5 py-3 border-t border-slate-100 flex justify-end gap-2"><button id="closeWorkspaceBtn2" type="button" class="px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg">Kapat</button><button id="saveWorkspaceBtn" type="button" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg">Notları kaydet</button></div>
+    </section>
+  </div>
+
   <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-slate-900/30 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-lg p-6 space-y-5 shadow-float">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -556,7 +586,7 @@
         </div>
         <div class="flex items-center justify-between">
           <span class="text-slate-500 font-medium">Sürüm:</span>
-          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.55</span>
+          <span class="font-mono font-semibold text-slate-900" data-app-version>v6.9.58</span>
         </div>
       </div>
 
@@ -662,8 +692,8 @@
     </div>
   </div>
 
-  <script type="module" src="./app.js?v=6.9.55"></script>
+  <script type="module" src="./app.js?v=6.9.58"></script>
 
-  <script type="module" src="./cloud.js?v=6.9.55"></script>
+  <script type="module" src="./cloud.js?v=6.9.58"></script>
 </body>
 </html>

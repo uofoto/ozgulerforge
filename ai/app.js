@@ -817,6 +817,11 @@
           <p class="welcome-subtitle">
             ${(currentUser && currentUser.name) ? 'Merhaba, ' + escapeHtml(String(currentUser.name).split(' ')[0]) + '. ' : ''}Size nasıl yardımcı olabilirim?
           </p>
+          <div class="welcome-prompts" aria-label="Hızlı başlangıç önerileri">
+            <button type="button" class="welcome-prompt" data-welcome-prompt="Araştır: [konuyu yaz]. Güvenilir kaynakları karşılaştır ve bulguları özetle."><i data-lucide="search"></i><span><strong>Araştırma yap</strong><small>Kaynakları bul ve karşılaştır</small></span></button>
+            <button type="button" class="welcome-prompt" data-welcome-prompt="Şu metni geliştir; anlatımı akıcı, etkili ve amaca uygun hâle getir: [metni buraya ekle]"><i data-lucide="pen-line"></i><span><strong>Bir metni geliştir</strong><small>Yaz, düzenle veya yeniden oluştur</small></span></button>
+            <button type="button" class="welcome-prompt" data-welcome-prompt="Eklediğim fotoğrafı sanatsal açıdan yorumla; kompozisyon, ışık, renk ve atmosferi değerlendir."><i data-lucide="image"></i><span><strong>Fotoğrafı yorumla</strong><small>Işık, renk ve kompozisyon</small></span></button>
+          </div>
 
           <div id="noKeyWarning" class="${hasValidKey ? 'hidden' : ''} w-full max-w-lg mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200/80 text-left flex items-start gap-3 shadow-2xs">
             <i data-lucide="key-round" class="w-5 h-5 text-amber-600 shrink-0 mt-0.5"></i>
@@ -830,6 +835,14 @@
         </div>
       `;
     }
+
+    document.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-welcome-prompt]');
+      if (!b) return;
+      els.userInput.value = b.dataset.welcomePrompt || '';
+      els.userInput.dispatchEvent(new Event('input'));
+      els.userInput.focus();
+    });
 
     window.usePromptCard = function(btn) {
       const p = btn.querySelector('p');
@@ -857,6 +870,10 @@
       copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
       check: '<path d="M20 6 9 17l-5-5"/>',
       doc: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+      minimize: '<path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>',
+      maximize: '<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>',
+      'refresh-cw': '<path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9A7 7 0 0 1 18 6l2 6M4 12l2 6a7 7 0 0 0 12.4-3"/>',
+      'file-text': '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8M8 17h8M8 9h1"/>',
       more: '<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
       speak: '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>',
       share: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/>',
@@ -926,6 +943,12 @@
     els.messagesContainer.addEventListener('scroll', closeSharePopover, { passive: true });
     } catch (e) { console.warn('Oforge AI: paylaş menüsü başlatılamadı', e); }
 
+    function requestAnswerTransform(instruction, text) {
+      if (state.isGenerating) return;
+      els.userInput.value = instruction + '\n\n--- Dönüştürülecek yanıt ---\n' + String(text || '').trim();
+      els.chatForm.requestSubmit();
+    }
+
     function openSharePopover(btn, text) {
       if (sharePop && sharePop._btn === btn) { closeSharePopover(); return; }
       closeSharePopover();
@@ -937,6 +960,10 @@
       const truncated = full.length > LIM;
       const short = truncated ? body.slice(0, LIM - SIGN.length - 1).trimEnd() + '…' + SIGN : full;
       const items = [];
+      items.push(['Yanıtı kısalt', () => requestAnswerTransform('Bu yanıtı ana anlamını ve önemli bilgileri koruyarak belirgin biçimde kısalt:', text), 'minimize']);
+      items.push(['Yanıtı genişlet', () => requestAnswerTransform('Bu yanıtı daha ayrıntılı, gerekçeli ve gerektiğinde örnekli biçimde genişlet:', text), 'maximize']);
+      items.push(['Yeniden yaz', () => requestAnswerTransform('Bu yanıtı daha akıcı, açık ve etkili bir dille yeniden yaz:', text), 'refresh-cw']);
+      items.push(['Belgeye dönüştür', () => requestAnswerTransform('Bu yanıtı başlıkları ve düzenli bölümleri olan, kullanılabilir bir belge hâline getir:', text), 'file-text']);
       items.push(['Sesli dinle', () => window.speakText(text), 'speak']);
       if (navigator.share) items.push(['Paylaş…', async () => { try { await navigator.share({ title: 'Oforge AI yanıtı', text: full }); } catch (_) {} }, 'share']);
       items.push(['WhatsApp', () => { window.open('https://wa.me/?text=' + encodeURIComponent(short), '_blank', 'noopener'); }, 'wa']);
@@ -1406,7 +1433,11 @@
 
         const r = await runWithFallback({
           candidates, hist,
-          systemText: buildSystemText(state.systemPrompt, currentUser),
+          systemText: buildSystemText(state.systemPrompt, currentUser) +
+            '\n\nKULLANICI TERCİHLERİ:' +
+            '\nYanıt uzunluğu: ' + ({ short: 'Kısa ve doğrudan', balanced: 'Dengeli ve yeterince açıklayıcı', detailed: 'Ayrıntılı, gerekçeli ve örnekli' }[storage.get(KEYS.ANSWER_LENGTH, 'balanced')] || 'Dengeli ve yeterince açıklayıcı') +
+            '\nGüvenilir kaynak ilkesi: İnternet araştırması veya güncel bilgi istendiğinde kullandığın kaynakları açık bağlantılarla belirt; kaynakta doğrulanabilen bilgiyi kendi çıkarımından ve tahmininden açıkça ayır. Kaynak bulamadığın iddiayı doğrulanmış gibi sunma.' +
+            (storage.get(KEYS.MEMORY_V2, '').trim() ? '\nKullanıcının açıkça kaydettiği hafıza notları (yalnızca ilgili olduğunda dikkate al):\n' + storage.get(KEYS.MEMORY_V2, '').trim() : ''),
           webOn: storage.get(KEYS.WEB) === '1' || reqType === 'academic',
           creds: { apiKey: state.apiKey, getIdToken },
           signal: state.abortController.signal,
@@ -1532,9 +1563,12 @@
       recognition.interimResults = false;
 
       document.getElementById('micBtn').onclick = () => {
-        recognition.start();
-        document.getElementById('micLabel').textContent = 'Dinleniyor...';
-        document.getElementById('micBtn').classList.add('text-rose-600', 'bg-rose-50');
+        try {
+          recognition.start();
+          document.getElementById('micLabel').textContent = 'Dinleniyor...';
+          document.getElementById('micBtn').setAttribute('aria-pressed', 'true');
+          document.getElementById('micBtn').classList.add('text-rose-600', 'bg-rose-50');
+        } catch (_) { forgeToast('Sesli giriş zaten etkin.'); }
       };
 
       recognition.onresult = (event) => {
@@ -1546,6 +1580,7 @@
       recognition.onend = () => {
         document.getElementById('micLabel').textContent = 'Sesli';
         document.getElementById('micBtn').classList.remove('text-rose-600', 'bg-rose-50');
+        document.getElementById('micBtn').setAttribute('aria-pressed', 'false');
       };
     } else {
       document.getElementById('micBtn').classList.add('hidden');
@@ -1688,6 +1723,57 @@
       els.systemPromptInput.value = state.systemPrompt;
       els.settingsModal.classList.remove('hidden');
     };
+    // Kullanıcı kontrollü hafıza: yalnızca açıkça kaydedilen notlar, cihazda tutulur.
+    const memoryModal = document.getElementById('memoryModal');
+    const memoryInput = document.getElementById('memoryInput');
+    const openMemory = () => {
+      memoryInput.value = storage.get(KEYS.MEMORY_V2, '');
+      memoryModal.classList.remove('hidden');
+      memoryInput.focus();
+    };
+    document.getElementById('openMemoryBtn').onclick = openMemory;
+    document.getElementById('closeMemoryBtn').onclick = () => memoryModal.classList.add('hidden');
+    document.getElementById('cancelMemoryBtn').onclick = () => memoryModal.classList.add('hidden');
+    document.getElementById('saveMemoryBtn').onclick = () => {
+      const value = memoryInput.value.trim();
+      if (storage.set(KEYS.MEMORY_V2, value)) {
+        memoryModal.classList.add('hidden');
+        forgeToast(value ? 'Hafıza notları kaydedildi.' : 'Hafıza notları temizlendi.');
+      } else forgeToast('Hafıza kaydedilemedi; tarayıcı depolamasını kontrol edin.');
+    };
+    document.getElementById('clearMemoryBtn').onclick = () => {
+      memoryInput.value = '';
+      storage.remove(KEYS.MEMORY_V2);
+      forgeToast('Hafıza notları temizlendi.');
+    };
+
+    // Her çalışma kendi notlarını sohbet kaydıyla birlikte taşır.
+    const workspaceModal = document.getElementById('workspaceModal');
+    const workspaceNotes = document.getElementById('workspaceNotes');
+    function openWorkspaceNotes() {
+      const chat = state.chats.find(c => c.id === state.activeChatId);
+      if (!chat) { forgeToast('Önce bir çalışma başlatın.'); return; }
+      workspaceNotes.value = chat.notes || '';
+      workspaceModal.classList.remove('hidden');
+      workspaceNotes.focus();
+    }
+    document.getElementById('workspaceNotesBtn').onclick = openWorkspaceNotes;
+    document.getElementById('closeWorkspaceBtn').onclick = () => workspaceModal.classList.add('hidden');
+    document.getElementById('closeWorkspaceBtn2').onclick = () => workspaceModal.classList.add('hidden');
+    document.getElementById('saveWorkspaceBtn').onclick = () => {
+      const chat = state.chats.find(c => c.id === state.activeChatId);
+      if (!chat) return;
+      chat.notes = workspaceNotes.value;
+      syncStorage();
+      workspaceModal.classList.add('hidden');
+      forgeToast('Çalışma notları kaydedildi.');
+    };
+    document.getElementById('answerLengthSelect').value = storage.get(KEYS.ANSWER_LENGTH, 'balanced');
+    document.getElementById('answerLengthSelect').addEventListener('change', (e) => {
+      storage.set(KEYS.ANSWER_LENGTH, e.target.value);
+      forgeToast('Yanıt uzunluğu tercihi kaydedildi.');
+    });
+
     document.getElementById('closeSettingsBtn').onclick = () => els.settingsModal.classList.add('hidden');
     document.getElementById('cancelSettingsBtn').onclick = () => els.settingsModal.classList.add('hidden');
 

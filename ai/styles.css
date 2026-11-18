@@ -533,3 +533,27 @@ html.forge.dark body #messagesContainer .msg-user-bubble.bg-blue-600 {
 html body #messagesContainer .msg-user-bubble.bg-blue-600 * {
   color: inherit !important;
 }
+
+
+/* v6.9.58 · Minimal başlangıç, tercih ve çalışma araçları */
+.welcome-prompts { width:min(100%,39rem); display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.65rem; margin-top:2rem; text-align:left; }
+.welcome-prompt { display:flex; align-items:center; gap:.7rem; min-width:0; padding:.85rem .9rem; border:1px solid #E7E9EE; border-radius:1rem; background:rgba(255,255,255,.82); color:#475569; text-align:left; transition:border-color .16s,background .16s,transform .16s; }
+.welcome-prompt:hover { border-color:#CBD5E1; background:#fff; transform:translateY(-1px); }
+.welcome-prompt > svg { width:1.1rem; height:1.1rem; flex:none; color:#64748B; }
+.welcome-prompt span { display:flex; flex-direction:column; gap:.18rem; min-width:0; }
+.welcome-prompt strong { color:#334155; font-size:.78rem; font-weight:600; }
+.welcome-prompt small { color:#94A3B8; font-size:.67rem; line-height:1.35; }
+.answer-length-wrap { display:flex; align-items:center; gap:.25rem; height:2.25rem; padding:0 .45rem; border:1px solid #E5E7EB; border-radius:999px; background:#fff; }
+.answer-length-wrap select { max-width:5.3rem; border:0; outline:0; background:transparent; color:#64748B; font-size:.68rem; cursor:pointer; }
+html.dark .welcome-prompt { background:#111827; border-color:#334155; }
+html.dark .welcome-prompt strong { color:#E2E8F0; }
+html.dark .welcome-prompt small { color:#94A3B8; }
+html.dark .answer-length-wrap { background:#111827; border-color:#334155; }
+html.dark .answer-length-wrap select { color:#CBD5E1; }
+@media(max-width:639px) {
+  .welcome-prompts { grid-template-columns:1fr; gap:.5rem; margin-top:1.5rem; max-width:20rem; }
+  .welcome-prompt { padding:.7rem .8rem; }
+  .welcome-prompt small { font-size:.65rem; }
+  .answer-length-wrap { height:2.45rem; padding:0 .35rem; gap:.1rem; }
+  .answer-length-wrap select { max-width:4.25rem; font-size:.64rem; }
+}

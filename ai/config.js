@@ -1,6 +1,6 @@
 // Uygulama sabitleri: sürüm, depolama anahtarları, hesap/sunucu ayarları. Başka modüle bağımlı değildir.
 
-export const APP_VERSION = '6.9.57';
+export const APP_VERSION = '6.9.58';
 
 // localStorage anahtarları — kod içinde başka yerde anahtar dizesi yazılmaz.
 // (index.html içindeki tema/açılış betikleri modül değildir; orada forge_ai_theme ve forge_ai_contrast elle yazılıdır.)
@@ -25,7 +25,9 @@ export const KEYS = {
   CONTRAST: 'forge_ai_contrast',
   CLOUD_DEVICE: 'forge_cloud_device',
   CLOUD_META: 'forge_cloud_meta',
-  CLOUD_UID: 'forge_cloud_uid'
+  CLOUD_UID: 'forge_cloud_uid',
+  MEMORY_V2: 'forge_ai_memory_v2',
+  ANSWER_LENGTH: 'forge_ai_answer_length'
 };
 
 // Eski sürümlerden kalan, artık kullanılmayan anahtarlar; uygulama açılırken silinir.
