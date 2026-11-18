@@ -1,4 +1,4 @@
-# Oforge AI (v6.9.45)
+# Oforge AI (v6.9.47)
 
 ## Proje yapısı
 Derleme gerektirmez; tarayıcı ES modülleri kullanır. Bir web sunucusundan yayınlanır (`file://` ile açılmaz).
