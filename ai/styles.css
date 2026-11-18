@@ -292,10 +292,16 @@ html.dark .placeholder-slate-400::placeholder { color:#7E7E88 }
     .mermaid-card.show-src .mermaid-src { display:block; }
     .mermaid-card.show-src .mermaid-body { display:none; }
     .fm-math-d { display:block; overflow-x:auto; padding:.5rem 0; text-align:center; }
-    .prose .fm-callout { border-left:4px solid var(--c); background:var(--bg); padding:1rem; border-radius:0 .75rem .75rem 0; margin:1.5rem 0; color:inherit; }
-    .fm-callout-title { display:flex; align-items:center; gap:.5rem; font-weight:600; margin-bottom:.5rem; color:var(--c); }
-    .fm-callout-note { --c:#2563EB; --bg:rgba(37,99,235,.08); } .fm-callout-tip { --c:#059669; --bg:rgba(5,150,105,.08); }
-    .fm-callout-warn { --c:#B45309; --bg:rgba(245,158,11,.12); } .fm-callout-imp { --c:#7C3AED; --bg:rgba(124,58,237,.08); } .fm-callout-caution { --c:#DC2626; --bg:rgba(220,38,38,.08); }
+    /* Minimal editoryal bilgi alanları: ikon yok, ince sol çizgi */
+    .prose .fm-callout { border-left:2px solid var(--c); background:var(--bg); padding:.85rem 1rem; border-radius:0 .45rem .45rem 0; margin:1.25rem 0; color:inherit; }
+    .fm-callout-title { display:flex; align-items:center; gap:0; font-weight:600; font-size:.92rem; margin-bottom:.35rem; color:var(--c); }
+    .fm-callout-note { --c:#718096; --bg:rgba(148,163,184,.09); } .fm-callout-tip { --c:#39836F; --bg:rgba(16,185,129,.055); }
+    .fm-callout-warn { --c:#A8793D; --bg:rgba(217,169,104,.075); } .fm-callout-imp { --c:#8273A8; --bg:rgba(139,121,180,.06); } .fm-callout-caution { --c:#B56D72; --bg:rgba(190,110,116,.06); }
+    .msg-user-bubble { background:#E8EEF8 !important; color:#26364F !important; border:1px solid #D9E2F0; box-shadow:none !important; }
+    .msg-user-bubble * { color:inherit; }
+    html.dark .msg-user-bubble { background:#273449 !important; color:#E7EDF7 !important; border-color:#35445C; }
+    html.forge .msg-user-bubble { background:#F2EDE7 !important; color:#3D3028 !important; border-color:#E7DCCF; }
+    html.forge.dark .msg-user-bubble { background:#342A23 !important; color:#F2E9DF !important; border-color:#4B3B30; }
     .hljs-addition, .hljs-deletion { display:inline-block; width:100%; }
 
     /* ===== Akışkan animasyonlar ===== */
@@ -383,8 +389,8 @@ html.forge .focus\:border-blue-500:focus { border-color:#FB923C }
     html.dark .fm-card-head { background:#26262A; border-bottom-color:#3A3A41; color:#9A9AA4; }
     html.dark .fm-card-btn { color:#9A9AA4; } html.dark .fm-card-btn:hover { background:#323238; color:#93B4FF; }
     html.dark .prose .table-scroll th { background:#26262A; border-color:#3A3A41; } html.dark .prose .table-scroll td { border-color:#3A3A41; }
-    html.dark .fm-callout-note { --c:#7AA2FF; --bg:rgba(122,162,255,.12); } html.dark .fm-callout-tip { --c:#34D399; --bg:rgba(52,211,153,.1); }
-    html.dark .fm-callout-warn { --c:#FBBF24; --bg:rgba(251,191,36,.1); } html.dark .fm-callout-imp { --c:#C4B5FD; --bg:rgba(196,181,253,.1); } html.dark .fm-callout-caution { --c:#FB7185; --bg:rgba(251,113,133,.1); }
+    html.dark .fm-callout-note { --c:#9AA9BD; --bg:rgba(148,163,184,.08); } html.dark .fm-callout-tip { --c:#79B6A3; --bg:rgba(52,140,116,.09); }
+    html.dark .fm-callout-warn { --c:#C9A36D; --bg:rgba(201,163,109,.09); } html.dark .fm-callout-imp { --c:#B0A2D0; --bg:rgba(139,121,180,.09); } html.dark .fm-callout-caution { --c:#D18D92; --bg:rgba(190,110,116,.09); }
     html.dark .hljs-addition { color:#7EE787; background:rgba(46,160,67,.18); } html.dark .hljs-deletion { color:#FFA198; background:rgba(248,81,73,.18); }
     html.dark .cmdk-row { color:#D4D4D8; } html.dark .cmdk-row[aria-selected="true"] { background:#323238; color:#fff; }
     html.dark .cmdk-group, html.dark .cmdk-tag { color:#7E7E88; }
@@ -498,4 +504,32 @@ html.dark .welcome-subtitle { color:#94A3B8; }
 @media (max-width:639px) {
   html.dark #chatForm { background:#111827 !important; border-color:#334155 !important; }
   html.dark #chatForm .border-t { border-color:#334155 !important; }
+}
+
+
+/* v6.9.56: Kullanici mesaj balonunda mavi zemini kesin olarak kaldir */
+html body #messagesContainer .msg-user-bubble.bg-blue-600 {
+  background-color: #E8EEF8 !important;
+  background-image: none !important;
+  color: #26364F !important;
+  border: 1px solid #D9E2F0 !important;
+  box-shadow: none !important;
+}
+html.dark body #messagesContainer .msg-user-bubble.bg-blue-600 {
+  background-color: #273449 !important;
+  color: #E7EDF7 !important;
+  border-color: #35445C !important;
+}
+html.forge body #messagesContainer .msg-user-bubble.bg-blue-600 {
+  background-color: #F2EDE7 !important;
+  color: #3D3028 !important;
+  border-color: #E7DCCF !important;
+}
+html.forge.dark body #messagesContainer .msg-user-bubble.bg-blue-600 {
+  background-color: #342A23 !important;
+  color: #F2E9DF !important;
+  border-color: #4B3B30 !important;
+}
+html body #messagesContainer .msg-user-bubble.bg-blue-600 * {
+  color: inherit !important;
 }
