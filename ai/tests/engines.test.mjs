@@ -437,12 +437,11 @@ test('yedek motor yoksa da takılı kalan istek zaman aşımına uğrar', async 
   await assert.rejects(p, (e) => e.kind === 'timeout');
 });
 
-test('yanıt kuralları: doğal dil, düşünsel derinlik, doğruluk ve isteğe bağlı takip önerileri', () => {
+test('yanıt kuralları: doğal dil, düşünsel derinlik, doğruluk ve zorunlu takip önerileri', () => {
   assert.ok(ANSWER_STYLE.includes('MUHAKEME KALİTESİ'));
   assert.ok(ANSWER_STYLE.includes('FELSEFİ DERİNLİK'));
   assert.ok(ANSWER_STYLE.includes('DOĞRULUK VE ENTELEKTÜEL DÜRÜSTLÜK'));
-  assert.ok(ANSWER_STYLE.includes('Her cevabın sonuna otomatik öneri'));
+  assert.ok(ANSWER_STYLE.includes('TAKİP ÖNERİLERİ (ARAYÜZ DÜĞMELERİ)'));
   assert.ok(ANSWER_STYLE.includes(SUGGEST_OPEN) && ANSWER_STYLE.includes(SUGGEST_CLOSE));
-  assert.ok(!ANSWER_STYLE.includes('her yanıtın en sonuna'));
   assert.ok(!ANSWER_STYLE.includes('en fazla 1-2 kutu'));
 });
