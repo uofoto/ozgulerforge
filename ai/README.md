@@ -1,13 +1,15 @@
-# Oforge AI (v6.9.60)
+# Oforge AI (v6.9.61)
 
-## 6.9.60 — Çoklu sağlayıcı otomatik yedekleme
+## 6.9.61 — Groq öncelikli otomatik çoklu sağlayıcı
 
-- Ultra ve Lite yanıt profilleri, sağlayıcı seçimini kullanıcıya göstermeden Gemini, Groq ve OpenRouter arasında otomatik aday sırası oluşturur.
-- Kota, anahtar, bağlantı ve model hatalarında uygun yedek modele geçilir; her istek en fazla dört modelde denenir.
-- Groq OpenAI-uyumlu SSE sağlayıcısı eklendi. OpenRouter ücretsiz model yönlendiricisi (`openrouter/free`) son yedek olarak kullanılır.
-- Fotoğraf ve PDF yalnızca bunları destekleyen adaylara gönderilir. PDF desteği Gemini ile sınırlıdır; fotoğraf için Gemini ve Groq Qwen adayı kullanılabilir. Web araması açıkken yalnızca web aramasını destekleyen Gemini/OpenRouter adayları denenir.
-- Gemini, Groq ve OpenRouter anahtarları ayrı saklanır. Eski `forge_ai_groq_api_key` anahtarı artık silinmez ve mevcut anahtar varsa korunur.
-- Anahtarlar bu statik sürümde tarayıcının yerel depolamasında tutulur. Herkese açık dağıtımda sunucu tarafı proxy/Worker gereklidir; API anahtarlarını GitHub'a eklemeyin.
+- Kullanıcı sağlayıcı seçmez. AI Ultra 3.8 ve AI Lite yanıt profilleri, istek türüne ve eklerin yeteneklerine göre uygun API'yi otomatik seçer.
+- Metin isteklerinde Groq'un üretim modelleri önceliklidir: GPT-OSS 20B hızlı/gündelik isteklerde, GPT-OSS 120B daha karmaşık isteklerde kullanılır. Kota veya erişim sorunu olursa diğer uygun Groq modeli, Gemini ve OpenRouter yedekleri denenir.
+- Görsel isteklerinde Groq Qwen 3.8 27B (önizleme) ve Gemini adaydır. PDF yalnızca Gemini'ye gönderilir. Web araması açıkken yalnızca web araması destekleyen Gemini/OpenRouter adayları kullanılır.
+- Kota, anahtar, bağlantı ve model hatalarında uygun yedek modele geçilir; bir istek en fazla dört modelde denenir. Başarılı bir akış başladıktan sonra yanıtlar sağlayıcılar arasında birleştirilmez.
+- OpenRouter ücretsiz model yönlendiricisi (`openrouter/free`) yedek adaydır; ücretsiz katman günlük istek sınırına tabidir.
+- Gemini, Groq ve OpenRouter anahtarları ayrı saklanır. Eski `forge_ai_groq_api_key` anahtarı korunur.
+- Bu statik sürüm anahtarları kullanıcının kendi tarayıcısında saklar. Anahtarları kaynak koda veya GitHub deposuna yazmayın. Gerçek kullanıcılar için ortak bir servis anahtarı dağıtılacaksa sunucu tarafı proxy/Worker kullanılmalıdır.
+- Test: `npm test` ile 52 otomatik test başarılı; gerçek API anahtarlarıyla canlı bağlantı testi henüz yapılmadı.
 
 
 ## v6.9.59
@@ -30,9 +32,9 @@ prompts.js            modele her istekte eklenen kimlik/üslup metinleri
 engines/              DOM'a dokunmayan motor katmanı
   models.js           motor kataloğu, anahtar var mı, kota havuzu
   router.js           istek türü, aday motor sırası
-  index.js            yedek motora geçme (en fazla 3 deneme)
+  index.js            yedek motora geçme (en fazla 4 deneme)
   attempt.js          tek denemeyi çalıştırır: istek → akış → hata sınıfı
-  providers/          gemini.js, openrouter.js (istek gövdesi, adres, akış olayı)
+  providers/          gemini.js, groq.js, openrouter.js (istek gövdesi, adres, akış olayı)
   stream.js errors.js quota.js health.js media.js
 tests/                birim testleri (`npm test`, ~1 sn)
 tools/bump-version.mjs  sürümü ve import haritasını günceller
