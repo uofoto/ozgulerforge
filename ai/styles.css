@@ -583,3 +583,8 @@ html.dark #chatForm { box-shadow:0 6px 28px rgba(0,0,0,.45); }
 .prose .fm-source-note { display:flex; align-items:center; gap:7px; width:max-content; max-width:100%; margin:-.45rem 0 .9rem; padding:5px 9px; border:1px solid #dbeafe; border-radius:9px; background:#eff6ff; color:#475569; font-size:11px; }
 .prose .fm-source-note a { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:min(65vw,360px); }
 @media(max-width:640px){ #composerDock{padding-left:10px;padding-right:10px;} #messagesContainer{padding-bottom:174px!important;} #forgeSpeakFloat{right:13px;bottom:105px;} #forgeScrollFloat{right:13px;bottom:160px;} }
+
+/* Yanıt avatarı: koyu kare yerine sayfa zeminiyle bütünleşen, ince çerçeveli şeffaf kart. */
+html body .forge-avatar { background:transparent !important; border:1px solid rgba(148,163,184,.30) !important; box-shadow:none !important; }
+html.dark body .forge-avatar { border-color:rgba(255,255,255,.12) !important; }
+html.forge body .forge-avatar { border-color:rgba(251,146,60,.22) !important; }
