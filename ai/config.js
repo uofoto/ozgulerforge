@@ -1,6 +1,6 @@
 // Uygulama sabitleri: sürüm, depolama anahtarları, hesap/sunucu ayarları. Başka modüle bağımlı değildir.
 
-export const APP_VERSION = '6.9.64';
+export const APP_VERSION = '6.9.65';
 
 // localStorage anahtarları — kod içinde başka yerde anahtar dizesi yazılmaz.
 // (index.html içindeki tema/açılış betikleri modül değildir; orada forge_ai_theme ve forge_ai_contrast elle yazılıdır.)

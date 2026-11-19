@@ -6,7 +6,7 @@
     import { REQ_LABELS, planRequest, classifyRequest } from './engines/router.js';
     import { runWithFallback } from './engines/index.js';
     import { suggestFollowUps } from './engines/suggest.js';
-    import { BASE_IDENTITY, LEGACY_IDENTITY, buildSystemText, SUGGEST_OPEN, SUGGEST_CLOSE } from './prompts.js';
+    import { BASE_IDENTITY, isLegacyIdentity, buildSystemText, SUGGEST_OPEN, SUGGEST_CLOSE } from './prompts.js';
 
     function refreshIcons() {
       if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -110,7 +110,7 @@
       apiKey: storage.get(KEYS.API, ''),
       groqKey: storage.get(KEYS.GROQ_API, ''),
       orKey: storage.get(KEYS.OR_API, ''),
-      systemPrompt: (storage.get(KEYS.SYSTEM, '') && storage.get(KEYS.SYSTEM, '') !== LEGACY_IDENTITY) ? storage.get(KEYS.SYSTEM, '') : BASE_IDENTITY,
+      systemPrompt: (storage.get(KEYS.SYSTEM, '') && !isLegacyIdentity(storage.get(KEYS.SYSTEM, ''))) ? storage.get(KEYS.SYSTEM, '') : BASE_IDENTITY,
       chats: loadChats(),
       activeChatId: null,
       attachedFiles: [],
@@ -1445,7 +1445,7 @@
 
         const r = await runWithFallback({
           candidates, hist,
-          systemText: buildSystemText(state.systemPrompt, currentUser) +
+          systemText: buildSystemText(state.systemPrompt, currentUser, reqType) +
             '\n\nKULLANICI TERCİHLERİ:' +
             '\nYanıt uzunluğu: ' + ({ short: 'Kısa ve doğrudan', balanced: 'Dengeli ve yeterince açıklayıcı', detailed: 'Ayrıntılı, gerekçeli ve örnekli' }[storage.get(KEYS.ANSWER_LENGTH, 'balanced')] || 'Dengeli ve yeterince açıklayıcı') +
             '\nZORUNLU BİÇİM: Selamlaşma ve tek kelimelik yanıtlar dışında her yanıtın en sonuna, ana metinden sonra ' + SUGGEST_OPEN + ' satırı, ardından "- " ile başlayan 3 kısa öneri satırı ve ' + SUGGEST_CLOSE + ' satırı ekle.' +
