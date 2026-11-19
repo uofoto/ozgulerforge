@@ -28,6 +28,17 @@ export function thinkingLevelFor(model, reqType) {
   if (['academic', 'philosophy', 'analysis', 'document', 'code', 'writing', 'pdf', 'vision_analysis'].includes(reqType)) return 'high';
   return 'medium';
 }
+// Yaratıcı/akıcı türlerde biraz yüksek, kod ve akademikte düşük. Gemini 3 ailesi varsayılan sıcaklıkta (1.0) en kararlı çalıştığı için ona gönderilmez.
+const TEMPERATURES = { code: 0.2, academic: 0.3, analysis: 0.4, document: 0.3, pdf: 0.3, vision: 0.5, vision_analysis: 0.5, simple: 0.7, philosophy: 0.8, writing: 0.9 };
+export function temperatureFor(reqType) { return TEMPERATURES[reqType]; }
+
+// Türkçe üslubun en çok önem taşıdığı türlerde Gemini modelleri kendi grubunda öne alınır (kota dolarsa sıra yine otomatik akar).
+export const GEMINI_FIRST_TYPES = ['writing', 'philosophy', 'academic'];
+export function geminiFirst(list, reqType) {
+  if (!GEMINI_FIRST_TYPES.includes(reqType)) return list;
+  return [...list.filter(m => m.provider === 'gemini'), ...list.filter(m => m.provider !== 'gemini')];
+}
+
 export function rankModels(list, type) {
   const order = type === 'simple' ? ['light', 'mid', 'strong', 'code'] : type === 'code' ? ['code', 'strong', 'mid', 'light'] : ['strong', 'mid', 'light', 'code'];
   return list.map((m, i) => [m, i]).sort((a, b) => (order.indexOf(a[0].tier || 'mid') - order.indexOf(b[0].tier || 'mid')) || (a[1] - b[1])).map(x => x[0]);
@@ -56,7 +67,7 @@ export function planRequest({ selected, hist, creds, webOn = false }) {
   if (live.length) {
     // Seçili profilin modelleri önce gelir; diğer profilin modelleri yalnızca son çare yedeğidir.
     const ownLive = live.filter(m => m.engine === sel.id), extraLive = live.filter(m => m.engine !== sel.id);
-    candidates = [...rankModels(ownLive, reqType), ...rankModels(extraLive, reqType)];
+    candidates = [...geminiFirst(rankModels(ownLive, reqType), reqType), ...geminiFirst(rankModels(extraLive, reqType), reqType)];
   }
   else {
     const cooled = capable.map(isCooled);
@@ -64,8 +75,9 @@ export function planRequest({ selected, hist, creds, webOn = false }) {
       const first = cooled.reduce((x, y) => (x.until <= y.until ? x : y));
       throw mkErr('quota', sel.label + ' kotası dolu.', { quota: Object.assign({}, first.quota, { model: sel.label }) });
     }
-    candidates = [...rankModels(capable.filter(m => m.engine === sel.id), reqType), ...rankModels(capable.filter(m => m.engine !== sel.id), reqType)];
+    candidates = [...geminiFirst(rankModels(capable.filter(m => m.engine === sel.id), reqType), reqType), ...geminiFirst(rankModels(capable.filter(m => m.engine !== sel.id), reqType), reqType)];
   }
-  candidates = candidates.map(m => m.provider === 'gemini' ? { ...m, thinking: thinkingLevelFor(m, reqType) } : m);
+  const temp = temperatureFor(reqType);
+  candidates = candidates.map(m => m.provider === 'gemini' ? { ...m, thinking: thinkingLevelFor(m, reqType) } : (temp === undefined ? m : { ...m, temperature: temp }));
   return { candidates, reqType, need };
 }
