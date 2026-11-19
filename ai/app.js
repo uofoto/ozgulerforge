@@ -969,7 +969,6 @@
       items.push(['Yanıtı genişlet', () => requestAnswerTransform('Bu yanıtı daha ayrıntılı, gerekçeli ve gerektiğinde örnekli biçimde genişlet:', text), 'maximize']);
       items.push(['Yeniden yaz', () => requestAnswerTransform('Bu yanıtı daha akıcı, açık ve etkili bir dille yeniden yaz:', text), 'refresh-cw']);
       items.push(['Belgeye dönüştür', () => requestAnswerTransform('Bu yanıtı başlıkları ve düzenli bölümleri olan, kullanılabilir bir belge hâline getir:', text), 'file-text']);
-      items.push(['Sesli dinle', () => window.speakText(text), 'speak']);
       if (navigator.share) items.push(['Paylaş…', async () => { try { await navigator.share({ title: 'Oforge AI yanıtı', text: full }); } catch (_) {} }, 'share']);
       items.push(['WhatsApp', () => { window.open('https://wa.me/?text=' + encodeURIComponent(short), '_blank', 'noopener'); }, 'wa']);
       items.push(['E-posta', () => { window.location.href = 'mailto:?subject=' + encodeURIComponent('Oforge AI yanıtı') + '&body=' + encodeURIComponent(short); }, 'mail']);
@@ -2775,3 +2774,74 @@
     updateApiBadge();
     renderChatList();
     renderMessages();
+
+
+    // v6.9.66: kayan sohbet konsolu, metin seçerek sor, hızlı gezinme ve sesli dinleme.
+    (function initConversationPolish() {
+      const messages = els.messagesContainer;
+      if (!messages) return;
+      const dock = document.getElementById('composerDock');
+      const main = messages.parentElement;
+      if (main && getComputedStyle(main).position === 'static') main.style.position = 'relative';
+
+      const float = document.createElement('button');
+      float.id = 'forgeSpeakFloat'; float.type = 'button';
+      float.title = 'Son yanıtı sesli dinle'; float.setAttribute('aria-label', 'Son yanıtı sesli dinle');
+      float.innerHTML = '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg>';
+      float.addEventListener('click', () => {
+        const rows = [...messages.querySelectorAll('.msg-row')];
+        const last = rows.reverse().find(r => r.querySelector('.prose'));
+        const prose = last && last.querySelector('.prose');
+        if (prose) window.speakText(prose.innerText || prose.textContent || '');
+      });
+      document.body.appendChild(float);
+
+      const nav = document.createElement('div'); nav.id='forgeScrollFloat';
+      nav.innerHTML='<button type="button" title="Sohbetin başına git" aria-label="Sohbetin başına git">↑</button><button type="button" title="Sohbetin sonuna git" aria-label="Sohbetin sonuna git">↓</button>';
+      nav.children[0].onclick=()=>messages.scrollTo({top:0,behavior:'smooth'});
+      nav.children[1].onclick=()=>messages.scrollTo({top:messages.scrollHeight,behavior:'smooth'});
+      document.body.appendChild(nav);
+      const updateNav=()=>{nav.style.opacity=messages.scrollHeight>messages.clientHeight+120?'1':'0';nav.style.pointerEvents=messages.scrollHeight>messages.clientHeight+120?'auto':'none';};
+      messages.addEventListener('scroll',updateNav,{passive:true});
+      new MutationObserver(updateNav).observe(messages,{childList:true,subtree:true});
+      updateNav();
+
+      const ask=document.createElement('button'); ask.id='forgeSelectionAsk'; ask.type='button'; ask.textContent="Oforge'ya sor"; ask.hidden=true;
+      document.body.appendChild(ask);
+      let selected='';
+      document.addEventListener('selectionchange',()=>{
+        const sel=window.getSelection(); selected=(sel && sel.toString().trim())||'';
+        if(!selected || selected.length<3 || !messages.contains(sel.anchorNode)) {ask.hidden=true;return;}
+        const range=sel.getRangeAt(0).getBoundingClientRect();
+        ask.style.left=Math.max(12,Math.min(innerWidth-150,range.left+range.width/2-65))+'px';
+        ask.style.top=Math.max(12,range.top-48)+'px'; ask.hidden=false;
+      });
+      ask.addEventListener('mousedown',e=>e.preventDefault());
+      ask.addEventListener('click',()=>{
+        const quote=selected; if(!quote)return;
+        const input=els.userInput;
+        input.value='Aşağıdaki metin bölümünü açıkla, bağlamını değerlendir ve gerekirse doğrula:\n\n“'+quote+'”';
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+        input.focus(); ask.hidden=true; window.getSelection()?.removeAllRanges();
+      });
+      document.addEventListener('pointerdown',e=>{if(!e.target.closest('#forgeSelectionAsk')) ask.hidden=true;});
+
+      // Bağlantıları metin içinde küçük, açılabilir kaynak etiketleri olarak sun.
+      const decorateSources=(root)=>{
+        root.querySelectorAll('.prose a[href]:not([data-fm-source])').forEach(a=>{
+          const href=a.getAttribute('href')||'';
+          if(!/^https?:\/\//i.test(href))return;
+          a.dataset.fmSource='1';
+          const note=document.createElement('details'); note.className='fm-source-note';
+          const summary=document.createElement('summary'); summary.textContent='Kaynak bilgisi'; summary.style.cursor='pointer';
+          const link=document.createElement('a'); link.href=href; link.target='_blank'; link.rel='noopener noreferrer';
+          try{link.textContent=new URL(href).hostname.replace(/^www\./,'');}catch(_){link.textContent=href;}
+          note.append(summary,link);
+          const parent=a.closest('p,li,blockquote')||a.parentElement;
+          if(parent && parent.parentNode) parent.insertAdjacentElement('afterend',note);
+        });
+      };
+      decorateSources(messages);
+      new MutationObserver(()=>decorateSources(messages)).observe(messages,{childList:true,subtree:true});
+    })();
+

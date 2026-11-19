@@ -1,4 +1,15 @@
-# Oforge AI (v6.9.61)
+# Oforge AI (v6.9.66)
+
+## 6.9.66 — Sohbet deneyimi ve arayüz iyileştirmeleri
+
+- Sohbet yazma alanı mesaj akışının üzerinde yarı saydam, kayan bir konsol olarak konumlandı; uzun sohbetler konsolun arkasından akabilir.
+- Son yanıtı dinlemek için sağ altta bağımsız ses düğmesi eklendi; menü içindeki tekrar eden sesli dinle seçeneği kaldırıldı.
+- Yanıt metninden seçim yapıldığında “Oforge'ya sor” kısayolu çıkar; seçilen bölüm bağlamıyla birlikte giriş alanına aktarılır.
+- Uzun sohbetlerde başa/sona hızlı gitmek için yüzen oklar eklendi.
+- Yanıtlardaki web bağlantıları, ilgili metnin hemen altında açılabilir kaynak bilgisi etiketiyle gösterilir.
+- Açılış logosuna O harfi çevresinde tek tur atan sıcak ışık huzmesi eklendi; açılış süresi 3 saniyeye dengelendi.
+- Motor ayarlarındaki yanıt profili ve özel sistem talimatı korunup açıklamaları netleştirildi; ikisi de işlevsel olduğundan kaldırılmadı.
+- Test: `npm test` ile doğrulanır.
 
 ## 6.9.61 — Groq öncelikli otomatik çoklu sağlayıcı
 
