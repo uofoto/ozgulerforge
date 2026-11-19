@@ -2796,15 +2796,82 @@
       });
       document.body.appendChild(float);
 
-      const nav = document.createElement('div'); nav.id='forgeScrollFloat';
-      nav.innerHTML='<button type="button" title="Sohbetin başına git" aria-label="Sohbetin başına git">↑</button><button type="button" title="Sohbetin sonuna git" aria-label="Sohbetin sonuna git">↓</button>';
-      nav.children[0].onclick=()=>messages.scrollTo({top:0,behavior:'smooth'});
-      nav.children[1].onclick=()=>messages.scrollTo({top:messages.scrollHeight,behavior:'smooth'});
+     
+      // Sohbet kaydırma okları: Yalnızca gerçek kaydırma sırasında görünür.
+      const nav = document.createElement('div');
+      nav.id = 'forgeScrollFloat';
+      nav.setAttribute('aria-label', 'Sohbet içinde gezinme');
+
+      nav.innerHTML = `
+        <button type="button"
+          title="Sohbetin başına git"
+          aria-label="Sohbetin başına git">↑</button>
+        <button type="button"
+          title="Sohbetin sonuna git"
+          aria-label="Sohbetin sonuna git">↓</button>
+      `;
+
+      nav.children[0].onclick = () => {
+        messages.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      nav.children[1].onclick = () => {
+        messages.scrollTo({
+          top: messages.scrollHeight,
+          behavior: 'smooth'
+        });
+      };
+
       document.body.appendChild(nav);
-      const updateNav=()=>{nav.style.opacity=messages.scrollHeight>messages.clientHeight+120?'1':'0';nav.style.pointerEvents=messages.scrollHeight>messages.clientHeight+120?'auto':'none';};
-      messages.addEventListener('scroll',updateNav,{passive:true});
-      new MutationObserver(updateNav).observe(messages,{childList:true,subtree:true});
-      updateNav();
+
+      let navHideTimer = null;
+      let lastScrollTop = messages.scrollTop;
+
+      const navAvailable = () =>
+        messages.scrollHeight > messages.clientHeight + 120;
+
+      const hideNav = () => {
+        nav.style.opacity = '0';
+        nav.style.pointerEvents = 'none';
+      };
+
+      const revealNav = () => {
+        if (!navAvailable()) {
+          hideNav();
+          return;
+        }
+
+        nav.style.opacity = '1';
+        nav.style.pointerEvents = 'auto';
+
+        clearTimeout(navHideTimer);
+
+        navHideTimer = setTimeout(() => {
+          hideNav();
+        }, 1000);
+      };
+
+      // Oklar yalnızca içerik gerçekten hareket ettiğinde belirir.
+      messages.addEventListener('scroll', () => {
+        const currentScrollTop = messages.scrollTop;
+
+        if (currentScrollTop !== lastScrollTop) {
+          lastScrollTop = currentScrollTop;
+          revealNav();
+        }
+      }, { passive: true });
+
+      // İçerik değişince gereksiz okları gizle.
+      new MutationObserver(() => {
+        if (!navAvailable()) hideNav();
+      }).observe(messages, {
+        childList: true,
+        subtree: true
+      });
+
+      // Başlangıçta oklar görünmez.
+      hideNav();
+
 
       const ask=document.createElement('button'); ask.id='forgeSelectionAsk'; ask.type='button'; ask.textContent="Oforge'ya sor"; ask.hidden=true;
       document.body.appendChild(ask);
