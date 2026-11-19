@@ -2631,15 +2631,70 @@
     function renderSources(row, list) {
       if (!row || !Array.isArray(list) || !list.length) return;
       const old = row.querySelector('.msg-sources'); if (old) old.remove();
-      const box = document.createElement('div');
-      box.className = 'msg-sources mt-3 flex flex-wrap items-center gap-1.5 text-[11px]';
-      const h = document.createElement('span'); h.className = 'text-slate-400 font-semibold'; h.textContent = 'Kaynaklar:'; box.appendChild(h);
-      list.slice(0, 8).forEach((x) => {
-        const a = document.createElement('a');
-        a.href = x.uri; a.target = '_blank'; a.rel = 'noopener noreferrer';
-        a.className = 'px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-700 truncate max-w-[200px] transition';
-        a.textContent = x.title; box.appendChild(a);
+
+      const hostOf = (u) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (_) { return ''; } };
+      const domainLike = (t) => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(String(t || '').trim());
+      const seen = new Set();
+      const items = [];
+      list.forEach((x) => {
+        if (!x || !/^https?:\/\//i.test(x.uri || '') || seen.has(x.uri)) return;
+        seen.add(x.uri);
+        let host = hostOf(x.uri);
+        // Gemini arama kaynakları yönlendirme bağlantısı döndürür; gerçek alan adı başlıkta gelir.
+        if (/vertexaisearch|grounding-api-redirect/i.test(host)) host = domainLike(x.title) ? String(x.title).trim().replace(/^www\./, '') : '';
+        const title = String(x.title || '').trim();
+        const titleIsHost = !title || title === x.uri || (domainLike(title) && title.replace(/^www\./, '') === host);
+        items.push({ uri: x.uri, host, title: titleIsHost ? (host || x.uri) : title, showHost: !titleIsHost && !!host });
       });
+      if (!items.length) return;
+
+      const hue = (str) => { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h % 5; };
+      const initial = (it) => ((it.host || it.title || '?').replace(/^[^a-z0-9çğıöşü]+/i, '').charAt(0) || '?').toLocaleUpperCase('tr-TR');
+      const dot = (it, cls) => {
+        const d = document.createElement('span');
+        d.className = 'fm-src-dot fm-src-c' + hue(it.host || it.title) + (cls ? ' ' + cls : '');
+        d.textContent = initial(it);
+        d.setAttribute('aria-hidden', 'true');
+        return d;
+      };
+
+      const box = document.createElement('details');
+      box.className = 'msg-sources';
+      const sum = document.createElement('summary');
+      sum.className = 'fm-src-sum';
+      const stack = document.createElement('span');
+      stack.className = 'fm-src-stack';
+      stack.setAttribute('aria-hidden', 'true');
+      items.slice(0, 3).forEach((it) => stack.appendChild(dot(it)));
+      const label = document.createElement('span');
+      label.className = 'fm-src-label';
+      label.textContent = items.length + ' kaynak';
+      const chev = document.createElement('span');
+      chev.className = 'fm-src-chev';
+      chev.setAttribute('aria-hidden', 'true');
+      chev.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+      sum.append(stack, label, chev);
+
+      const body = document.createElement('div');
+      body.className = 'fm-src-list';
+      items.slice(0, 12).forEach((it) => {
+        const a = document.createElement('a');
+        a.className = 'fm-src-item';
+        a.href = it.uri; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        const txt = document.createElement('span');
+        txt.className = 'fm-src-txt';
+        const t = document.createElement('span'); t.className = 'fm-src-title'; t.textContent = it.title;
+        txt.appendChild(t);
+        if (it.showHost) { const h = document.createElement('span'); h.className = 'fm-src-host'; h.textContent = it.host; txt.appendChild(h); }
+        const ext = document.createElement('span');
+        ext.className = 'fm-src-ext';
+        ext.setAttribute('aria-hidden', 'true');
+        ext.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>';
+        a.append(dot(it), txt, ext);
+        body.appendChild(a);
+      });
+
+      box.append(sum, body);
       const d = row.querySelector('.msg-disclaimer');
       if (d) d.parentNode.insertBefore(box, d); else row.appendChild(box);
     }
