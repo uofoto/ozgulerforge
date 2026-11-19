@@ -89,9 +89,9 @@ test('classifyRequest', () => {
 });
 
 test('rankModels: tür önceliğine göre sıralar, eşitte katalog sırasını korur', () => {
-  assert.deepEqual(ids(rankModels(poolFor(E('lite')), 'simple')), ['lite35', 'liteGroq', 'liteOR']);
-  assert.deepEqual(ids(rankModels(poolFor(E('ultra')), 'analysis')), ['ultra38', 'ultraGroqQwen', 'ultraGroqOSS', 'ultraOR']);
-  assert.deepEqual(ids(rankModels(MODELS, 'analysis')), ['ultra38', 'ultraGroqQwen', 'ultraGroqOSS', 'ultraOR', 'lite35', 'liteGroq', 'liteOR']);
+  assert.deepEqual(ids(rankModels(poolFor(E('lite')), 'simple')), ['liteGroq', 'lite35', 'liteOR']);
+  assert.deepEqual(ids(rankModels(poolFor(E('ultra')), 'analysis')), ['ultraGroqOSS', 'ultraGroqQwen', 'ultra38', 'ultraOR', 'ultraGroqOSS20']);
+  assert.deepEqual(ids(rankModels(MODELS, 'analysis')), ['ultraGroqOSS', 'ultraGroqQwen', 'ultra38', 'ultraOR', 'ultraGroqOSS20', 'liteGroq', 'lite35', 'liteOR']);
 });
 
 test('classifyRequest: akademik istekler ayrılır (kaynak için web araması açılır)', () => {
@@ -103,9 +103,9 @@ test('classifyRequest: akademik istekler ayrılır (kaynak için web araması a�
 
 test('planRequest: yalnızca seçili motorun yedek modelleri, anahtarı olanlar', () => {
   const u = planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: CREDS });
-  assert.deepEqual(ids(u.candidates), ['ultra38', 'ultraGroqQwen', 'ultraGroqOSS', 'ultraOR']);
+  assert.deepEqual(ids(u.candidates), ['ultraGroqOSS20', 'ultraGroqOSS', 'ultraGroqQwen', 'ultra38', 'ultraOR']);
   assert.equal(u.reqType, 'simple');
-  assert.equal(u.candidates[0].thinking, 'medium');
+  assert.equal(u.candidates.find(m => m.provider === 'gemini').thinking, 'medium');
   const deep = planRequest({ selected: E('ultra'), hist: textHist('Hakikat nedir? İnsan neden kendi inançlarına tutunur?'), creds: GEM });
   assert.equal(deep.reqType, 'philosophy');
   assert.equal(deep.candidates[0].thinking, 'high');
@@ -115,9 +115,19 @@ test('planRequest: yalnızca seçili motorun yedek modelleri, anahtarı olanlar'
   const liteDeep = planRequest({ selected: E('lite'), hist: textHist('Hakikat nedir?'), creds: GEM });
   assert.equal(liteDeep.candidates[0].thinking, 'low');
   const l = planRequest({ selected: E('lite'), hist: textHist('merhaba'), creds: CREDS });
-  assert.deepEqual(ids(l.candidates), ['lite35', 'liteGroq', 'liteOR']);
+  assert.deepEqual(ids(l.candidates), ['liteGroq', 'lite35', 'liteOR']);
   assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM }).candidates), ['ultra38']);
   assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: ORK }).candidates), ['ultraOR']);
+});
+
+test('otomatik yönlendirme: metin Groq ile başlar, görsel Groq Qwen ile; PDF Gemini kullanır', () => {
+  const text = planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: CREDS });
+  assert.equal(text.candidates[0].provider, 'groq');
+  assert.equal(text.candidates[0].model, 'openai/gpt-oss-20b');
+  const visual = planRequest({ selected: E('ultra'), hist: [{ role: 'user', msgText: 'Fotoğrafı yorumla', images: [IMG], pdfs: [] }], creds: CREDS });
+  assert.equal(visual.candidates[0].id, 'ultraGroqQwen');
+  const pdf = planRequest({ selected: E('ultra'), hist: [{ role: 'user', msgText: 'PDF yi incele', images: [], pdfs: [PDF] }], creds: CREDS });
+  assert.deepEqual(ids(pdf.candidates), ['ultra38']);
 });
 
 test('planRequest: anahtar yoksa auth hatası', () => {
