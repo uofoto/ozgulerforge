@@ -17,7 +17,7 @@ export const groq = {
     return messages;
   },
   buildBody({ model, hist, systemText }) {
-    return JSON.stringify({ model: model.model, stream: true, messages: [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)] });
+    return JSON.stringify({ model: model.model, stream: true, temperature: model.temperature, messages: [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)] });
   },
   endpoint() { return 'https://api.groq.com/openai/v1/chat/completions'; },
   checkAuth(creds) { if (!creds.groqKey) throw Object.assign(new Error('Groq API anahtarı eksik.'), { kind: 'auth' }); },

@@ -31,6 +31,7 @@ export const openrouter = {
     return JSON.stringify({
       model: model.model,
       stream: true,
+      temperature: model.temperature,
       messages: [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)],
       plugins: webOn ? [{ id: 'web' }] : undefined
     });
