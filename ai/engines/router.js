@@ -2,6 +2,7 @@
 import { poolWithSpillover, hasKeyFor } from './models.js';
 import { isCooled } from './health.js';
 import { mkErr } from './errors.js';
+import { detectIntent, qualitySignals, QUALITY_PROFILE } from '../intelligence/index.js';
 
 export const REQ_LABELS = {
   simple: 'basit soru', code: 'kod', analysis: 'analiz', document: 'belge incelemesi',
@@ -40,7 +41,7 @@ export function geminiFirst(list, reqType) {
 }
 
 export function rankModels(list, type) {
-  const order = type === 'simple' ? ['light', 'mid', 'strong', 'code'] : type === 'code' ? ['code', 'strong', 'mid', 'light'] : ['strong', 'mid', 'light', 'code'];
+  const order = type === 'code' ? ['code', 'strong', 'mid', 'light'] : QUALITY_PROFILE.modelOrder;
   return list.map((m, i) => [m, i]).sort((a, b) => (order.indexOf(a[0].tier || 'mid') - order.indexOf(b[0].tier || 'mid')) || (a[1] - b[1])).map(x => x[0]);
 }
 export function needText(need) { return [need.vision && 'fotoğraf', need.pdf && 'PDF'].filter(Boolean).join(' ve '); }
@@ -53,6 +54,8 @@ export function planRequest({ selected, hist, creds, webOn = false }) {
   const lastH = hist[hist.length - 1] || { images: [], pdfs: [], msgText: '' };
   const need = { vision: hist.some(h => h.images && h.images.length > 0), pdf: hist.some(h => h.pdfs && h.pdfs.length > 0) };
   const reqType = classifyRequest(lastH.msgText, need);
+  const intent = detectIntent(lastH.msgText);
+  const quality = qualitySignals(lastH.msgText, reqType, intent);
   const { own, extra } = poolWithSpillover(sel);
   const keyed = [...own, ...extra].filter(m => hasKeyFor(m, creds));
   if (!keyed.length) throw mkErr('auth', 'Henüz kullanılabilir bir API bağlantısı yok. Motor ayarlarından en az bir sağlayıcı anahtarı ekleyin.');
@@ -79,5 +82,5 @@ export function planRequest({ selected, hist, creds, webOn = false }) {
   }
   const temp = temperatureFor(reqType);
   candidates = candidates.map(m => m.provider === 'gemini' ? { ...m, thinking: thinkingLevelFor(m, reqType) } : (temp === undefined ? m : { ...m, temperature: temp }));
-  return { candidates, reqType, need };
+  return { candidates, reqType, need, intent, quality };
 }
