@@ -17,14 +17,14 @@ function modules() {
   const walk = (dir) => {
     for (const name of readdirSync(dir)) {
       const p = join(dir, name), rel = relative(ROOT, p).split('\\').join('/');
-      if (statSync(p).isDirectory()) { if (name === 'engines') walk(p); else if (dir !== ROOT) walk(p); continue; }
+      if (statSync(p).isDirectory()) { if (name === 'engines' || name === 'intelligence') walk(p); else if (dir !== ROOT) walk(p); continue; }
       if (!name.endsWith('.js')) continue;
       if (dir === ROOT && ENTRY.has(name)) continue;
       out.push('./' + rel);
     }
   };
   walk(ROOT);
-  // walk() kök dizinde yalnızca engines/ klasörüne iner (tests/, tools/, node_modules/ taranmaz)
+  // walk() kök dizinde yalnızca engines/ ve intelligence/ klasörlerine iner (tests/, tools/, node_modules/ taranmaz)
   return out.sort();
 }
 
