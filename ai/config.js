@@ -1,12 +1,13 @@
 // Uygulama sabitleri: sürüm, depolama anahtarları, hesap/sunucu ayarları. Başka modüle bağımlı değildir.
 
-export const APP_VERSION = '6.9.59';
+export const APP_VERSION = '6.9.60';
 
 // localStorage anahtarları — kod içinde başka yerde anahtar dizesi yazılmaz.
 // (index.html içindeki tema/açılış betikleri modül değildir; orada forge_ai_theme ve forge_ai_contrast elle yazılıdır.)
 export const KEYS = {
   API: 'forge_ai_gemini_api_key',
   OR_API: 'forge_ai_openrouter_api_key',
+  GROQ_API: 'forge_ai_groq_api_key',
   SYSTEM: 'forge_ai_system_prompt',
   CHATS: 'forge_ai_chats',
   CHATS_CORRUPT: 'forge_ai_chats_corrupt_backup',
@@ -31,7 +32,7 @@ export const KEYS = {
 };
 
 // Eski sürümlerden kalan, artık kullanılmayan anahtarlar; uygulama açılırken silinir.
-export const LEGACY_KEYS = ['forge_ai_groq_api_key', 'forge_ai_provider', 'forge_ai_temperature', 'forge_ai_memory'];
+export const LEGACY_KEYS = ['forge_ai_provider', 'forge_ai_temperature', 'forge_ai_memory'];
 
 // Sunucu (proxy) adresi. Doluysa API anahtarı gerekmez; istekler bu adrese Google kimlik belgesiyle gider (proxy-worker.js).
 export const PROXY_URL = '';

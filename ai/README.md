@@ -1,4 +1,14 @@
-# Oforge AI (v6.9.58)
+# Oforge AI (v6.9.60)
+
+## 6.9.60 — Çoklu sağlayıcı otomatik yedekleme
+
+- Ultra ve Lite yanıt profilleri, sağlayıcı seçimini kullanıcıya göstermeden Gemini, Groq ve OpenRouter arasında otomatik aday sırası oluşturur.
+- Kota, anahtar, bağlantı ve model hatalarında uygun yedek modele geçilir; her istek en fazla dört modelde denenir.
+- Groq OpenAI-uyumlu SSE sağlayıcısı eklendi. OpenRouter ücretsiz model yönlendiricisi (`openrouter/free`) son yedek olarak kullanılır.
+- Fotoğraf ve PDF yalnızca bunları destekleyen adaylara gönderilir. PDF desteği Gemini ile sınırlıdır; fotoğraf için Gemini ve Groq Qwen adayı kullanılabilir. Web araması açıkken yalnızca web aramasını destekleyen Gemini/OpenRouter adayları denenir.
+- Gemini, Groq ve OpenRouter anahtarları ayrı saklanır. Eski `forge_ai_groq_api_key` anahtarı artık silinmez ve mevcut anahtar varsa korunur.
+- Anahtarlar bu statik sürümde tarayıcının yerel depolamasında tutulur. Herkese açık dağıtımda sunucu tarafı proxy/Worker gereklidir; API anahtarlarını GitHub'a eklemeyin.
+
 
 ## v6.9.59
 - **Doğal anlatım ve düşünce standardı:** `prompts.js` yeniden düzenlendi. Mekanik giriş/kapanışlar, her yanıta zorunlu uyarı kutusu ve otomatik üç öneri dayatması kaldırıldı. Doğal Türkçe, gerekçeli muhakeme, doğruluk ve bağlama uygun derinlik öne alındı.

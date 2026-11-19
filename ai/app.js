@@ -3,7 +3,7 @@
     import { ENGINES, curModel, keyOk as engineKeyOk } from './engines/models.js';
     import { mkErr, formatFailure, KIND_SHORT } from './engines/errors.js';
     import { Health } from './engines/health.js';
-    import { REQ_LABELS, planRequest } from './engines/router.js';
+    import { REQ_LABELS, planRequest, classifyRequest } from './engines/router.js';
     import { runWithFallback } from './engines/index.js';
     import { BASE_IDENTITY, LEGACY_IDENTITY, buildSystemText, SUGGEST_OPEN, SUGGEST_CLOSE } from './prompts.js';
 
@@ -18,7 +18,7 @@
     LEGACY_KEYS.forEach((k) => storage.remove(k));
 
     // Motor katmanı anahtarları parametre olarak alır; durum (state) bu dosyada kalır.
-    function engineCreds() { return { apiKey: state.apiKey }; }
+    function engineCreds() { return { apiKey: state.apiKey, groqKey: state.groqKey, orKey: state.orKey }; }
     function keyOk() { return engineKeyOk(engineCreds()); }
 
     function getIdToken() {
@@ -107,6 +107,8 @@
 
     let state = {
       apiKey: storage.get(KEYS.API, ''),
+      groqKey: storage.get(KEYS.GROQ_API, ''),
+      orKey: storage.get(KEYS.OR_API, ''),
       systemPrompt: (storage.get(KEYS.SYSTEM, '') && storage.get(KEYS.SYSTEM, '') !== LEGACY_IDENTITY) ? storage.get(KEYS.SYSTEM, '') : BASE_IDENTITY,
       chats: loadChats(),
       activeChatId: null,
@@ -152,6 +154,8 @@
       installGuideModal: document.getElementById('installGuideModal'),
       legalModal: document.getElementById('legalModal'),
       apiKeyInput: document.getElementById('apiKeyInput'),
+      groqKeyInput: document.getElementById('groqKeyInput'),
+      orKeyInput: document.getElementById('orKeyInput'),
       systemPromptInput: document.getElementById('systemPromptInput')
     };
 
@@ -1417,7 +1421,11 @@
 
         const sel = curModel();
         if (navigator.onLine === false) throw mkErr('network', 'İnternet bağlantısı yok.');
-        const { candidates, reqType } = planRequest({ selected: sel, hist, creds: engineCreds() });
+        const lastText = String((hist[hist.length - 1] || {}).msgText || '');
+        const hasVision = hist.some(h => h.images && h.images.length);
+        const hasPdf = hist.some(h => h.pdfs && h.pdfs.length);
+        const webOn = storage.get(KEYS.WEB) === '1' || classifyRequest(lastText, { vision: hasVision, pdf: hasPdf }) === 'academic';
+        const { candidates, reqType } = planRequest({ selected: sel, hist, creds: engineCreds(), webOn });
 
         // Akış ekrana kare başına en fazla bir kez yansıtılır.
         let renderQueued = false, streamDone = false;
@@ -1438,8 +1446,8 @@
             '\nYanıt uzunluğu: ' + ({ short: 'Kısa ve doğrudan', balanced: 'Dengeli ve yeterince açıklayıcı', detailed: 'Ayrıntılı, gerekçeli ve örnekli' }[storage.get(KEYS.ANSWER_LENGTH, 'balanced')] || 'Dengeli ve yeterince açıklayıcı') +
             '\nGüvenilir kaynak ilkesi: İnternet araştırması veya güncel bilgi istendiğinde kullandığın kaynakları açık bağlantılarla belirt; kaynakta doğrulanabilen bilgiyi kendi çıkarımından ve tahmininden açıkça ayır. Kaynak bulamadığın iddiayı doğrulanmış gibi sunma.' +
             (storage.get(KEYS.MEMORY_V2, '').trim() ? '\nKullanıcının açıkça kaydettiği hafıza notları (yalnızca ilgili olduğunda dikkate al):\n' + storage.get(KEYS.MEMORY_V2, '').trim() : ''),
-          webOn: storage.get(KEYS.WEB) === '1' || reqType === 'academic',
-          creds: { apiKey: state.apiKey, getIdToken },
+          webOn,
+          creds: { ...engineCreds(), getIdToken },
           signal: state.abortController.signal,
           hooks: {
             onAttemptStart: () => { aiMsg.content = ''; },
@@ -1461,7 +1469,7 @@
         updateElapsedTime();
         clearInterval(elapsedTimer);
         aiMsg.elapsedMs = elapsedMs;
-        aiMsg.webSearch = storage.get(KEYS.WEB) === '1' || reqType === 'academic';
+        aiMsg.webSearch = webOn;
         if (progressEl) progressEl.remove();
         { const sp = splitSuggestions(aiMsg.content); aiMsg.content = sp.text; aiMsg.suggestions = sp.list; }
         streamDone = true;
@@ -1720,6 +1728,8 @@
 
     document.getElementById('openSettingsBtn').onclick = () => {
       els.apiKeyInput.value = state.apiKey;
+      els.groqKeyInput.value = state.groqKey;
+      els.orKeyInput.value = state.orKey;
       els.systemPromptInput.value = state.systemPrompt;
       els.settingsModal.classList.remove('hidden');
     };
@@ -1779,9 +1789,12 @@
 
     document.getElementById('saveSettingsBtn').onclick = () => {
       state.apiKey = els.apiKeyInput.value.trim();
-      storage.remove(KEYS.OR_API);   // OpenRouter kaldırıldı; eski kayıtlı anahtar silinir
+      state.groqKey = els.groqKeyInput.value.trim();
+      state.orKey = els.orKeyInput.value.trim();
       state.systemPrompt = els.systemPromptInput.value.trim() || BASE_IDENTITY;
       storage.set(KEYS.API, state.apiKey);
+      storage.set(KEYS.GROQ_API, state.groqKey);
+      storage.set(KEYS.OR_API, state.orKey);
       storage.set(KEYS.SYSTEM, state.systemPrompt);
       Health.clearAll();
       updateApiBadge();
