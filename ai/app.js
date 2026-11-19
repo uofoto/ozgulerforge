@@ -5,6 +5,7 @@
     import { Health } from './engines/health.js';
     import { REQ_LABELS, planRequest, classifyRequest } from './engines/router.js';
     import { runWithFallback } from './engines/index.js';
+    import { suggestFollowUps } from './engines/suggest.js';
     import { BASE_IDENTITY, LEGACY_IDENTITY, buildSystemText, SUGGEST_OPEN, SUGGEST_CLOSE } from './prompts.js';
 
     function refreshIcons() {
@@ -1447,6 +1448,7 @@
           systemText: buildSystemText(state.systemPrompt, currentUser) +
             '\n\nKULLANICI TERCİHLERİ:' +
             '\nYanıt uzunluğu: ' + ({ short: 'Kısa ve doğrudan', balanced: 'Dengeli ve yeterince açıklayıcı', detailed: 'Ayrıntılı, gerekçeli ve örnekli' }[storage.get(KEYS.ANSWER_LENGTH, 'balanced')] || 'Dengeli ve yeterince açıklayıcı') +
+            '\nZORUNLU BİÇİM: Selamlaşma ve tek kelimelik yanıtlar dışında her yanıtın en sonuna, ana metinden sonra ' + SUGGEST_OPEN + ' satırı, ardından "- " ile başlayan 3 kısa öneri satırı ve ' + SUGGEST_CLOSE + ' satırı ekle.' +
             '\nGüvenilir kaynak ilkesi: İnternet araştırması veya güncel bilgi istendiğinde kullandığın kaynakları açık bağlantılarla belirt; kaynakta doğrulanabilen bilgiyi kendi çıkarımından ve tahmininden açıkça ayır. Kaynak bulamadığın iddiayı doğrulanmış gibi sunma.' +
             (storage.get(KEYS.MEMORY_V2, '').trim() ? '\nKullanıcının açıkça kaydettiği hafıza notları (yalnızca ilgili olduğunda dikkate al):\n' + storage.get(KEYS.MEMORY_V2, '').trim() : ''),
           webOn,
@@ -1500,6 +1502,16 @@
         }
         renderSuggestions(bubble, aiMsg.suggestions);
         syncStorage();
+        // Model öneri bloğunu atladıysa (özellikle küçük modeller) arayüz kısa bir ikinci istekle öneri üretir; ana akışı beklemez.
+        if (!aiMsg.suggestions.length && aiMsg.content.trim().length >= 200) {
+          const fbModel = r.model, fbUser = lastText, fbAnswer = aiMsg.content, fbCreds = { ...engineCreds(), getIdToken };
+          suggestFollowUps({ model: fbModel, userText: fbUser, answerText: fbAnswer, creds: fbCreds }).then((list) => {
+            if (!list.length || aiMsg.suggestions.length) return;
+            aiMsg.suggestions = list;
+            if (bubble.isConnected) renderSuggestions(bubble, list);
+            syncStorage();
+          });
+        }
 
         if (window.ForgeSound) ForgeSound.complete();
         if (window.ForgeNotify) ForgeNotify.done(currentChat.title, elapsedMs, aiMsg.content);
