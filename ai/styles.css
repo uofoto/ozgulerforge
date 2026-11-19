@@ -619,3 +619,24 @@ html.forge .msg-sources { --fms-bg:rgba(255,255,255,.04); --fms-bd:rgba(251,146,
 .fm-src-dot { display:inline-grid; place-items:center; border-radius:50%; font-weight:600; line-height:1; }
 .fm-src-c0 { background:#DBEAFE; color:#1E40AF; } .fm-src-c1 { background:#DCFCE7; color:#166534; } .fm-src-c2 { background:#FEF3C7; color:#92400E; } .fm-src-c3 { background:#EDE9FE; color:#5B21B6; } .fm-src-c4 { background:#FFE4E6; color:#9F1239; }
 html.dark .fm-src-c0, html.forge .fm-src-c0 { background:rgba(96,165,250,.20); color:#BFDBFE; } html.dark .fm-src-c1, html.forge .fm-src-c1 { background:rgba(74,222,128,.18); color:#BBF7D0; } html.dark .fm-src-c2, html.forge .fm-src-c2 { background:rgba(251,191,36,.18); color:#FDE68A; } html.dark .fm-src-c3, html.forge .fm-src-c3 { background:rgba(167,139,250,.20); color:#DDD6FE; } html.dark .fm-src-c4, html.forge .fm-src-c4 { background:rgba(251,113,133,.20); color:#FECDD3; }
+
+/* Kullanıcı istatistikleri penceresi */
+.fm-stats-overlay { --fms-card:#fff; --fms-bd:rgba(148,163,184,.30); --fms-tx:#0F172A; --fms-sub:#64748B; --fms-tile:#F8FAFC; position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(15,23,42,.35); backdrop-filter:blur(2px); }
+html.dark .fm-stats-overlay { --fms-card:#222225; --fms-bd:rgba(255,255,255,.12); --fms-tx:#E4E4E7; --fms-sub:#A1A1AA; --fms-tile:rgba(255,255,255,.05); }
+html.forge .fm-stats-overlay { --fms-card:#1D1813; --fms-bd:rgba(251,146,60,.22); --fms-tx:#EFE8E0; --fms-sub:#BDB0A2; --fms-tile:rgba(255,255,255,.05); }
+.fm-stats-card { width:100%; max-width:560px; max-height:90vh; overflow-y:auto; background:var(--fms-card); color:var(--fms-tx); border:1px solid var(--fms-bd); border-radius:20px; padding:20px; box-shadow:0 20px 60px rgba(15,23,42,.25); }
+.fm-stats-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.fm-stats-head h3 { margin:0; font-size:17px; font-weight:650; }
+.fm-stats-x { width:32px; height:32px; border-radius:50%; border:0; background:transparent; color:var(--fms-sub); cursor:pointer; font-size:15px; }
+.fm-stats-x:hover { background:rgba(148,163,184,.18); }
+.fm-stats-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.fm-stats-tile { background:var(--fms-tile); border:1px solid var(--fms-bd); border-radius:14px; padding:12px 14px; min-width:0; }
+.fm-stats-lbl { font-size:12px; color:var(--fms-sub); }
+.fm-stats-val { margin-top:2px; font-size:22px; font-weight:650; line-height:1.25; }
+.fm-stats-sub { margin-top:3px; font-size:12px; color:var(--fms-sub); line-height:1.4; }
+.fm-stats-note { margin:14px 2px 0; font-size:12px; color:var(--fms-sub); line-height:1.5; }
+@media(max-width:420px){ .fm-stats-grid { grid-template-columns:minmax(0,1fr); } }
+.fm-stats-title { display:flex; align-items:center; gap:9px; min-width:0; }
+.fm-stats-span { font-size:11.5px; font-weight:500; line-height:1; padding:5px 10px; border-radius:999px; background:rgba(37,99,235,.10); color:#1D4ED8; white-space:nowrap; letter-spacing:.01em; }
+html.dark .fm-stats-span { background:rgba(96,165,250,.16); color:#93C5FD; }
+html.forge .fm-stats-span { background:rgba(251,146,60,.16); color:#FDBA74; }
