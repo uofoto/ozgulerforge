@@ -53,7 +53,7 @@ export async function runAttempt(model, canFallback, ctx) {
         503: 'Model şu an yoğun, geçici olarak yanıt veremiyor.'
       };
       const httpErr = new Error(`[${label} • HTTP ${status}] ${hints[status] || ''} ${apiMsg}`.trim());
-      if (status === 429 || (errData.error && errData.error.status === 'RESOURCE_EXHAUSTED')) { httpErr.kind = 'quota'; httpErr.quota = detectQuotaInfo(errData, response.headers, isOR, label); }
+      if (status === 429 || (errData.error && errData.error.status === 'RESOURCE_EXHAUSTED')) { httpErr.kind = 'quota'; httpErr.quota = detectQuotaInfo(errData, response.headers, isOR, label, model.provider); }
       else httpErr.kind = (status === 401 || status === 403) ? 'auth' : status === 402 ? 'billing' : status === 404 ? 'notfound' : status >= 500 ? 'overloaded' : status === 400 ? 'badrequest' : 'other';
       throw httpErr;
     }
@@ -69,7 +69,7 @@ export async function runAttempt(model, canFallback, ctx) {
     if (!acc.text.trim()) {
       if (acc.streamError) {
         const se = mkErr(/quota|rate.?limit|resource.?exhausted|429/i.test(acc.streamError) ? 'quota' : 'other', `[${label}] ${acc.streamError}`);
-        if (se.kind === 'quota') se.quota = detectQuotaInfo({ error: { message: acc.streamError } }, null, isOR, label);
+        if (se.kind === 'quota') se.quota = detectQuotaInfo({ error: { message: acc.streamError } }, null, isOR, label, model.provider);
         throw se;
       }
       if (acc.blockReason) throw mkErr('blocked', `İstek güvenlik filtresi tarafından engellendi (${acc.blockReason}).`);

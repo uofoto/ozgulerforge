@@ -34,18 +34,22 @@ export function rankModels(list, type) {
 }
 export function needText(need) { return [need.vision && 'fotoğraf', need.pdf && 'PDF'].filter(Boolean).join(' ve '); }
 
-// selected: seçili motor (curModel()). hist: [{ role, msgText, images, pdfs }]. creds: { apiKey, orKey }.
+// selected: seçili yanıt profili (curModel()). hist: [{ role, msgText, images, pdfs }]. creds: { apiKey, groqKey, orKey }.
 // Seçili motorun modelleri arasından anahtarı olan, isteği okuyabilen ve sağlıklı olanları sıralar.
 // Döndürür: { candidates, reqType, need }. Uygun motor yoksa mkErr(...) fırlatır.
-export function planRequest({ selected, hist, creds }) {
+export function planRequest({ selected, hist, creds, webOn = false }) {
   const sel = selected;
   const lastH = hist[hist.length - 1] || { images: [], pdfs: [], msgText: '' };
   const need = { vision: hist.some(h => h.images && h.images.length > 0), pdf: hist.some(h => h.pdfs && h.pdfs.length > 0) };
   const reqType = classifyRequest(lastH.msgText, need);
   const keyed = poolFor(sel).filter(m => hasKeyFor(m, creds));
-  if (!keyed.length) throw mkErr('auth', 'API anahtarı yok. Oforge AI Motor Ayarları bölümünden Gemini API anahtarınızı girin.');
-  const capable = keyed.filter(m => (!need.vision || m.vision) && (!need.pdf || m.pdf));
-  if (!capable.length) throw mkErr('unsupported', 'Bu sohbette ' + needText(need) + ' var, ancak ' + sel.label + ' bunu okumak için Gemini API anahtarı gerektirir. Ayarlardan Gemini API anahtarı ekleyin.');
+  if (!keyed.length) throw mkErr('auth', 'Henüz kullanılabilir bir API bağlantısı yok. Motor ayarlarından en az bir sağlayıcı anahtarı ekleyin.');
+  const capable = keyed.filter(m => (!need.vision || m.vision) && (!need.pdf || m.pdf) && (!webOn || m.web));
+  if (!capable.length) {
+    if (need.vision || need.pdf) throw mkErr('unsupported', 'Eklediğiniz fotoğraf veya PDF için bağlı sağlayıcılar arasında uygun model bulunamadı. Gemini API anahtarını ekleyin.');
+    if (webOn) throw mkErr('unsupported', 'Web araması için şu anda bağlı sağlayıcılar arasında uygun model bulunamadı. Gemini veya OpenRouter anahtarı ekleyin.');
+    throw mkErr('unsupported', 'Bu istek için uygun model bulunamadı.');
+  }
   let candidates;
   const live = capable.filter(m => !isCooled(m));
   if (live.length) candidates = rankModels(live, reqType);

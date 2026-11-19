@@ -10,9 +10,9 @@ import { Health, healthKeys, recordHealth } from './health.js';
 import { runAttempt, FIRST_TOKEN_MS } from './attempt.js';
 import { PROXY_URL } from '../config.js';
 
-export const MAX_ATTEMPTS = 3;                 // aynı istek en fazla 3 motora gönderilir
+export const MAX_ATTEMPTS = 4;                 // aynı istek en fazla 4 uygun modelde denenir
 
-// creds: { apiKey, orKey, getIdToken }
+// creds: { apiKey, groqKey, orKey, getIdToken }
 // Döndürür: { model, attempts, sources, finishReason }. Hepsi başarısız olursa kind/attempts/quota taşıyan hata fırlatır.
 export async function runWithFallback({ candidates, hist, systemText, webOn, creds, signal, hooks, proxyUrl = PROXY_URL, fetchImpl, firstTokenMs = FIRST_TOKEN_MS }) {
   const H = Object.assign({ onAttemptStart() {}, onStage() {}, onText() {} }, hooks);

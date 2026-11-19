@@ -13,10 +13,13 @@ export function nextUtcMidnight(now) {
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + 1);
 }
 export function parseRetrySeconds(v) {
-  const m = /^(\d+(?:\.\d+)?)s$/.exec(String(v || '').trim());
-  return m ? Math.ceil(parseFloat(m[1])) : null;
+  const value = String(v || '').trim();
+  if (/^\d+(?:\.\d+)?$/.test(value)) return Math.ceil(Number(value));
+  const m = /^(?:(\d+(?:\.\d+)?)h)?(?:(\d+(?:\.\d+)?)m)?(?:(\d+(?:\.\d+)?)s)?$/.exec(value);
+  if (!m || !m[1] && !m[2] && !m[3]) return null;
+  return Math.ceil(Number(m[1] || 0) * 3600 + Number(m[2] || 0) * 60 + Number(m[3] || 0));
 }
-export function detectQuotaInfo(errData, headers, isOR, modelLabel) {
+export function detectQuotaInfo(errData, headers, isOR, modelLabel, providerId) {
   const err = (errData && errData.error) || {};
   const details = Array.isArray(err.details) ? err.details : [];
   let retrySec = null, daily = false;
@@ -31,7 +34,10 @@ export function detectQuotaInfo(errData, headers, isOR, modelLabel) {
   if (!daily && /per[ -]day|daily|günlük/i.test(msg)) daily = true;
   const hget = (n) => { try { return headers && headers.get ? headers.get(n) : null; } catch (_) { return null; } };
   const ra = hget('retry-after');
-  if (retrySec == null && ra && /^\d+$/.test(ra)) retrySec = parseInt(ra, 10);
+  if (retrySec == null && ra) retrySec = parseRetrySeconds(ra);
+  const groqReset = providerId === 'groq' ? hget('x-ratelimit-reset-requests') : null;
+  let groqResetAt = null;
+  if (groqReset) { const seconds = parseRetrySeconds(groqReset); if (seconds != null) { retrySec = seconds; daily = true; groqResetAt = Date.now() + seconds * 1000; } }
   const md = err.metadata && err.metadata.headers;
   const orReset = (md && (md['X-RateLimit-Reset'] || md['x-ratelimit-reset'])) || hget('x-ratelimit-reset');
   let resetAt = null, approx = false;
@@ -39,8 +45,9 @@ export function detectQuotaInfo(errData, headers, isOR, modelLabel) {
     let ts = Number(orReset); if (ts < 1e12) ts *= 1000;
     if (ts > Date.now()) resetAt = ts;
   }
+  if (!resetAt && groqResetAt) resetAt = groqResetAt;
   if (!resetAt && daily) resetAt = isOR ? nextUtcMidnight() : nextPacificMidnight();
   if (!resetAt && retrySec != null) resetAt = Date.now() + retrySec * 1000;
   if (!resetAt) { resetAt = Date.now() + 60000; approx = true; }
-  return { resetAt, daily, approx, model: modelLabel || '', provider: isOR ? 'openrouter' : 'gemini' };
+  return { resetAt, daily, approx, model: modelLabel || '', provider: providerId || (isOR ? 'openrouter' : 'gemini') };
 }
