@@ -101,9 +101,9 @@ test('classifyRequest: akademik istekler ayrılır (kaynak için web araması a�
   assert.equal(classifyRequest('merhaba', none), 'simple');
 });
 
-test('planRequest: yalnızca seçili motorun yedek modelleri, anahtarı olanlar', () => {
+test('planRequest: önce seçili profilin modelleri, ardından diğer profilin yedekleri (anahtarı olanlar)', () => {
   const u = planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: CREDS });
-  assert.deepEqual(ids(u.candidates), ['ultraGroqOSS20', 'ultraGroqOSS', 'ultraGroqQwen', 'ultra38', 'ultraOR']);
+  assert.deepEqual(ids(u.candidates), ['ultraGroqOSS20', 'ultraGroqOSS', 'ultraGroqQwen', 'ultra38', 'ultraOR', 'lite35']);
   assert.equal(u.reqType, 'simple');
   assert.equal(u.candidates.find(m => m.provider === 'gemini').thinking, 'medium');
   const deep = planRequest({ selected: E('ultra'), hist: textHist('Hakikat nedir? İnsan neden kendi inançlarına tutunur?'), creds: GEM });
@@ -115,8 +115,8 @@ test('planRequest: yalnızca seçili motorun yedek modelleri, anahtarı olanlar'
   const liteDeep = planRequest({ selected: E('lite'), hist: textHist('Hakikat nedir?'), creds: GEM });
   assert.equal(liteDeep.candidates[0].thinking, 'low');
   const l = planRequest({ selected: E('lite'), hist: textHist('merhaba'), creds: CREDS });
-  assert.deepEqual(ids(l.candidates), ['liteGroq', 'lite35', 'liteOR']);
-  assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM }).candidates), ['ultra38']);
+  assert.deepEqual(ids(l.candidates), ['liteGroq', 'lite35', 'liteOR', 'ultraGroqOSS', 'ultraGroqQwen', 'ultra38']);
+  assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM }).candidates), ['ultra38', 'lite35']);
   assert.deepEqual(ids(planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: ORK }).candidates), ['ultraOR']);
 });
 
@@ -127,7 +127,7 @@ test('otomatik yönlendirme: metin Groq ile başlar, görsel Groq Qwen ile; PDF 
   const visual = planRequest({ selected: E('ultra'), hist: [{ role: 'user', msgText: 'Fotoğrafı yorumla', images: [IMG], pdfs: [] }], creds: CREDS });
   assert.equal(visual.candidates[0].id, 'ultraGroqQwen');
   const pdf = planRequest({ selected: E('ultra'), hist: [{ role: 'user', msgText: 'PDF yi incele', images: [], pdfs: [PDF] }], creds: CREDS });
-  assert.deepEqual(ids(pdf.candidates), ['ultra38']);
+  assert.deepEqual(ids(pdf.candidates), ['ultra38', 'lite35']);
 });
 
 test('planRequest: anahtar yoksa auth hatası', () => {
@@ -139,20 +139,21 @@ test('planRequest: fotoğraf varsa yalnızca görsel okuyabilen modeller', () =>
   const p = planRequest({ selected: E('ultra'), hist, creds: CREDS });
   assert.ok(p.candidates.every(m => m.vision));
   assert.equal(p.reqType, 'vision');
-  assert.deepEqual(ids(planRequest({ selected: E('lite'), hist, creds: GEM }).candidates), ['lite35']);
+  assert.deepEqual(ids(planRequest({ selected: E('lite'), hist, creds: GEM }).candidates), ['lite35', 'ultra38']);
   assert.throws(() => planRequest({ selected: E('ultra'), hist, creds: ORK }), (e) => e.kind === 'unsupported');
 });
 
 test('planRequest: PDF için yalnızca PDF okuyan model; yoksa unsupported', () => {
   const hist = [{ role: 'user', msgText: 'oku', images: [], pdfs: [PDF] }];
   assert.ok(planRequest({ selected: E('ultra'), hist, creds: GEM }).candidates.every(m => m.pdf));
-  assert.deepEqual(ids(planRequest({ selected: E('lite'), hist, creds: GEM }).candidates), ['lite35']);
+  assert.deepEqual(ids(planRequest({ selected: E('lite'), hist, creds: GEM }).candidates), ['lite35', 'ultra38']);
   assert.throws(() => planRequest({ selected: E('lite'), hist, creds: ORK }), (e) => e.kind === 'unsupported');
 });
 
 test('planRequest: kotası dolu modeller atlanır; hepsi doluysa quota hatası (en erken sıfırlanma, motor adıyla)', () => {
   const soon = Date.now() + 60000;
   Health.set(poolOf(M('ultra38')), 'quota', soon, { quota: { resetAt: soon } });
+  Health.set(poolOf(M('lite35')), 'quota', soon, { quota: { resetAt: soon } });
   assert.throws(() => planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: GEM }), (e) => e.kind === 'quota' && e.quota.resetAt === soon && e.quota.model === 'AI Ultra 3.8');
 });
 
@@ -378,11 +379,11 @@ test('ağ hatası: sağlayıcı atlanır; TypeError ağ hatası sayılır', asyn
   assert.equal(r.model.id, 'f3'); assert.equal(r.attempts[0].kind, 'network');
 });
 
-test('en fazla 4 deneme; hepsi aynı türde başarısızsa hata o türü taşır', async () => {
+test('en fazla 6 deneme; hepsi aynı türde başarısızsa hata o türü taşır', async () => {
   const e503 = { status: 503, json: { error: { message: 'busy' } } };
-  const { p, f } = run(['g25', 'g20', 'f2', 'f3', 'f4'], { gem: [e503], or: [e503] });
-  await assert.rejects(p, (e) => e.kind === 'overloaded' && e.attempts.length === 4);
-  assert.equal(f.calls.length, 4);
+  const { p, f } = run(['g25', 'g20', 'f2', 'f3', 'f4', 'f2', 'f3'], { gem: [e503], or: [e503] });
+  await assert.rejects(p, (e) => e.kind === 'overloaded' && e.attempts.length === 6);
+  assert.equal(f.calls.length, 6);
 });
 
 test('karışık başarısızlık: kind=mixed; hepsi kota ise en erken sıfırlanma taşınır', async () => {
