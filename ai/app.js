@@ -2887,8 +2887,23 @@
         const sel=window.getSelection(); selected=(sel && sel.toString().trim())||'';
         if(!selected || selected.length<3 || !messages.contains(sel.anchorNode)) {ask.hidden=true;return;}
         const range=sel.getRangeAt(0).getBoundingClientRect();
-        ask.style.left=Math.max(12,Math.min(innerWidth-150,range.left+range.width/2-65))+'px';
-        ask.style.top=Math.max(12,range.top-48)+'px'; ask.hidden=false;
+
+        // Android'in yerel menüsü (Kopyala / Tümünü seç) seçimin üstünde açılır,
+        // bu yüzden düğme seçimin ALTINA konur. 44px boşluk seçim tutamaçlarını da aşar.
+        ask.hidden=false;
+        const btnW=ask.offsetWidth||130, btnH=ask.offsetHeight||38;
+        const gapBelow=44, composerSafe=150;
+        let top=range.bottom+gapBelow;
+
+        // Altta yazı alanı/ekran sınırı varsa yukarıya, yerel menünün de üstüne yerleştir.
+        if(top+btnH>innerHeight-composerSafe){
+          top=range.top-btnH-84;
+        }
+        top=Math.max(12,Math.min(innerHeight-btnH-12,top));
+
+        const left=range.left+range.width/2-btnW/2;
+        ask.style.left=Math.max(12,Math.min(innerWidth-btnW-12,left))+'px';
+        ask.style.top=top+'px';
       });
       ask.addEventListener('mousedown',e=>e.preventDefault());
       ask.addEventListener('click',()=>{
