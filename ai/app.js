@@ -2797,25 +2797,30 @@
       document.body.appendChild(float);
 
      
-      // Sohbet kaydırma okları: Yalnızca gerçek kaydırma sırasında görünür.
+      // Sohbet kaydırma okları: Kaydırma yönüne göre yalnızca ilgili ok gösterilir.
       const nav = document.createElement('div');
       nav.id = 'forgeScrollFloat';
       nav.setAttribute('aria-label', 'Sohbet içinde gezinme');
+      nav.style.opacity = '0';
+      nav.style.pointerEvents = 'none';
+      nav.style.transition = 'opacity 160ms ease';
 
       nav.innerHTML = `
-        <button type="button"
-          title="Sohbetin başına git"
-          aria-label="Sohbetin başına git">↑</button>
-        <button type="button"
-          title="Sohbetin sonuna git"
-          aria-label="Sohbetin sonuna git">↓</button>
+        <button type="button" title="Sohbetin başına git" aria-label="Sohbetin başına git">↑</button>
+        <button type="button" title="Sohbetin sonuna git" aria-label="Sohbetin sonuna git">↓</button>
       `;
 
-      nav.children[0].onclick = () => {
+      const upButton = nav.children[0];
+      const downButton = nav.children[1];
+
+      upButton.style.display = 'none';
+      downButton.style.display = 'none';
+
+      upButton.onclick = () => {
         messages.scrollTo({ top: 0, behavior: 'smooth' });
       };
 
-      nav.children[1].onclick = () => {
+      downButton.onclick = () => {
         messages.scrollTo({
           top: messages.scrollHeight,
           behavior: 'smooth'
@@ -2827,49 +2832,51 @@
       let navHideTimer = null;
       let lastScrollTop = messages.scrollTop;
 
-      const navAvailable = () =>
-        messages.scrollHeight > messages.clientHeight + 120;
-
       const hideNav = () => {
         nav.style.opacity = '0';
         nav.style.pointerEvents = 'none';
       };
 
-      const revealNav = () => {
-        if (!navAvailable()) {
+      const showNav = (direction) => {
+        if (messages.scrollHeight <= messages.clientHeight + 120) {
           hideNav();
           return;
         }
+
+        upButton.style.display = direction < 0 ? 'grid' : 'none';
+        downButton.style.display = direction > 0 ? 'grid' : 'none';
 
         nav.style.opacity = '1';
         nav.style.pointerEvents = 'auto';
 
         clearTimeout(navHideTimer);
-
-        navHideTimer = setTimeout(() => {
-          hideNav();
-        }, 1000);
+        navHideTimer = setTimeout(hideNav, 1000);
       };
 
-      // Oklar yalnızca içerik gerçekten hareket ettiğinde belirir.
       messages.addEventListener('scroll', () => {
-        const currentScrollTop = messages.scrollTop;
+        const currentTop = messages.scrollTop;
+        const difference = currentTop - lastScrollTop;
 
-        if (currentScrollTop !== lastScrollTop) {
-          lastScrollTop = currentScrollTop;
-          revealNav();
+        if (difference === 0) return;
+
+        lastScrollTop = currentTop;
+
+        if (difference > 0) {
+          showNav(1);
+        } else {
+          showNav(-1);
         }
       }, { passive: true });
 
-      // İçerik değişince gereksiz okları gizle.
       new MutationObserver(() => {
-        if (!navAvailable()) hideNav();
+        if (messages.scrollHeight <= messages.clientHeight + 120) {
+          hideNav();
+        }
       }).observe(messages, {
         childList: true,
         subtree: true
       });
 
-      // Başlangıçta oklar görünmez.
       hideNav();
 
 
