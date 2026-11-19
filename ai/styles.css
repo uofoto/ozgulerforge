@@ -560,9 +560,16 @@ html.dark .answer-length-wrap select { color:#CBD5E1; }
 
 
 /* v6.9.66 — Gemini benzeri akış ve odaklı etkileşimler */
-#composerDock { position:absolute; z-index:25; left:0; right:0; bottom:0; padding-top:2.5rem; background:linear-gradient(to top, #F8FAFC 72%, rgba(248,250,252,.92) 88%, transparent); }
+/* Gemini tarzı alt kart: yanıt metni kartın altından yumuşakça kayıp solar (sert zemin bloğu yok). */
+#composerDock { --fm-dock-bg:#F8FAFC; position:absolute; z-index:25; left:0; right:0; bottom:0; padding-top:2.5rem; background:none !important; pointer-events:none; }
+html.dark #composerDock { --fm-dock-bg:#1A1A1C; }
+html.forge #composerDock { --fm-dock-bg:#15110E; }
+#composerDock > * { pointer-events:auto; }
+#composerDock::before { content:''; position:absolute; left:0; right:0; bottom:0; top:-30px; z-index:-1; pointer-events:none; background:var(--fm-dock-bg);
+  -webkit-mask-image:linear-gradient(to top,#000 calc(100% - 70px),transparent); mask-image:linear-gradient(to top,#000 calc(100% - 70px),transparent); }
 #messagesContainer { padding-bottom:190px !important; scroll-padding-bottom:190px; }
-#chatForm { backdrop-filter: blur(16px); background:rgba(255,255,255,.94); }
+#chatForm { backdrop-filter: blur(16px); background:rgba(255,255,255,.94); box-shadow:0 6px 28px rgba(15,23,42,.10); }
+html.dark #chatForm { box-shadow:0 6px 28px rgba(0,0,0,.45); }
 #forgeSplash .fs-tile { position:relative; }
 #forgeSplash .fs-orbit { position:absolute; inset:-5px; border-radius:28%; pointer-events:none; background:conic-gradient(from 0deg, transparent 0 68%, #fff 75%, #FDBA74 80%, #F97316 86%, transparent 94%); -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px)); mask:radial-gradient(farthest-side,transparent calc(100% - 2px),#000 calc(100% - 1px)); animation:fsOrbit 2.25s cubic-bezier(.4,0,.2,1) 1 both; filter:drop-shadow(0 0 7px rgba(251,146,60,.8)); }
 @keyframes fsOrbit { from{transform:rotate(-90deg);opacity:0} 12%{opacity:1} 82%{opacity:1} to{transform:rotate(270deg);opacity:0} }
