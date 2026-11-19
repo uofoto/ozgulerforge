@@ -30,6 +30,18 @@ export function curModel() {
 }
 export function poolFor(engine) { return MODELS.filter(m => m.engine === engine.id); }
 
+// Seçili profilin havuzu tükenirse (kota/anahtar/hata) diğer profilin modelleri son çare olarak eklenir.
+export function poolWithSpillover(engine) {
+  const own = poolFor(engine);
+  const seen = new Set(own.map(m => m.provider + '|' + m.model));
+  const extra = MODELS.filter(m => m.engine !== engine.id && !seen.has(m.provider + '|' + m.model));
+  return { own, extra };
+}
+
+// Ekranda gösterilecek sağlayıcı/model adı.
+export const PROVIDER_NAMES = { gemini: 'Gemini', groq: 'Groq', openrouter: 'OpenRouter' };
+export function engineName(m) { return (PROVIDER_NAMES[m.provider] || m.provider) + ' · ' + String(m.model).replace(/^.*\//, ''); }
+
 // creds: { apiKey, groqKey, orKey }
 export function hasKeyFor(m, creds = {}) {
   if (m.provider === 'openrouter') return Boolean(creds.orKey && creds.orKey.trim());

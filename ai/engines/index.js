@@ -10,7 +10,7 @@ import { Health, healthKeys, recordHealth } from './health.js';
 import { runAttempt, FIRST_TOKEN_MS } from './attempt.js';
 import { PROXY_URL } from '../config.js';
 
-export const MAX_ATTEMPTS = 4;                 // aynı istek en fazla 4 uygun modelde denenir
+export const MAX_ATTEMPTS = 6;                 // aynı istek en fazla 6 uygun modelde denenir (seçili profil + diğer profil yedeği)
 
 // creds: { apiKey, groqKey, orKey, getIdToken }
 // Döndürür: { model, attempts, sources, finishReason }. Hepsi başarısız olursa kind/attempts/quota taşıyan hata fırlatır.

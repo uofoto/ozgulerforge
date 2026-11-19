@@ -1,5 +1,5 @@
 // Hangi motorların, hangi sırayla deneneceğine karar verir. DOM'a dokunmaz.
-import { poolFor, hasKeyFor } from './models.js';
+import { poolWithSpillover, hasKeyFor } from './models.js';
 import { isCooled } from './health.js';
 import { mkErr } from './errors.js';
 
@@ -42,7 +42,8 @@ export function planRequest({ selected, hist, creds, webOn = false }) {
   const lastH = hist[hist.length - 1] || { images: [], pdfs: [], msgText: '' };
   const need = { vision: hist.some(h => h.images && h.images.length > 0), pdf: hist.some(h => h.pdfs && h.pdfs.length > 0) };
   const reqType = classifyRequest(lastH.msgText, need);
-  const keyed = poolFor(sel).filter(m => hasKeyFor(m, creds));
+  const { own, extra } = poolWithSpillover(sel);
+  const keyed = [...own, ...extra].filter(m => hasKeyFor(m, creds));
   if (!keyed.length) throw mkErr('auth', 'Henüz kullanılabilir bir API bağlantısı yok. Motor ayarlarından en az bir sağlayıcı anahtarı ekleyin.');
   const capable = keyed.filter(m => (!need.vision || m.vision) && (!need.pdf || m.pdf) && (!webOn || m.web));
   if (!capable.length) {
@@ -52,14 +53,18 @@ export function planRequest({ selected, hist, creds, webOn = false }) {
   }
   let candidates;
   const live = capable.filter(m => !isCooled(m));
-  if (live.length) candidates = rankModels(live, reqType);
+  if (live.length) {
+    // Seçili profilin modelleri önce gelir; diğer profilin modelleri yalnızca son çare yedeğidir.
+    const ownLive = live.filter(m => m.engine === sel.id), extraLive = live.filter(m => m.engine !== sel.id);
+    candidates = [...rankModels(ownLive, reqType), ...rankModels(extraLive, reqType)];
+  }
   else {
     const cooled = capable.map(isCooled);
     if (cooled.every(c => c.kind === 'quota' && c.quota)) {
       const first = cooled.reduce((x, y) => (x.until <= y.until ? x : y));
       throw mkErr('quota', sel.label + ' kotası dolu.', { quota: Object.assign({}, first.quota, { model: sel.label }) });
     }
-    candidates = rankModels(capable, reqType);
+    candidates = [...rankModels(capable.filter(m => m.engine === sel.id), reqType), ...rankModels(capable.filter(m => m.engine !== sel.id), reqType)];
   }
   candidates = candidates.map(m => m.provider === 'gemini' ? { ...m, thinking: thinkingLevelFor(m, reqType) } : m);
   return { candidates, reqType, need };
