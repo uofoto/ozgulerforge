@@ -1,6 +1,7 @@
-// Model kaydındaki "provider" alanına göre sağlayıcıyı seçer. Yeni sağlayıcı = yeni dosya + buraya bir satır.
+// Model kaydındaki provider alanına göre sağlayıcıyı seçer.
 import { gemini } from './gemini.js';
 import { openrouter } from './openrouter.js';
+import { groq } from './groq.js';
 
-export const providers = { gemini, openrouter };
-export function providerOf(model) { return model.provider === 'openrouter' ? openrouter : gemini; }
+export const providers = { gemini, openrouter, groq };
+export function providerOf(model) { return providers[model.provider] || gemini; }
