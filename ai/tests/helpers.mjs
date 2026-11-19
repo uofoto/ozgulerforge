@@ -10,7 +10,7 @@ export function installLocalStorage(initial = {}) {
   return globalThis.localStorage;
 }
 
-export const CREDS = { apiKey: 'AIzaFAKEKEY01234567890123456789', orKey: 'sk-or-FAKE', getIdToken: () => null };
+export const CREDS = { apiKey: 'AIzaFAKEKEY01234567890123456789', groqKey: 'gsk-FAKE', orKey: 'sk-or-FAKE', getIdToken: () => null };
 
 export const sse = (...objs) => objs.map(o => (o === '[DONE]' ? 'data: [DONE]\n\n' : 'data: ' + JSON.stringify(o) + '\n\n')).join('');
 export const gText = (t, extra) => ({ candidates: [Object.assign({ content: { parts: [{ text: t }] } }, extra || {})] });
@@ -21,7 +21,7 @@ export const orText = (t, extra) => ({ choices: [Object.assign({ delta: { conten
 export function fakeFetch(queues) {
   const calls = [];
   const fn = async (url, init) => {
-    const key = url.includes('openrouter.ai') ? 'or' : 'gem';
+    const key = url.includes('openrouter.ai') ? 'or' : url.includes('groq.com') ? 'groq' : 'gem';
     const q = queues[key] || [];
     const spec = q.length > 1 ? q.shift() : q[0];
     calls.push({ key, url, init, body: JSON.parse(init.body) });
