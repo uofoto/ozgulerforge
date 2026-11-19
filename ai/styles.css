@@ -588,3 +588,8 @@ html.dark #chatForm { box-shadow:0 6px 28px rgba(0,0,0,.45); }
 html body .forge-avatar { background:transparent !important; border:1px solid rgba(148,163,184,.30) !important; box-shadow:none !important; }
 html.dark body .forge-avatar { border-color:rgba(255,255,255,.12) !important; }
 html.forge body .forge-avatar { border-color:rgba(251,146,60,.22) !important; }
+
+/* Avatardaki "f" harfi zemine uygun renkte: açık temada koyu arduvaz, koyu ve forge temalarında açık ton. */
+html body .forge-avatar .fm-of-mark path:last-child { fill:#334155 !important; }
+html.dark body .forge-avatar .fm-of-mark path:last-child { fill:#E2E8F0 !important; }
+html.forge body .forge-avatar .fm-of-mark path:last-child { fill:#EFE8E0 !important; }
