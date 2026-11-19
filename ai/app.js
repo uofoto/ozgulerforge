@@ -1,6 +1,6 @@
     import { APP_VERSION, KEYS, LEGACY_KEYS, PROXY_URL, GOOGLE_CLIENT_ID } from './config.js';
     import { storage, loadChats } from './storage.js';
-    import { ENGINES, curModel, keyOk as engineKeyOk } from './engines/models.js';
+    import { ENGINES, curModel, keyOk as engineKeyOk, engineName } from './engines/models.js';
     import { mkErr, formatFailure, KIND_SHORT } from './engines/errors.js';
     import { Health } from './engines/health.js';
     import { REQ_LABELS, planRequest, classifyRequest } from './engines/router.js';
@@ -1321,7 +1321,10 @@
 
     // ===== Motor mantığı engines/ klasörüne taşındı; burada yalnızca ekranda gösterilen not metni kalır =====
     function engineNoteText(m) {
-      return Number.isFinite(m.elapsedMs) ? ' · ' + (m.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(m.elapsedMs) : '';
+      const KS = { quota: 'kota dolu', auth: 'anahtar sorunu', network: 'bağlantı hatası', billing: 'bakiye yok', notfound: 'bulunamadı', overloaded: 'yoğun', timeout: 'zaman aşımı', empty: 'boş yanıt', badrequest: 'reddetti' };
+      const used = m.engineUsed ? ' · Motor: ' + m.engineUsed : '';
+      const failed = Array.isArray(m.engineFailed) && m.engineFailed.length ? ' (atlandı: ' + m.engineFailed.map(f => f.name + ' – ' + (KS[f.kind] || 'hata')).join(', ') + ')' : '';
+      return (Number.isFinite(m.elapsedMs) ? ' · ' + (m.webSearch ? 'Web araması + yanıt' : 'Yanıt süresi') + ': ' + formatElapsedTime(m.elapsedMs) : '') + used + failed;
     }
 
     // ===== Alternatif yönlendirme: yanıtın sonundaki [[ONERI]] bloğu düğmelere çevrilir, metinden çıkarılır =====
@@ -1455,7 +1458,7 @@
               if (stage === 'prepare') updateProgress(2, info.media ? 'Sohbeti ve eklenen görsel/PDF dosyalarını hazırlıyorum…' : 'Sohbet geçmişini ve talimatları hazırlıyorum…');
               else if (stage === 'connect') updateProgress(3, 'Oforge AI uygun yanıtı hazırlamak için bağlantı kuruyor…');
               else if (stage === 'stream') updateProgress(4, 'Oforge AI yanıtınızı hazırlıyor…');
-              else if (stage === 'switch') updateProgress(3, 'Yanıt için yedek model deneniyor…');
+              else if (stage === 'switch') updateProgress(3, engineName(info.from) + ' ' + ({ quota: 'kotası dolu', auth: 'anahtar sorunu', network: 'bağlantı hatası', timeout: 'zaman aşımı', empty: 'boş yanıt', notfound: 'bulunamadı', overloaded: 'yoğun' }[info.kind] || 'hata verdi') + ' → ' + engineName(info.to) + ' deneniyor…');
             },
             onText: (piece) => {
               if (progressEl) progressEl.querySelector('[data-progress-detail]').textContent = 'Oforge AI yanıtınızı yazıyor…';
@@ -1465,6 +1468,8 @@
           }
         });
         aiMsg.engine = r.model.label;
+        aiMsg.engineUsed = engineName(r.model);
+        aiMsg.engineFailed = (r.attempts || []).map(a => ({ name: engineName(a.model), kind: a.kind }));
 
         updateElapsedTime();
         clearInterval(elapsedTimer);
