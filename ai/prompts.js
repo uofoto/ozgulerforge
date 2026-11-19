@@ -1,3 +1,5 @@
+import { buildConversationContext, detectIntent, styleGuidance, qualitySignals, reviewGuidance } from './intelligence/index.js';
+
 // Modele her istekte eklenen kimlik, Türkçe üslup ve kalite talimatları.
 // Amaç: katı bir metin kalıbı dayatmak değil; çeviri kokmayan, doğal ve güvenilir bir Türkçe için ölçülebilir kurallar ve örnekler vermek.
 // Üslubu ayarlamak için: HITAP (sen/siz) ve TURKCE_USLUP bölümü. İstek türüne özel kısa notlar TASK_STYLES içindedir.
@@ -61,13 +63,12 @@ Gerçeği, yorumu ve tahmini birbirinden ayır. Bilmediğini ya da doğrulayamad
 Önce asıl cevabı ver; gerekçe, ayrıntı ve örnek sonra gelsin. Her paragraf tek bir fikir taşısın ve ilk cümlesi o fikri söylesin. Liste ve tabloyu yalnızca sıralı adımlarda ya da gerçek bir karşılaştırmada, başlığı yalnızca uzun ve çok bölümlü yanıtta kullan; açıklamayı ve sohbeti düz paragrafla yaz. Yanıtı özetle, sloganla ya da “umarım…” cümlesiyle kapatma; son cümle yeni bir şey söylemiyorsa sil. Uzunluğu kullanıcının seçtiği kısa, dengeli ya da ayrıntılı tercihe uydur; uzunluğu kaliteyle karıştırma.
 
 6. TAKİP ÖNERİLERİ (ARAYÜZ DÜĞMELERİ)
-Arayüz, yanıtın en sonundaki öneri bloğunu tıklanabilir düğmelere çevirir ve bloğu metinden çıkarır. Selamlaşma, teşekkür, tek kelimelik yanıt ve hata/özür mesajları dışındaki her yanıtın EN SONUNA, ana metinden sonra şu biçimde bir blok ekle:
+Arayüz, özel işaretler arasındaki önerileri tıklanabilir düğmelere çevirir. Öneri üretmek zorunlu değildir. Yalnızca kullanıcının doğal bir sonraki adımını kolaylaştıracaksa, en fazla iki kısa öneri ver ve bunları yanıtın en sonuna şu biçimde ekle:
 ${SUGGEST_OPEN}
 - birinci öneri
 - ikinci öneri
-- üçüncü öneri
 ${SUGGEST_CLOSE}
-Kurallar: 2 ile 3 arasında öneri yaz; her biri 2-7 kelimelik, kullanıcının sana göndereceği bir sonraki mesaj gibi olsun (örnek: “Örnek kodu göster”, “Daha kısa özetle”, “Karşıt görüşü anlat”). Öneriler farklı yönlere açılsın ve ana yanıtta söylenenleri tekrar etmesin. Bloğun öncesine “Önerilerim:” gibi bir giriş cümlesi yazma, bloğu kod çiti içine alma, madde işaretinden başka süsleme kullanma.
+Basit sohbet, teşekkür, özür, selamlaşma ve zaten tamamlanmış doğrudan yanıtlarda bu bloğu ekleme. Öneriler ana yanıttaki bilgiyi tekrarlamasın; yeni ve somut bir devam yolu sunsun.
 
 7. SON KONTROL
 Göndermeden önce sessizce kontrol et: Asıl soruyu yanıtladı mı? İddialar destekli mi? Çeviri kokan cümle, dolgu ya da gereksiz tekrar var mı? Yüklemler sona gidiyor, cümleler soluk alıyor mu? Bu kontrolü kullanıcıya anlatma.`;
@@ -87,10 +88,15 @@ export const TASK_STYLES = {
   writing: '\n\nBU İSTEK: YAZARLIK\nMetnin amacını, okurunu ve düşünsel omurgasını belirle. Özgün yaz: ritmi cümle uzunluklarını değiştirerek kur, imgeyi ölçülü kullan, süsü ve tekrarı ayıkla. Hazır kalıplara (“hayatın akışı içinde”, “zamanın ötesinde” gibi) başvurma. Mevcut bir metni yeniden yazıyorsan kullanıcının sesini ve niyetini koru.'
 };
 
-export function buildSystemText(systemPrompt, user, reqType) {
+export function buildSystemText(systemPrompt, user, reqType, history = []) {
+  const context = buildConversationContext(history);
+  const intent = detectIntent(context.lastUserText);
+  const quality = qualitySignals(context.lastUserText, reqType, intent);
+  const contextText = context.hasPriorContext ? `\n\nKONUŞMA BAĞLAMI (${context.userTurnCount} kullanıcı mesajı): Önceki mesajlarla bağlantıyı koru; kullanıcının daha önce verdiği bilgiyi yeniden sorma. Önceki bağlam güncel istekle ilgisizse taşıma.` : '';
+  const adaptive = `\n\nUYARLANABİLİR YANIT KATMANI\n${styleGuidance(intent, reqType)}\n${reviewGuidance(quality)}\nKalite profili: yüksek doğruluk ve tutarlılık öncelikli. Basit istekte gereksiz uzun muhakeme üretme; karmaşık istekte gerekli ayrıntıyı atlama.`;
   const identity = String(systemPrompt || '').trim() || BASE_IDENTITY;
   const userHint = user && user.name ? `\n\nSohbet ettiğin kullanıcının adı: ${user.name}. Yalnızca hitap doğal ve gerekli olduğunda adını kullan.` : '';
-  return identity + userHint + RICH_UI_HINT + ANSWER_STYLE + (TASK_STYLES[reqType] || '');
+  return identity + userHint + contextText + RICH_UI_HINT + ANSWER_STYLE + (TASK_STYLES[reqType] || '') + adaptive;
 }
 
 // Çeviri kokan ya da kalıplaşmış Türkçe'yi sayar. Üslup değişikliklerini önce/sonra karşılaştırmak için kullanılır (ör. 10 sabit soru).

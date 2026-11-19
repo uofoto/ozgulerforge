@@ -1,4 +1,15 @@
-# Oforge AI (v6.9.66)
+# Oforge AI (v7.0.0)
+
+## 7.0.0 — Oforge Natural: bağlam ve kalite zekâsı
+
+- Konuşma bağlamı, son kullanıcı mesajları üzerinden sınırlı ve kontrollü biçimde çıkarılır; önceki bilgiler ilgiliyse yeniden soru sormadan kullanılır.
+- İstek niyeti; duygusal destek, aciliyet, karar desteği, açıklama, üretim ve doğrulama sinyalleriyle zenginleştirilir.
+- Üslup görev türüne ve konuşmanın tonuna uyarlanır; duygusal içerikte klişe teselli, basit sohbette gereksiz başlık ve uzunluk azaltılır.
+- Kalite profili güçlü modelleri önceleyen sıralamayı kullanır; kod görevlerinde kod yeteneği yüksek modeller önceliklidir. Mevcut sağlayıcı yedekleme, kota ve medya uyumluluğu korunur.
+- Uyarlanabilir yanıt denetimi riskli ve kanıt gerektiren sorularda daha sıkı doğruluk kontrolü ister; her istek için ikinci API çağrısı yapmaz.
+- Takip önerileri artık her yanıta zorla eklenmez; yalnızca gerçekten yararlı olduğunda gösterilir.
+- Yeni bağımsız modüller: `intelligence/context.js`, `intent.js`, `personality.js`, `quality.js`, `review.js`.
+- Test: `npm test`. Gerçek sağlayıcı API'leriyle canlı uçtan uca test, kullanıcı anahtarları gerektirdiğinden bu pakette yapılmamıştır.
 
 ## 6.9.66 — Sohbet deneyimi ve arayüz iyileştirmeleri
 

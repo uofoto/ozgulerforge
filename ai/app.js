@@ -1444,10 +1444,10 @@
 
         const r = await runWithFallback({
           candidates, hist,
-          systemText: buildSystemText(state.systemPrompt, currentUser, reqType) +
+          systemText: buildSystemText(state.systemPrompt, currentUser, reqType, hist) +
             '\n\nKULLANICI TERCİHLERİ:' +
             '\nYanıt uzunluğu: ' + ({ short: 'Kısa ve doğrudan', balanced: 'Dengeli ve yeterince açıklayıcı', detailed: 'Ayrıntılı, gerekçeli ve örnekli' }[storage.get(KEYS.ANSWER_LENGTH, 'balanced')] || 'Dengeli ve yeterince açıklayıcı') +
-            '\nZORUNLU BİÇİM: Selamlaşma ve tek kelimelik yanıtlar dışında her yanıtın en sonuna, ana metinden sonra ' + SUGGEST_OPEN + ' satırı, ardından "- " ile başlayan 3 kısa öneri satırı ve ' + SUGGEST_CLOSE + ' satırı ekle.' +
+            '\nTAKİP ÖNERİLERİ: Yalnızca kullanıcının işine gerçekten yarayacaksa en fazla 2 kısa öneriyi ' + SUGGEST_OPEN + ' ve ' + SUGGEST_CLOSE + ' işaretleri arasında ver. Basit sohbet, teşekkür, özür ve doğrudan yanıt gerektiren durumlarda öneri ekleme.' +
             '\nGüvenilir kaynak ilkesi: İnternet araştırması veya güncel bilgi istendiğinde kullandığın kaynakları açık bağlantılarla belirt; kaynakta doğrulanabilen bilgiyi kendi çıkarımından ve tahmininden açıkça ayır. Kaynak bulamadığın iddiayı doğrulanmış gibi sunma.' +
             (storage.get(KEYS.MEMORY_V2, '').trim() ? '\nKullanıcının açıkça kaydettiği hafıza notları (yalnızca ilgili olduğunda dikkate al):\n' + storage.get(KEYS.MEMORY_V2, '').trim() : ''),
           webOn,
