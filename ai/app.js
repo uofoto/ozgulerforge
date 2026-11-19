@@ -2742,42 +2742,27 @@
       };
     })();
 
-    // --- KULLANICI İSTATİSTİKLERİ: ilk kullanım, aktif süre, soru / yanıt / sayfa sayıları ---
+    // --- KULLANICI İSTATİSTİKLERİ (son 7 gün): hesap menüsünde açılır kart ---
     (function initUsageStats() {
       const KEY = 'forge_ai_usage_v1';
+      const DAY = 86400000;
       const read = () => { const d = storage.getJSON(KEY, null); return (d && typeof d === 'object') ? d : {}; };
       const write = (d) => { try { storage.set(KEY, JSON.stringify(d)); } catch (_) {} };
+      const dayKey = (t) => { const x = new Date(t); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+      const windowStart = () => { const x = new Date(); x.setHours(0, 0, 0, 0); return x.getTime() - 6 * DAY; };
 
       const stampOfId = (id) => {
         id = String(id || '');
         let t = NaN;
         if (/^m_[0-9a-z]{8}/.test(id)) t = parseInt(id.slice(2, 10), 36);
         else if (/^\d{13}$/.test(id)) t = Number(id);
-        return (t > 1577836800000 && t <= Date.now() + 86400000) ? t : NaN;
-      };
-      const allStamps = () => {
-        const out = [];
-        (state.chats || []).forEach((c) => {
-          const t = stampOfId(c.id); if (!isNaN(t)) out.push(t);
-          (c.messages || []).forEach((m) => { const x = stampOfId(m.id); if (!isNaN(x)) out.push(x); });
-        });
-        return out;
+        return (t > 1577836800000 && t <= Date.now() + DAY) ? t : NaN;
       };
 
-      // İlk kullanım tarihi: kayıtlı değer yoksa eldeki en eski sohbet/mesaj zamanından, o da yoksa bugünden.
-      const ensureStart = () => {
-        const d = read();
-        const stamps = allStamps();
-        const oldest = stamps.length ? Math.min.apply(null, stamps) : NaN;
-        let changed = false;
-        if (!d.first || (!isNaN(oldest) && oldest < d.first)) { d.first = !isNaN(oldest) ? oldest : (d.first || Date.now()); changed = true; }
-        if (!d.trackFrom) { d.trackFrom = Date.now(); d.activeMs = d.activeMs || 0; changed = true; }
-        if (changed) write(d);
-        return d;
-      };
-      ensureStart();
+      // Ölçümün başladığı an (süre sayacı için not düşmek amacıyla).
+      { const d = read(); if (!d.trackFrom) { d.trackFrom = Date.now(); write(d); } }
 
-      // Aktif süre: yalnızca sekme görünür ve pencere odaktayken sayılır (10 sn'lik adımlarla).
+      // Aktif süre: yalnızca sekme görünür ve pencere odaktayken, gün gün saklanır (10 sn'lik adımlarla).
       let last = Date.now();
       setInterval(() => {
         const now = Date.now();
@@ -2785,7 +2770,11 @@
         last = now;
         if (document.visibilityState !== 'visible' || !document.hasFocus()) return;
         const d = read();
-        d.activeMs = (d.activeMs || 0) + delta;
+        d.daily = d.daily || {};
+        const k = dayKey(now);
+        d.daily[k] = (d.daily[k] || 0) + delta;
+        const keys = Object.keys(d.daily);
+        if (keys.length > 45) keys.sort().slice(0, keys.length - 45).forEach((x) => { delete d.daily[x]; });
         write(d);
       }, 10000);
       document.addEventListener('visibilitychange', () => { last = Date.now(); });
@@ -2795,99 +2784,78 @@
         const m = Math.floor(ms / 60000);
         if (m < 1) return '1 dk’dan az';
         const h = Math.floor(m / 60), r = m % 60;
-        if (h < 1) return m + ' dk';
-        if (h < 24) return h + ' sa ' + (r ? r + ' dk' : '');
-        const dd = Math.floor(h / 24);
-        return dd + ' gün ' + (h % 24) + ' sa';
+        return h < 1 ? m + ' dk' : h + ' sa' + (r ? ' ' + r + ' dk' : '');
       };
+      const fmtDate = (t) => new Date(t).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' });
       const countWords = (t) => (String(t || '').replace(/```[\s\S]*?```/g, ' ').match(/[\p{L}\p{N}’'-]+/gu) || []).length;
 
       const compute = () => {
-        const d = ensureStart();
-        const chats = state.chats || [];
-        const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
-        const weekAgo = Date.now() - 7 * 86400000;
-        let questions = 0, answers = 0, words = 0, today = 0, week = 0, elapsedSum = 0, elapsedN = 0;
-        const engines = {};
-        chats.forEach((c) => (c.messages || []).forEach((m) => {
-          if (m.role === 'user') {
-            questions++;
-            const t = stampOfId(m.id);
-            if (!isNaN(t)) { if (t >= dayStart.getTime()) today++; if (t >= weekAgo) week++; }
-          } else if (m.role === 'assistant' && m.content) {
-            answers++;
-            words += countWords(m.content);
-            if (m.elapsedMs > 0) { elapsedSum += m.elapsedMs; elapsedN++; }
-            if (m.engineUsed) engines[m.engineUsed] = (engines[m.engineUsed] || 0) + 1;
-          }
-        }));
-        const topEngine = Object.keys(engines).sort((a, b) => engines[b] - engines[a])[0] || '';
-        const days = Math.max(1, Math.floor((Date.now() - d.first) / 86400000) + 1);
-        return {
-          first: d.first, trackFrom: d.trackFrom, days, activeMs: d.activeMs || 0,
-          chats: chats.length, questions, answers, pages: words / 500, words, today, week,
-          avgElapsed: elapsedN ? elapsedSum / elapsedN : 0, topEngine
-        };
-      };
-
-      const fmtDate = (t) => new Date(t).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-      const open = () => {
-        if (document.getElementById('fmStatsOverlay')) return;
-        const st = compute();
-        const tiles = [
-          ['Oforge’la geçen süre', fmtNum(st.days) + ' gün', fmtDate(st.first) + ' tarihinden beri'],
-          ['Aktif kullanım', fmtDur(st.activeMs), fmtDate(st.trackFrom) + ' tarihinden itibaren ölçülür'],
-          ['Sorduğun soru', fmtNum(st.questions), 'Bugün ' + fmtNum(st.today) + ' · son 7 gün ' + fmtNum(st.week)],
-          ['Aldığın yanıt', fmtNum(st.answers), fmtNum(st.chats) + ' çalışmada'],
-          ['Okuduğun bilgi', fmtNum(st.pages, 1) + ' sayfa', 'Yaklaşık ' + fmtNum(st.words) + ' kelime · sayfa başı 500 kelime'],
-          ['Ortalama yanıt süresi', st.avgElapsed ? fmtNum(st.avgElapsed / 1000, 1) + ' sn' : '—', st.topEngine ? 'En çok kullanılan motor: ' + st.topEngine : 'Henüz veri yok']
-        ];
-        const wrap = document.createElement('div');
-        wrap.id = 'fmStatsOverlay';
-        wrap.className = 'fm-stats-overlay';
-        const card = document.createElement('div');
-        card.className = 'fm-stats-card';
-        card.setAttribute('role', 'dialog'); card.setAttribute('aria-modal', 'true'); card.setAttribute('aria-label', 'Kullanım istatistiklerim');
-        const head = document.createElement('div'); head.className = 'fm-stats-head';
-        const titleBox = document.createElement('div'); titleBox.className = 'fm-stats-title';
-        const h = document.createElement('h3'); h.textContent = 'İstatistiklerim';
-        const span = document.createElement('span'); span.className = 'fm-stats-span'; span.textContent = fmtNum(st.days) + ' günlük';
-        span.title = fmtDate(st.first) + ' tarihinden bugüne';
-        titleBox.append(h, span);
-        const x = document.createElement('button'); x.type = 'button'; x.className = 'fm-stats-x'; x.setAttribute('aria-label', 'Kapat'); x.textContent = '✕';
-        head.append(titleBox, x);
-        const grid = document.createElement('div'); grid.className = 'fm-stats-grid';
-        tiles.forEach((t) => {
-          const el = document.createElement('div'); el.className = 'fm-stats-tile';
-          const a = document.createElement('div'); a.className = 'fm-stats-lbl'; a.textContent = t[0];
-          const b = document.createElement('div'); b.className = 'fm-stats-val'; b.textContent = t[1];
-          const c = document.createElement('div'); c.className = 'fm-stats-sub'; c.textContent = t[2];
-          el.append(a, b, c); grid.appendChild(el);
+        const d = read();
+        const from = windowStart();
+        const todayStart = from + 6 * DAY;
+        let active = 0;
+        Object.keys(d.daily || {}).forEach((k) => { const t = new Date(k + 'T00:00:00').getTime(); if (t >= from) active += d.daily[k]; });
+        let questions = 0, today = 0, answers = 0, words = 0, elapsedSum = 0, elapsedN = 0, chatsUsed = 0;
+        (state.chats || []).forEach((c) => {
+          let lastUserIn = false, used = false;
+          (c.messages || []).forEach((m) => {
+            if (m.role === 'user') {
+              const t = stampOfId(m.id);
+              lastUserIn = !isNaN(t) && t >= from;
+              if (lastUserIn) { questions++; used = true; if (t >= todayStart) today++; }
+            } else if (m.role === 'assistant' && m.content && lastUserIn) {
+              answers++;
+              words += countWords(m.content);
+              if (m.elapsedMs > 0) { elapsedSum += m.elapsedMs; elapsedN++; }
+            }
+          });
+          if (used) chatsUsed++;
         });
-        const note = document.createElement('p'); note.className = 'fm-stats-note';
-        note.textContent = 'Bu veriler yalnızca bu cihazda, sohbet geçmişinden hesaplanır. Silinen sohbetler sayıma dahil olmaz.';
-        card.append(head, grid, note);
-        wrap.appendChild(card);
-        const close = () => { document.removeEventListener('keydown', onKey); wrap.remove(); };
-        const onKey = (e) => { if (e.key === 'Escape') close(); };
-        wrap.addEventListener('click', (e) => { if (e.target === wrap) close(); });
-        x.addEventListener('click', close);
-        document.addEventListener('keydown', onKey);
-        document.body.appendChild(wrap);
-        x.focus();
+        return { active, questions, today, answers, pages: words / 500, chatsUsed, avg: elapsedN ? elapsedSum / elapsedN : 0, trackFrom: d.trackFrom || Date.now(), from };
       };
 
-      // Hesap menüsüne "İstatistiklerim" satırı ekle (Akıllı hafızam'ın hemen altına).
+      const build = () => {
+        const st = compute();
+        const rows = [
+          ['Aktif kullanım', fmtDur(st.active)],
+          ['Sorduğun soru', fmtNum(st.questions) + (st.today ? ' · bugün ' + fmtNum(st.today) : '')],
+          ['Aldığın yanıt', fmtNum(st.answers)],
+          ['Okuduğun bilgi', fmtNum(st.pages, 1) + ' sayfa'],
+          ['Ort. yanıt süresi', st.avg ? fmtNum(st.avg / 1000, 1) + ' sn' : '—']
+        ];
+        const frag = document.createDocumentFragment();
+        rows.forEach((r) => {
+          const row = document.createElement('div'); row.className = 'fm-st-row';
+          const l = document.createElement('span'); l.className = 'fm-st-l'; l.textContent = r[0];
+          const v = document.createElement('span'); v.className = 'fm-st-v'; v.textContent = r[1];
+          row.append(l, v); frag.appendChild(row);
+        });
+        if (st.trackFrom > st.from) {
+          const n = document.createElement('div'); n.className = 'fm-st-note';
+          n.textContent = 'Süre ölçümü ' + fmtDate(st.trackFrom) + ' tarihinde başladı.';
+          frag.appendChild(n);
+        }
+        const info = document.createElement('div'); info.className = 'fm-st-note';
+        info.textContent = 'Bu veriler yalnızca bu cihazda, sohbet geçmişinden hesaplanır. Silinen sohbetler sayıma dahil olmaz.';
+        frag.appendChild(info);
+        return frag;
+      };
+
       const anchor = document.getElementById('openMemoryBtn');
-      if (anchor && !document.getElementById('openStatsBtn')) {
-        const b = document.createElement('button');
-        b.id = 'openStatsBtn'; b.type = 'button'; b.setAttribute('role', 'menuitem'); b.className = 'sb-mi';
-        b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg><span class="flex-1">İstatistiklerim</span>';
-        b.addEventListener('click', open);
-        anchor.insertAdjacentElement('afterend', b);
-      }
-      window.openUsageStats = open;
+      if (!anchor || document.getElementById('fmStatsAcc')) return;
+      const acc = document.createElement('details');
+      acc.id = 'fmStatsAcc'; acc.className = 'fm-st-acc';
+      const sum = document.createElement('summary');
+      sum.className = 'fm-st-sum';
+      sum.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-600" aria-hidden="true"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg><span class="fm-st-title">İstatistiklerim</span><span class="fm-st-badge">Son 7 gün</span><svg class="fm-st-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+      const body = document.createElement('div');
+      body.className = 'fm-st-body';
+      acc.append(sum, body);
+      const refresh = () => { body.replaceChildren(build()); };
+      acc.addEventListener('toggle', () => { if (acc.open) refresh(); });
+      const mb = document.getElementById('accountMenuBtn'), chip = document.getElementById('userSignedIn');
+      [mb, chip].forEach((el) => { if (el) el.addEventListener('click', () => setTimeout(() => { if (acc.open) refresh(); }, 0)); });
+      anchor.insertAdjacentElement('afterend', acc);
     })();
 
     // --- GOOGLE İLE GİRİŞ ---

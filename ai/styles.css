@@ -620,23 +620,27 @@ html.forge .msg-sources { --fms-bg:rgba(255,255,255,.04); --fms-bd:rgba(251,146,
 .fm-src-c0 { background:#DBEAFE; color:#1E40AF; } .fm-src-c1 { background:#DCFCE7; color:#166534; } .fm-src-c2 { background:#FEF3C7; color:#92400E; } .fm-src-c3 { background:#EDE9FE; color:#5B21B6; } .fm-src-c4 { background:#FFE4E6; color:#9F1239; }
 html.dark .fm-src-c0, html.forge .fm-src-c0 { background:rgba(96,165,250,.20); color:#BFDBFE; } html.dark .fm-src-c1, html.forge .fm-src-c1 { background:rgba(74,222,128,.18); color:#BBF7D0; } html.dark .fm-src-c2, html.forge .fm-src-c2 { background:rgba(251,191,36,.18); color:#FDE68A; } html.dark .fm-src-c3, html.forge .fm-src-c3 { background:rgba(167,139,250,.20); color:#DDD6FE; } html.dark .fm-src-c4, html.forge .fm-src-c4 { background:rgba(251,113,133,.20); color:#FECDD3; }
 
-/* Kullanıcı istatistikleri penceresi */
-.fm-stats-overlay { --fms-card:#fff; --fms-bd:rgba(148,163,184,.30); --fms-tx:#0F172A; --fms-sub:#64748B; --fms-tile:#F8FAFC; position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; padding:16px; background:rgba(15,23,42,.35); backdrop-filter:blur(2px); }
-html.dark .fm-stats-overlay { --fms-card:#222225; --fms-bd:rgba(255,255,255,.12); --fms-tx:#E4E4E7; --fms-sub:#A1A1AA; --fms-tile:rgba(255,255,255,.05); }
-html.forge .fm-stats-overlay { --fms-card:#1D1813; --fms-bd:rgba(251,146,60,.22); --fms-tx:#EFE8E0; --fms-sub:#BDB0A2; --fms-tile:rgba(255,255,255,.05); }
-.fm-stats-card { width:100%; max-width:560px; max-height:90vh; overflow-y:auto; background:var(--fms-card); color:var(--fms-tx); border:1px solid var(--fms-bd); border-radius:20px; padding:20px; box-shadow:0 20px 60px rgba(15,23,42,.25); }
-.fm-stats-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-.fm-stats-head h3 { margin:0; font-size:17px; font-weight:650; }
-.fm-stats-x { width:32px; height:32px; border-radius:50%; border:0; background:transparent; color:var(--fms-sub); cursor:pointer; font-size:15px; }
-.fm-stats-x:hover { background:rgba(148,163,184,.18); }
-.fm-stats-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-.fm-stats-tile { background:var(--fms-tile); border:1px solid var(--fms-bd); border-radius:14px; padding:12px 14px; min-width:0; }
-.fm-stats-lbl { font-size:12px; color:var(--fms-sub); }
-.fm-stats-val { margin-top:2px; font-size:22px; font-weight:650; line-height:1.25; }
-.fm-stats-sub { margin-top:3px; font-size:12px; color:var(--fms-sub); line-height:1.4; }
-.fm-stats-note { margin:14px 2px 0; font-size:12px; color:var(--fms-sub); line-height:1.5; }
-@media(max-width:420px){ .fm-stats-grid { grid-template-columns:minmax(0,1fr); } }
-.fm-stats-title { display:flex; align-items:center; gap:9px; min-width:0; }
-.fm-stats-span { font-size:11.5px; font-weight:500; line-height:1; padding:5px 10px; border-radius:999px; background:rgba(37,99,235,.10); color:#1D4ED8; white-space:nowrap; letter-spacing:.01em; }
-html.dark .fm-stats-span { background:rgba(96,165,250,.16); color:#93C5FD; }
-html.forge .fm-stats-span { background:rgba(251,146,60,.16); color:#FDBA74; }
+/* Kullanıcı istatistikleri: hesap menüsünde açılır kart (son 7 gün) */
+.fm-st-acc { margin:2px 0; border-radius:.75rem; }
+.fm-st-sum { list-style:none; display:flex; align-items:center; gap:.75rem; padding:.55rem .75rem; border-radius:.75rem; font-size:.875rem; color:#334155; cursor:pointer; user-select:none; transition:background .15s; }
+.fm-st-sum::-webkit-details-marker { display:none; }
+.fm-st-sum:hover, .fm-st-sum:focus-visible { background:#F3F1EC; outline:none; }
+.fm-st-title { flex:1; }
+.fm-st-badge { font-size:11px; font-weight:500; line-height:1; padding:4px 8px; border-radius:999px; background:rgba(37,99,235,.10); color:#1D4ED8; white-space:nowrap; }
+.fm-st-chev { color:#94A3B8; transition:transform .2s ease; flex:none; }
+.fm-st-acc[open] .fm-st-chev { transform:rotate(180deg); }
+.fm-st-body { margin:2px 8px 6px; padding:6px 10px; border:1px solid rgba(148,163,184,.28); border-radius:12px; background:rgba(148,163,184,.07); }
+.fm-st-row { display:flex; align-items:baseline; justify-content:space-between; gap:10px; padding:5px 0; font-size:13px; }
+.fm-st-row + .fm-st-row { border-top:1px solid rgba(148,163,184,.18); }
+.fm-st-l { color:#64748B; }
+.fm-st-v { font-weight:600; color:#0F172A; text-align:right; }
+.fm-st-note { margin-top:4px; padding-top:6px; border-top:1px solid rgba(148,163,184,.18); font-size:11.5px; color:#64748B; line-height:1.4; }
+html.dark .fm-st-sum { color:#D4D4D8; }
+html.dark .fm-st-sum:hover, html.dark .fm-st-sum:focus-visible { background:#2E2E33; }
+html.dark .fm-st-badge { background:rgba(96,165,250,.16); color:#93C5FD; }
+html.dark .fm-st-body { border-color:rgba(255,255,255,.12); background:rgba(255,255,255,.04); }
+html.dark .fm-st-l, html.dark .fm-st-note { color:#A1A1AA; }
+html.dark .fm-st-v { color:#E4E4E7; }
+html.forge .fm-st-badge { background:rgba(251,146,60,.16); color:#FDBA74; }
+html.forge .fm-st-l, html.forge .fm-st-note { color:#BDB0A2; }
+html.forge .fm-st-v { color:#EFE8E0; }
