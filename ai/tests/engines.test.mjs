@@ -103,7 +103,7 @@ test('classifyRequest: akademik istekler ayrılır (kaynak için web araması a�
 
 test('planRequest: önce seçili profilin modelleri, ardından diğer profilin yedekleri (anahtarı olanlar)', () => {
   const u = planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: CREDS });
-  assert.deepEqual(ids(u.candidates), ['ultraGroqOSS20', 'ultraGroqOSS', 'ultraGroqQwen', 'ultra38', 'ultraOR', 'lite35']);
+  assert.deepEqual(ids(u.candidates), ['ultraGroqOSS', 'ultraGroqQwen', 'ultra38', 'ultraOR', 'ultraGroqOSS20', 'lite35']);
   assert.equal(u.reqType, 'simple');
   assert.equal(u.candidates.find(m => m.provider === 'gemini').thinking, 'medium');
   const deep = planRequest({ selected: E('ultra'), hist: textHist('Hakikat nedir? İnsan neden kendi inançlarına tutunur?'), creds: GEM });
@@ -123,7 +123,7 @@ test('planRequest: önce seçili profilin modelleri, ardından diğer profilin y
 test('otomatik yönlendirme: metin Groq ile başlar, görsel Groq Qwen ile; PDF Gemini kullanır', () => {
   const text = planRequest({ selected: E('ultra'), hist: textHist('merhaba'), creds: CREDS });
   assert.equal(text.candidates[0].provider, 'groq');
-  assert.equal(text.candidates[0].model, 'openai/gpt-oss-20b');
+  assert.equal(text.candidates[0].model, 'openai/gpt-oss-120b');
   const visual = planRequest({ selected: E('ultra'), hist: [{ role: 'user', msgText: 'Fotoğrafı yorumla', images: [IMG], pdfs: [] }], creds: CREDS });
   assert.equal(visual.candidates[0].id, 'ultraGroqQwen');
   const pdf = planRequest({ selected: E('ultra'), hist: [{ role: 'user', msgText: 'PDF yi incele', images: [], pdfs: [PDF] }], creds: CREDS });
@@ -280,8 +280,12 @@ test('buildBody: web araması aracı yalnızca açıkken eklenir', () => {
 });
 
 test('buildSystemText: kimlik + (varsa) kullanıcı adı + biçim ve üslup kuralları', () => {
-  assert.equal(buildSystemText('SP', null), 'SP' + RICH_UI_HINT + ANSWER_STYLE);
+  assert.ok(buildSystemText('SP', null).startsWith('SP' + RICH_UI_HINT + ANSWER_STYLE));
+  assert.ok(buildSystemText('SP', null).includes('UYARLANABİLİR YANIT KATMANI'));
   assert.ok(buildSystemText('SP', { name: 'Ali' }).includes('kullanıcının adı: Ali'));
+  const contextual = buildSystemText('SP', null, 'simple', [{ role: 'user', msgText: 'Bursa için gezi planı' }, { role: 'assistant', msgText: 'Plan hazır.' }, { role: 'user', msgText: 'Bunu iki güne böl' }]);
+  assert.ok(contextual.includes('KONUŞMA BAĞLAMI'));
+  assert.ok(contextual.includes('Önceki mesajlarla bağlantıyı koru'));
   assert.ok(BASE_IDENTITY.includes('Oforge AI'));
 });
 
@@ -437,11 +441,28 @@ test('yedek motor yoksa da takılı kalan istek zaman aşımına uğrar', async 
   await assert.rejects(p, (e) => e.kind === 'timeout');
 });
 
-test('yanıt kuralları: doğal dil, düşünsel derinlik, doğruluk ve zorunlu takip önerileri', () => {
+test('yanıt kuralları: doğal dil, düşünsel derinlik, doğruluk ve isteğe bağlı takip önerileri', () => {
   assert.ok(ANSWER_STYLE.includes('MUHAKEME KALİTESİ'));
   assert.ok(ANSWER_STYLE.includes('FELSEFİ DERİNLİK'));
   assert.ok(ANSWER_STYLE.includes('DOĞRULUK VE ENTELEKTÜEL DÜRÜSTLÜK'));
   assert.ok(ANSWER_STYLE.includes('TAKİP ÖNERİLERİ (ARAYÜZ DÜĞMELERİ)'));
+  assert.ok(ANSWER_STYLE.includes('en fazla iki kısa öneri'));
   assert.ok(ANSWER_STYLE.includes(SUGGEST_OPEN) && ANSWER_STYLE.includes(SUGGEST_CLOSE));
   assert.ok(!ANSWER_STYLE.includes('en fazla 1-2 kutu'));
+});
+
+
+ test('v7 uyarlanabilir zeka: duygusal/karar/doğrulama sinyalleri ve risk denetimi', async () => {
+  const { detectIntent, qualitySignals, styleGuidance, buildConversationContext } = await import('../intelligence/index.js');
+  const emotional = detectIntent('Son zamanlarda çok yoruldum ve kaygılıyım');
+  assert.equal(emotional.emotional, true);
+  assert.match(styleGuidance(emotional, 'simple'), /Duygusal bağlam/);
+  const decision = detectIntent('Hangisini seçmeliyim, karar veremiyorum');
+  assert.equal(decision.needsDecisionSupport, true);
+  const risky = qualitySignals('Bu ilacın dozunu artırmalı mıyım?', 'simple', detectIntent('Bu ilacın dozunu artırmalı mıyım?'));
+  assert.equal(risky.highStakes, true);
+  assert.equal(risky.reviewRequired, true);
+  const ctx = buildConversationContext([{ role: 'user', msgText: 'Önceki konu' }, { role: 'assistant', msgText: 'Yanıt' }, { role: 'user', msgText: 'Devam et' }]);
+  assert.equal(ctx.hasPriorContext, true);
+  assert.equal(ctx.previousUserText, 'Önceki konu');
 });

@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 const { buildSystemText, SUGGEST_OPEN, SUGGEST_CLOSE } = await import('../prompts.js');
 
-test('sistem talimatı: öneri bloğu biçimini ve zorunluluğunu içerir', () => {
+test('sistem talimatı: öneri bloğu biçimini ve isteğe bağlı kullanımını içerir', () => {
   const t = buildSystemText('', null);
   assert.ok(t.includes(SUGGEST_OPEN) && t.includes(SUGGEST_CLOSE));
-  assert.ok(/EN SONUNA/.test(t));
-  assert.ok(!/zorunlu değildir/.test(t));
+  assert.ok(/yanıtın en sonuna/.test(t));
+  assert.ok(/Öneri üretmek zorunlu değildir/.test(t));
   assert.ok(!/otomatik öneri, soru veya düğme ekleme/.test(t));
 });
 
