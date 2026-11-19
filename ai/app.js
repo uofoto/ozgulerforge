@@ -478,14 +478,25 @@
       }
     };
 
-    window.speakText = function(text) {
+    window.speakText = function(text, btn) {
       if (!('speechSynthesis' in window)) return;
+      const setOn = (on) => {
+        if (!btn) return;
+        btn.classList.toggle('text-blue-600', on);
+        btn.classList.toggle('bg-blue-50', on);
+        btn.setAttribute('aria-pressed', String(on));
+        btn.title = on ? 'Dinlemeyi durdur' : 'Metni dinle';
+        btn.setAttribute('aria-label', btn.title);
+      };
       if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
+        setOn(false);
         return;
       }
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'tr-TR';
+      utterance.onend = utterance.onerror = () => setOn(false);
+      setOn(true);
       window.speechSynthesis.speak(utterance);
     };
 
@@ -896,6 +907,7 @@
              btn('dislike', 'Beğenmedim', FB_ICON_DOWN, 'hover:!text-rose-600').replace('class="', 'aria-pressed="false" class="') +
              btn('copy', 'Kopyala', msgIcon('copy')) +
              btn('preview', 'Önizle / PDF', msgIcon('doc')) +
+             btn('speak', 'Metni dinle', msgIcon('speak')) +
              btn('more', 'Diğer', msgIcon('more')).replace('class="', 'aria-haspopup="menu" class="');
     }
 
@@ -1621,7 +1633,7 @@
       if (action === 'edit') startEditMessage(row);
       else if (action === 'preview') window.previewFullResponse(text);
       else if (action === 'copy') window.copyRawText(btn, text);
-      else if (action === 'speak') window.speakText(text);
+      else if (action === 'speak') window.speakText(text, btn);
       else if (action === 'more') openSharePopover(btn, text);
       else if (action === 'like') toggleFeedback(row, 'up');
       else if (action === 'dislike') toggleFeedback(row, 'down');
@@ -2784,17 +2796,6 @@
       const main = messages.parentElement;
       if (main && getComputedStyle(main).position === 'static') main.style.position = 'relative';
 
-      const float = document.createElement('button');
-      float.id = 'forgeSpeakFloat'; float.type = 'button';
-      float.title = 'Son yanıtı sesli dinle'; float.setAttribute('aria-label', 'Son yanıtı sesli dinle');
-      float.innerHTML = '<svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg>';
-      float.addEventListener('click', () => {
-        const rows = [...messages.querySelectorAll('.msg-row')];
-        const last = rows.reverse().find(r => r.querySelector('.prose'));
-        const prose = last && last.querySelector('.prose');
-        if (prose) window.speakText(prose.innerText || prose.textContent || '');
-      });
-      document.body.appendChild(float);
 
      
       // Sohbet kaydırma okları: Kaydırma yönüne göre yalnızca ilgili ok gösterilir.
