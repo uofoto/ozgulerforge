@@ -12,6 +12,9 @@ let favoritesOnly = false;
 let searchQuery = '';
 let sortMode = 'newest';
 let studioSelectionMode = false;
+const LISTENING_STATS_KEY = 'sescebi-listening-stats-v1';
+let listeningStats = readListeningStats();
+let listeningSession = null;
 let sleepTimerId = 0;
 const app = document.querySelector('#app');
 if (!app)
@@ -49,7 +52,7 @@ app.innerHTML = `
       <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
       <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Ses arşivi</span><span class="nav-count" id="nav-count">0</span></button>
       <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol">〽</span><span>Ses stüdyosu</span></button>
-      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 20</span></div>
+      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 22</span></div>
     </nav>
 
     <main>
@@ -59,6 +62,16 @@ app.innerHTML = `
           <article class="metric-card"><span class="metric-icon mint">♫</span><div><span class="metric-label">ARŞİVİNDE</span><strong id="stat-count">0</strong><small>ses kaydı</small></div><span class="metric-art art-lines"></span></article>
           <article class="metric-card"><span class="metric-icon lilac">♡</span><div><span class="metric-label">SEVDİKLERİN</span><strong id="stat-favorites">0</strong><small>favori kayıt</small></div><span class="metric-art art-orbit"></span></article>
           <article class="metric-card"><span class="metric-icon amber">◷</span><div><span class="metric-label">ARŞİV BOYUTU</span><strong id="stat-storage">0 B</strong><small>bu cihazda saklı</small></div><span class="metric-art art-bars"></span></article>
+        </section>
+        <section class="listening-stats" id="listening-stats-panel" aria-labelledby="listening-stats-title">
+          <div class="stats-heading"><div><p class="section-kicker">BU CİHAZDAKİ DİNLEME GEÇMİŞİN</p><h2 id="listening-stats-title">Dinleme özeti</h2><p>Seslerini nasıl kullandığını sadece sen görebilirsin.</p></div><span class="stats-local-badge"><i></i> YEREL İSTATİSTİK</span></div>
+          <div class="listening-stats-grid">
+            <article class="listen-stat-card"><span class="listen-stat-icon play-stat">▶</span><div><span class="listen-stat-label">TOPLAM ÇALMA</span><strong id="stat-play-count">0</strong><small>oynatma başlangıcı</small></div></article>
+            <article class="listen-stat-card"><span class="listen-stat-icon time-stat">◷</span><div><span class="listen-stat-label">DİNLEME SÜRESİ</span><strong id="stat-listen-time">0 sn</strong><small>aktif dinleme zamanı</small></div></article>
+            <article class="listen-stat-card"><span class="listen-stat-icon tracks-stat">♫</span><div><span class="listen-stat-label">FARKLI KAYIT</span><strong id="stat-unique-tracks">0</strong><small>dinlemeye başladığın ses</small></div></article>
+            <article class="listen-stat-card top-track-stat"><span class="listen-stat-icon top-stat">✦</span><div><span class="listen-stat-label">EN ÇOK DİNLENEN</span><strong id="stat-top-track">Henüz yok</strong><small id="stat-top-play-count">Bir ses çaldığında burada</small></div></article>
+          </div>
+          <p class="stats-footnote"><span aria-hidden="true">◈</span> İstatistikler bu tarayıcıda saklanır; Google hesabına veya sunucuya gönderilmez.</p>
         </section>
         <div class="home-workspace">
           <div class="home-primary">
@@ -74,7 +87,7 @@ app.innerHTML = `
             <div class="player" id="player" aria-live="polite"><div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div><div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div><div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip" id="mode-button" type="button">Sırayla çal</button><label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button></div></div>
             <section class="install-panel" aria-label="Ses Cebi uygulamasını yükle">
               <div class="install-mark" aria-hidden="true">${icons.cassette}</div>
-              <div class="install-copy"><span class="install-eyebrow">KİŞİSEL ARŞİVİN · HER AN YANINDA</span><strong>Ses Cebi, hep yanında.</strong><span>Uygulamayı cihazına ekle; ses arşivin tek dokunuşla açılsın.</span><small id="app-status">Sürüm 20 · İsteğe bağlı kurulum</small></div>
+              <div class="install-copy"><span class="install-eyebrow">KİŞİSEL ARŞİVİN · HER AN YANINDA</span><strong>Ses Cebi, hep yanında.</strong><span>Uygulamayı cihazına ekle; ses arşivin tek dokunuşla açılsın.</span><small id="app-status">Sürüm 21 · İsteğe bağlı kurulum</small></div>
               <div class="app-card-actions"><button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Uygulamayı yükle</span></button><button class="ghost-button" id="update-button" type="button"><span>Güncelle</span></button><button class="ghost-button" id="diag-button" type="button"><span>Durum</span></button></div>
             </section>
           </div>
@@ -154,6 +167,26 @@ app.innerHTML = `
   </div>
   <div class="toast" id="toast" role="status"></div>
 `;
+function placeListeningStatsPanel() {
+    const statsPanel = app.querySelector('#listening-stats-panel');
+    const sidebar = app.querySelector('.main-nav');
+    const homeScreen = app.querySelector('#screen-home');
+    const archiveSummary = homeScreen?.querySelector('.metric-row');
+    if (!statsPanel || !sidebar || !homeScreen || !archiveSummary)
+        return;
+    if (window.matchMedia('(min-width: 851px)').matches) {
+        const sidebarFooter = sidebar.querySelector('.sidebar-bottom');
+        if (sidebarFooter && statsPanel.parentElement !== sidebar)
+            sidebar.insertBefore(statsPanel, sidebarFooter);
+        statsPanel.classList.add('is-sidebar');
+        return;
+    }
+    if (statsPanel.parentElement !== homeScreen)
+        archiveSummary.after(statsPanel);
+    statsPanel.classList.remove('is-sidebar');
+}
+window.addEventListener('resize', placeListeningStatsPanel);
+placeListeningStatsPanel();
 const fileInput = get('file-input');
 const fileName = get('file-name');
 const consent = get('consent');
@@ -244,6 +277,64 @@ function formatSize(bytes) {
     if (bytes < 1024 * 1024)
         return `${Math.max(1, Math.round(bytes / 1024))} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+function readListeningStats() {
+    try {
+        const parsed = JSON.parse(window.localStorage.getItem(LISTENING_STATS_KEY) || '{}');
+        const tracks = Object.create(null);
+        if (parsed && parsed.tracks && typeof parsed.tracks === 'object') {
+            for (const [id, entry] of Object.entries(parsed.tracks)) {
+                if (!entry || typeof entry !== 'object') continue;
+                tracks[id] = { name: typeof entry.name === 'string' ? entry.name : 'Ses kaydı', plays: Math.max(0, Number(entry.plays) || 0), seconds: Math.max(0, Number(entry.seconds) || 0) };
+            }
+        }
+        return { tracks };
+    } catch { return { tracks: Object.create(null) }; }
+}
+function persistListeningStats() {
+    try { window.localStorage.setItem(LISTENING_STATS_KEY, JSON.stringify(listeningStats)); } catch { /* depolama kapalı olsa da oturum içi sayaçlar çalışır */ }
+    renderListeningStats();
+}
+function formatListeningTime(value) {
+    const seconds = Math.max(0, Math.floor(value));
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours) return `${hours} sa ${minutes} dk`;
+    if (minutes) return `${minutes} dk`;
+    return `${seconds} sn`;
+}
+function renderListeningStats() {
+    if (!document.querySelector('#stat-play-count')) return;
+    const entries = Object.entries(listeningStats.tracks);
+    const totalPlays = entries.reduce((sum, [, item]) => sum + item.plays, 0);
+    const totalSeconds = entries.reduce((sum, [, item]) => sum + item.seconds, 0);
+    const played = entries.filter(([, item]) => item.plays > 0);
+    const top = played.sort((a, b) => b[1].plays - a[1].plays || b[1].seconds - a[1].seconds)[0];
+    get('stat-play-count').textContent = String(totalPlays);
+    get('stat-listen-time').textContent = formatListeningTime(totalSeconds);
+    get('stat-unique-tracks').textContent = String(played.length);
+    get('stat-top-track').textContent = top ? (songs.find((song) => String(song.id) === top[0])?.name || top[1].name || 'Ses kaydı') : 'Henüz yok';
+    get('stat-top-play-count').textContent = top ? `${top[1].plays} kez çalındı` : 'Bir ses çaldığında burada';
+}
+function startListeningSession() {
+    if (!activeSong || listeningSession) return;
+    const id = String(activeSong.id);
+    const entry = listeningStats.tracks[id] || { name: activeSong.name, plays: 0, seconds: 0 };
+    entry.name = activeSong.name;
+    entry.plays += 1;
+    listeningStats.tracks[id] = entry;
+    listeningSession = { id, startedAt: performance.now() };
+    persistListeningStats();
+}
+function flushListeningSession(endSession = false) {
+    if (!listeningSession) return;
+    const now = performance.now();
+    const elapsed = Math.max(0, now - listeningSession.startedAt) / 1000;
+    const entry = listeningStats.tracks[listeningSession.id];
+    if (entry) entry.seconds += elapsed;
+    if (endSession) listeningSession = null;
+    else listeningSession.startedAt = now;
+    if (elapsed > 0) persistListeningStats();
 }
 function toast(message, error = false) {
     const node = get('toast');
@@ -532,6 +623,7 @@ function renderLibrary() {
     get('stat-count').textContent = String(songs.length);
     get('stat-favorites').textContent = String(songs.filter((song) => song.favorite).length);
     get('stat-storage').textContent = songs.length ? formatSize(songs.reduce((sum, song) => sum + (song.size || 0), 0)) : '0 B';
+    renderListeningStats();
     const recent = get('dashboard-recent');
     const recentSongs = [...songs].sort((a, b) => b.createdAt - a.createdAt).slice(0, 4);
     recent.innerHTML = recentSongs.map((song, index) => `<button class="recent-row" type="button" data-play-recent="${song.id}"><span class="recent-cover tone-${index % 4}">${icons.cassette}</span><span class="recent-track"><strong>${escapeHtml(song.name)}</strong><small>${formatTime(song.duration)} <i>·</i> ${formatSize(song.size)}</small></span><span class="recent-play">${icons.play}</span></button>`).join('');
@@ -1188,9 +1280,9 @@ get('forward-button').addEventListener('click', () => { audio.currentTime = Math
 seek.addEventListener('input', () => { audio.currentTime = Number(seek.value); updatePlayerUI(); });
 audio.addEventListener('timeupdate', updatePlayerUI);
 audio.addEventListener('loadedmetadata', updatePlayerUI);
-audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
-audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
-audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); void handleEnded(); });
+audio.addEventListener('play', () => { startListeningSession(); updatePlayerUI(); renderLibrary(); });
+audio.addEventListener('pause', () => { flushListeningSession(true); updatePlayerUI(); renderLibrary(); });
+audio.addEventListener('ended', () => { flushListeningSession(true); updatePlayerUI(); renderLibrary(); void handleEnded(); });
 // ---- v15: ad değiştirme ----
 const renameOverlay = get('rename-overlay');
 const renameInput = get('rename-input');
@@ -1358,6 +1450,8 @@ get('studio-open-library').addEventListener('click', () => {
   renderLibrary();
   document.querySelector('[data-screen="library"]').click();
 });
+window.addEventListener('pagehide', () => flushListeningSession(true));
+window.setInterval(() => flushListeningSession(false), 5000);
 get('studio-picker-cancel').addEventListener('click', () => {
   studioSelectionMode = false;
   get('studio-picker-banner').hidden = true;
@@ -1789,7 +1883,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '20';
+const APP_VERSION = '22';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
