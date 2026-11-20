@@ -78,9 +78,10 @@ app.innerHTML = `
           <div class="home-primary">
             <section class="card add-card" aria-labelledby="add-title">
               <div class="card-heading"><div><p class="section-kicker">YENİ KAYIT</p><h2 id="add-title">Arşivine ses ekle</h2><p>Bir dosya seç ya da izinli, doğrudan bir ses bağlantısı ekle.</p></div><span class="stamp"><i></i> CİHAZDA</span></div>
-              <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi"><button class="tab active" type="button" role="tab" aria-selected="true" data-tab="file">Dosya yükle</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="url">Bağlantıdan ekle</button></div>
+              <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi"><button class="tab active" type="button" role="tab" aria-selected="true" data-tab="file">Dosya yükle</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="url">Bağlantıdan ekle</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="x-video">X videosu</button></div>
               <div id="file-panel" role="tabpanel"><label class="file-drop" for="file-input"><span class="upload-icon">${icons.upload}</span><strong>Dosyanı buraya bırak veya <u>göz at</u></strong><span>MP3, M4A, WAV, OGG veya video · en fazla 100 MB</span><input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.mp4,.m4v,.mov,.webm,.mkv" /></label><p class="file-name" id="file-name" aria-live="polite">Henüz dosya seçilmedi</p></div>
               <div id="url-panel" class="url-panel" role="tabpanel" hidden><label class="sr-only" for="url-input">Doğrudan ses dosyası bağlantısı</label><input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" /><p class="url-hint">Herkese açık, doğrudan ses dosyası bağlantıları desteklenir.</p></div>
+              <div id="x-video-panel" class="x-video-panel" role="tabpanel" hidden><div class="x-video-intro"><span class="x-video-mark">X</span><div><strong>X gönderisinden video al</strong><span>Yalnızca herkese açık ve indirme hakkına sahip olduğun gönderiler desteklenir.</span></div></div><div class="x-video-form"><label class="sr-only" for="x-video-url">X gönderi bağlantısı</label><input class="text-input" id="x-video-url" type="url" inputmode="url" placeholder="https://x.com/kullanici/status/123…" autocomplete="off" /><button class="ghost-button" id="x-video-find" type="button">Videoyu bul</button></div><p class="x-video-status" id="x-video-status" role="status" aria-live="polite"></p><div class="x-video-results" id="x-video-results"></div></div>
               <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahibim veya izin aldım.</span></label>
               <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Arşive ekle</span></button>
               <div class="progress-wrap" id="progress-wrap" aria-live="polite"><div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div><progress id="progress" max="100" value="0">0%</progress></div>
@@ -123,7 +124,7 @@ app.innerHTML = `
       <div class="legal-grid">
         <section><span class="legal-index">01 / İÇERİK</span><h3>Kullanım ve telif</h3><p>Ses Cebi yalnızca sahip olduğunuz veya kullanma ve indirme izniniz bulunan içerikler için kullanılmalıdır. İçerik hakları ilgili sahiplerine aittir; izinsiz çoğaltma, dağıtma veya ticari kullanım kullanıcının sorumluluğundadır.</p></section>
         <section><span class="legal-index">02 / GİZLİLİK</span><h3>Gizlilik ve depolama</h3><p>Bu sürümde hesap oluşturulmaz. Eklediğiniz sesler tarayıcının yerel depolamasında tutulur. Tarayıcı verilerini temizlemek, uygulamayı kaldırmak veya cihaz depolamasının silinmesi kayıtların kaybolmasına neden olabilir.</p></section>
-        <section><span class="legal-index">03 / ERİŞİM</span><h3>Platform sınırları</h3><p>Uygulama Instagram’a giriş yapmaz; özel hesaplara, korumalı içeriğe veya platform kısıtlarını aşmaya yönelik erişim sağlamaz. Yalnızca herkese açık ve izinli doğrudan medya bağlantıları desteklenir.</p></section>
+        <section><span class="legal-index">03 / ERİŞİM</span><h3>Platform sınırları</h3><p>Uygulama X'e giriş yapmaz; özel hesaplara, korumalı içeriğe veya platform kısıtlarını aşmaya yönelik erişim sağlamaz. X videosu aracı yalnızca herkese açık ve indirme hakkına sahip olduğunuz gönderiler için kullanılmalıdır.</p></section>
       </div>
       <div class="legal-note"><span class="legal-note-mark" aria-hidden="true">i</span><p>Uygulamayı kullanarak yukarıdaki kullanım, telif ve depolama koşullarını kabul etmiş olursunuz. Yasal haklarınız ve yükümlülükleriniz için ilgili mevzuatı ve içerik sahibinin izin şartlarını ayrıca kontrol edin.</p></div>
       <div class="footer-bottom"><span>OZGULER FORGE <i>·</i> SES CEBİ</span><span>YEREL <i>·</i> KİŞİSEL <i>·</i> SANA AİT</span></div>
@@ -193,6 +194,11 @@ const fileName = get('file-name');
 const consent = get('consent');
 const addButton = get('add-button');
 const urlInput = get('url-input');
+const xVideoPanel = get('x-video-panel');
+const xVideoUrl = get('x-video-url');
+const xVideoFind = get('x-video-find');
+const xVideoStatus = get('x-video-status');
+const xVideoResults = get('x-video-results');
 const progressWrap = get('progress-wrap');
 const progress = get('progress');
 const progressLabel = get('progress-label');
@@ -364,7 +370,8 @@ function setProgress(label, value, visible = true) {
 }
 function updateAddButton() {
     const hasSource = activeTab === 'file' ? Boolean(selectedFile) : Boolean(urlInput.value.trim());
-    addButton.disabled = !consent.checked || !hasSource;
+    addButton.hidden = activeTab === 'x-video';
+    addButton.disabled = activeTab === 'x-video' || !consent.checked || !hasSource;
 }
 function switchTab(tab) {
     activeTab = tab;
@@ -375,6 +382,7 @@ function switchTab(tab) {
     });
     get('file-panel').hidden = tab !== 'file';
     get('url-panel').hidden = tab !== 'url';
+    xVideoPanel.hidden = tab !== 'x-video';
     updateAddButton();
 }
 function isBlockedHost(hostname) {
@@ -482,6 +490,151 @@ async function readUrlBlob(url) {
         throw new Error('Boş bir dosya alındı.');
     return normalizeAudioBlob(blob, declaredType);
 }
+const X_API = 'https://api.fxtwitter.com/status/';
+let xVideoVariants = [];
+function extractXId(raw) {
+    const value = String(raw || '').trim();
+    if (/^\d{8,25}$/.test(value)) return value;
+    return value.match(/\/(?:status|statuses)\/(\d{8,25})/i)?.[1] || '';
+}
+function safeXMedia(raw) {
+    try {
+        const url = new URL(raw);
+        return url.protocol === 'https:' && /(^|\.)twimg\.com$/i.test(url.hostname);
+    }
+    catch { return false; }
+}
+function xVariants(video) {
+    const raw = Array.isArray(video?.formats) ? video.formats : Array.isArray(video?.variants) ? video.variants : [];
+    const seen = new Set();
+    const result = [];
+    const add = (item) => {
+        const url = typeof item === 'string' ? item : item?.url;
+        if (!safeXMedia(url) || !/\.mp4(?:\?|$)/i.test(url) || seen.has(url)) return;
+        seen.add(url);
+        const size = url.match(/\/(\d{2,5})x(\d{2,5})\//);
+        result.push({ url, width: size ? Number(size[1]) : 0, height: size ? Number(size[2]) : 0, bitrate: Number(item?.bitrate) || 0 });
+    };
+    raw.forEach(add);
+    add(video?.url);
+    return result.sort((a, b) => Math.min(b.width || 0, b.height || 0) - Math.min(a.width || 0, a.height || 0) || b.bitrate - a.bitrate);
+}
+function setXVideoStatus(message, error = false) {
+    xVideoStatus.textContent = message;
+    xVideoStatus.classList.toggle('error', error);
+}
+function xQualityLabel(item, index) {
+    const quality = item.height || item.width;
+    return quality ? `${quality}p${item.bitrate ? ` · ${Math.round(item.bitrate / 1000)} kb/sn` : ''}` : (index ? `Seçenek ${index + 1}` : 'Varsayılan');
+}
+function renderXVideos(tweet) {
+    const tweets = [tweet, tweet?.quote].filter(Boolean);
+    xVideoVariants = tweets.flatMap((entry, tweetIndex) => ((entry.media?.videos || []).map((video) => ({ ...video, variants: xVariants(video), label: tweetIndex ? 'Alıntılanan gönderi' : '' })))).filter((video) => video.variants.length);
+    xVideoResults.replaceChildren();
+    if (!xVideoVariants.length) {
+        setXVideoStatus('Bu gönderide indirilebilir video bulunamadı.', true);
+        return;
+    }
+    setXVideoStatus(`${xVideoVariants.length} video bulundu. Kaliteyi seçip indir veya sesini arşive ekle.`);
+    xVideoVariants.forEach((video, index) => {
+        const card = document.createElement('article');
+        card.className = 'x-video-result';
+        const preview = document.createElement('video');
+        preview.controls = true;
+        preview.playsInline = true;
+        preview.preload = 'metadata';
+        preview.src = video.variants[0].url;
+        const meta = document.createElement('div');
+        meta.className = 'x-video-result-meta';
+        const title = document.createElement('strong');
+        title.textContent = video.label || `Video ${index + 1}`;
+        meta.append(title);
+        const select = document.createElement('select');
+        select.className = 'text-input';
+        select.dataset.xQuality = String(index);
+        video.variants.forEach((variant, qualityIndex) => select.add(new Option(xQualityLabel(variant, qualityIndex), String(qualityIndex))));
+        select.addEventListener('change', () => { preview.src = video.variants[Number(select.value)].url; });
+        meta.append(select);
+        const actions = document.createElement('div');
+        actions.className = 'x-video-actions';
+        const download = document.createElement('button');
+        download.className = 'primary-button'; download.type = 'button'; download.textContent = 'Videoyu indir'; download.dataset.xAction = 'download'; download.dataset.xIndex = String(index);
+        const archive = document.createElement('button');
+        archive.className = 'ghost-button'; archive.type = 'button'; archive.textContent = 'Sesi arşive ekle'; archive.dataset.xAction = 'archive'; archive.dataset.xIndex = String(index);
+        actions.append(download, archive);
+        card.append(preview, meta, actions);
+        xVideoResults.append(card);
+    });
+}
+async function fetchXVideoBlob(variant) {
+    const response = await fetch(variant.url, { mode: 'cors', referrerPolicy: 'no-referrer', credentials: 'omit' });
+    if (!response.ok) throw new Error(`Video sunucusu HTTP ${response.status} yanıtı verdi.`);
+    const blob = await response.blob();
+    if (!blob.size) throw new Error('Boş video dosyası alındı.');
+    if (blob.size > MAX_SIZE) throw new Error('Video 100 MB sınırını aşıyor.');
+    return new Blob([blob], { type: 'video/mp4' });
+}
+async function downloadXVideo(index) {
+    const video = xVideoVariants[index];
+    if (!video) return;
+    const select = xVideoResults.querySelector(`[data-x-quality="${index}"]`);
+    const variant = video.variants[Number(select?.value) || 0];
+    try {
+        setXVideoStatus('Video indiriliyor…');
+        const blob = await fetchXVideoBlob(variant);
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url; anchor.download = `ses-cebi-x-${Date.now()}.mp4`;
+        document.body.append(anchor); anchor.click(); anchor.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+        setXVideoStatus('Video indirildi.');
+        toast('X videosu cihazına indirildi.');
+    }
+    catch (error) { setXVideoStatus(error instanceof Error ? error.message : 'Video indirilemedi. Ağ veya CORS kısıtı olabilir.', true); }
+}
+async function archiveXVideoAudio(index) {
+    const video = xVideoVariants[index];
+    if (!video) return;
+    const select = xVideoResults.querySelector(`[data-x-quality="${index}"]`);
+    const variant = video.variants[Number(select?.value) || 0];
+    try {
+        setXVideoStatus('Video alınıyor ve sesi hazırlanıyor…');
+        const blob = await fetchXVideoBlob(variant);
+        const file = new File([blob], `x-video-${Date.now()}.mp4`, { type: 'video/mp4' });
+        const audioBlob = await extractVideoAudio(file);
+        const song = await createSong(audioBlob, `X video sesi ${new Date().toLocaleDateString('tr-TR')}.wav`, 'x-video');
+        await dbPut(song);
+        songs = [song, ...songs];
+        renderLibrary();
+        setXVideoStatus('Videonun sesi arşive eklendi.');
+        toast('X videosunun sesi arşive eklendi.');
+    }
+    catch (error) { setXVideoStatus(error instanceof Error ? error.message : 'Videonun sesi arşive eklenemedi.', true); }
+}
+async function findXVideos() {
+    const id = extractXId(xVideoUrl.value);
+    xVideoResults.replaceChildren(); xVideoVariants = [];
+    if (!id) { setXVideoStatus('Geçerli bir x.com veya twitter.com gönderi bağlantısı gir.', true); return; }
+    xVideoFind.disabled = true;
+    setXVideoStatus('X gönderisi okunuyor…');
+    try {
+        const response = await fetch(`${X_API}${id}`, { headers: { Accept: 'application/json' } });
+        if (!response.ok) throw new Error(response.status === 404 ? 'Gönderi bulunamadı; silinmiş veya gizli olabilir.' : `X servisi HTTP ${response.status} yanıtı verdi.`);
+        const data = await response.json();
+        if (!data?.tweet) throw new Error('Gönderi verisi alınamadı.');
+        renderXVideos(data.tweet);
+    }
+    catch (error) { setXVideoStatus(error instanceof Error ? error.message : 'X gönderisi okunamadı.', true); }
+    finally { xVideoFind.disabled = false; }
+}
+xVideoFind.addEventListener('click', () => void findXVideos());
+xVideoUrl.addEventListener('keydown', (event) => { if (event.key === 'Enter') { event.preventDefault(); void findXVideos(); } });
+xVideoResults.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-x-action]');
+    if (!button) return;
+    if (button.dataset.xAction === 'download') void downloadXVideo(Number(button.dataset.xIndex));
+    if (button.dataset.xAction === 'archive') void archiveXVideoAudio(Number(button.dataset.xIndex));
+});
 const VIDEO_EXT = /\.(mp4|m4v|mov|webm|mkv)$/i;
 function isVideoFile(file) {
     return file.type.startsWith('video/') || VIDEO_EXT.test(file.name);
@@ -728,7 +881,7 @@ function loadSong(song) {
     player.classList.add('visible');
     playerTitle.textContent = song.name;
     updateMediaSession();
-    playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : song.source === 'trim' ? 'Kesit' : 'Dosya'} · cihazda saklanıyor`;
+    playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : song.source === 'x-video' ? 'X videosundan alınan ses' : song.source === 'trim' ? 'Kesit' : 'Dosya'} · cihazda saklanıyor`;
     seek.value = '0';
     updatePlayerUI();
 }

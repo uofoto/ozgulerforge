@@ -10,6 +10,7 @@ ozguler forge tarafından geliştirilen, sesleri cihazda saklayan ve çevrimdı�
 - ZIP yedekleme ve geri yükleme (favori bilgisi dahil)
 - PWA kurulum ve çevrimdışı uygulama kabuğu
 - Açık/koyu tema
+- X videosu sekmesi: herkese açık gönderilerden video bulma, kalite seçme, videoyu indirme ve videonun sesini arşive ekleme
 
 ## Geliştirme ve derleme
 Node.js 20+ önerilir. Projede üçüncü taraf npm bağımlılığı yoktur.
@@ -27,6 +28,7 @@ npm run dev
 - Kesit dışa aktarma WAV'dır. MP3/M4A kodlama bu sürümde yoktur; kaynak dosyanın özgün biçimi indirme/paylaşmada korunur.
 - Video ses ayrıştırma tüm konteyner/kodekleri desteklemez. MP4/MOV içindeki standart AAC akışı doğrudan ayrıştırılabilir; diğer biçimler tarayıcının Web Audio çözücüsüne bağlıdır.
 - Arka plan ve kilit ekranı davranışı işletim sistemi/tarayıcı kısıtlarına bağlıdır.
+- X video çözümleme, herkese açık gönderiler için `api.fxtwitter.com` ve `*.twimg.com` adreslerine ihtiyaç duyar; gizli/kısıtlı içerik desteklenmez.
 - Hukuki metinler genel bilgilendirmedir; KVKK aydınlatma metni ve veri sorumlusu bilgileri işletmeci tarafından hukuk danışmanlığıyla tamamlanmalıdır.
 
 ## İletişim
