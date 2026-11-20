@@ -1,4 +1,4 @@
-const VERSION = 'kontak-v4';
+const VERSION = 'kontak-v1.2.0';
 const SHELL = ['./', 'index.html', 'styles.css', 'manifest.webmanifest', 'js/app.js', 'js/engine.js', 'js/formats.js', 'js/zip.js',
   'vendor/ffmpeg/index.js', 'vendor/ffmpeg/classes.js', 'vendor/ffmpeg/const.js', 'vendor/ffmpeg/errors.js', 'vendor/ffmpeg/utils.js', 'vendor/ffmpeg/types.js', 'vendor/ffmpeg/worker.js',
   'vendor/core/ffmpeg-core.js', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
