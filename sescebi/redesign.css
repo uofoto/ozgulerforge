@@ -441,3 +441,43 @@ body.modal-open{overflow:hidden}.overlay{position:fixed;inset:0;z-index:30;displ
 @media(max-width:700px) {
   .motion-toggle { width:33px; height:33px; margin-left:0; font-size:1.05rem; }
 }
+/* Güncelleme alanı ve daha güçlü okunabilirlik */
+.update-app-button { color:#245b49; border-color:#a9d4c0; background:#f0faf5; font-weight:750; }
+.update-app-button:hover:not(:disabled) { color:#124c39; background:#dcf4e8; border-color:#79bd9d; }
+.install-copy small { color:#426b5b; font-size:.62rem; font-weight:750; }
+.sidebar-version { color:#b8c9be; }
+:root:not([data-theme="dark"]) .install-copy > span:not(.install-eyebrow),
+:root:not([data-theme="dark"]) .install-copy small { color:#426b5b; }
+:root:not([data-theme="dark"]) .sidebar-version { color:#6e897d; }
+@media(max-width:700px) {
+  body { font-size:16px; }
+  .page-kicker, .section-kicker { font-size:.57rem; }
+  .page-subtitle { font-size:.84rem; line-height:1.6; }
+  .today-chip { font-size:.68rem; }
+  .metric-label { font-size:.54rem; }
+  .metric-card small { font-size:.63rem; }
+  .card-heading p:not(.section-kicker), .stats-heading p:not(.section-kicker) { font-size:.77rem; line-height:1.55; }
+  .card-heading h2, .aside-heading h2 { font-size:1.1rem; }
+  .tab { font-size:.76rem; }
+  .file-drop strong { font-size:.84rem; }
+  .file-drop > span:last-of-type, .file-name { font-size:.69rem; }
+  .url-hint, .consent { font-size:.72rem; }
+  .text-input { font-size:.8rem; }
+  .primary-button, .ghost-button { font-size:.78rem; }
+  .install-copy strong { font-size:.75rem; }
+  .install-copy span, .install-copy small { font-size:.65rem; line-height:1.4; }
+  .recent-track strong { font-size:.75rem; }
+  .recent-track small { font-size:.65rem; }
+  .library-count, .library-subtools { font-size:.7rem; }
+  .song-name { font-size:.84rem; }
+  .song-meta { font-size:.69rem; }
+  .song-created { font-size:.65rem; }
+  .stats-heading h2 { font-size:1rem; }
+  .stats-heading p:not(.section-kicker) { font-size:.68rem; }
+  .listen-stat-label { font-size:.48rem; }
+  .listen-stat-card strong { font-size:1.02rem; }
+  .listen-stat-card small { font-size:.56rem; }
+  .stats-footnote { font-size:.58rem; line-height:1.5; }
+  .x-video-intro span:not(.x-video-mark), .x-video-status { font-size:.7rem; }
+  .x-video-result-meta strong { font-size:.75rem; }
+}

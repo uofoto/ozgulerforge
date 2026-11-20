@@ -53,7 +53,7 @@ app.innerHTML = `
       <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
       <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Ses arşivi</span><span class="nav-count" id="nav-count">0</span></button>
       <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol nav-studio-icon">${icons.studio}</span><span>Ses stüdyosu</span></button>
-      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 22</span></div>
+      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 23</span></div>
     </nav>
 
     <main>
@@ -87,9 +87,9 @@ app.innerHTML = `
               <div class="progress-wrap" id="progress-wrap" aria-live="polite"><div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div><progress id="progress" max="100" value="0">0%</progress></div>
             </section>
             <div class="player" id="player" aria-live="polite"><div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div><div class="player-equalizer" id="player-equalizer" aria-label="Ses seviyesi görselleştirmesi" role="img"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div><div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip" id="mode-button" type="button">Sırayla çal</button><label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button></div></div>
-            <section class="install-panel" aria-label="Ses Cebi uygulamasını yükle">
+            <section class="install-panel" aria-label="Ses Cebi uygulaması ve güncelleme">
               <div class="install-mark" aria-hidden="true">${icons.cassette}</div>
-              <div class="install-copy"><span class="install-eyebrow">KİŞİSEL ARŞİVİN · HER AN YANINDA</span><strong>Ses Cebi, hep yanında.</strong><span>Uygulamayı cihazına ekle; ses arşivin tek dokunuşla açılsın.</span><small id="app-status">Sürüm 21 · İsteğe bağlı kurulum</small></div>
+              <div class="install-copy"><span class="install-eyebrow">KİŞİSEL ARŞİVİN · HER AN YANINDA</span><strong>Ses Cebi, hep yanında.</strong><span>Uygulamayı cihazına ekle; ses arşivin tek dokunuşla açılsın.</span><small id="app-status">Sürüm 23 · Güncel sürüm</small></div>
               <div class="app-card-actions"><button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Uygulamayı yükle</span></button><button class="ghost-button" id="update-button" type="button"><span>Güncelle</span></button><button class="ghost-button" id="diag-button" type="button"><span>Durum</span></button></div>
             </section>
           </div>
@@ -2106,7 +2106,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '22';
+const APP_VERSION = '23';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -2184,7 +2184,7 @@ async function checkForUpdates() {
     finally {
         updateButton.disabled = false;
         if (label)
-            label.textContent = 'Güncellemeleri denetle';
+        label.textContent = 'Güncelle';
     }
 }
 updateButton.addEventListener('click', () => void checkForUpdates());
