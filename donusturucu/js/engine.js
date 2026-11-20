@@ -3,17 +3,39 @@ import { FFmpeg } from '../vendor/ffmpeg/index.js';
 
 const CORE = new URL('../vendor/core/ffmpeg-core.js', import.meta.url).href;
 const WASM = new URL('../vendor/core/ffmpeg-core.wasm', import.meta.url).href;
+// Yerel wasm yoksa (32 MB, GitHub web yüklemesi 25 MB'ı geçemez) aynı sürümün CDN kopyası kullanılır.
+const WASM_CDN = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.9/dist/esm/ffmpeg-core.wasm';
+
+// Sunucu eksik dosya için 200 + HTML döndürebilir (SPA yedeği). Başlık sorgusuyla gerçek wasm olup olmadığına bakılır.
+export async function pickWasm() {
+  try {
+    const r = await fetch(WASM, { method: 'HEAD', cache: 'no-cache' });
+    if (r.ok && !/text\/html/i.test(r.headers.get('content-type') || '')) return { url: WASM, source: 'yerel' };
+  } catch {}
+  return { url: WASM_CDN, source: 'cdn' };
+}
 
 export class Engine {
   constructor() {
     this.ff = null; this.caps = null; this.sink = null; this.onProgress = null; this.mounts = new Set();
   }
 
-  async start() {
+  async boot(wasmURL) {
     this.ff = new FFmpeg();
     this.ff.on('log', e => { if (this.sink) this.sink.push(e); });
     this.ff.on('progress', p => { if (this.onProgress) this.onProgress(Math.max(0, Math.min(1, p.progress))); });
-    await this.ff.load({ coreURL: CORE, wasmURL: WASM });
+    await this.ff.load({ coreURL: CORE, wasmURL });
+  }
+
+  async start() {
+    if (!this.wasm) this.wasm = await pickWasm();
+    try { await this.boot(this.wasm.url); }
+    catch (e) {
+      if (this.wasm.source !== 'yerel') throw e;
+      try { this.ff.terminate(); } catch {}
+      this.wasm = { url: WASM_CDN, source: 'cdn' }; // yerel wasm bozuksa CDN'e geç
+      await this.boot(this.wasm.url);
+    }
     await this.ff.createDir('/out');
     this.mounts.clear();
   }

@@ -380,8 +380,12 @@ let badgeTimer = 0;
 async function offlineBadge() {
   clearTimeout(badgeTimer);
   try {
+    const n = $('#offline');
+    if (state.engine.wasm?.source === 'cdn') { // wasm CDN'den geldi; çevrimdışı çalışması için dosya sunucuya konmalı
+      n.dataset.state = 'wait'; n.textContent = 'Çevrimdışı değil · wasm CDN’den'; return;
+    }
     const hit = await caches.match(new URL('./vendor/core/ffmpeg-core.wasm', location.href).href);
-    const n = $('#offline'); n.dataset.state = hit ? 'ok' : 'wait';
+    n.dataset.state = hit ? 'ok' : 'wait';
     n.textContent = hit ? 'Çevrimdışı hazır' : 'Çevrimdışı için indiriliyor…';
     if (!hit) badgeTimer = setTimeout(offlineBadge, 3000);
   } catch {}
