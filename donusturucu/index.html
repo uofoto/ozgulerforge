@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kontak · kayıpsız resim ve video dönüştürücü</title>
-<meta name="description" content="Resim ve videoları cihazınızda, dosya yüklemeden, kayıpsız biçimler arasında dönüştürür ve sonucu bit-bit doğrular.">
+<title>Kontak · Kayıpsız Resim ve Video Dönüştürücü | Ozguler Forge</title>
+<meta name="description" content="Ozguler Forge tarafından geliştirilen Kontak; resim ve videoları cihazınızdan çıkarmadan kayıpsız dönüştürür ve sonucu bit-bit doğrular.">
+<meta name="author" content="Ozguler Forge">
 <meta name="theme-color" content="#e9edf2" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#10161d" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
@@ -13,10 +14,45 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<!-- 1. DÖNÜŞÜM HİZALAMA (SIGNATURE) AÇILIŞ EKRANI -->
+<div id="splash" class="splash" aria-hidden="true">
+  <div class="splash-inner">
+    <div id="splashMark" class="splash-mark">
+      <svg viewBox="0 0 32 32" width="76" height="76" aria-hidden="true">
+        <rect class="sq sq-1" x="2" y="2" width="12" height="12" rx="2.5" fill="var(--ink)"/>
+        <rect class="sq sq-2" x="18" y="2" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+        <rect class="sq sq-4" x="2" y="18" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+        <rect class="sq sq-3" x="18" y="18" width="12" height="12" rx="2.5" fill="var(--ink)"/>
+        <rect class="sheen" x="-16" y="0" width="12" height="32" fill="url(#sheenGrad)"/>
+        <defs>
+          <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.42"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="splash-text">
+      <strong>Kontak</strong>
+      <span>Ozguler Forge · Dönüştürücü</span>
+    </div>
+  </div>
+</div>
+
 <header class="top">
   <div class="brand">
-    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="2" fill="currentColor"/><rect x="18" y="2" width="12" height="12" rx="2" fill="var(--accent)"/><rect x="2" y="18" width="12" height="12" rx="2" fill="var(--accent)"/><rect x="18" y="18" width="12" height="12" rx="2" fill="currentColor"/></svg>
-    <span>Kontak</span>
+    <svg id="headerLogo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+      <rect x="2" y="2" width="12" height="12" rx="2.5" fill="currentColor"/>
+      <rect x="18" y="2" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+      <rect x="2" y="18" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+      <rect x="18" y="18" width="12" height="12" rx="2.5" fill="currentColor"/>
+    </svg>
+    <div class="brand-titles">
+      <span>Kontak</span>
+      <small>Ozguler Forge</small>
+    </div>
   </div>
   <div class="badges">
     <span id="engine" class="badge" data-state="busy" role="status">Motor yükleniyor…</span>
@@ -29,11 +65,11 @@
 <main>
   <section class="intro">
     <h1>Resim ve videoyu kayıpsız dönüştür.</h1>
-    <p>Dosyalar cihazından çıkmaz. Dönüştürme bittiğinde kaynak ile çıktının her karesi yeniden çözülüp karşılaştırılır; sonuç aşağıda gösterilir.</p>
+    <p>Dosyalar cihazından çıkmaz, hiçbir sunucuya yüklenmez. Dönüştürme bittiğinde kaynak ile çıktının her karesi yeniden çözülüp bit-bit karşılaştırılır.</p>
   </section>
 
   <section id="drop" class="drop" tabindex="0" aria-label="Dosya ekle">
-    <p><strong>Dosyaları buraya bırak</strong> ya da yapıştır</p>
+    <p><strong>Dosyaları buraya bırak</strong>, yapıştır (<kbd>Ctrl+V</kbd>) ya da seç</p>
     <label class="btn primary">Dosya seç<input id="file" type="file" multiple accept="image/*,video/*,.mkv,.avi,.mov,.ts,.mts,.m2ts,.flv,.wmv,.tif,.tiff,.bmp,.qoi,.tga,.pam,.ppm,.pgm,.pbm,.jp2,.j2k,.exr,.psd,.dds,.pcx,.avif,.heic,.heif,.jxl,.apng,.ico"></label>
   </section>
 
@@ -43,7 +79,11 @@
     <p id="targetNote" class="note"></p>
     <div class="opts">
       <label>Sıkıştırma çabası
-        <select id="effort"><option value="fast">Hızlı (dosya büyük)</option><option value="balanced" selected>Dengeli</option><option value="small">En küçük (yavaş)</option></select>
+        <select id="effort">
+          <option value="fast">Hızlı (dosya büyük)</option>
+          <option value="balanced" selected>Dengeli</option>
+          <option value="small">En küçük (yavaş)</option>
+        </select>
       </label>
       <label class="check"><input id="verify" type="checkbox" checked> Sonucu bit-bit doğrula</label>
     </div>
@@ -59,18 +99,180 @@
   <p id="empty" class="empty">Henüz dosya yok. Bir resim ya da video ekleyince burada görünür.</p>
   <ul id="list" class="list"></ul>
 
+  <!-- NASIL KULLANILIR REHBERİ -->
+  <section class="guide" aria-labelledby="h-guide">
+    <h2 id="h-guide">Nasıl Kullanılır?</h2>
+    <div class="guide-grid">
+      <div class="guide-step">
+        <span class="step-num">1</span>
+        <h3>Dosyalarını Ekle</h3>
+        <p>Resim veya video dosyalarını alana sürükle, panodan yapıştır ya da "Dosya seç" ile cihazından belirle.</p>
+      </div>
+      <div class="guide-step">
+        <span class="step-num">2</span>
+        <h3>Biçim ve Çabayı Seç</h3>
+        <p>Hedef formatı (PNG, WebP, FFV1, H.264 vb.) ve sıkıştırma çabasını seç. Bit-bit doğrulamayı açık tut.</p>
+      </div>
+      <div class="guide-step">
+        <span class="step-num">3</span>
+        <h3>Dönüştür ve Doğrula</h3>
+        <p>İşlem tamamen tarayıcı belleğinde tamamlanır; kare özetleri (MD5) eşleştiğinde dosyanı tek tıkla indir.</p>
+      </div>
+    </div>
+  </section>
+
   <details class="fine">
-    <summary>Kayıpsız ne demek, nelere dikkat etmeli?</summary>
+    <summary>Kayıpsız ne demek, teknik sınırlar ve dikkat edilmesi gerekenler</summary>
     <ul>
-      <li>Çıktı, kaynağın <em>çözülmüş</em> piksellerini birebir saklar. JPEG gibi kayıplı bir kaynağın kaybı geri gelmez, yalnızca yeni kayıp eklenmez.</li>
-      <li>Ses mümkünse olduğu gibi kopyalanır. Kapsayıcı izin vermezse kayıpsız ses (ALAC, PCM) seçilir. WebM yalnız Opus/Vorbis kabul ettiği için orada ses yeniden kodlanır.</li>
-      <li>ICC renk profili ve EXIF bilgisi resimlere taşınmaz; video üst verisi taşınır.</li>
-      <li>Kayıpsız H.264 (High 4:4:4 Predictive) her oynatıcıda açılmaz; VLC ve mpv açar. Evrensel uyum için FFV1 ya da PNG daha güvenlidir.</li>
-      <li>Çıktı tarayıcı belleğinde üretilir; yaklaşık 2 GB üstü işler başarısız olabilir.</li>
-      <li>HEIC, AVIF ve JPEG XL için tarayıcının kendi çözücüsü denenir (8 bit sRGB).</li>
+      <li><strong>Çözülmüş piksel birebirliği:</strong> Çıktı, kaynağın çözülmüş piksellerini birebir korur. JPEG gibi önceden kayıplı sıkıştırılmış bir dosyanın eski kaybı geri gelmez; yalnızca yeni kayıp eklenmez.</li>
+      <li><strong>Ses akışı:</strong> Mümkünse olduğu gibi kopyalanır. Kapsayıcı izin vermezse kayıpsız ses (ALAC, PCM) seçilir. WebM çıktısında yalnızca Opus/Vorbis desteklendiği için ses yeniden kodlanır.</li>
+      <li><strong>Üst veri (Metadata):</strong> ICC renk profili ve EXIF bilgisi resimlere taşınmaz; video üst verileri korunur.</li>
+      <li><strong>Oynatıcı uyumluluğu:</strong> Kayıpsız H.264 (High 4:4:4 Predictive) her standart oynatıcıda açılmaz; VLC ve mpv sorunsuz açar. Arşivleme için MKV·FFV1 veya PNG önerilir.</li>
+      <li><strong>Bellek sınırı:</strong> İşlemler tarayıcı belleğinde (WebAssembly) yürütülür; yaklaşık 2 GB üzerindeki tekil dosyalar cihaz RAM kapasitesine bağlı olarak başarısız olabilir.</li>
+      <li><strong>Modern resim biçimleri:</strong> HEIC, AVIF ve JPEG XL girdileri için tarayıcının yerleşik çözücüsü kullanılır (8 bit sRGB).</li>
+      <li><strong>Çevrimdışı çalışma:</strong> İlk açılışta 32 MB boyutundaki FFmpeg çekirdeği önbelleğe alınır; sonrasında internet bağlantısı olmadan kullanılabilir.</li>
     </ul>
   </details>
 </main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Kontak — Kayıpsız Medya Dönüştürücü</strong>
+      <span>Sürüm <code id="appVersion">v1.2.0</code> · FFmpeg 5.1.4 (WASM 0.12)</span>
+      <p>Geliştirici: <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Ozguler Forge</a> · İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
+    </div>
+    <nav class="footer-links" aria-label="Yasal metinler">
+      <button type="button" class="link-btn" data-modal="privacy">Gizlilik Politikası</button>
+      <button type="button" class="link-btn" data-modal="kvkk">KVKK Aydınlatma Metni</button>
+      <button type="button" class="link-btn" data-modal="terms">Kullanım Koşulları</button>
+      <button type="button" class="link-btn" data-modal="licenses">Açık Kaynak Lisansları</button>
+    </nav>
+    <p class="copyright">© 2026 Ozguler Forge (ozgulerforge.com.tr). Tüm hakları saklıdır.</p>
+  </div>
+</footer>
+
+<!-- YASAL METİNLER MODALI -->
+<dialog id="legalModal" class="modal" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <header class="modal-head">
+      <h2 id="modalTitle">Yasal Bilgilendirme</h2>
+      <button type="button" id="closeModal" class="x" aria-label="Pencereyi kapat">×</button>
+    </header>
+    <div id="modalBody" class="modal-body"></div>
+    <footer class="modal-foot">
+      <button type="button" id="closeModalBtn" class="btn primary small">Anladım</button>
+    </footer>
+  </div>
+</dialog>
+
+<script>
+// 1. DÖNÜŞÜM HİZALAMA (SIGNATURE) AÇILIŞ KOREOGRAFİSİ & HEDEF LOGOYA KENETLENME
+(function initSignatureSplash() {
+  const splash = document.getElementById('splash');
+  const mark = document.getElementById('splashMark');
+  const targetLogo = document.getElementById('headerLogo');
+  if (!splash || !mark || !targetLogo) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) {
+    splash.remove();
+    return;
+  }
+
+  // Koreografi tamamlandıktan sonra üst menüdeki logoya uçarak kenetlenir
+  setTimeout(() => {
+    const startRect = mark.getBoundingClientRect();
+    const endRect = targetLogo.getBoundingClientRect();
+
+    if (endRect.width > 0 && startRect.width > 0) {
+      const dx = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+      const dy = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+      const scale = endRect.width / startRect.width;
+
+      mark.style.transition = 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease';
+      mark.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    }
+
+    splash.classList.add('is-leaving');
+    setTimeout(() => splash.remove(), 560);
+  }, 1150);
+})();
+
+// YASAL METİNLER VERİSİ VE MODAL KONTROLÜ
+(function initLegalModals() {
+  const modal = document.getElementById('legalModal');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  const closeTop = document.getElementById('closeModal');
+  const closeBottom = document.getElementById('closeModalBtn');
+
+  const LEGAL_DOCS = {
+    privacy: {
+      title: 'Gizlilik Politikası',
+      html: `
+        <p><strong>Son Güncelleme:</strong> 2026 · <strong>Sorumlu:</strong> Ozguler Forge (<a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr</a>)</p>
+        <h3>1. Sıfır Sunucu Aktarımı İlkesi</h3>
+        <p>Kontak uygulamasında dönüştürmek üzere seçtiğiniz hiçbir resim, video veya ses dosyası cihazınızdan dışarı çıkarılmaz; Ozguler Forge sunucularına veya üçüncü taraf bulut sistemlerine yüklenmez. Tüm medya işleme süreçleri WebAssembly teknolojisi ile doğrudan tarayıcınızın yerel belleğinde gerçekleşir.</p>
+        <h3>2. Toplanan Veriler ve Çerezler</h3>
+        <p>Uygulama kullanıcı hesabı oluşturmaz, kimlik bilgisi talep etmez ve reklam/izleme çerezi kullanmaz. Uygulamanın çevrimdışı çalışabilmesi (PWA) amacıyla yalnızca arayüz dosyaları ve FFmpeg motoru tarayıcınızın yerel önbelleğinde (Cache Storage) saklanır.</p>
+        <h3>3. İletişim</h3>
+        <p>Gizlilik politikamıza ilişkin sorularınız için <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> adresinden bizimle iletişime geçebilirsiniz.</p>
+      `
+    },
+    kvkk: {
+      title: 'KVKK Aydınlatma Metni',
+      html: `
+        <p><strong>Veri Sorumlusu:</strong> Ozguler Forge · <strong>Web:</strong> ozgulerforge.com.tr · <strong>E-posta:</strong> iletisim@ozgulerforge.com.tr</p>
+        <h3>1. İşlenen Kişisel Veriler ve Amaç</h3>
+        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca Kontak uygulaması, tasarım gereği yerel işlem (client-side) mimarisiyle çalışır. Uygulamaya aktardığınız görsel ve işitsel dosyalar tarafımızca toplanmaz, kaydedilmez ve işlenmez.</p>
+        <h3>2. Teknik Erişim Kayıtları</h3>
+        <p>Uygulamanın barındırıldığı statik sunucu altyapısında yalnızca bilgi güvenliğinin sağlanması ve hizmet sürekliliği amacıyla anonim bağlantı günlükleri (IP adresi, tarayıcı sürümü, erişim zamanı) 5651 sayılı Kanun kapsamındaki yasal yükümlülükler doğrultusunda sınırlı süreyle tutulabilir.</p>
+        <h3>3. İlgili Kişinin Hakları</h3>
+        <p>KVKK'nın 11. maddesi kapsamındaki taleplerinizi yazılı olarak <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> e-posta adresi üzerinden iletebilirsiniz.</p>
+      `
+    },
+    terms: {
+      title: 'Kullanım Koşulları',
+      html: `
+        <p><strong>Hizmet Sağlayıcı:</strong> Ozguler Forge (ozgulerforge.com.tr)</p>
+        <h3>1. Hizmetin Kapsamı</h3>
+        <p>Kontak, kullanıcıların kendi cihazlarındaki medya dosyalarını kayıpsız veya seçilen formatlarda dönüştürmelerine ve kare özetlerini doğrulamalarına olanak tanıyan ücretsiz bir web uygulamasıdır.</p>
+        <h3>2. Kullanıcı Sorumluluğu</h3>
+        <p>Kullanıcı, uygulamada işlediği tüm içeriklerin telif haklarına, fikri mülkiyet kurallarına ve yürürlükteki mevzuata uygun olduğunu kabul eder. Dönüştürülen dosyaların yedeklenmesi kullanıcının sorumluluğundadır.</p>
+        <h3>3. Sorumluluk Sınırı</h3>
+        <p>Uygulama "olduğu gibi" sunulmaktadır. Tarayıcı bellek sınırları, donanım yetersizlikleri veya üçüncü taraf oynatıcı uyumsuzluklarından kaynaklanabilecek veri kayıplarından Ozguler Forge sorumlu tutulamaz. Fikri mülkiyet ve arayüz hakları Ozguler Forge'a aittir.</p>
+      `
+    },
+    licenses: {
+      title: 'Açık Kaynak Lisansları ve Sürüm Bilgisi',
+      html: `
+        <p><strong>Uygulama Sürümü:</strong> Kontak v1.2.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
+        <ul>
+          <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği kullanılmaktadır.</li>
+          <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak olarak sunulmaktadır.</li>
+          <li><strong>Uygulama Arayüzü ve Doğrulama Motoru:</strong> Ozguler Forge tarafından geliştirilmiştir. Hata bildirimi ve öneriler için: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></li>
+        </ul>
+      `
+    }
+  };
+
+  document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const doc = LEGAL_DOCS[btn.dataset.modal];
+      if (!doc || !modal) return;
+      title.textContent = doc.title;
+      body.innerHTML = doc.html;
+      modal.showModal();
+    });
+  });
+
+  const close = () => modal && modal.close();
+  closeTop?.addEventListener('click', close);
+  closeBottom?.addEventListener('click', close);
+  modal?.addEventListener('click', e => { if (e.target === modal) close(); });
+})();
+</script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>
