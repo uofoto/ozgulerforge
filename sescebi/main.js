@@ -57,7 +57,7 @@ app.innerHTML = `
 
     <main>
       <section class="screen-view active" id="screen-home">
-        <div class="page-heading"><div><p class="page-kicker">KİŞİSEL SES ALANIN</p><h1>Kendi ses evrenin, <em>kendi sınırlarında.</em></h1><p class="page-subtitle">Kaydet, düzenle ve kendi arşivinden dinle. Her şey bu cihazda kalır.</p></div><span class="today-chip"><i></i> Çevrimdışı kullanıma hazır</span></div>
+        <div class="page-heading"><div><p class="page-kicker">KİŞİSEL SES ALANIN</p><h1>Seslerini, <em>özgürce.</em></h1><p class="page-subtitle">Kaydet, düzenle ve kendi arşivinden dinle. Her şey bu cihazda kalır.</p></div><span class="today-chip"><i></i> Çevrimdışı kullanıma hazır</span></div>
         <section class="metric-row" aria-label="Arşiv özeti">
           <article class="metric-card"><span class="metric-icon mint">♫</span><div><span class="metric-label">ARŞİVİNDE</span><strong id="stat-count">0</strong><small>ses kaydı</small></div><span class="metric-art art-lines"></span></article>
           <article class="metric-card"><span class="metric-icon lilac">♡</span><div><span class="metric-label">SEVDİKLERİN</span><strong id="stat-favorites">0</strong><small>favori kayıt</small></div><span class="metric-art art-orbit"></span></article>
@@ -883,7 +883,8 @@ function canShareFile(file) {
 }
 async function shareFile(file, title) {
     if (!canShareFile(file)) {
-        toast('Bu tarayıcı dosya paylaşmayı desteklemiyor. Dosyayı indirip mail veya Drive içinden ekleyebilirsin.', true);
+        toast('Bu cihaz doğrudan dosya paylaşımını desteklemiyor; dosya indiriliyor. İndirdikten sonra Mail veya Drive ile paylaşabilirsin.');
+        await saveFile(file, true);
         return;
     }
     if (file.size > 25 * 1024 * 1024)
@@ -892,8 +893,10 @@ async function shareFile(file, title) {
         await navigator.share({ files: [file], title });
     }
     catch (error) {
-        if (!(error && error.name === 'AbortError'))
-            toast('Paylaşım penceresi açılamadı.', true);
+        if (error && error.name === 'AbortError')
+            return;
+        toast('Mobil paylaşım açılamadı; dosya indiriliyor. İndirdikten sonra Mail veya Drive ile paylaşabilirsin.');
+        await saveFile(file, true);
     }
 }
 async function shareSong(song) {
@@ -906,7 +909,7 @@ async function shareSong(song) {
         return;
     }
     if (!canShareFile(file)) {
-        toast('Bu tarayıcı doğrudan paylaşmayı desteklemiyor; dosya indiriliyor. İndirince mail veya Drive içinden ekleyebilirsin.', true);
+        toast('Bu cihaz doğrudan dosya paylaşımını desteklemiyor; dosya indiriliyor. İndirdikten sonra Mail veya Drive ile paylaşabilirsin.');
         await downloadSong(song);
         return;
     }
