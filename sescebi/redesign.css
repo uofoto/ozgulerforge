@@ -304,3 +304,14 @@ body.modal-open{overflow:hidden}.overlay{position:fixed;inset:0;z-index:30;displ
   .stats-heading-actions { align-items:flex-end; flex-direction:column; gap:6px; }
   .stats-toggle { min-height:28px; }
 }
+
+/* Şarkı detay/işlem menüsü: body portalı olarak tüm kartların üstünde açılır. */
+.song-more-actions.menu-portal {
+  position:fixed;
+  z-index:2000;
+  top:auto;
+  right:auto;
+  max-height:calc(100vh - 24px);
+  overflow:auto;
+  box-shadow:0 18px 42px rgba(24,42,33,.22);
+}

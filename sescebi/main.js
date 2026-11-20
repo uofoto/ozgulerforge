@@ -628,6 +628,7 @@ function resetSource() {
     updateAddButton();
 }
 function renderLibrary() {
+    document.querySelectorAll('.song-more-actions.menu-portal').forEach((menu) => menu.remove());
     const search = searchQuery.trim().toLocaleLowerCase('tr');
     let visibleSongs = songs.filter((song) => (!favoritesOnly || song.favorite) && (!search || song.name.toLocaleLowerCase('tr').includes(search)));
     visibleSongs = [...visibleSongs].sort((a, b) => sortMode === 'oldest' ? a.createdAt - b.createdAt : sortMode === 'az' ? a.name.localeCompare(b.name, 'tr') : sortMode === 'duration' ? (b.duration || 0) - (a.duration || 0) : b.createdAt - a.createdAt);
@@ -661,6 +662,7 @@ function renderLibrary() {
         if (!song) return;
         const studioButton = row.querySelector('.studio-select-row');
         const rowActions = row.querySelector('.song-actions');
+        const actionMenu = row.querySelector('.song-more-actions');
         rowActions?.classList.toggle('studio-picking', studioSelectionMode);
         row.querySelectorAll('.favorite-row, .play-row, .more-row').forEach((control) => { control.hidden = studioSelectionMode; });
         if (studioButton) studioButton.hidden = !studioSelectionMode;
@@ -669,19 +671,28 @@ function renderLibrary() {
         row.querySelector('.play-row')?.addEventListener('click', () => toggleSong(song));
         row.querySelector('.more-row')?.addEventListener('click', (event) => {
             const button = event.currentTarget;
-            const menu = row.querySelector('.song-more-actions');
+            const menu = actionMenu;
             const open = menu.hidden;
+            document.querySelectorAll('.song-more-actions.menu-portal').forEach((openMenu) => openMenu.remove());
             document.querySelectorAll('.song-row.menu-open').forEach((openRow) => {
-                if (openRow !== row) {
-                    openRow.classList.remove('menu-open');
-                    const openMenu = openRow.querySelector('.song-more-actions');
-                    const openButton = openRow.querySelector('.more-row');
-                    if (openMenu) openMenu.hidden = true;
-                    openButton?.setAttribute('aria-expanded', 'false');
-                }
+                openRow.classList.remove('menu-open');
+                openRow.querySelector('.more-row')?.setAttribute('aria-expanded', 'false');
             });
-            menu.hidden = !open;
-            row.classList.toggle('menu-open', open);
+            if (open) {
+                const rect = button.getBoundingClientRect();
+                document.body.appendChild(menu);
+                menu.classList.add('menu-portal');
+                menu.hidden = false;
+                menu.style.top = `${Math.min(window.innerHeight - 12, rect.bottom + 6)}px`;
+                menu.style.left = `${Math.max(12, Math.min(window.innerWidth - menu.offsetWidth - 12, rect.right - menu.offsetWidth))}px`;
+                row.classList.add('menu-open');
+            }
+            else {
+                rowActions?.appendChild(menu);
+                menu.classList.remove('menu-portal');
+                menu.hidden = true;
+                row.classList.remove('menu-open');
+            }
             button.setAttribute('aria-expanded', String(open));
         });
         row.querySelector('.rename-row')?.addEventListener('click', () => openRename(song));
