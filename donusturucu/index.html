@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kontak · Kayıpsız Resim ve Video Dönüştürücü | Ozguler Forge</title>
-<meta name="description" content="Ozguler Forge tarafından geliştirilen Kontak; resim ve videoları cihazınızdan çıkarmadan kayıpsız dönüştürür ve sonucu bit-bit doğrular.">
+<title>Kontak Studio · Kayıpsız Resim ve Video Dönüştürücü | Ozguler Forge</title>
+<meta name="description" content="Ozguler Forge tarafından geliştirilen Kontak Studio; resim ve videoları cihazınızdan çıkarmadan kayıpsız dönüştürür ve sonucu bit-bit doğrular.">
 <meta name="author" content="Ozguler Forge">
-<meta name="theme-color" content="#e9edf2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#10161d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eef2f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#090c10" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -15,7 +15,7 @@
 </head>
 <body>
 
-<!-- 1. DÖNÜŞÜM HİZALAMA (SIGNATURE) AÇILIŞ EKRANI -->
+<!-- SIGNATURE SPLASH -->
 <div id="splash" class="splash" aria-hidden="true">
   <div class="splash-inner">
     <div id="splashMark" class="splash-mark">
@@ -28,63 +28,84 @@
         <defs>
           <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
-            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.42"/>
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.45"/>
             <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
           </linearGradient>
         </defs>
       </svg>
     </div>
     <div class="splash-text">
-      <strong>Kontak</strong>
-      <span>Ozguler Forge · Dönüştürücü</span>
+      <strong>Kontak Studio</strong>
+      <span>Ozguler Forge · Zero-Loss Media Engine</span>
     </div>
   </div>
 </div>
 
 <header class="top">
   <div class="brand">
-    <svg id="headerLogo" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
+    <svg id="headerLogo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
       <rect x="2" y="2" width="12" height="12" rx="2.5" fill="currentColor"/>
       <rect x="18" y="2" width="12" height="12" rx="2.5" fill="var(--accent)"/>
       <rect x="2" y="18" width="12" height="12" rx="2.5" fill="var(--accent)"/>
       <rect x="18" y="18" width="12" height="12" rx="2.5" fill="currentColor"/>
     </svg>
     <div class="brand-titles">
-      <span>Kontak</span>
+      <strong>Kontak Studio</strong>
       <small>Ozguler Forge</small>
     </div>
   </div>
 
-  <!-- js/app.js uyumluluğu için arka planda gizli tutulur -->
-  <span id="engine" hidden></span>
-  <span id="offline" hidden></span>
+  <div class="telemetry" aria-live="polite">
+    <span id="engine" class="pill" data-state="busy"><i class="dot"></i><span>Motor hazırlanıyor…</span></span>
+    <span id="offline" class="pill" data-state="wait"><i class="dot"></i><span>Çevrimdışı kontrol ediliyor…</span></span>
+  </div>
 
   <div class="top-actions">
     <button id="install" type="button" class="btn small primary">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       <span>Uygulamayı İndir</span>
     </button>
     <button id="checkUpdate" type="button" class="btn small">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      <span>Güncellemeleri Kontrol Et</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      <span>Güncelle</span>
     </button>
-    <button id="update" type="button" class="btn small primary" hidden>Yeni Sürüm Var · Yükle</button>
+    <button id="update" type="button" class="btn small primary" hidden>Yeni Sürüm · Yükle</button>
   </div>
 </header>
 
 <main>
   <section class="intro">
-    <h1>Resim ve videoyu kayıpsız dönüştür.</h1>
-    <p>Dosyalar cihazından çıkmaz, hiçbir sunucuya yüklenmez. Dönüştürme bittiğinde kaynak ile çıktının her karesi yeniden çözülüp bit-bit karşılaştırılır.</p>
+    <div>
+      <h1>Piksel kaybı olmadan <span class="hl">stüdyo dönüşümü.</span></h1>
+      <p>Dosyalar cihazından çıkmaz, hiçbir sunucuya yüklenmez. Dönüştürme bittiğinde kaynak ile çıktının her karesi yeniden çözülüp bit-bit doğrulanır.</p>
+    </div>
+    <div class="hero-badges">
+      <span class="hbadge">100% Yerel WASM</span>
+      <span class="hbadge">Bit-Bit MD5 Doğrulama</span>
+      <span class="hbadge">Toplu ZIP</span>
+    </div>
   </section>
 
   <section id="drop" class="drop" tabindex="0" aria-label="Dosya ekle">
-    <p><strong>Dosyaları buraya bırak</strong>, yapıştır (<kbd>Ctrl+V</kbd>) ya da seç</p>
-    <label class="btn primary">Dosya seç<input id="file" type="file" multiple accept="image/*,video/*,.mkv,.avi,.mov,.ts,.mts,.m2ts,.flv,.wmv,.tif,.tiff,.bmp,.qoi,.tga,.pam,.ppm,.pgm,.pbm,.jp2,.j2k,.exr,.psd,.dds,.pcx,.avif,.heic,.heif,.jxl,.apng,.ico"></label>
+    <p><strong>Dosyaları buraya bırak</strong>, panodan yapıştır (<kbd>Ctrl+V</kbd>) ya da seç</p>
+    <label class="btn primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>Dosya seç</span>
+      <input id="file" type="file" multiple accept="image/*,video/*,.mkv,.avi,.mov,.ts,.mts,.m2ts,.flv,.wmv,.tif,.tiff,.bmp,.qoi,.tga,.pam,.ppm,.pgm,.pbm,.jp2,.j2k,.exr,.psd,.dds,.pcx,.avif,.heic,.heif,.jxl,.apng,.ico">
+    </label>
+    <p class="sub-hint">Resim (PNG, WebP, TIFF, JP2, BMP, QOI, HEIC, AVIF) · Video (MP4, MKV, MOV, AVI) · Hareketli (APNG, GIF) · Kare Dizisi</p>
   </section>
 
   <section class="panel" aria-labelledby="h-target">
-    <h2 id="h-target">Hedef biçim</h2>
+    <div class="panel-top">
+      <h2 id="h-target">Hedef biçim ve profil</h2>
+      <div id="presets" class="presets" role="group" aria-label="Hızlı profiller">
+        <button type="button" class="preset" data-preset="archive">Arşiv · Bit-Bit Kayıpsız</button>
+        <button type="button" class="preset" data-preset="web-lossless">Web · Kayıpsız Hızlı</button>
+        <button type="button" class="preset" data-preset="frames">Kare Ayıkla · PNG ZIP</button>
+        <button type="button" class="preset" data-preset="anim">Hareketli · APNG</button>
+      </div>
+    </div>
     <div id="targets"></div>
     <p id="targetNote" class="note"></p>
     <div class="opts">
@@ -95,7 +116,7 @@
           <option value="small">En küçük (yavaş)</option>
         </select>
       </label>
-      <label class="check"><input id="verify" type="checkbox" checked> Sonucu bit-bit doğrula</label>
+      <label class="check"><input id="verify" type="checkbox" checked> Sonucu bit-bit doğrula (MD5)</label>
     </div>
   </section>
 
@@ -106,27 +127,28 @@
     <button id="clear" class="btn ghost" hidden>Listeyi temizle</button>
   </section>
 
-  <p id="empty" class="empty">Henüz dosya yok. Bir resim ya da video ekleyince burada görünür.</p>
+  <div id="batchBar" class="batch-bar" hidden></div>
+
+  <p id="empty" class="empty">Henüz dosya yok. Bir resim ya da video ekleyince kuyruk burada açılır.</p>
   <ul id="list" class="list"></ul>
 
-  <!-- NASIL KULLANILIR REHBERİ -->
   <section class="guide" aria-labelledby="h-guide">
     <h2 id="h-guide">Nasıl Kullanılır?</h2>
     <div class="guide-grid">
       <div class="guide-step">
         <span class="step-num">1</span>
         <h3>Dosyalarını Ekle</h3>
-        <p>Resim veya video dosyalarını alana sürükle, panodan yapıştır ya da "Dosya seç" ile cihazından belirle.</p>
+        <p>Resim veya video dosyalarını alana sürükle, <kbd>Ctrl+V</kbd> ile yapıştır ya da "Dosya seç" ile cihazından belirle.</p>
       </div>
       <div class="guide-step">
         <span class="step-num">2</span>
-        <h3>Biçim ve Çabayı Seç</h3>
-        <p>Hedef formatı (PNG, WebP, FFV1, H.264 vb.) ve sıkıştırma çabasını seç. Bit-bit doğrulamayı açık tut.</p>
+        <h3>Profil ve Çabayı Seç</h3>
+        <p>Hızlı profillerden veya format etiketlerinden hedefi seç; sıkıştırma çabasını ve bit-bit doğrulamayı ayarla.</p>
       </div>
       <div class="guide-step">
         <span class="step-num">3</span>
-        <h3>Dönüştür ve Doğrula</h3>
-        <p>İşlem tamamen tarayıcı belleğinde tamamlanır; kare özetleri (MD5) eşleştiğinde dosyanı tek tıkla indir.</p>
+        <h3>Dönüştür, Kıyasla ve İndir</h3>
+        <p>İşlem tamamen tarayıcı belleğinde tamamlanır; kare özetlerini incele, önce/sonra kıyasla ve tek tek veya ZIP indir.</p>
       </div>
     </div>
   </section>
@@ -148,8 +170,8 @@
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <strong>Kontak — Kayıpsız Medya Dönüştürücü</strong>
-      <span>Sürüm <code id="appVersion">v1.2.0</code> · FFmpeg 5.1.4 (WASM 0.12)</span>
+      <strong>Kontak Studio — Kayıpsız Medya Dönüştürücü</strong>
+      <span>Sürüm <code id="appVersion">v2.0.0</code> · FFmpeg 5.1.4 (WASM 0.12)</span>
       <p>Geliştirici: <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Ozguler Forge</a> · İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
     </div>
     <nav class="footer-links" aria-label="Yasal metinler">
@@ -162,7 +184,7 @@
   </div>
 </footer>
 
-<!-- YASAL METİNLER & KURULUM REHBERİ MODALI -->
+<!-- MODAL (YASAL / KURULUM / ÖNCE-SONRA KIYAS) -->
 <dialog id="legalModal" class="modal" aria-labelledby="modalTitle">
   <div class="modal-box">
     <header class="modal-head">
@@ -171,13 +193,12 @@
     </header>
     <div id="modalBody" class="modal-body"></div>
     <footer class="modal-foot">
-      <button type="button" id="closeModalBtn" class="btn primary small">Anladım</button>
+      <button type="button" id="closeModalBtn" class="btn primary small">Kapat</button>
     </footer>
   </div>
 </dialog>
 
 <script>
-// 1. DÖNÜŞÜM HİZALAMA (SIGNATURE) AÇILIŞ KOREOGRAFİSİ & HEDEF LOGOYA KENETLENME
 (function initSignatureSplash() {
   const splash = document.getElementById('splash');
   const mark = document.getElementById('splashMark');
@@ -185,30 +206,23 @@
   if (!splash || !mark || !targetLogo) return;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduceMotion) {
-    splash.remove();
-    return;
-  }
+  if (reduceMotion) { splash.remove(); return; }
 
   setTimeout(() => {
     const startRect = mark.getBoundingClientRect();
     const endRect = targetLogo.getBoundingClientRect();
-
     if (endRect.width > 0 && startRect.width > 0) {
       const dx = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
       const dy = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
       const scale = endRect.width / startRect.width;
-
       mark.style.transition = 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease';
       mark.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
     }
-
     splash.classList.add('is-leaving');
     setTimeout(() => splash.remove(), 560);
-  }, 1150);
+  }, 1050);
 })();
 
-// 2. YASAL METİNLER VERİSİ VE MODAL KONTROLÜ
 (function initLegalModals() {
   const modal = document.getElementById('legalModal');
   const title = document.getElementById('modalTitle');
@@ -222,11 +236,11 @@
       html: `
         <p><strong>Son Güncelleme:</strong> 2026 · <strong>Sorumlu:</strong> Ozguler Forge (<a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr</a>)</p>
         <h3>1. Sıfır Sunucu Aktarımı İlkesi</h3>
-        <p>Kontak uygulamasında dönüştürmek üzere seçtiğiniz hiçbir resim, video veya ses dosyası cihazınızdan dışarı çıkarılmaz; Ozguler Forge sunucularına veya üçüncü taraf bulut sistemlerine yüklenmez. Tüm medya işleme süreçleri WebAssembly teknolojisi ile doğrudan tarayıcınızın yerel belleğinde gerçekleşir.</p>
+        <p>Kontak Studio uygulamasında dönüştürmek üzere seçtiğiniz hiçbir resim, video veya ses dosyası cihazınızdan dışarı çıkarılmaz; Ozguler Forge sunucularına veya üçüncü taraf bulut sistemlerine yüklenmez. Tüm medya işleme süreçleri WebAssembly teknolojisi ile doğrudan tarayıcınızın yerel belleğinde gerçekleşir.</p>
         <h3>2. Toplanan Veriler ve Çerezler</h3>
-        <p>Uygulama kullanıcı hesabı oluşturmaz, kimlik bilgisi talep etmez ve reklam/izleme çerezi kullanmaz. Uygulamanın çevrimdışı çalışabilmesi (PWA) amacıyla yalnızca arayüz dosyaları ve FFmpeg motoru tarayıcınızın yerel önbelleğinde (Cache Storage) saklanır.</p>
+        <p>Uygulama kullanıcı hesabı oluşturmaz, kimlik bilgisi talep etmez ve reklam/izleme çerezi kullanmaz. Uygulamanın çevrimdışı çalışabilmesi (PWA) amacıyla yalnızca arayüz dosyaları ve FFmpeg motoru tarayıcınızın yerel önbelleğinde saklanır.</p>
         <h3>3. İletişim</h3>
-        <p>Gizlilik politikamıza ilişkin sorularınız için <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> adresinden bizimle iletişime geçebilirsiniz.</p>
+        <p>Sorularınız için <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> adresinden ulaşabilirsiniz.</p>
       `
     },
     kvkk: {
@@ -234,11 +248,9 @@
       html: `
         <p><strong>Veri Sorumlusu:</strong> Ozguler Forge · <strong>Web:</strong> ozgulerforge.com.tr · <strong>E-posta:</strong> iletisim@ozgulerforge.com.tr</p>
         <h3>1. İşlenen Kişisel Veriler ve Amaç</h3>
-        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca Kontak uygulaması, tasarım gereği yerel işlem (client-side) mimarisiyle çalışır. Uygulamaya aktardığınız görsel ve işitsel dosyalar tarafımızca toplanmaz, kaydedilmez ve işlenmez.</p>
-        <h3>2. Teknik Erişim Kayıtları</h3>
-        <p>Uygulamanın barındırıldığı statik sunucu altyapısında yalnızca bilgi güvenliğinin sağlanması ve hizmet sürekliliği amacıyla anonim bağlantı günlükleri (IP adresi, tarayıcı sürümü, erişim zamanı) 5651 sayılı Kanun kapsamındaki yasal yükümlülükler doğrultusunda sınırlı süreyle tutulabilir.</p>
-        <h3>3. İlgili Kişinin Hakları</h3>
-        <p>KVKK'nın 11. maddesi kapsamındaki taleplerinizi yazılı olarak <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> e-posta adresi üzerinden iletebilirsiniz.</p>
+        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca Kontak Studio, yerel işlem (client-side) mimarisiyle çalışır. Uygulamaya aktardığınız medya dosyaları tarafımızca toplanmaz ve işlenmez.</p>
+        <h3>2. İlgili Kişinin Hakları</h3>
+        <p>KVKK'nın 11. maddesi kapsamındaki taleplerinizi <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> üzerinden iletebilirsiniz.</p>
       `
     },
     terms: {
@@ -246,21 +258,19 @@
       html: `
         <p><strong>Hizmet Sağlayıcı:</strong> Ozguler Forge (ozgulerforge.com.tr)</p>
         <h3>1. Hizmetin Kapsamı</h3>
-        <p>Kontak, kullanıcıların kendi cihazlarındaki medya dosyalarını kayıpsız veya seçilen formatlarda dönüştürmelerine ve kare özetlerini doğrulamalarına olanak tanıyan ücretsiz bir web uygulamasıdır.</p>
-        <h3>2. Kullanıcı Sorumluluğu</h3>
-        <p>Kullanıcı, uygulamada işlediği tüm içeriklerin telif haklarına, fikri mülkiyet kurallarına ve yürürlükteki mevzuata uygun olduğunu kabul eder. Dönüştürülen dosyaların yedeklenmesi kullanıcının sorumluluğundadır.</p>
-        <h3>3. Sorumluluk Sınırı</h3>
-        <p>Uygulama "olduğu gibi" sunulmaktadır. Tarayıcı bellek sınırları, donanım yetersizlikleri veya üçüncü taraf oynatıcı uyumsuzluklarından kaynaklanabilecek veri kayıplarından Ozguler Forge sorumlu tutulamaz. Fikri mülkiyet ve arayüz hakları Ozguler Forge'a aittir.</p>
+        <p>Kontak Studio, kullanıcıların kendi cihazlarındaki medya dosyalarını kayıpsız veya seçilen formatlarda dönüştürmelerine ve kare özetlerini doğrulamalarına olanak tanıyan bir web uygulamasıdır.</p>
+        <h3>2. Sorumluluk Sınırı</h3>
+        <p>Uygulama "olduğu gibi" sunulmaktadır. Tarayıcı bellek sınırları veya oynatıcı uyumsuzluklarından kaynaklanabilecek durumlarda sorumluluk kullanıcıya aittir.</p>
       `
     },
     licenses: {
       title: 'Açık Kaynak Lisansları ve Sürüm Bilgisi',
       html: `
-        <p><strong>Uygulama Sürümü:</strong> Kontak v1.2.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
+        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.0.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
         <ul>
-          <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği kullanılmaktadır.</li>
-          <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak olarak sunulmaktadır.</li>
-          <li><strong>Uygulama Arayüzü ve Doğrulama Motoru:</strong> Ozguler Forge tarafından geliştirilmiştir. Hata bildirimi ve öneriler için: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></li>
+          <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği.</li>
+          <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak.</li>
+          <li><strong>Kontak Studio Arayüz ve Doğrulama Katmanı:</strong> Ozguler Forge.</li>
         </ul>
       `
     }
@@ -282,7 +292,6 @@
   modal?.addEventListener('click', e => { if (e.target === modal) close(); });
 })();
 
-// 3. PWA KURULUM (İNDİR) VE GÜNCELLEME KONTROLÜ
 (function initPwaControls() {
   const installBtn = document.getElementById('install');
   const checkBtn = document.getElementById('checkUpdate');
@@ -292,10 +301,7 @@
 
   let deferredPrompt = null;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-
-  if (isStandalone && installBtn) {
-    installBtn.hidden = true;
-  }
+  if (isStandalone && installBtn) installBtn.hidden = true;
 
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -316,19 +322,17 @@
       deferredPrompt = null;
       return;
     }
-
     if (modal && modalTitle && modalBody) {
       modalTitle.textContent = 'Uygulamayı Cihazınıza Yükleyin';
       modalBody.innerHTML = `
-        <p><strong>Kontak</strong>, cihazınıza kurulduğunda internet bağlantısı olmadan da tam ekran uygulama olarak çalışır.</p>
+        <p><strong>Kontak Studio</strong>, kurulduğunda tam ekran uygulama olarak çalışır.</p>
         <h3>iPhone / iPad (Safari)</h3>
         <ul>
-          <li>Alt veya üst çubuktaki <strong>Paylaş</strong> simgesine dokunun.</li>
-          <li>Açılan menüden <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin ve <strong>Ekle</strong>'ye dokunun.</li>
+          <li><strong>Paylaş</strong> simgesine dokunun ve <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin.</li>
         </ul>
         <h3>Android / Masaüstü (Chrome, Edge)</h3>
         <ul>
-          <li>Tarayıcı adres çubuğunun sağındaki <strong>Yükle</strong> simgesine veya sağ üstteki <strong>⋮</strong> menüsünden <strong>"Uygulamayı yükle"</strong> seçeneğine tıklayın.</li>
+          <li>Adres çubuğundaki <strong>Yükle</strong> simgesine veya <strong>⋮ → "Uygulamayı yükle"</strong> seçeneğine tıklayın.</li>
         </ul>
       `;
       modal.showModal();
@@ -337,38 +341,24 @@
 
   checkBtn?.addEventListener('click', async () => {
     const label = checkBtn.querySelector('span');
-    const origText = label ? label.textContent : 'Güncellemeleri Kontrol Et';
+    const origText = label ? label.textContent : 'Güncelle';
     checkBtn.disabled = true;
     if (label) label.textContent = 'Kontrol ediliyor…';
-
     try {
-      if (!('serviceWorker' in navigator)) {
-        throw new Error('Desteklenmiyor');
-      }
+      if (!('serviceWorker' in navigator)) throw new Error('No SW');
       const reg = await navigator.serviceWorker.getRegistration();
-      if (!reg) {
-        location.reload();
-        return;
-      }
-
+      if (!reg) { location.reload(); return; }
       await reg.update();
-
       if (reg.waiting || reg.installing) {
-        if (label) label.textContent = 'Güncelleme bulundu, yenileniyor…';
-        setTimeout(() => location.reload(), 700);
+        if (label) label.textContent = 'Güncelleme bulundu…';
+        setTimeout(() => location.reload(), 650);
       } else {
-        if (label) label.textContent = 'Uygulama güncel (v1.2.0)';
-        setTimeout(() => {
-          if (label) label.textContent = origText;
-          checkBtn.disabled = false;
-        }, 2500);
+        if (label) label.textContent = 'Güncel (v2.0.0)';
+        setTimeout(() => { if (label) label.textContent = origText; checkBtn.disabled = false; }, 2200);
       }
     } catch {
-      if (label) label.textContent = 'Güncel sürüm aktif';
-      setTimeout(() => {
-        if (label) label.textContent = origText;
-        checkBtn.disabled = false;
-      }, 2200);
+      if (label) label.textContent = 'Aktif';
+      setTimeout(() => { if (label) label.textContent = origText; checkBtn.disabled = false; }, 1800);
     }
   });
 })();
