@@ -116,25 +116,6 @@ body {
 .brand-titles strong { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; }
 .brand-titles small { font-size: 0.72rem; font-weight: 600; color: var(--accent); letter-spacing: 0.04em; text-transform: uppercase; }
 
-.telemetry {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-  font: 12px/1 var(--mono);
-}
-.pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 10px; border-radius: 999px;
-  background: var(--card-2); border: 1px solid var(--line); color: var(--mute);
-}
-.pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--mute); flex-shrink: 0; }
-.pill[data-state="ok"] { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 35%, var(--line)); background: var(--ok-soft); }
-.pill[data-state="ok"] .dot { background: var(--ok); box-shadow: 0 0 8px var(--ok); }
-.pill[data-state="busy"], .pill[data-state="wait"] { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 35%, var(--line)); background: var(--warn-soft); }
-.pill[data-state="busy"] .dot, .pill[data-state="wait"] .dot { background: var(--warn); animation: pulseDot 1.2s infinite; }
-.pill[data-state="err"] { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 35%, var(--line)); background: var(--bad-soft); }
-.pill[data-state="err"] .dot { background: var(--bad); }
-
-@keyframes pulseDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
-
 .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .top-actions .btn { display: inline-flex; align-items: center; gap: 6px; }
 
