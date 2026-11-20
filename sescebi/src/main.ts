@@ -864,10 +864,8 @@ async function saveTrim(): Promise<void> {
 function dismissSplash(): void {
   const splash = document.querySelector<HTMLDivElement>('#splash');
   if (!splash) return;
-  window.setTimeout(() => {
-    splash.classList.add('hide');
-    window.setTimeout(() => splash.remove(), 500);
-  }, 650);
+  splash.classList.add('hide');
+  window.setTimeout(() => splash.remove(), 450);
 }
 
 fileInput.addEventListener('change', () => {
@@ -936,7 +934,7 @@ async function init(): Promise<void> {
     songs = await dbGetAll();
     renderLibrary();
   } catch { toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true); }
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=8', { scope: './' }).catch(() => undefined);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js?v=17', { scope: './' }).catch(() => undefined);
 }
 
 void init();
