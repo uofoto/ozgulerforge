@@ -70,7 +70,7 @@ app.innerHTML = `
             <article class="listen-stat-card"><span class="listen-stat-icon play-stat">▶</span><div><span class="listen-stat-label">TOPLAM ÇALMA</span><strong id="stat-play-count">0</strong><small>oynatma başlangıcı</small></div></article>
             <article class="listen-stat-card"><span class="listen-stat-icon time-stat">◷</span><div><span class="listen-stat-label">DİNLEME SÜRESİ</span><strong id="stat-listen-time">0 sn</strong><small>aktif dinleme zamanı</small></div></article>
             <article class="listen-stat-card"><span class="listen-stat-icon tracks-stat">♫</span><div><span class="listen-stat-label">FARKLI KAYIT</span><strong id="stat-unique-tracks">0</strong><small>dinlemeye başladığın ses</small></div></article>
-            <article class="listen-stat-card top-track-stat"><span class="listen-stat-icon top-stat">✦</span><div><span class="listen-stat-label">EN ÇOK DİNLENEN</span><strong id="stat-top-track">Henüz yok</strong><small id="stat-top-play-count">Bir ses çaldığında burada</small></div></article>
+            <article class="listen-stat-card top-track-stat"><span class="listen-stat-icon top-stat">✦</span><div><span class="listen-stat-label">EN ÇOK DİNLENEN</span><button class="top-track-link" id="stat-top-track" type="button" disabled>Henüz yok</button><small id="stat-top-play-count">Bir ses çaldığında burada</small></div></article>
           </div>
           <p class="stats-footnote"><span aria-hidden="true">◈</span> İstatistikler bu tarayıcıda saklanır; Google hesabına veya sunucuya gönderilmez.</p>
         </section>
@@ -332,8 +332,26 @@ function renderListeningStats() {
     get('stat-play-count').textContent = String(totalPlays);
     get('stat-listen-time').textContent = formatListeningTime(totalSeconds);
     get('stat-unique-tracks').textContent = String(played.length);
-    get('stat-top-track').textContent = top ? (songs.find((song) => String(song.id) === top[0])?.name || top[1].name || 'Ses kaydı') : 'Henüz yok';
+    const topButton = get('stat-top-track');
+    const topSong = top ? songs.find((song) => String(song.id) === top[0]) : null;
+    topButton.textContent = topSong?.name || (top ? top[1].name : 'Henüz yok');
+    topButton.dataset.songId = topSong?.id || '';
+    topButton.disabled = !topSong;
     get('stat-top-play-count').textContent = top ? `${top[1].plays} kez çalındı` : 'Bir ses çaldığında burada';
+}
+function jumpToTopTrack() {
+    const button = get('stat-top-track');
+    const song = songs.find((item) => item.id === button?.dataset.songId);
+    if (!song) return;
+    document.querySelector('[data-screen="library"]')?.click();
+    renderLibrary();
+    window.setTimeout(() => {
+        const row = [...songList.querySelectorAll('.song-row')].find((item) => item.dataset.songId === String(song.id));
+        row?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        row?.classList.add('highlight-song-row');
+        window.setTimeout(() => row?.classList.remove('highlight-song-row'), 1800);
+        void playSong(song);
+    }, 80);
 }
 function startListeningSession() {
     if (!activeSong || listeningSession) return;
@@ -1612,6 +1630,7 @@ prevButton.addEventListener('click', () => {
         audio.currentTime = 0;
 });
 refreshModeButton();
+get('stat-top-track').addEventListener('click', jumpToTopTrack);
 get('library-search').addEventListener('input', (event) => { searchQuery = event.target.value; renderLibrary(); });
 get('library-sort').addEventListener('change', (event) => { sortMode = event.target.value; renderLibrary(); });
 get('favorites-filter').addEventListener('click', (event) => { favoritesOnly = !favoritesOnly; event.currentTarget.setAttribute('aria-pressed', String(favoritesOnly)); event.currentTarget.classList.toggle('active', favoritesOnly); renderLibrary(); });

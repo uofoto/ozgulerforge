@@ -342,3 +342,42 @@ body.modal-open{overflow:hidden}.overlay{position:fixed;inset:0;z-index:30;displ
   .x-video-result-meta { grid-template-columns:1fr; }
   .x-video-actions { display:grid; grid-template-columns:1fr; }
 }
+/* Açık temada okunabilirlik ve istatistikten arşive geçiş */
+:root:not([data-theme="dark"]) {
+  --ink:#18342b;
+  --muted:#526b61;
+}
+:root:not([data-theme="dark"]) .page-subtitle,
+:root:not([data-theme="dark"]) .card-heading p:not(.section-kicker),
+:root:not([data-theme="dark"]) .stats-heading p:not(.section-kicker),
+:root:not([data-theme="dark"]) .song-meta,
+:root:not([data-theme="dark"]) .song-created,
+:root:not([data-theme="dark"]) .library-subtools,
+:root:not([data-theme="dark"]) .url-hint,
+:root:not([data-theme="dark"]) .file-drop > span:last-of-type { color:#526b61; }
+:root:not([data-theme="dark"]) .section-kicker,
+:root:not([data-theme="dark"]) .page-kicker,
+:root:not([data-theme="dark"]) .listen-stat-label,
+:root:not([data-theme="dark"]) .metric-label { color:#416b5b; }
+:root:not([data-theme="dark"]) .card-heading h2,
+:root:not([data-theme="dark"]) .stats-heading h2,
+:root:not([data-theme="dark"]) .aside-heading h2,
+:root:not([data-theme="dark"]) .song-name,
+:root:not([data-theme="dark"]) .listen-stat-card strong { color:#183c30; }
+.top-track-link {
+  display:block; max-width:100%; padding:0; overflow:hidden; color:#183c30;
+  background:transparent; border:0; font:inherit; font-weight:720; line-height:1.15;
+  letter-spacing:-.04em; text-align:left; text-overflow:ellipsis; white-space:nowrap;
+  cursor:pointer;
+}
+.top-track-link:hover:not(:disabled),
+.top-track-link:focus-visible:not(:disabled) { color:#167657; text-decoration:underline; text-underline-offset:3px; }
+.top-track-link:disabled { cursor:default; opacity:1; }
+.listening-stats.is-sidebar .top-track-link { color:#f0f4ed; font-size:.65rem; }
+.listening-stats.is-sidebar .top-track-link:hover:not(:disabled),
+.listening-stats.is-sidebar .top-track-link:focus-visible:not(:disabled) { color:#cfea7d; }
+.highlight-song-row {
+  border-color:#51b88a !important;
+  box-shadow:0 0 0 3px #bcebd666, 0 12px 28px rgba(42,126,91,.16) !important;
+}
+@media(max-width:700px) { .top-track-link { font-size:.96rem; } }
