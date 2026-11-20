@@ -42,8 +42,14 @@ app.innerHTML = `
       </div>
       <div class="header-note"><span class="live-dot"></span><span>Bu cihazda, sana ait</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir">◐</button></div>
     </header>
+    <nav class="main-nav" aria-label="Ana gezinme">
+      <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
+      <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Arşivim</span></button>
+      <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol">〽</span><span>Ses stüdyosu</span></button>
+    </nav>
 
     <main>
+      <div class="screen-view active" id="screen-home">
       <section class="hero" aria-labelledby="hero-title">
         <div>
           <p class="eyebrow">Kişisel ses arşivin</p>
@@ -57,7 +63,7 @@ app.innerHTML = `
       </section>
 
       <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
-        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 16</span></div>
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 17</span></div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
           <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
@@ -65,7 +71,7 @@ app.innerHTML = `
         </div>
       </section>
 
-      <section class="content-grid" aria-label="Ses ekleme ve arşiv">
+      <section class="content-grid" aria-label="Ses ekleme">
         <div>
           <section class="card add-card" aria-labelledby="add-title">
             <div class="card-heading">
@@ -101,6 +107,9 @@ app.innerHTML = `
           </div>
         </div>
 
+      </section>
+      </div>
+      <section class="screen-view" id="screen-library">
         <section class="card library-card" aria-labelledby="library-title">
           <div class="library-header"><div><h2 id="library-title">Cebimdeki sesler</h2><span class="library-count" id="library-count">0 kayıt</span></div><span class="stamp">OFFLINE</span></div>
           <div class="library-tools"><input class="text-input library-search" id="library-search" type="search" placeholder="Arşivde ara…" aria-label="Arşivde ara" /><select class="text-input library-sort" id="library-sort" aria-label="Arşivi sırala"><option value="newest">En yeni</option><option value="oldest">En eski</option><option value="az">İsim A–Z</option><option value="duration">Süre</option></select><button class="chip filter-chip" id="favorites-filter" type="button" aria-pressed="false">♡ Favoriler</button></div>
@@ -109,6 +118,16 @@ app.innerHTML = `
           <div class="empty-state" id="empty-state"><div class="empty-icon">${icons.cassette}</div><h3>Arşiv henüz boş</h3><p>İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.</p></div>
           <div class="song-list" id="song-list"></div>
         </section>
+      </section>
+      <section class="screen-view" id="screen-studio">
+        <div class="studio-hero">
+          <div class="studio-kicker">SES STÜDYOSU · PREMIUM</div>
+          <h1>Sesinin ritmini<br><em>sen belirle.</em></h1>
+          <p>Kaydını seç, dalga formunu yakınlaştır, başlangıç ve bitiş noktalarını hassasça ayarla. Fade ve ton kontrolleriyle kendi kesitini hazırla.</p>
+          <div class="studio-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="studio-actions"><button class="primary-button" id="studio-open-library" type="button">Arşivden ses seç <span>→</span></button><span>WAV dışa aktarma · Fade · Bas / Tiz</span></div>
+        </div>
+        <div class="studio-feature-grid"><article><b>01</b><strong>Hassas kesim</strong><span>Dalga formunda yakınlaştırma ve zaman ayarı</span></article><article><b>02</b><strong>Ses karakteri</strong><span>Bas, tiz ve yumuşak giriş / çıkış</span></article><article><b>03</b><strong>Önizleme</strong><span>Kaydetmeden önce seçimini dinle</span></article></div>
       </section>
     </main>
 
@@ -1320,6 +1339,14 @@ get('sleep-button').addEventListener('click', () => {
     sleepTimerId = window.setTimeout(() => { audio.pause(); sleepTimerId = 0; toast('Uyku zamanlayıcısı sesi durdurdu.'); }, minutes * 60000);
     toast(`Ses ${minutes} dakika sonra duracak.`);
 });
+document.querySelectorAll('[data-screen]').forEach((button) => button.addEventListener('click', () => {
+  const target = button.dataset.screen;
+  document.querySelectorAll('.screen-view').forEach((view) => view.classList.toggle('active', view.id === `screen-${target}`));
+  document.querySelectorAll('[data-screen]').forEach((item) => item.classList.toggle('active', item === button));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}));
+get('studio-open-library').addEventListener('click', () => document.querySelector('[data-screen="library"]').click());
+
 const themeToggle = get('theme-toggle');
 try { if (localStorage.getItem('sescebi-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch {}
 themeToggle.addEventListener('click', () => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('sescebi-theme', dark ? 'dark' : 'light'); } catch {} });
@@ -1900,6 +1927,6 @@ async function init() {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=16', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=17', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();
