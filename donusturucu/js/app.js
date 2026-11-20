@@ -29,7 +29,7 @@ const PRESETS = {
 };
 
 const state = {
-  engine: new Engine(), ready: false, items: [], nextId: 1, targetId: 'png',
+  engine: new Engine(), ready: false, engineStatus: 'Motor hazırlanıyor…', engineError: null, items: [], nextId: 1, targetId: 'png',
   activePreset: 'archive', effort: 'small', verify: true, running: false, cancelled: false,
   chain: Promise.resolve(), current: null,
 };
@@ -37,15 +37,15 @@ $('#effort').value = state.effort;
 $('#verify').checked = state.verify;
 window.__app = state;
 
-function setBadge(id, text, cls) {
-  const n = $(id);
-  if (!n) return;
-  n.dataset.state = cls;
-  const sp = n.querySelector('span');
-  if (sp) sp.textContent = text;
-  else n.textContent = text;
+function setEngine(text, cls) {
+  state.engineStatus = text;
+  state.engineError = cls === 'err' ? text : null;
+  const footerInfo = $('#footerEngineInfo');
+  if (footerInfo && cls === 'ok' && state.engine.caps?.versionText) {
+    footerInfo.textContent = `FFmpeg ${state.engine.caps.versionText.replace('version ', '')} · WASM`;
+  }
+  updateAction();
 }
-function setEngine(text, cls) { setBadge('#engine', text, cls); }
 
 async function boot() {
   setEngine('Motor yükleniyor… (ilk açılışta ~32 MB)', 'busy');
@@ -470,7 +470,11 @@ function updateAction() {
   const ready = state.items.filter(i => ['ready', 'done', 'error-run'].includes(i.status) && i.info);
   const btn = $('#go');
   btn.disabled = !state.ready || state.running || ready.length === 0;
-  btn.textContent = state.running ? 'Dönüştürülüyor…' : `${t ? t.label : ''} olarak dönüştür (${ready.length || 0})`;
+  if (!state.ready) {
+    btn.textContent = state.engineError ? state.engineError : 'Motor hazırlanıyor…';
+  } else {
+    btn.textContent = state.running ? 'Dönüştürülüyor…' : `${t ? t.label : ''} olarak dönüştür (${ready.length || 0})`;
+  }
   $('#cancel').hidden = !state.running;
   const done = state.items.flatMap(i => i.results || []);
   $('#zipAll').hidden = done.length < 2;
@@ -539,25 +543,11 @@ async function pwa() {
   if (!('serviceWorker' in navigator)) return;
   try {
     const reg = await navigator.serviceWorker.register('./sw.js');
-    navigator.serviceWorker.addEventListener('message', e => { if (e.data?.type === 'precached') offlineBadge(); });
     reg.addEventListener('updatefound', () => {
       const w = reg.installing;
       w?.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) $('#update').hidden = false; });
     });
-    offlineBadge();
   } catch (e) { console.warn('SW kaydı başarısız', e); }
-}
-let badgeTimer = 0;
-async function offlineBadge() {
-  clearTimeout(badgeTimer);
-  try {
-    if (state.engine.wasm?.source === 'cdn') {
-      setBadge('#offline', 'Çevrimdışı değil · wasm CDN', 'wait'); return;
-    }
-    const hit = await caches.match(new URL('./vendor/core/ffmpeg-core.wasm', location.href).href);
-    setBadge('#offline', hit ? 'Çevrimdışı hazır' : 'WASM önbellekleniyor…', hit ? 'ok' : 'wait');
-    if (!hit) badgeTimer = setTimeout(offlineBadge, 3000);
-  } catch {}
 }
 $('#update').addEventListener('click', () => location.reload());
 
