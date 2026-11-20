@@ -1,41 +1,33 @@
-# Ses Cebi · ozguler forge
+# Ses Cebi Premium 0.2.0
 
-Mobil öncelikli, yerel depolamalı kişisel ses arşivi ve PWA.
+ozguler forge tarafından geliştirilen, sesleri cihazda saklayan ve çevrimdışı dinlemeye odaklanan PWA.
 
-## Temel akış
+## Özellikler
+- Ses dosyalarını arşive ekleme; desteklenen MP4/MOV dosyalarında AAC akışını ayırma, diğer desteklenen videolarda tarayıcı çözücüsüyle WAV oluşturma
+- IndexedDB üzerinde yerel ses arşivi, arama, favoriler ve sıralama
+- Oynatma, önceki/sonraki, tekrar/karıştırma, hız ayarı ve uyku zamanlayıcısı
+- Dalga formu üzerinden yakınlaştırma, sürükleyerek aralık ayarlama, WAV kesit kaydı, bas/tiz filtresi ve fade-in/fade-out
+- ZIP yedekleme ve geri yükleme (favori bilgisi dahil)
+- PWA kurulum ve çevrimdışı uygulama kabuğu
+- Açık/koyu tema
 
-- **Ses dosyası:** Kullanıcının seçtiği MP3, M4A, WAV, OGG, AAC veya FLAC dosyası cihazdaki IndexedDB arşivine kaydedilir.
-- **Videodan ses çıkar:** 50 MB sınırındaki MP4/MOV dosyalarındaki desteklenen AAC ses akışı görüntüden ayrıştırılır ve M4A olarak arşive eklenir. Video görüntüsü saklanmaz. AAC dışı veya parçalı MP4/MOV dosyaları her tarayıcıda desteklenmeyebilir; bu durumda uygulama hata bildirir.
-- **Dinle:** Arşivdeki sesler uygulama içindeki oynatıcıdan çalınabilir. PWA çevrimdışı kullanım için uygulama kabuğunu önbelleğe alır.
-- **Kes:** Dalga formu üzerinden seçilen bölüm WAV olarak yeni kayıt oluşturur. İstenirse orijinal kayıt korunur.
-- **Yedek:** Arşiv ZIP olarak dışa aktarılabilir ve uygulamanın oluşturduğu yedek geri yüklenebilir.
-
-## Veri ve gizlilik
-
-Ses dosyaları tarayıcı IndexedDB alanında cihaz üzerinde saklanır; uygulama hesabı veya medya yükleme sunucusu yoktur. Tarayıcı verilerinin silinmesi veya uygulama verilerinin kaldırılması kayıtları silebilir. Kullanıcıların düzenli yedek alması önerilir.
-
-Uygulama yalnızca kullanma ve işleme hakkı bulunan medya dosyaları için kullanılmalıdır. Uygulama telif lisansı sağlamaz.
-
-## Geliştirme
+## Geliştirme ve derleme
+Node.js 20+ önerilir. Projede üçüncü taraf npm bağımlılığı yoktur.
 
 ```bash
-npm install
-npm run dev
 npm run check
 npm run build
-npm run preview
+npm run dev
 ```
 
-`main.js` ve `styles.css` uygulama arayüzünün kaynak dosyalarıdır. `public/manifest.webmanifest`, `public/sw.js` ve `public/icons/` PWA kurulum/çevrimdışı dosyalarıdır. `sw.js` kökte geliştirme sunucusu için eş kopyadır; iki service worker dosyası sürüm artırımlarında birlikte güncellenmelidir.
+Üretim çıktısı `dist/` klasörüdür. Önizleme için `npm run preview` kullanın. HTTPS üzerinden yayınlayın.
 
-## Sınırlamalar
-
-- PWA kurulumu ve çevrimdışı çalışma için HTTPS gerekir (localhost geliştirme istisnası).
-- Arka planda oynatma ve kilit ekranı kontrolleri tarayıcı/işletim sistemi desteğine bağlıdır.
-- Ses kesme, Web Audio API ile bellekte çözümlenen dosyalarda çalışır; 15 dakikadan uzun sesler için kesme devre dışıdır.
-- Video ayrıştırma sürümünde hedef biçim AAC ses içeren MP4/MOV'dur.
+## Teknik notlar
+- Arşiv cihazın tarayıcı depolamasında tutulur; tarayıcı verisi silinirse kaybolabilir. Düzenli ZIP yedeği alın.
+- Kesit dışa aktarma WAV'dır. MP3/M4A kodlama bu sürümde yoktur; kaynak dosyanın özgün biçimi indirme/paylaşmada korunur.
+- Video ses ayrıştırma tüm konteyner/kodekleri desteklemez. MP4/MOV içindeki standart AAC akışı doğrudan ayrıştırılabilir; diğer biçimler tarayıcının Web Audio çözücüsüne bağlıdır.
+- Arka plan ve kilit ekranı davranışı işletim sistemi/tarayıcı kısıtlarına bağlıdır.
+- Hukuki metinler genel bilgilendirmedir; KVKK aydınlatma metni ve veri sorumlusu bilgileri işletmeci tarafından hukuk danışmanlığıyla tamamlanmalıdır.
 
 ## İletişim
-
-- https://ozgulerforge.com.tr
-- iletisim@ozgulerforge.com.tr
+https://ozgulerforge.com.tr · iletisim@ozgulerforge.com.tr

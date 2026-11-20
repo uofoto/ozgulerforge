@@ -4,12 +4,9 @@
   "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "check": "node --check main.js && node --check sw.js"
-  },
-  "devDependencies": {
-    "vite": "^6.0.5"
+    "dev": "node scripts/server.mjs",
+    "check": "node --check main.js",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/server.mjs --dist"
   }
 }

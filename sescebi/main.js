@@ -1,16 +1,17 @@
 const DB_NAME = 'sescebi-db';
 const STORE_NAME = 'songs';
 const MAX_SIZE = 100 * 1024 * 1024;
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
-const AUDIO_TYPE_BY_EXT = { mp3: 'audio/mpeg', m4a: 'audio/mp4', wav: 'audio/wav', ogg: 'audio/ogg', aac: 'audio/aac', flac: 'audio/flac' };
-const SUPPORTED_AUDIO_TYPES = new Set(['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/x-m4a', 'audio/wav', 'audio/x-wav', 'audio/wave', 'audio/ogg', 'audio/aac', 'audio/flac', 'audio/x-flac']);
 const audio = new Audio();
 let songs = [];
 let activeSong = null;
 let activeObjectUrl = '';
 let selectedFile = null;
-let activeTab = 'audio';
+let activeTab = 'file';
 let toastTimer = 0;
+let favoritesOnly = false;
+let searchQuery = '';
+let sortMode = 'newest';
+let sleepTimerId = 0;
 const app = document.querySelector('#app');
 if (!app)
     throw new Error('Uygulama kökü bulunamadı.');
@@ -27,6 +28,7 @@ const icons = {
     link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13.5 14 9.5M8.2 16.8l-1.1 1.1a3.7 3.7 0 0 1-5.2-5.2l3.7-3.7a3.7 3.7 0 0 1 5.2 0M15.8 7.2l1.1-1.1a3.7 3.7 0 0 1 5.2 5.2l-3.7 3.7a3.7 3.7 0 0 1-5.2 0"/></svg>',
     scissors: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>',
+    edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
 };
 app.innerHTML = `
   <div class="app-shell">
@@ -38,7 +40,7 @@ app.innerHTML = `
           <span class="brand-name">Ses Cebi</span>
         </a>
       </div>
-      <div class="header-note"><span class="live-dot"></span><span>Bu cihazda, sana ait</span></div>
+      <div class="header-note"><span class="live-dot"></span><span>Bu cihazda, sana ait</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir">◐</button></div>
     </header>
 
     <main>
@@ -54,10 +56,12 @@ app.innerHTML = `
         </div>
       </section>
 
-      <section class="app-card" aria-label="Uygulama kurulumu">
-        <div class="app-card-text"><strong>Ses Cebi</strong><span id="app-status" aria-live="polite">Cihazında saklanır · çevrimdışı dinlenir</span></div>
+      <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 16</span></div>
         <div class="app-card-actions">
-          <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Telefona yükle</span></button>
+          <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
+          <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
+          <button class="ghost-button" id="diag-button" type="button"><span>Kurulum durumu</span></button>
         </div>
       </section>
 
@@ -65,36 +69,42 @@ app.innerHTML = `
         <div>
           <section class="card add-card" aria-labelledby="add-title">
             <div class="card-heading">
-              <div><h2 id="add-title">Arşive ekle</h2><p>Müzik dosyanı kaydet veya videonun içindeki sesi ayır.</p></div>
+              <div><h2 id="add-title">Cebe bir ses koy</h2><p>Dosyadan seç (videodan sesi ayır) veya izinli bağlantı ekle.</p></div>
               <span class="stamp">YEREL</span>
             </div>
-            <div class="tabs" role="tablist" aria-label="Ekleme türü">
-              <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="audio" aria-controls="file-panel">Ses dosyası</button>
-              <button class="tab" type="button" role="tab" aria-selected="false" data-tab="video" aria-controls="file-panel">Videodan ses çıkar</button>
+            <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi">
+              <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="file">Dosya seç</button>
+              <button class="tab" type="button" role="tab" aria-selected="false" data-tab="url">Bağlantı ekle</button>
             </div>
             <div id="file-panel" role="tabpanel">
               <label class="file-drop" for="file-input">
                 ${icons.upload}
-                <strong id="file-drop-title">Müzik dosyanı seç</strong>
-                <span id="file-drop-hint">MP3, M4A, WAV, OGG, AAC veya FLAC · en fazla 100 MB</span>
-                <input id="file-input" type="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac" />
+                <strong>Ses veya video dosyasını seç</strong>
+                <span>MP3, M4A, WAV, OGG veya MP4/MOV/WEBM video · en fazla 100 MB</span>
+                <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.mp4,.m4v,.mov,.webm,.mkv" />
               </label>
               <p class="file-name" id="file-name" aria-live="polite">Henüz dosya seçilmedi</p>
-              <p class="source-hint" id="source-hint">Ses dosyan cihazındaki kişisel arşive kaydedilir.</p>
             </div>
-            <label class="consent"><input id="consent" type="checkbox" /><span>Bu dosyayı kullanma ve işleme hakkına sahip olduğumu veya gerekli izni aldığımı onaylıyorum.</span></label>
-            <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span id="add-button-label">Arşive kaydet</span></button>
+            <div id="url-panel" class="url-panel" role="tabpanel" hidden>
+              <label class="sr-only" for="url-input">Doğrudan ses dosyası bağlantısı</label>
+              <input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" />
+              <p class="url-hint">Sadece herkese açık, doğrudan ses dosyası bağlantıları çalışır. Instagram sayfaları ve giriş gerektiren adresler desteklenmez.</p>
+            </div>
+            <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahip olduğumu veya açıkça izin verildiğini onaylıyorum.</span></label>
+            <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Kasete ekle</span></button>
             <div class="progress-wrap" id="progress-wrap" aria-live="polite"><div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div><progress id="progress" max="100" value="0">0%</progress></div>
           </section>
           <div class="player" id="player" aria-live="polite">
             <div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div>
             <div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div>
+            <div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip" id="mode-button" type="button">Sırayla çal</button><label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button></div>
           </div>
         </div>
 
         <section class="card library-card" aria-labelledby="library-title">
           <div class="library-header"><div><h2 id="library-title">Cebimdeki sesler</h2><span class="library-count" id="library-count">0 kayıt</span></div><span class="stamp">OFFLINE</span></div>
-          <p class="storage-note">Kayıtların bu cihazdaki özel uygulama alanında saklanır. İnternet bağlantısı olmadan dinleyebilirsin. Cihaz değiştirirken <strong>Yedek al</strong> ve <strong>Yedekten yükle</strong> seçeneklerini kullan.</p>
+          <div class="library-tools"><input class="text-input library-search" id="library-search" type="search" placeholder="Arşivde ara…" aria-label="Arşivde ara" /><select class="text-input library-sort" id="library-sort" aria-label="Arşivi sırala"><option value="newest">En yeni</option><option value="oldest">En eski</option><option value="az">İsim A–Z</option><option value="duration">Süre</option></select><button class="chip filter-chip" id="favorites-filter" type="button" aria-pressed="false">♡ Favoriler</button></div>
+          <p class="storage-note">Sesler uygulamanın kendi arşivinde durur; dosya yöneticisinde görünmez. <strong>İndir</strong> dersen cihazının indirme klasörüne kaydolur, <strong>Paylaş</strong> ile mail, Drive gibi yerlere gönderebilirsin.</p>
           <div class="backup-row"><button class="ghost-button" id="backup-button" type="button">${icons.download}<span>Yedek al</span></button><button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedekten yükle</span></button><input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" /></div>
           <div class="empty-state" id="empty-state"><div class="empty-icon">${icons.cassette}</div><h3>Arşiv henüz boş</h3><p>İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.</p></div>
           <div class="song-list" id="song-list"></div>
@@ -106,11 +116,11 @@ app.innerHTML = `
       <div class="footer-intro"><strong>ozguler forge</strong><span>Ses Cebi · kişisel ses arşivin</span><span>Sesler bu cihazda saklanır; uygulama sunucusuna yüklenmez.</span></div>
       <div class="footer-contact"><a href="https://ozgulerforge.com.tr" target="_blank" rel="noreferrer">ozgulerforge.com.tr</a><a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></div>
       <div class="legal-grid">
-        <section><h3>Kullanım ve telif</h3><p>Yalnızca sahibi olduğunuz veya kullanma, kopyalama ve düzenleme izniniz bulunan ses ve videoları ekleyin. Telif ve bağlantılı haklara saygı göstermek, içerikleri hukuka uygun kullanmak kullanıcının sorumluluğundadır. Uygulama içerik lisansı sağlamaz.</p></section>
-        <section><h3>Gizlilik ve kişisel veriler</h3><p>Hesap oluşturulmaz ve eklediğiniz medya uygulama sunucusuna gönderilmez; dosyalar bu tarayıcıdaki cihaz içi depolamada tutulur. Tarayıcı verilerini temizlemek, uygulama verilerini silmek veya cihazı değiştirmek kayıtları kaybettirebilir. Kayıtlarınızı korumak için düzenli yedek alın.</p></section>
-        <section><h3>Kullanım koşulları</h3><p>Ses Cebi kişisel arşiv ve oynatma aracıdır; üçüncü taraf platformlardan korumalı içerik indirmez veya erişim kısıtlarını aşmaz. Desteklenen dosya biçimleri tarayıcı ve cihaz özelliklerine bağlıdır. Uygulama güncellenebilir veya özellikleri değişebilir.</p></section>
+        <section><h3>Kullanım ve telif</h3><p>Ses Cebi yalnızca sahip olduğunuz veya kullanma ve indirme izniniz bulunan içerikler için kullanılmalıdır. İçerik hakları ilgili sahiplerine aittir; izinsiz çoğaltma, dağıtma veya ticari kullanım kullanıcının sorumluluğundadır.</p></section>
+        <section><h3>Gizlilik ve depolama</h3><p>Bu sürümde hesap oluşturulmaz. Eklediğiniz sesler tarayıcının yerel depolamasında tutulur. Tarayıcı verilerini temizlemek, uygulamayı kaldırmak veya cihaz depolamasının silinmesi kayıtların kaybolmasına neden olabilir.</p></section>
+        <section><h3>Platform sınırları</h3><p>Uygulama Instagram’a giriş yapmaz; özel hesaplara, korumalı içeriğe veya platform kısıtlarını aşmaya yönelik erişim sağlamaz. Yalnızca herkese açık ve izinli doğrudan medya bağlantıları desteklenir.</p></section>
       </div>
-      <p class="legal-note">İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noreferrer">ozgulerforge.com.tr</a>. Bu bilgilendirme genel kullanım açıklamasıdır; yasal danışmanlık niteliği taşımaz. Son güncelleme: 20.11.2026.</p>
+      <p class="legal-note">Uygulamayı kullanarak yukarıdaki kullanım, telif ve depolama koşullarını kabul etmiş olursunuz. Yasal haklarınız ve yükümlülükleriniz için ilgili mevzuatı ve içerik sahibinin izin şartlarını ayrıca kontrol edin.</p>
     </footer>
   </div>
   <div class="overlay" id="trim-overlay" hidden>
@@ -128,6 +138,8 @@ app.innerHTML = `
         <div class="trim-row"><button class="nudge" type="button" data-nudge="end" data-delta="-1">−1 sn</button><input id="trim-end" type="range" min="0" max="100" step="any" value="100" aria-label="Bitiş" /><button class="nudge" type="button" data-nudge="end" data-delta="1">+1 sn</button></div>
       </div>
       <p class="sheet-sub" id="trim-summary"></p>
+      <div class="trim-zoom"><label for="wave-zoom">Dalga yakınlaştırma</label><input id="wave-zoom" type="range" min="1" max="8" step="0.5" value="1" /><output id="wave-zoom-value">1×</output></div>
+      <div class="trim-effects"><label>Fade-in <span><input id="fade-in" type="range" min="0" max="5" step="0.1" value="0" /><output id="fade-in-value">0 sn</output></span></label><label>Fade-out <span><input id="fade-out" type="range" min="0" max="5" step="0.1" value="0" /><output id="fade-out-value">0 sn</output></span></label><label>Bas <span><input id="trim-bass" type="range" min="-12" max="12" step="1" value="0" /><output id="trim-bass-value">0 dB</output></span></label><label>Tiz <span><input id="trim-treble" type="range" min="-12" max="12" step="1" value="0" /><output id="trim-treble-value">0 dB</output></span></label></div>
       <label class="consent sheet-check"><input id="trim-keep" type="checkbox" checked /><span>Orijinal ses de arşivde kalsın</span></label>
       <div class="sheet-actions"><button class="ghost-button" id="trim-preview" type="button" disabled>Seçimi dinle</button><button class="primary-button" id="trim-save" type="button" disabled>${icons.scissors}<span>Kes ve kaydet</span></button></div>
       <p class="sheet-sub small">Kesilen bölüm WAV olarak yeni bir kayıt olur; WAV her telefonun müzik çalarında çalar.</p>
@@ -140,12 +152,21 @@ app.innerHTML = `
       <div class="sheet-actions"><button class="ghost-button" id="info-share" type="button" hidden>${icons.share}<span>Paylaş</span></button><button class="primary-button" id="info-ok" type="button">Tamam</button></div>
     </div>
   </div>
+  <div class="overlay" id="rename-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rename-title">
+      <div class="sheet-head"><h2 id="rename-title">Adı değiştir</h2><button class="icon-button" id="rename-close" type="button" aria-label="Kapat">✕</button></div>
+      <label class="sr-only" for="rename-input">Yeni ad</label>
+      <input class="text-input" id="rename-input" type="text" maxlength="80" autocomplete="off" />
+      <div class="sheet-actions rename-actions"><button class="primary-button" id="rename-save" type="button">Kaydet</button></div>
+    </div>
+  </div>
   <div class="toast" id="toast" role="status"></div>
 `;
 const fileInput = get('file-input');
 const fileName = get('file-name');
 const consent = get('consent');
 const addButton = get('add-button');
+const urlInput = get('url-input');
 const progressWrap = get('progress-wrap');
 const progress = get('progress');
 const progressLabel = get('progress-label');
@@ -186,7 +207,7 @@ function openDatabase() {
         return dbPromise;
     dbPromise = new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, 1);
-        request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains(STORE_NAME)) request.result.createObjectStore(STORE_NAME, { keyPath: 'id' }); };
+        request.onupgradeneeded = () => request.result.createObjectStore(STORE_NAME, { keyPath: 'id' });
         request.onsuccess = () => {
             const db = request.result;
             db.onversionchange = () => { db.close(); dbPromise = null; };
@@ -207,21 +228,17 @@ async function dbGetAll() {
 async function dbPut(song) {
     const db = await openDatabase();
     return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        tx.objectStore(STORE_NAME).put(song);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error ?? new Error('Ses cihazda saklanamadı.'));
-        tx.onabort = () => reject(tx.error ?? new Error('Ses cihazda saklanamadı.'));
+        const request = db.transaction(STORE_NAME, 'readwrite').objectStore(STORE_NAME).put(song);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error ?? new Error('Ses cihazda saklanamadı.'));
     });
 }
 async function dbDelete(id) {
     const db = await openDatabase();
     return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        tx.objectStore(STORE_NAME).delete(id);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => reject(tx.error ?? new Error('Ses silinemedi.'));
-        tx.onabort = () => reject(tx.error ?? new Error('Ses silinemedi.'));
+        const request = db.transaction(STORE_NAME, 'readwrite').objectStore(STORE_NAME).delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error ?? new Error('Ses silinemedi.'));
     });
 }
 function formatTime(value) {
@@ -250,34 +267,46 @@ function setProgress(label, value, visible = true) {
     progressValue.textContent = `${Math.round(value)}%`;
 }
 function updateAddButton() {
-    addButton.disabled = !consent.checked || !selectedFile;
+    const hasSource = activeTab === 'file' ? Boolean(selectedFile) : Boolean(urlInput.value.trim());
+    addButton.disabled = !consent.checked || !hasSource;
 }
 function switchTab(tab) {
-    activeTab = tab === 'video' ? 'video' : 'audio';
-    const isVideo = activeTab === 'video';
+    activeTab = tab;
     document.querySelectorAll('[data-tab]').forEach((button) => {
-        const selected = button.dataset.tab === activeTab;
+        const selected = button.dataset.tab === tab;
         button.classList.toggle('active', selected);
         button.setAttribute('aria-selected', String(selected));
     });
-    fileInput.accept = isVideo ? 'video/mp4,video/quicktime,.mp4,.m4v,.mov' : 'audio/mpeg,audio/mp4,audio/wav,audio/ogg,audio/aac,audio/flac,.mp3,.m4a,.wav,.ogg,.aac,.flac';
-    get('file-drop-title').textContent = isVideo ? 'Video dosyanı seç' : 'Müzik dosyanı seç';
-    get('file-drop-hint').textContent = isVideo ? 'MP4 veya MOV · videodaki ses ayrıştırılır · en fazla 50 MB' : 'MP3, M4A, WAV, OGG, AAC veya FLAC · en fazla 100 MB';
-    get('source-hint').textContent = isVideo ? 'Video görüntüsü arşive alınmaz; yalnızca desteklenen ses akışı kaydedilir.' : 'Ses dosyan cihazındaki kişisel arşive kaydedilir.';
-    get('add-button-label').textContent = isVideo ? 'Sesi ayır ve kaydet' : 'Arşive kaydet';
-    selectedFile = null;
-    fileInput.value = '';
-    consent.checked = false;
-    fileName.textContent = 'Henüz dosya seçilmedi';
+    get('file-panel').hidden = tab !== 'file';
+    get('url-panel').hidden = tab !== 'url';
     updateAddButton();
 }
-function createId() {
-    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
-    return `ses-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+function isBlockedHost(hostname) {
+    const host = hostname.toLowerCase();
+    return host === 'instagram.com' || host.endsWith('.instagram.com') || host === 'instagram.net' || host.endsWith('.instagram.net') || host.endsWith('.cdninstagram.com');
+}
+function validateDirectUrl(raw) {
+    let url;
+    try {
+        url = new URL(raw);
+    }
+    catch {
+        throw new Error('Geçerli bir http veya https bağlantısı gir.');
+    }
+    if (!['http:', 'https:'].includes(url.protocol))
+        throw new Error('Yalnızca http veya https bağlantıları kullanılabilir.');
+    if (isBlockedHost(url.hostname)) {
+        throw new Error('Instagram sayfaları veya korumalı medya bağlantıları desteklenmiyor. Doğrudan ve izinli bir ses dosyası bağlantısı kullan.');
+    }
+    return url;
 }
 function fileBaseName(name) {
     const withoutExt = name.replace(/\.[^/.]+$/, '').trim();
     return withoutExt || 'İsimsiz ses';
+}
+function urlBaseName(url) {
+    const last = decodeURIComponent(url.pathname.split('/').filter(Boolean).pop() || '').replace(/\.[^/.]+$/, '').trim();
+    return last || 'Bağlantıdan kaydedilen ses';
 }
 function getDuration(blob) {
     return new Promise((resolve) => {
@@ -299,13 +328,67 @@ async function looksLikeAudio(blob) {
     const isWebm = bytes.length > 3 && bytes[0] === 0x1a && bytes[1] === 0x45 && bytes[2] === 0xdf && bytes[3] === 0xa3;
     return startsWith('ID3') || isRiffWave || startsWith('OggS') || startsWith('fLaC') || isFtyp || isMp3Frame || isWebm;
 }
+async function normalizeAudioBlob(blob, declaredType) {
+    const type = (blob.type || declaredType || '').toLowerCase();
+    if (type.startsWith('audio/'))
+        return { blob, type };
+    if ((type === '' || type === 'application/octet-stream') && await looksLikeAudio(blob)) {
+        return { blob: new Blob([blob], { type: 'audio/mpeg' }), type: 'audio/mpeg' };
+    }
+    throw new Error('Bu bağlantı gerçek bir ses dosyası gibi görünmüyor.');
+}
+async function readUrlBlob(url) {
+    let response;
+    try {
+        response = await fetch(url.href, { mode: 'cors' });
+    }
+    catch {
+        throw new Error('Bağlantıya erişilemedi. Dosya herkese açık ve CORS erişimine izin veriyor olmalı.');
+    }
+    if (!response.ok)
+        throw new Error(`Bağlantı ses dosyasını vermedi (HTTP ${response.status}).`);
+    if (isBlockedHost(new URL(response.url).hostname))
+        throw new Error('Bağlantı Instagram veya korumalı bir hedefe yönlendirildi.');
+    const declaredType = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase() || '';
+    const length = Number(response.headers.get('content-length') || 0);
+    if (length > MAX_SIZE)
+        throw new Error('Bu dosya 100 MB sınırını aşıyor.');
+    if (declaredType && !declaredType.startsWith('audio/') && declaredType !== 'application/octet-stream')
+        throw new Error('Bu bağlantı bir ses dosyası gibi görünmüyor.');
+    if (!response.body) {
+        const blob = await response.blob();
+        if (blob.size > MAX_SIZE)
+            throw new Error('Bu dosya 100 MB sınırını aşıyor.');
+        return normalizeAudioBlob(blob, declaredType);
+    }
+    const reader = response.body.getReader();
+    const chunks = [];
+    let received = 0;
+    while (true) {
+        const part = await reader.read();
+        if (part.done)
+            break;
+        if (part.value) {
+            const copy = new Uint8Array(part.value.byteLength);
+            copy.set(part.value);
+            chunks.push(copy.buffer);
+            received += part.value.byteLength;
+            if (received > MAX_SIZE) {
+                await reader.cancel();
+                throw new Error('Bu dosya 100 MB sınırını aşıyor.');
+            }
+            const percent = length ? (received / length) * 100 : Math.min(95, (received / MAX_SIZE) * 100);
+            setProgress('Bağlantıdan alınıyor…', percent);
+        }
+    }
+    const blob = new Blob(chunks, { type: declaredType || 'application/octet-stream' });
+    if (!blob.size)
+        throw new Error('Boş bir dosya alındı.');
+    return normalizeAudioBlob(blob, declaredType);
+}
 const VIDEO_EXT = /\.(mp4|m4v|mov|webm|mkv)$/i;
 function isVideoFile(file) {
     return file.type.startsWith('video/') || VIDEO_EXT.test(file.name);
-}
-function isSupportedAudioFile(file) {
-    const extension = file.name.toLowerCase().split('.').pop() || '';
-    return Object.prototype.hasOwnProperty.call(AUDIO_TYPE_BY_EXT, extension) || SUPPORTED_AUDIO_TYPES.has(file.type.toLowerCase());
 }
 function decodeAudio(ctx, data) {
     // Eski Safari sürümleri için geri çağırmalı biçim de kullanılır.
@@ -318,7 +401,7 @@ function decodeAudio(ctx, data) {
         }
     });
 }
-function encodeWav(buffer, from = 0, to = buffer.length) {
+function encodeWav(buffer, from = 0, to = buffer.length, fades = { fadeIn: 0, fadeOut: 0 }) {
     const channels = Math.min(2, buffer.numberOfChannels);
     const length = to - from;
     const sampleRate = buffer.sampleRate;
@@ -344,7 +427,12 @@ function encodeWav(buffer, from = 0, to = buffer.length) {
     let offset = 44;
     for (let i = 0; i < length; i++) {
         for (let c = 0; c < channels; c++) {
-            const sample = Math.max(-1, Math.min(1, data[c][from + i]));
+            let gain = 1;
+            const seconds = i / sampleRate;
+            const remaining = (length - i) / sampleRate;
+            if (fades.fadeIn > 0) gain = Math.min(gain, Math.min(1, seconds / fades.fadeIn));
+            if (fades.fadeOut > 0) gain = Math.min(gain, Math.min(1, remaining / fades.fadeOut));
+            const sample = Math.max(-1, Math.min(1, data[c][from + i] * gain));
             view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
             offset += 2;
         }
@@ -362,7 +450,7 @@ async function extractAudioFromVideo(file) {
         decoded = await decodeAudio(ctx, data);
     }
     catch {
-        throw new Error('Bu videonun ses akışı okunamadı. Şimdilik AAC ses içeren MP4 veya MOV dosyaları destekleniyor; videoda ses kanalı olduğundan emin ol.');
+        throw new Error('Videodaki ses okunamadı. Videoda ses kanalı olmayabilir veya tarayıcın bu biçimi desteklemiyor (MP4/H.264+AAC dene).');
     }
     finally {
         ctx.close().catch(() => undefined);
@@ -375,21 +463,18 @@ async function extractAudioFromVideo(file) {
 }
 async function createSong(blob, name, source) {
     const declaredType = blob.type.toLowerCase();
-    const extension = String(name).toLowerCase().split('.').pop() || '';
-    const type = SUPPORTED_AUDIO_TYPES.has(declaredType)
-        ? declaredType
-        : AUDIO_TYPE_BY_EXT[extension] || (await looksLikeAudio(blob) ? 'audio/mpeg' : '');
+    const type = declaredType.startsWith('audio/') ? declaredType : (await looksLikeAudio(blob) ? 'audio/mpeg' : '');
     if (!type)
-        throw new Error('Bu dosya desteklenen bir ses biçimi değil veya ses verisi okunamadı.');
+        throw new Error('Bu dosya gerçek bir ses içermiyor veya desteklenmiyor.');
     const normalizedBlob = type === declaredType ? blob : new Blob([blob], { type });
     const duration = await getDuration(normalizedBlob);
     if (duration <= 0)
         throw new Error('Ses dosyası okunamadı veya tarayıcı tarafından desteklenmiyor.');
-    return { id: createId(), name: fileBaseName(name), blob: normalizedBlob, type, size: normalizedBlob.size, duration, createdAt: Date.now(), source };
+    return { id: crypto.randomUUID(), name: fileBaseName(name), blob: normalizedBlob, type, size: normalizedBlob.size, duration, createdAt: Date.now(), source };
 }
 async function addSelectedAudio() {
     if (!consent.checked) {
-        toast('Devam etmek için dosyayı kullanma hakkını onayla.', true);
+        toast('Devam etmek için kullanım hakkını onayla.', true);
         return;
     }
     addButton.disabled = true;
@@ -397,27 +482,30 @@ async function addSelectedAudio() {
     try {
         let blob;
         let name;
-        let source;
-        if (!selectedFile)
-            throw new Error(activeTab === 'video' ? 'Önce bir video dosyası seç.' : 'Önce bir ses dosyası seç.');
-        if (selectedFile.size > (activeTab === 'video' ? MAX_VIDEO_SIZE : MAX_SIZE))
-            throw new Error(activeTab === 'video' ? 'Video dosyası 50 MB sınırını aşıyor.' : 'Ses dosyası 100 MB sınırını aşıyor.');
-        const selectedIsVideo = isVideoFile(selectedFile);
-        if (activeTab === 'video' && !selectedIsVideo)
-            throw new Error('Bu alanda MP4 veya MOV video dosyası seçmelisin.');
-        if (activeTab === 'audio' && selectedIsVideo)
-            throw new Error('Video seçilmiş. “Videodan ses çıkar” sekmesine geç.');
-        if (activeTab === 'audio' && !isSupportedAudioFile(selectedFile))
-            throw new Error('Bu dosya desteklenen bir ses formatında değil.');
-        name = selectedFile.name;
-        source = activeTab === 'video' ? 'video' : 'file';
-        if (activeTab === 'video') {
-            blob = await extractVideoAudio(selectedFile);
+        let source = activeTab;
+        if (activeTab === 'file') {
+            if (!selectedFile)
+                throw new Error('Önce bir ses veya video dosyası seç.');
+            const isVideo = isVideoFile(selectedFile);
+            if (!isVideo && !selectedFile.type.startsWith('audio/') && !/\.(mp3|m4a|wav|ogg|aac|flac)$/i.test(selectedFile.name))
+                throw new Error('Bu dosya desteklenen bir ses veya video formatında değil.');
+            if (selectedFile.size > MAX_SIZE)
+                throw new Error('Bu dosya 100 MB sınırını aşıyor.');
+            name = selectedFile.name;
+            if (isVideo) {
+                blob = await extractVideoAudio(selectedFile);
+            }
+            else {
+                blob = selectedFile;
+            }
+            setProgress('Cihaza kaydediliyor…', 90);
         }
         else {
-            blob = selectedFile;
+            const url = validateDirectUrl(urlInput.value.trim());
+            name = urlBaseName(url);
+            const result = await readUrlBlob(url);
+            blob = result.blob;
         }
-        setProgress('Cihaza kaydediliyor…', 90);
         const song = await createSong(blob, name, source);
         await dbPut(song);
         songs = [song, ...songs];
@@ -439,28 +527,42 @@ function resetSource() {
     selectedFile = null;
     fileInput.value = '';
     fileName.textContent = 'Henüz dosya seçilmedi';
+    urlInput.value = '';
     consent.checked = false;
     updateAddButton();
 }
 function renderLibrary() {
-    libraryCount.textContent = `${songs.length} kayıt`;
-    emptyState.hidden = songs.length > 0;
-    songList.innerHTML = songs.map((song) => `
+    const search = searchQuery.trim().toLocaleLowerCase('tr');
+    let visibleSongs = songs.filter((song) => (!favoritesOnly || song.favorite) && (!search || song.name.toLocaleLowerCase('tr').includes(search)));
+    visibleSongs = [...visibleSongs].sort((a, b) => sortMode === 'oldest' ? a.createdAt - b.createdAt : sortMode === 'az' ? a.name.localeCompare(b.name, 'tr') : sortMode === 'duration' ? (b.duration || 0) - (a.duration || 0) : b.createdAt - a.createdAt);
+    libraryCount.textContent = `${songs.length} kayıt · ${visibleSongs.length} gösteriliyor`;
+    emptyState.hidden = visibleSongs.length > 0;
+    if (songs.length > 0 && visibleSongs.length === 0) { emptyState.querySelector('h3').textContent = 'Eşleşen ses yok'; emptyState.querySelector('p').textContent = 'Arama metnini veya favori filtresini değiştirebilirsin.'; }
+    else { emptyState.querySelector('h3').textContent = 'Arşiv henüz boş'; emptyState.querySelector('p').textContent = 'İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.'; }
+    songList.innerHTML = visibleSongs.map((song) => `
     <article class="song-row" data-song-id="${song.id}">
       <div class="song-art">${icons.cassette}</div>
-      <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span>·</span><span>${formatSize(song.size)}</span><span>·</span><span class="status-pill">${song.source === 'video' ? 'Videodan' : song.source === 'trim' ? 'Kesit' : 'Ses dosyası'}</span><span>· Cihazda</span></div></div>
-      <div class="song-actions"><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}">${icons.scissors}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
+      <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span>·</span><span>${formatSize(song.size)}</span><span>·</span><span class="status-pill">Cihazda</span></div></div>
+      <div class="song-actions"><button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button rename-row" type="button" aria-label="Adı değiştir: ${escapeHtml(song.name)}">${icons.edit}</button><button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}">${icons.scissors}</button><button class="icon-button share-row" type="button" aria-label="Paylaş: ${escapeHtml(song.name)}">${icons.share}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
     </article>`).join('');
     songList.querySelectorAll('.song-row').forEach((row) => {
         const id = row.dataset.songId;
         const song = songs.find((item) => item.id === id);
         if (!song)
             return;
+        row.querySelector('.favorite-row')?.addEventListener('click', () => void toggleFavorite(song));
         row.querySelector('.play-row')?.addEventListener('click', () => toggleSong(song));
+        row.querySelector('.rename-row')?.addEventListener('click', () => openRename(song));
         row.querySelector('.trim-row')?.addEventListener('click', () => void openTrim(song));
+        row.querySelector('.share-row')?.addEventListener('click', () => void shareSong(song));
         row.querySelector('.download-row')?.addEventListener('click', () => void downloadSong(song));
         row.querySelector('.delete-row')?.addEventListener('click', () => deleteSong(song));
     });
+}
+async function toggleFavorite(song) {
+    song.favorite = !song.favorite;
+    try { await dbPut(song); renderLibrary(); }
+    catch { song.favorite = !song.favorite; toast('Favori durumu kaydedilemedi.', true); }
 }
 function escapeHtml(value) {
     return value.replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character] || character));
@@ -475,7 +577,7 @@ function loadSong(song) {
     player.classList.add('visible');
     playerTitle.textContent = song.name;
     updateMediaSession();
-    playerSubtitle.textContent = `${song.source === 'trim' ? 'Kesit' : song.source === 'video' ? 'Videodan ayrıştırıldı' : 'Ses dosyası'} · cihazda saklı`;
+    playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : song.source === 'trim' ? 'Kesit' : 'Dosya'} · cihazda saklanıyor`;
     seek.value = '0';
     updatePlayerUI();
 }
@@ -588,7 +690,7 @@ function openOverlay(node) {
 }
 function closeOverlay(node) {
     node.hidden = true;
-    if (trimOverlay.hidden && infoOverlay.hidden)
+    if (trimOverlay.hidden && infoOverlay.hidden && renameOverlay.hidden)
         document.body.classList.remove('modal-open');
 }
 let infoFile = null;
@@ -667,11 +769,31 @@ async function shareFile(file, title) {
             toast('Paylaşım penceresi açılamadı.', true);
     }
 }
+async function shareSong(song) {
+    let file;
+    try {
+        file = await exportFile(song);
+    }
+    catch {
+        toast('Dosya hazırlanamadı.', true);
+        return;
+    }
+    if (!canShareFile(file)) {
+        toast('Bu tarayıcı doğrudan paylaşmayı desteklemiyor; dosya indiriliyor. İndirince mail veya Drive içinden ekleyebilirsin.', true);
+        await downloadSong(song);
+        return;
+    }
+    await shareFile(file, song.name);
+}
+
 // ---- kesme ----
 // Ses çözülüp (PCM) seçilen aralık 16 bit WAV olarak yeni kayıt yapılır; orijinal isteğe bağlı korunur.
 const MAX_TRIM_SECONDS = 15 * 60;
 const MIN_CLIP = 0.2;
 let trimState = null;
+let waveDragging = false;
+let waveDragHandle = 'start';
+let waveDragViewStart = 0;
 function formatClock(value) {
     const tenths = Math.max(0, Math.round(value * 10));
     const minutes = Math.floor(tenths / 600);
@@ -714,20 +836,25 @@ function drawWave() {
         return;
     g.clearRect(0, 0, w, h);
     const duration = s.buffer.duration;
-    const x0 = (s.start / duration) * w;
-    const x1 = (s.end / duration) * w;
+    const viewDuration = duration / (s.zoom || 1);
+    const center = (s.start + s.end) / 2;
+    const viewStart = waveDragging ? waveDragViewStart : Math.max(0, Math.min(duration - viewDuration, center - viewDuration / 2));
+    const viewEnd = viewStart + viewDuration;
+    const x0 = Math.max(0, Math.min(w, ((s.start - viewStart) / viewDuration) * w));
+    const x1 = Math.max(0, Math.min(w, ((s.end - viewStart) / viewDuration) * w));
     const n = s.peaks.length;
     const step = Math.max(2, Math.round(3 * dpr));
     const barWidth = Math.max(1, Math.round(2 * dpr));
     for (let x = 0; x < w; x += step) {
-        const peak = s.peaks[Math.min(n - 1, Math.floor((x / w) * n))];
+        const absoluteTime = viewStart + (x / w) * viewDuration;
+        const peak = s.peaks[Math.min(n - 1, Math.max(0, Math.floor((absoluteTime / duration) * n)))];
         const bar = Math.max(2 * dpr, peak * (h - 8 * dpr));
         g.fillStyle = x >= x0 && x <= x1 ? '#d95d39' : '#cdbdab';
         g.fillRect(x, (h - bar) / 2, barWidth, bar);
     }
     if (s.playhead >= 0) {
         g.fillStyle = '#211b18';
-        g.fillRect(Math.round((s.playhead / duration) * w), 0, Math.max(1, Math.round(2 * dpr)), h);
+        g.fillRect(Math.round(((s.playhead - viewStart) / viewDuration) * w), 0, Math.max(1, Math.round(2 * dpr)), h);
     }
 }
 function setTrimBusy(busy, text = '') {
@@ -768,7 +895,7 @@ async function openTrim(song) {
     }
     audio.pause();
     closeTrim();
-    const state = { song, buffer: null, peaks: null, start: 0, end: song.duration, preview: null, previewUrl: '', playhead: -1 };
+    const state = { song, buffer: null, peaks: null, start: 0, end: song.duration, preview: null, previewUrl: '', playhead: -1, zoom: 1 };
     trimState = state;
     trimName.textContent = song.name;
     trimSummary.textContent = '';
@@ -793,6 +920,8 @@ async function openTrim(song) {
         trimStart.value = '0';
         trimEnd.value = String(buffer.duration);
         trimKeep.checked = true;
+        get('fade-in').value = '0'; get('fade-out').value = '0'; get('trim-bass').value = '0'; get('trim-treble').value = '0'; get('wave-zoom').value = '1'; state.zoom = 1;
+        get('fade-in-value').textContent = '0 sn'; get('fade-out-value').textContent = '0 sn'; get('trim-bass-value').textContent = '0 dB'; get('trim-treble-value').textContent = '0 dB'; get('wave-zoom-value').textContent = '1×';
         setTrimBusy(false);
         trimPreviewButton.textContent = 'Seçimi dinle';
         syncTrim();
@@ -874,18 +1003,37 @@ async function saveTrim() {
         if (to - from < rate * MIN_CLIP * 0.5)
             throw new Error('Seçilen bölüm çok kısa.');
         await new Promise((resolve) => setTimeout(resolve, 30));
-        const clip = await createSong(encodeWav(s.buffer, from, to), 'kesit', 'trim');
+        const fadeIn = Number(get('fade-in').value);
+        const fadeOut = Number(get('fade-out').value);
+        const bass = Number(get('trim-bass').value);
+        const treble = Number(get('trim-treble').value);
+        const length = to - from;
+        let processed = s.buffer;
+        let processedFrom = from;
+        let processedTo = to;
+        if (bass !== 0 || treble !== 0) {
+            const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+            if (!OfflineCtx) throw new Error('Bu tarayıcı ses filtrelerini desteklemiyor.');
+            const offline = new OfflineCtx(Math.min(2, s.buffer.numberOfChannels), length, rate);
+            const clipBuffer = offline.createBuffer(Math.min(2, s.buffer.numberOfChannels), length, rate);
+            for (let channel = 0; channel < clipBuffer.numberOfChannels; channel++) clipBuffer.copyToChannel(s.buffer.getChannelData(channel).slice(from, to), channel);
+            const source = offline.createBufferSource(); source.buffer = clipBuffer;
+            const low = offline.createBiquadFilter(); low.type = 'lowshelf'; low.frequency.value = 180; low.gain.value = bass;
+            const high = offline.createBiquadFilter(); high.type = 'highshelf'; high.frequency.value = 3800; high.gain.value = treble;
+            source.connect(low); low.connect(high); high.connect(offline.destination); source.start();
+            processed = await offline.startRendering(); processedFrom = 0; processedTo = processed.length;
+        }
+        const clip = await createSong(encodeWav(processed, processedFrom, processedTo, { fadeIn: Math.min(fadeIn, length / rate / 2), fadeOut: Math.min(fadeOut, length / rate / 2) }), 'kesit', 'trim');
         clip.name = `${s.song.name} (kesit)`;
         await dbPut(clip);
         songs = [clip, ...songs];
         const keep = trimKeep.checked;
         const original = s.song;
         closeTrim();
-        let originalRemoved = true;
         if (!keep)
-            originalRemoved = await removeSong(original, false);
+            await removeSong(original);
         renderLibrary();
-        toast(keep ? 'Kesit yeni kayıt olarak eklendi.' : originalRemoved ? 'Kesit kaydedildi, orijinal silindi.' : 'Kesit kaydedildi; ancak orijinal ses silinemedi.', !keep && !originalRemoved);
+        toast(keep ? 'Kesit yeni kayıt olarak eklendi.' : 'Kesit kaydedildi, orijinal silindi.');
     }
     catch (error) {
         if (trimState === s)
@@ -893,6 +1041,11 @@ async function saveTrim() {
         toast(error instanceof Error ? error.message : 'Kesit kaydedilemedi.', true);
     }
 }
+get('wave-zoom').addEventListener('input', (event) => { if (trimState) { trimState.zoom = Number(event.target.value) || 1; get('wave-zoom-value').textContent = `${trimState.zoom}×`; drawWave(); } });
+get('trim-bass').addEventListener('input', (event) => { get('trim-bass-value').textContent = `${event.target.value} dB`; });
+get('trim-treble').addEventListener('input', (event) => { get('trim-treble-value').textContent = `${event.target.value} dB`; });
+get('fade-in').addEventListener('input', (event) => { get('fade-in-value').textContent = `${Number(event.target.value).toFixed(1)} sn`; });
+get('fade-out').addEventListener('input', (event) => { get('fade-out-value').textContent = `${Number(event.target.value).toFixed(1)} sn`; });
 trimStart.addEventListener('input', () => syncTrim('start'));
 trimEnd.addEventListener('input', () => syncTrim('end'));
 trimOverlay.querySelectorAll('.nudge').forEach((button) => button.addEventListener('click', () => {
@@ -905,15 +1058,32 @@ trimOverlay.querySelectorAll('.nudge').forEach((button) => button.addEventListen
     syncTrim(which);
 }));
 waveCanvas.addEventListener('pointerdown', (event) => {
+    waveDragging = true;
+    waveCanvas.setPointerCapture?.(event.pointerId);
     const s = trimState;
     if (!s || !s.buffer)
         return;
     const rect = waveCanvas.getBoundingClientRect();
-    const time = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)) * s.buffer.duration;
-    const which = Math.abs(time - s.start) <= Math.abs(time - s.end) ? 'start' : 'end';
-    (which === 'start' ? trimStart : trimEnd).value = String(time);
-    syncTrim(which);
+    const fraction = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    const viewDuration = s.buffer.duration / (s.zoom || 1);
+    const viewStart = Math.max(0, Math.min(s.buffer.duration - viewDuration, (s.start + s.end) / 2 - viewDuration / 2));
+    const time = viewStart + fraction * viewDuration;
+    waveDragHandle = Math.abs(time - s.start) <= Math.abs(time - s.end) ? 'start' : 'end';
+    waveDragViewStart = viewStart;
+    (waveDragHandle === 'start' ? trimStart : trimEnd).value = String(time);
+    syncTrim(waveDragHandle);
 });
+waveCanvas.addEventListener('pointermove', (event) => {
+    if (!waveDragging || !trimState?.buffer) return;
+    const rect = waveCanvas.getBoundingClientRect();
+    const fraction = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    const viewDuration = trimState.buffer.duration / (trimState.zoom || 1);
+    const time = waveDragViewStart + fraction * viewDuration;
+    (waveDragHandle === 'start' ? trimStart : trimEnd).value = String(time); syncTrim(waveDragHandle);
+});
+waveCanvas.addEventListener('pointerup', () => { waveDragging = false; });
+waveCanvas.addEventListener('pointercancel', () => { waveDragging = false; });
+waveCanvas.addEventListener('lostpointercapture', () => { waveDragging = false; });
 trimPreviewButton.addEventListener('click', toggleTrimPreview);
 trimSaveButton.addEventListener('click', () => void saveTrim());
 get('trim-close').addEventListener('click', closeTrim);
@@ -928,7 +1098,9 @@ infoOverlay.addEventListener('click', (event) => { if (event.target === infoOver
 document.addEventListener('keydown', (event) => {
     if (event.key !== 'Escape')
         return;
-    if (!infoOverlay.hidden)
+    if (!renameOverlay.hidden)
+        closeRename();
+    else if (!infoOverlay.hidden)
         closeInfo();
     else if (!trimOverlay.hidden)
         closeTrim();
@@ -939,7 +1111,7 @@ async function deleteSong(song) {
         return;
     await removeSong(song);
 }
-async function removeSong(song, notify = true) {
+async function removeSong(song) {
     try {
         await dbDelete(song.id);
         songs = songs.filter((item) => item.id !== song.id);
@@ -955,12 +1127,10 @@ async function removeSong(song, notify = true) {
             player.classList.remove('visible');
         }
         renderLibrary();
-        if (notify) toast('Ses arşivden silindi.');
-        return true;
+        toast('Ses arşivden silindi.');
     }
     catch {
-        if (notify) toast('Ses silinemedi; cihaz depolamasını kontrol et.', true);
-        return false;
+        toast('Ses silinemedi; cihaz depolamasını kontrol et.', true);
     }
 }
 fileInput.addEventListener('change', () => {
@@ -969,6 +1139,7 @@ fileInput.addEventListener('change', () => {
     updateAddButton();
 });
 consent.addEventListener('change', updateAddButton);
+urlInput.addEventListener('input', updateAddButton);
 addButton.addEventListener('click', () => void addSelectedAudio());
 document.querySelectorAll('[data-tab]').forEach((button) => button.addEventListener('click', () => switchTab(button.dataset.tab)));
 playButton.addEventListener('click', async () => {
@@ -995,32 +1166,163 @@ audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); void handleEnded(); });
-// Sıradaki kayıt otomatik çalar; kilit ekranı destekliyorsa önceki/sonraki kontrolleri de sunulur.
-function neighborSong(step) {
+// ---- v15: ad değiştirme ----
+const renameOverlay = get('rename-overlay');
+const renameInput = get('rename-input');
+let renameTarget = null;
+function openRename(song) {
+    renameTarget = song;
+    renameInput.value = song.name;
+    openOverlay(renameOverlay);
+    renameInput.focus();
+    renameInput.select();
+}
+function closeRename() {
+    renameTarget = null;
+    closeOverlay(renameOverlay);
+}
+async function saveRename() {
+    const song = renameTarget;
+    if (!song)
+        return;
+    const name = renameInput.value.replace(/\s+/g, ' ').trim().slice(0, 80);
+    if (!name) {
+        toast('Ad boş olamaz.', true);
+        return;
+    }
+    const previous = song.name;
+    try {
+        song.name = name;
+        await dbPut(song);
+    }
+    catch {
+        song.name = previous;
+        toast('Ad kaydedilemedi; cihaz depolamasını kontrol et.', true);
+        return;
+    }
+    if (activeSong?.id === song.id) {
+        playerTitle.textContent = name;
+        updateMediaSession();
+    }
+    renderLibrary();
+    closeRename();
+    toast('Ad değiştirildi.');
+}
+get('rename-save').addEventListener('click', () => void saveRename());
+get('rename-close').addEventListener('click', closeRename);
+renameInput.addEventListener('keydown', (event) => { if (event.key === 'Enter')
+    void saveRename(); });
+renameOverlay.addEventListener('click', (event) => { if (event.target === renameOverlay)
+    closeRename(); });
+
+// ---- v15: sıradaki ses, tekrar, kilit ekranı kontrolleri ----
+const prevButton = get('prev-button');
+const nextButton = get('next-button');
+const modeButton = get('mode-button');
+const PLAY_MODES = [
+    { id: 'once', label: 'Tek seferlik' },
+    { id: 'seq', label: 'Sırayla çal' },
+    { id: 'loop', label: 'Hepsini tekrarla' },
+    { id: 'one', label: 'Bunu tekrarla' },
+    { id: 'shuffle', label: 'Karıştır' },
+];
+let playMode = 'seq';
+try {
+    const saved = window.localStorage.getItem('sescebi-mode');
+    if (PLAY_MODES.some((mode) => mode.id === saved))
+        playMode = saved;
+}
+catch { /* depolama kapalı olabilir; varsayılan düzen kullanılır */ }
+function refreshModeButton() {
+    const mode = PLAY_MODES.find((item) => item.id === playMode) || PLAY_MODES[1];
+    modeButton.textContent = mode.label;
+    modeButton.setAttribute('aria-label', `Çalma düzeni: ${mode.label}. Değiştirmek için dokun.`);
+}
+function neighborSong(step, wrap) {
     const index = songs.findIndex((song) => song.id === activeSong?.id);
-    if (index < 0) return null;
-    return songs[index + step] || null;
+    if (index < 0)
+        return null;
+    let target = index + step;
+    if (target < 0 || target >= songs.length) {
+        if (!wrap)
+            return null;
+        target = (target + songs.length) % songs.length;
+    }
+    return songs[target] || null;
 }
 async function playSong(song) {
     loadSong(song);
-    try { await audio.play(); }
-    catch { toast('Bu ses tarayıcıda oynatılamadı.', true); }
+    try {
+        await audio.play();
+    }
+    catch {
+        toast('Bu ses tarayıcıda oynatılamadı.', true);
+    }
     renderLibrary();
     updatePlayerUI();
 }
 async function handleEnded() {
-    const next = neighborSong(1);
-    if (next) await playSong(next);
+    if (playMode === 'once')
+        return;
+    if (playMode === 'one') {
+        audio.currentTime = 0;
+        await audio.play().catch(() => undefined);
+        return;
+    }
+    const next = playMode === 'shuffle' ? songs.filter((song) => song.id !== activeSong?.id)[Math.floor(Math.random() * Math.max(1, songs.length - 1))] : neighborSong(1, playMode === 'loop');
+    if (next)
+        await playSong(next);
 }
-function playNext() {
-    const next = neighborSong(1);
-    if (next) void playSong(next);
-}
-function playPrevious() {
-    const previous = audio.currentTime > 3 ? null : neighborSong(-1);
-    if (previous) void playSong(previous);
-    else audio.currentTime = 0;
-}
+modeButton.addEventListener('click', () => {
+    const index = PLAY_MODES.findIndex((mode) => mode.id === playMode);
+    playMode = PLAY_MODES[(index + 1) % PLAY_MODES.length].id;
+    try {
+        window.localStorage.setItem('sescebi-mode', playMode);
+    }
+    catch { /* kaydedilemese de düzen bu oturumda geçerli */ }
+    refreshModeButton();
+});
+nextButton.addEventListener('click', () => {
+    if (!activeSong) {
+        toast('Önce bir ses çal.', true);
+        return;
+    }
+    const next = playMode === 'shuffle' ? songs.filter((song) => song.id !== activeSong?.id)[Math.floor(Math.random() * Math.max(1, songs.length - 1))] : neighborSong(1, playMode === 'loop');
+    if (next)
+        void playSong(next);
+    else
+        toast('Listenin sonundasın.');
+});
+prevButton.addEventListener('click', () => {
+    if (!activeSong) {
+        toast('Önce bir ses çal.', true);
+        return;
+    }
+    const previous = audio.currentTime > 3 ? null : neighborSong(-1, playMode === 'loop');
+    if (previous)
+        void playSong(previous);
+    else
+        audio.currentTime = 0;
+});
+refreshModeButton();
+get('library-search').addEventListener('input', (event) => { searchQuery = event.target.value; renderLibrary(); });
+get('library-sort').addEventListener('change', (event) => { sortMode = event.target.value; renderLibrary(); });
+get('favorites-filter').addEventListener('click', (event) => { favoritesOnly = !favoritesOnly; event.currentTarget.setAttribute('aria-pressed', String(favoritesOnly)); event.currentTarget.classList.toggle('active', favoritesOnly); renderLibrary(); });
+get('playback-speed').addEventListener('change', (event) => { audio.playbackRate = Number(event.target.value) || 1; updatePositionState(); });
+get('sleep-button').addEventListener('click', () => {
+    const answer = window.prompt('Uyku zamanlayıcısı kaç dakika olsun? (0 = iptal)', '30');
+    if (answer === null) return;
+    const minutes = Number(answer);
+    if (!Number.isFinite(minutes) || minutes < 0 || minutes > 240) { toast('0–240 arasında dakika gir.', true); return; }
+    if (sleepTimerId) window.clearTimeout(sleepTimerId);
+    sleepTimerId = 0;
+    if (minutes === 0) { toast('Uyku zamanlayıcısı iptal edildi.'); return; }
+    sleepTimerId = window.setTimeout(() => { audio.pause(); sleepTimerId = 0; toast('Uyku zamanlayıcısı sesi durdurdu.'); }, minutes * 60000);
+    toast(`Ses ${minutes} dakika sonra duracak.`);
+});
+const themeToggle = get('theme-toggle');
+try { if (localStorage.getItem('sescebi-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch {}
+themeToggle.addEventListener('click', () => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('sescebi-theme', dark ? 'dark' : 'light'); } catch {} });
 function updateMediaSession() {
     if (!('mediaSession' in navigator) || !activeSong)
         return;
@@ -1051,8 +1353,8 @@ if ('mediaSession' in navigator) {
         pause: () => audio.pause(),
         seekbackward: () => { audio.currentTime = Math.max(0, audio.currentTime - 10); },
         seekforward: () => { audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + 10); },
-        previoustrack: () => playPrevious(),
-        nexttrack: () => playNext(),
+        previoustrack: () => prevButton.click(),
+        nexttrack: () => nextButton.click(),
         seekto: (details) => { if (typeof details.seekTime === 'number')
             audio.currentTime = details.seekTime; },
     };
@@ -1064,7 +1366,7 @@ if ('mediaSession' in navigator) {
     }
 }
 
-// ---- yedekleme ve geri yükleme (sıkıştırmasız standart .zip) ----
+// ---- v15: yedekleme ve geri yükleme (sıkıştırmasız standart .zip) ----
 const backupButton = get('backup-button');
 const restoreButton = get('restore-button');
 const restoreInput = get('restore-input');
@@ -1205,7 +1507,7 @@ async function createBackup() {
             const format = await detectFormat(song.blob, song.type);
             const file = `sesler/${String(i + 1).padStart(3, '0')}-${safeFileName(song.name)}.${format.ext}`;
             entries.push({ name: file, blob: song.blob });
-            manifest.songs.push({ id: song.id, name: song.name, duration: song.duration, source: song.source, createdAt: song.createdAt, type: format.mime, file });
+            manifest.songs.push({ id: song.id, name: song.name, duration: song.duration, source: song.source, createdAt: song.createdAt, favorite: !!song.favorite, type: format.mime, file });
         }
         entries.push({ name: 'sescebi.json', blob: new Blob([JSON.stringify(manifest, null, 1)], { type: 'application/json' }) });
         const zip = await buildZip(entries);
@@ -1234,7 +1536,7 @@ async function restoreBackup(file) {
         let skipped = 0;
         for (const item of manifest.songs) {
             const entry = entries.find((candidate) => candidate.name === item.file);
-            const id = typeof item.id === 'string' && item.id ? item.id : createId();
+            const id = typeof item.id === 'string' && item.id ? item.id : crypto.randomUUID();
             if (!entry || known.has(id)) {
                 skipped++;
                 continue;
@@ -1250,7 +1552,8 @@ async function restoreBackup(file) {
                 size: blob.size,
                 duration,
                 createdAt: Number(item.createdAt) || Date.now(),
-                source: ['file', 'video', 'url', 'trim'].includes(item.source) ? item.source : 'file',
+                source: ['file', 'url', 'trim'].includes(item.source) ? item.source : 'file',
+                favorite: item.favorite === true,
             };
             await dbPut(song);
             songs.push(song);
@@ -1277,7 +1580,7 @@ restoreInput.addEventListener('change', () => {
         void restoreBackup(file);
 });
 
-// ---- videodan sesi yeniden kodlamadan ayırma (MP4/MOV içindeki AAC → M4A) ----
+// ---- v15: videodan sesi yeniden kodlamadan ayırma (MP4/MOV içindeki AAC → M4A) ----
 // Ses akışı olduğu gibi yeni bir M4A kapsayıcıya taşınır: kayıpsız, anında ve çok küçük.
 // AAC dışı sesli, parçalı (fragmented) veya tanınmayan dosyalarda null döner; uygulama eski yönteme (WAV) düşer.
 async function extractAacFromMp4(file) {
@@ -1428,9 +1731,6 @@ async function extractAacFromMp4(file) {
     return new Blob([ftyp, moovHeader, mvhdBytes, trakBytes, mdatHeader, ...chunks], { type: 'audio/mp4' });
 }
 async function extractVideoAudio(file) {
-    if (!(/\.(mp4|m4v|mov)$/i.test(file.name) || /^video\/(mp4|quicktime)$/.test(file.type))) {
-        throw new Error('Şimdilik yalnızca MP4 veya MOV video dosyalarından ses ayrıştırılabiliyor.');
-    }
     if (/\.(mp4|m4v|mov)$/i.test(file.name) || /^video\/(mp4|quicktime)$/.test(file.type)) {
         try {
             setProgress('Videodan ses ayrılıyor…', 30);
@@ -1448,6 +1748,7 @@ let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
 const installButton = get('install-button');
+const updateButton = get('update-button');
 const appStatus = get('app-status');
 const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -1493,6 +1794,37 @@ installButton.addEventListener('click', async () => {
     }
     toast('Tarayıcı menüsünden (⋮) “Uygulamayı yükle” veya “Ana ekrana ekle”yi seç. “Zaten yüklü” diyorsa eski kurulumu kaldırıp tekrar dene.', true);
 });
+async function checkForUpdates() {
+    if (!('serviceWorker' in navigator)) {
+        toast('Bu tarayıcı güncelleme denetimini desteklemiyor.', true);
+        return;
+    }
+    updateButton.disabled = true;
+    const label = updateButton.querySelector('span');
+    if (label)
+        label.textContent = 'Denetleniyor…';
+    try {
+        const registration = swRegistration || await navigator.serviceWorker.getRegistration('./');
+        if (!registration)
+            throw new Error('kayıt yok');
+        await registration.update();
+        if (registration.waiting)
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        if (registration.installing || registration.waiting)
+            toast('Yeni sürüm bulundu, yükleniyor…');
+        else
+            toast(`Uygulama güncel · Sürüm ${APP_VERSION}`);
+    }
+    catch {
+        toast('Güncelleme denetlenemedi. İnternet bağlantını kontrol et.', true);
+    }
+    finally {
+        updateButton.disabled = false;
+        if (label)
+            label.textContent = 'Güncellemeleri denetle';
+    }
+}
+updateButton.addEventListener('click', () => void checkForUpdates());
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!hadController) {
@@ -1511,6 +1843,47 @@ if ('serviceWorker' in navigator) {
             swRegistration?.update().catch(() => undefined);
     });
 }
+async function diagnose() {
+    const out = [];
+    const ok = (good, text) => out.push((good ? '✔ ' : '✘ ') + text);
+    ok(window.isSecureContext, 'Güvenli bağlantı (HTTPS)');
+    ok('serviceWorker' in navigator, 'Service worker desteği');
+    try {
+        const reg = await navigator.serviceWorker.getRegistration('./');
+        ok(!!reg && !!reg.active, 'Service worker etkin');
+    }
+    catch {
+        ok(false, 'Service worker kaydı');
+    }
+    const link = document.querySelector('link[rel=manifest]');
+    let manifest = null;
+    try {
+        const res = await fetch(link.href, { cache: 'no-store' });
+        manifest = await res.json();
+        ok(res.ok, `Manifest okundu (${res.status})`);
+    }
+    catch {
+        ok(false, 'Manifest bulunamadı ya da bozuk');
+    }
+    if (manifest) {
+        ok(manifest.display === 'standalone' || manifest.display === 'fullscreen', 'display ayarı');
+        const sizes = (manifest.icons || []).map((i) => i.sizes).join(' ');
+        ok(/192x192/.test(sizes) && /512x512/.test(sizes), '192 ve 512 simge tanımlı');
+        for (const icon of manifest.icons || []) {
+            try {
+                const res = await fetch(new URL(icon.src, link.href), { cache: 'no-store' });
+                ok(res.ok && (res.headers.get('content-type') || '').startsWith('image'), `${icon.src} (${res.status})`);
+            }
+            catch {
+                ok(false, `${icon.src} yüklenemedi`);
+            }
+        }
+    }
+    ok(!!deferredInstallPrompt, 'Tarayıcı kurulum penceresine hazır');
+    ok(!isStandalone(), 'Şu an tarayıcıda açık (uygulama olarak değil)');
+    window.alert(out.join('\n'));
+}
+get('diag-button').addEventListener('click', () => void diagnose());
 refreshAppCard();
 async function init() {
     if (navigator.storage?.persist) {
