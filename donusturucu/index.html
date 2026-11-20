@@ -54,11 +54,21 @@
       <small>Ozguler Forge</small>
     </div>
   </div>
-  <div class="badges">
-    <span id="engine" class="badge" data-state="busy" role="status">Motor yükleniyor…</span>
-    <span id="offline" class="badge" data-state="wait"></span>
-    <button id="install" class="btn small" hidden>Uygulamayı yükle</button>
-    <button id="update" class="btn small" hidden>Yeni sürüm var · yenile</button>
+
+  <!-- js/app.js uyumluluğu için arka planda gizli tutulur -->
+  <span id="engine" hidden></span>
+  <span id="offline" hidden></span>
+
+  <div class="top-actions">
+    <button id="install" type="button" class="btn small primary">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span>Uygulamayı İndir</span>
+    </button>
+    <button id="checkUpdate" type="button" class="btn small">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+      <span>Güncellemeleri Kontrol Et</span>
+    </button>
+    <button id="update" type="button" class="btn small primary" hidden>Yeni Sürüm Var · Yükle</button>
   </div>
 </header>
 
@@ -152,11 +162,11 @@
   </div>
 </footer>
 
-<!-- YASAL METİNLER MODALI -->
+<!-- YASAL METİNLER & KURULUM REHBERİ MODALI -->
 <dialog id="legalModal" class="modal" aria-labelledby="modalTitle">
   <div class="modal-box">
     <header class="modal-head">
-      <h2 id="modalTitle">Yasal Bilgilendirme</h2>
+      <h2 id="modalTitle">Bilgilendirme</h2>
       <button type="button" id="closeModal" class="x" aria-label="Pencereyi kapat">×</button>
     </header>
     <div id="modalBody" class="modal-body"></div>
@@ -180,7 +190,6 @@
     return;
   }
 
-  // Koreografi tamamlandıktan sonra üst menüdeki logoya uçarak kenetlenir
   setTimeout(() => {
     const startRect = mark.getBoundingClientRect();
     const endRect = targetLogo.getBoundingClientRect();
@@ -199,7 +208,7 @@
   }, 1150);
 })();
 
-// YASAL METİNLER VERİSİ VE MODAL KONTROLÜ
+// 2. YASAL METİNLER VERİSİ VE MODAL KONTROLÜ
 (function initLegalModals() {
   const modal = document.getElementById('legalModal');
   const title = document.getElementById('modalTitle');
@@ -271,6 +280,97 @@
   closeTop?.addEventListener('click', close);
   closeBottom?.addEventListener('click', close);
   modal?.addEventListener('click', e => { if (e.target === modal) close(); });
+})();
+
+// 3. PWA KURULUM (İNDİR) VE GÜNCELLEME KONTROLÜ
+(function initPwaControls() {
+  const installBtn = document.getElementById('install');
+  const checkBtn = document.getElementById('checkUpdate');
+  const modal = document.getElementById('legalModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+
+  let deferredPrompt = null;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  if (isStandalone && installBtn) {
+    installBtn.hidden = true;
+  }
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn && !isStandalone) installBtn.hidden = false;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    if (installBtn) installBtn.hidden = true;
+  });
+
+  installBtn?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') installBtn.hidden = true;
+      deferredPrompt = null;
+      return;
+    }
+
+    if (modal && modalTitle && modalBody) {
+      modalTitle.textContent = 'Uygulamayı Cihazınıza Yükleyin';
+      modalBody.innerHTML = `
+        <p><strong>Kontak</strong>, cihazınıza kurulduğunda internet bağlantısı olmadan da tam ekran uygulama olarak çalışır.</p>
+        <h3>iPhone / iPad (Safari)</h3>
+        <ul>
+          <li>Alt veya üst çubuktaki <strong>Paylaş</strong> simgesine dokunun.</li>
+          <li>Açılan menüden <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin ve <strong>Ekle</strong>'ye dokunun.</li>
+        </ul>
+        <h3>Android / Masaüstü (Chrome, Edge)</h3>
+        <ul>
+          <li>Tarayıcı adres çubuğunun sağındaki <strong>Yükle</strong> simgesine veya sağ üstteki <strong>⋮</strong> menüsünden <strong>"Uygulamayı yükle"</strong> seçeneğine tıklayın.</li>
+        </ul>
+      `;
+      modal.showModal();
+    }
+  });
+
+  checkBtn?.addEventListener('click', async () => {
+    const label = checkBtn.querySelector('span');
+    const origText = label ? label.textContent : 'Güncellemeleri Kontrol Et';
+    checkBtn.disabled = true;
+    if (label) label.textContent = 'Kontrol ediliyor…';
+
+    try {
+      if (!('serviceWorker' in navigator)) {
+        throw new Error('Desteklenmiyor');
+      }
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (!reg) {
+        location.reload();
+        return;
+      }
+
+      await reg.update();
+
+      if (reg.waiting || reg.installing) {
+        if (label) label.textContent = 'Güncelleme bulundu, yenileniyor…';
+        setTimeout(() => location.reload(), 700);
+      } else {
+        if (label) label.textContent = 'Uygulama güncel (v1.2.0)';
+        setTimeout(() => {
+          if (label) label.textContent = origText;
+          checkBtn.disabled = false;
+        }, 2500);
+      }
+    } catch {
+      if (label) label.textContent = 'Güncel sürüm aktif';
+      setTimeout(() => {
+        if (label) label.textContent = origText;
+        checkBtn.disabled = false;
+      }, 2200);
+    }
+  });
 })();
 </script>
 <script type="module" src="js/app.js"></script>

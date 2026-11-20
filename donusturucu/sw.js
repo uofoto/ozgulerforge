@@ -8,7 +8,6 @@ const isHtml = res => /text\/html/i.test(res.headers.get('content-type') || '');
 const isWasm = r => /\.wasm$/i.test(new URL(r.url).pathname);
 
 self.addEventListener('install', e => {
-  // Yalnızca küçük kabuk kurulumu bekletir. 32 MB'lık wasm kurulumu engellemesin diye 'cache-core' mesajıyla arka planda alınır.
   e.waitUntil((async () => {
     const c = await caches.open(VERSION);
     await c.addAll(SHELL);
@@ -23,7 +22,6 @@ self.addEventListener('activate', e => {
   })());
 });
 
-// Sayfa motoru yükledikten sonra wasm'ı önbelleğe al (sayfa zaten indirdiği için çoğunlukla HTTP önbelleğinden gelir).
 self.addEventListener('message', e => {
   if (e.data?.type !== 'cache-core') return;
   e.waitUntil((async () => {
@@ -32,7 +30,7 @@ self.addEventListener('message', e => {
       try {
         if (await c.match(u)) continue;
         const res = await fetch(u);
-        if (res.ok && !isHtml(res)) await c.put(u, res); // eksik dosya yerine gelen HTML sayfası wasm diye saklanmasın
+        if (res.ok && !isHtml(res)) await c.put(u, res);
       } catch {}
     }
     const cl = await self.clients.matchAll({ includeUncontrolled: true });
@@ -45,10 +43,9 @@ self.addEventListener('fetch', e => {
   if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
   e.respondWith((async () => {
     const hit = await caches.match(r, { ignoreSearch: true });
-    if (hit && !(isWasm(r) && isHtml(hit))) return hit; // eskiden bozuk saklanmış wasm'ı kullanma
+    if (hit && !(isWasm(r) && isHtml(hit))) return hit;
     try {
       const res = await fetch(r);
-      // Önbelleğe yazma hatası (kota dolu, 206 kısmi yanıt) başarılı bir ağ yanıtını bozmasın.
       if (res.ok && res.status === 200 && !(isWasm(r) && isHtml(res))) e.waitUntil(caches.open(VERSION).then(c => c.put(r, res.clone())).catch(() => {}));
       return res;
     } catch {
