@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ses-cebi-v16';
+const CACHE_NAME = 'ses-cebi-v17';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.svg', './icons/icon-512.svg'];
 
 self.addEventListener('install', (event) => {
