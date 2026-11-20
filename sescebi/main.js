@@ -49,12 +49,12 @@ app.innerHTML = `
       <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
       <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Ses arşivi</span><span class="nav-count" id="nav-count">0</span></button>
       <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol">〽</span><span>Ses stüdyosu</span></button>
-      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 19</span></div>
+      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 20</span></div>
     </nav>
 
     <main>
       <section class="screen-view active" id="screen-home">
-        <div class="page-heading"><div><p class="page-kicker">KİŞİSEL SES ALANIN</p><h1>Seslerini sakla, <em>dilediğin an yeniden dinle.</em></h1><p class="page-subtitle">Kaydet, düzenle ve kendi arşivinden dinle. Her şey bu cihazda kalır.</p></div><span class="today-chip"><i></i> Çevrimdışı kullanıma hazır</span></div>
+        <div class="page-heading"><div><p class="page-kicker">KİŞİSEL SES ALANIN</p><h1>Seslerini, <em>özgürce.</em></h1><p class="page-subtitle">Kaydet, düzenle ve kendi arşivinden dinle. Her şey bu cihazda kalır.</p></div><span class="today-chip"><i></i> Çevrimdışı kullanıma hazır</span></div>
         <section class="metric-row" aria-label="Arşiv özeti">
           <article class="metric-card"><span class="metric-icon mint">♫</span><div><span class="metric-label">ARŞİVİNDE</span><strong id="stat-count">0</strong><small>ses kaydı</small></div><span class="metric-art art-lines"></span></article>
           <article class="metric-card"><span class="metric-icon lilac">♡</span><div><span class="metric-label">SEVDİKLERİN</span><strong id="stat-favorites">0</strong><small>favori kayıt</small></div><span class="metric-art art-orbit"></span></article>
@@ -72,7 +72,11 @@ app.innerHTML = `
               <div class="progress-wrap" id="progress-wrap" aria-live="polite"><div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div><progress id="progress" max="100" value="0">0%</progress></div>
             </section>
             <div class="player" id="player" aria-live="polite"><div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div><div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div><div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip" id="mode-button" type="button">Sırayla çal</button><label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button></div></div>
-            <section class="install-panel"><div class="install-mark">↓</div><div class="install-copy"><strong>Ses Cebi hep yanında</strong><span id="app-status">Sürüm 18 · İsteğe bağlı kurulum</span></div><div class="app-card-actions"><button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Uygulamayı yükle</span></button><button class="ghost-button" id="update-button" type="button"><span>Güncelle</span></button><button class="ghost-button" id="diag-button" type="button"><span>Durum</span></button></div></section>
+            <section class="install-panel" aria-label="Ses Cebi uygulamasını yükle">
+              <div class="install-mark" aria-hidden="true">${icons.cassette}</div>
+              <div class="install-copy"><span class="install-eyebrow">KİŞİSEL ARŞİVİN · HER AN YANINDA</span><strong>Ses Cebi, hep yanında.</strong><span>Uygulamayı cihazına ekle; ses arşivin tek dokunuşla açılsın.</span><small id="app-status">Sürüm 20 · İsteğe bağlı kurulum</small></div>
+              <div class="app-card-actions"><button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Uygulamayı yükle</span></button><button class="ghost-button" id="update-button" type="button"><span>Güncelle</span></button><button class="ghost-button" id="diag-button" type="button"><span>Durum</span></button></div>
+            </section>
           </div>
           <aside class="home-aside"><section class="card recent-card"><div class="aside-heading"><div><p class="section-kicker">KÜTÜPHANENDEN</p><h2>Son eklenenler</h2></div><button class="text-link" type="button" data-screen="library">Tümünü gör <span>↗</span></button></div><div id="dashboard-recent" class="recent-list"></div><div id="dashboard-empty" class="recent-empty"><span class="recent-empty-icon">♫</span><strong>Burada ilk parçan görünecek</strong><span>Bir ses ekleyerek kişisel arşivini oluşturmaya başla.</span></div></section><section class="privacy-card"><span class="privacy-icon">◈</span><div><strong>Senin seslerin, senin cihazında.</strong><p>Hesap yok, yükleme yok. Arşivini dilediğinde dışa aktarabilirsin.</p></div></section></aside>
         </div>
@@ -94,15 +98,21 @@ app.innerHTML = `
       </section>
     </main>
 
-    <footer class="site-footer">
-      <div class="footer-intro"><strong>ozguler forge</strong><span>Ses Cebi · kişisel ses arşivin</span><span>Sesler bu cihazda saklanır; uygulama sunucusuna yüklenmez.</span></div>
-      <div class="footer-contact"><a href="https://ozgulerforge.com.tr" target="_blank" rel="noreferrer">ozgulerforge.com.tr</a><a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></div>
-      <div class="legal-grid">
-        <section><h3>Kullanım ve telif</h3><p>Ses Cebi yalnızca sahip olduğunuz veya kullanma ve indirme izniniz bulunan içerikler için kullanılmalıdır. İçerik hakları ilgili sahiplerine aittir; izinsiz çoğaltma, dağıtma veya ticari kullanım kullanıcının sorumluluğundadır.</p></section>
-        <section><h3>Gizlilik ve depolama</h3><p>Bu sürümde hesap oluşturulmaz. Eklediğiniz sesler tarayıcının yerel depolamasında tutulur. Tarayıcı verilerini temizlemek, uygulamayı kaldırmak veya cihaz depolamasının silinmesi kayıtların kaybolmasına neden olabilir.</p></section>
-        <section><h3>Platform sınırları</h3><p>Uygulama Instagram’a giriş yapmaz; özel hesaplara, korumalı içeriğe veya platform kısıtlarını aşmaya yönelik erişim sağlamaz. Yalnızca herkese açık ve izinli doğrudan medya bağlantıları desteklenir.</p></section>
+    <footer class="site-footer" aria-label="Uygulama bilgileri ve yasal bilgiler">
+      <div class="footer-showcase">
+        <div class="footer-brand">
+          <div class="footer-brand-mark" aria-hidden="true">${icons.cassette}</div>
+          <div class="footer-brand-copy"><span class="footer-eyebrow">SES CEBİ · KİŞİSEL SES ALANI</span><h2>Her ses senin.<br><em>Arşivin de öyle.</em></h2><p>Kayıtların bu cihazda kalır; uygulama sunucusuna yüklenmez.</p></div>
+        </div>
+        <div class="footer-contact"><span class="footer-contact-label">OZGULER FORGE</span><a href="https://ozgulerforge.com.tr" target="_blank" rel="noreferrer"><span>Web sitesi</span><span>ozgulerforge.com.tr ↗</span></a><a href="mailto:iletisim@ozgulerforge.com.tr"><span>Bize ulaşın</span><span>iletisim@ozgulerforge.com.tr ↗</span></a></div>
       </div>
-      <p class="legal-note">Uygulamayı kullanarak yukarıdaki kullanım, telif ve depolama koşullarını kabul etmiş olursunuz. Yasal haklarınız ve yükümlülükleriniz için ilgili mevzuatı ve içerik sahibinin izin şartlarını ayrıca kontrol edin.</p>
+      <div class="legal-grid">
+        <section><span class="legal-index">01 / İÇERİK</span><h3>Kullanım ve telif</h3><p>Ses Cebi yalnızca sahip olduğunuz veya kullanma ve indirme izniniz bulunan içerikler için kullanılmalıdır. İçerik hakları ilgili sahiplerine aittir; izinsiz çoğaltma, dağıtma veya ticari kullanım kullanıcının sorumluluğundadır.</p></section>
+        <section><span class="legal-index">02 / GİZLİLİK</span><h3>Gizlilik ve depolama</h3><p>Bu sürümde hesap oluşturulmaz. Eklediğiniz sesler tarayıcının yerel depolamasında tutulur. Tarayıcı verilerini temizlemek, uygulamayı kaldırmak veya cihaz depolamasının silinmesi kayıtların kaybolmasına neden olabilir.</p></section>
+        <section><span class="legal-index">03 / ERİŞİM</span><h3>Platform sınırları</h3><p>Uygulama Instagram’a giriş yapmaz; özel hesaplara, korumalı içeriğe veya platform kısıtlarını aşmaya yönelik erişim sağlamaz. Yalnızca herkese açık ve izinli doğrudan medya bağlantıları desteklenir.</p></section>
+      </div>
+      <div class="legal-note"><span class="legal-note-mark" aria-hidden="true">i</span><p>Uygulamayı kullanarak yukarıdaki kullanım, telif ve depolama koşullarını kabul etmiş olursunuz. Yasal haklarınız ve yükümlülükleriniz için ilgili mevzuatı ve içerik sahibinin izin şartlarını ayrıca kontrol edin.</p></div>
+      <div class="footer-bottom"><span>OZGULER FORGE <i>·</i> SES CEBİ</span><span>YEREL <i>·</i> KİŞİSEL <i>·</i> SANA AİT</span></div>
     </footer>
   </div>
   <div class="overlay" id="trim-overlay" hidden>
@@ -1779,7 +1789,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '19';
+const APP_VERSION = '20';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
