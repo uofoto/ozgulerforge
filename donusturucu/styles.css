@@ -413,3 +413,5 @@ label.btn:focus-within { outline: 2.5px solid var(--accent); outline-offset: 2px
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .splash { display: none !important; }
 }
+
+.dl-btn { min-width: 104px; font-weight: 700; box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 55%, transparent); }

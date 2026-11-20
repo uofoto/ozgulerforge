@@ -1,4 +1,4 @@
-const VERSION = 'kontak-v2.0.0';
+const VERSION = 'kontak-v2.1.0';
 const SHELL = [
   './',
   'index.html',
@@ -78,13 +78,21 @@ self.addEventListener('fetch', e => {
     return;
   }
 
+  // Network-first for app shell so updates deploy cleanly; fallback to cache offline
   e.respondWith((async () => {
     const c = await caches.open(VERSION);
-    const cached = await c.match(req);
-    const fetchPromise = fetch(req).then(res => {
-      if (res.ok && !isHtml(res)) c.put(req, res.clone());
-      return res;
-    }).catch(() => cached);
-    return cached || fetchPromise;
+    try {
+      const res = await fetch(req, { cache: 'no-cache' });
+      if (res.ok) {
+        if (!isHtml(res) || url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
+          c.put(req, res.clone());
+        }
+        return res;
+      }
+      throw new Error('Bad status');
+    } catch {
+      const cached = await c.match(req);
+      return cached || Response.error();
+    }
   })());
 });

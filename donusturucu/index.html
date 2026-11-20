@@ -166,7 +166,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <strong>Kontak Studio — Kayıpsız Medya Dönüştürücü</strong>
-      <span>Sürüm <code id="appVersion">v2.0.0</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
+      <span>Sürüm <code id="appVersion">v2.1.0</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
       <p>Geliştirici: <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Ozguler Forge</a> · İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
     </div>
     <nav class="footer-links" aria-label="Yasal metinler">
@@ -261,7 +261,7 @@
     licenses: {
       title: 'Açık Kaynak Lisansları ve Sürüm Bilgisi',
       html: `
-        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.0.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
+        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.1.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
         <ul>
           <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği.</li>
           <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak.</li>
@@ -348,7 +348,7 @@
         if (label) label.textContent = 'Güncelleme bulundu…';
         setTimeout(() => location.reload(), 650);
       } else {
-        if (label) label.textContent = 'Güncel (v2.0.0)';
+        if (label) label.textContent = 'Güncel (v2.1.0)';
         setTimeout(() => { if (label) label.textContent = origText; checkBtn.disabled = false; }, 2200);
       }
     } catch {
