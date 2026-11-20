@@ -27,6 +27,17 @@
         <div class="splash-bar"><span></span></div>
       </div>
     </div>
+    <script>
+      (function () {
+        var hideSplash = function () {
+          var el = document.getElementById('splash');
+          if (!el) return;
+          el.classList.add('hide');
+          setTimeout(function () { if (el && el.parentNode) el.parentNode.removeChild(el); }, 450);
+        };
+        setTimeout(hideSplash, 900);
+      })();
+    </script>
     <div id="app"></div>
     <script type="module" src="src/main.ts"></script>
   </body>
