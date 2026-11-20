@@ -31,9 +31,16 @@ export class Engine {
     return this.caps;
   }
 
-  async reset() { // iptal veya çökme sonrası motoru yeniden başlat
-    try { this.ff.terminate(); } catch {}
-    await this.start();
+  // İptal veya çökme sonrası motoru yeniden başlat. İptal düğmesi ile çöken komutun hata yolu aynı anda
+  // reset() çağırabilir; ikinci çağrı, yükleniyor olan yeni çekirdeği öldürmesin diye aynı işe katılır.
+  reset() {
+    if (!this._resetting) {
+      this._resetting = (async () => {
+        try { this.ff.terminate(); } catch {}
+        await this.start();
+      })().finally(() => { this._resetting = null; });
+    }
+    return this._resetting;
   }
 
   async run(args) {
@@ -78,6 +85,7 @@ export class Engine {
   /* ----- Dosya erişimi ----- */
   async mountInput(id, file) {
     const dir = '/in_' + id;
+    await this.unmountInput(id); // önceki bağlama varsa temizle; createDir "dosya var" hatası vermesin
     const ext = (file.name.match(/\.[A-Za-z0-9]+$/) || [''])[0];
     const f = new File([file], 'src' + ext);
     await this.ff.createDir(dir);
@@ -121,8 +129,11 @@ export class Engine {
       info.frameCount = parseInt(c) || 1;
     }
     if (info.format === 'webp_pipe' && file) {
+      // Animasyon bayrağı yalnız genişletilmiş (VP8X) başlıkta bulunur. Sade 'VP8 ' / 'VP8L' dosyalarında
+      // 20. bayt görüntü verisidir; oradaki bit durmadan sahte "hareketli" sonucu verirdi.
       const h = new Uint8Array(await file.slice(0, 32).arrayBuffer());
-      if (h.length > 20 && (h[20] & 0x02)) info.animatedWebp = true;
+      const fourcc = String.fromCharCode(...h.slice(12, 16));
+      if (h.length > 20 && fourcc === 'VP8X' && (h[20] & 0x02)) info.animatedWebp = true;
     }
     return info;
   }

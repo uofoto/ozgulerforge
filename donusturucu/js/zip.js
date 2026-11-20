@@ -13,6 +13,8 @@ const enc = new TextEncoder();
 
 // entries: [{ name, data: Uint8Array | Blob }]
 export async function makeZip(entries) {
+  // ZIP64 yazılmıyor; sınırlar aşılırsa sessizce bozuk arşiv üretmek yerine açık hata ver.
+  if (entries.length > 0xFFFF) throw new Error('ZIP en fazla 65535 dosya içerebilir.');
   const parts = [], central = [];
   let offset = 0;
   const now = new Date();
@@ -21,6 +23,7 @@ export async function makeZip(entries) {
   for (const e of entries) {
     const data = e.data instanceof Blob ? new Uint8Array(await e.data.arrayBuffer()) : e.data;
     const name = enc.encode(e.name);
+    if (offset + 30 + name.length + data.length > 0xFFFFFFFF) throw new Error('ZIP 4 GB sınırını aşıyor.');
     const crc = crc32(data);
     const lh = new DataView(new ArrayBuffer(30));
     lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true);

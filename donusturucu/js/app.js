@@ -27,6 +27,7 @@ async function boot() {
   try {
     await state.engine.load();
     state.ready = true;
+    cacheCore();
     const c = state.engine.caps;
     setEngine(`Motor hazır · ffmpeg ${c.versionText.replace('version ', '')}`, 'ok');
   } catch (e) {
@@ -37,6 +38,11 @@ async function boot() {
   renderTargets(); renderItems(); updateAction();
   state.chain = state.chain.then(() => null);
   probePending();
+}
+// Kurulum 32 MB'lık wasm'ı beklemesin: motor yüklendikten sonra servis çalışanından arka planda saklamasını iste.
+function cacheCore() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.ready.then(r => r.active?.postMessage({ type: 'cache-core' })).catch(() => {});
 }
 function setEngine(text, cls) { const n = $('#engine'); n.textContent = text; n.dataset.state = cls; }
 
@@ -75,11 +81,12 @@ async function tryBrowserDecode(it) {
     const bmp = await createImageBitmap(it.file, { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
     const c = new OffscreenCanvas(bmp.width, bmp.height);
     c.getContext('2d').drawImage(bmp, 0, 0);
+    bmp.close();
     const png = await c.convertToBlob({ type: 'image/png' });
     const base = it.file.name.replace(/\.[^.]+$/, '');
     it.file = new File([png], base + '.png', { type: 'image/png' });
     it.viaBrowser = true; it.error = null; it.status = 'queued';
-    // Yeniden probe edilecek.
+    // Yeniden probe edilecek. İlk bağlama hâlâ duruyor; mountInput eskisini kaldırıp yenisini bağlar.
     const p = await state.engine.mountInput(it.id, it.file);
     it.info = await state.engine.probe(p, it.file); it.kind = kindOf(it.info);
     it.status = it.kind === 'image' ? 'ready' : 'error';
@@ -92,6 +99,13 @@ async function tryBrowserDecode(it) {
 function renderTargets() {
   const box = $('#targets'); box.replaceChildren();
   const kinds = new Set(state.items.filter(i => i.kind && i.status !== 'error').map(i => i.kind));
+  const isUsable = t => !(state.ready && missingEncoders(t, state.engine.caps).length)
+    && (kinds.size === 0 || [...kinds].some(k => targetAllowed(k, t))) && !t.unstable;
+  const cur = byId[state.targetId];
+  if (!cur || !isUsable(cur)) { // ör. yalnız video eklenmişken PNG seçili kalmasın
+    const first = TARGETS.find(isUsable);
+    if (first) state.targetId = first.id;
+  }
   for (const g of Object.keys(GROUPS)) {
     const row = el('div', { class: 'tgroup', role: 'radiogroup', 'aria-label': GROUPS[g] });
     row.append(el('h3', {}, GROUPS[g]));
@@ -198,7 +212,8 @@ async function convertOne(it, t, used) {
     it.results = [...(it.results || []).filter(r => r.targetId !== t.id), it.result];
     it.status = 'done';
   } catch (e) {
-    it.status = it.results?.length ? 'done' : 'error-run'; it.error = e.fault ? 'ffmpeg çöktü (' + (e.message || 'bilinmeyen hata') + '). Motor yeniden başlatıldı.' : (e.message || String(e));
+    it.status = it.results?.length ? 'done' : 'error-run';
+    it.error = state.cancelled ? 'İptal edildi.' : e.fault ? 'ffmpeg çöktü (' + (e.message || 'bilinmeyen hata') + '). Motor yeniden başlatıldı.' : (e.message || String(e));
     const crashed = state.cancelled || e.fault || /RuntimeError|out of bounds|unreachable|terminated|abort/i.test(it.error);
     if (crashed) { try { await eng.reset(); } catch {} } // çökmüş çekirdeğe komut göndermek takılır; önce yeniden başlat
     else { await eng.rm(outFile); await eng.rmDir(frameDir); }
@@ -217,7 +232,7 @@ async function runVerify(it, p, inPath, outRef, t) {
     const outInput = v.frames ? ['-framerate', '1', '-start_number', '1', '-i', `${outRef}/f_%06d.${t.id === 'frames-tiff' ? 'tiff' : 'png'}`] : ['-i', outRef];
     const out = await eng.frameHashes(outInput, '0:v:0', v.v.outPix || v.v.pix, pass, 'o' + it.id, v.v.outVf);
     const res = { frames: src.length, outFrames: out.length, hashes: src.map(h => h.split(':')[1]), outHashes: out.map(h => h.split(':')[1]), ok: false, audioOk: true, audioChecked: 0 };
-    res.ok = src.length === out.length && src.every((h, i) => h === out[i]);
+    res.ok = src.length > 0 && src.length === out.length && src.every((h, i) => h === out[i]);
     if (!v.frames && v.audio?.length) {
       for (const a of v.audio) {
         const h1 = await eng.audioHash(['-i', inPath], '0:' + a.srcIndex, 'as' + it.id);
@@ -226,7 +241,10 @@ async function runVerify(it, p, inPath, outRef, t) {
       }
     }
     return res;
-  } catch (e) { return { error: e.message || String(e) }; }
+  } catch (e) {
+    if (e.fault) { try { await eng.reset(); } catch {} } // çöken çekirdekle sonraki işler takılmasın
+    return { error: e.message || String(e) };
+  }
 }
 
 /* ---------- Arayüz ---------- */
@@ -310,9 +328,15 @@ function updateAction() {
 
 async function downloadAll() {
   const done = state.items.flatMap(i => i.results || []);
-  const zip = await makeZip(done.map(r => ({ name: r.name, data: r.blob })));
-  const a = el('a', { href: URL.createObjectURL(zip), download: 'donusturulenler.zip' });
-  document.body.append(a); a.click(); a.remove();
+  try {
+    const zip = await makeZip(done.map(r => ({ name: r.name, data: r.blob })));
+    const url = URL.createObjectURL(zip);
+    const a = el('a', { href: url, download: 'donusturulenler.zip' });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  } catch (e) {
+    alert('ZIP oluşturulamadı: ' + (e.message || e) + ' Dosyaları tek tek indirin.');
+  }
 }
 
 /* ---------- Olaylar ---------- */
@@ -325,7 +349,18 @@ window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => { e.preventDefault(); if (e.target !== drop && !drop.contains(e.target)) addFiles([...e.dataTransfer.files]); });
 window.addEventListener('paste', e => { const f = [...(e.clipboardData?.files || [])]; if (f.length) addFiles(f); });
 $('#go').addEventListener('click', convertAll);
-$('#cancel').addEventListener('click', () => { state.cancelled = true; $('#cancel').disabled = true; setEngine('İptal ediliyor, motor yeniden başlatılıyor…', 'busy'); state.engine.reset().then(() => { setEngine('Motor hazır', 'ok'); $('#cancel').disabled = false; }); });
+$('#cancel').addEventListener('click', async () => {
+  state.cancelled = true; $('#cancel').disabled = true;
+  setEngine('İptal ediliyor, motor yeniden başlatılıyor…', 'busy');
+  try {
+    await state.engine.reset();
+    setEngine(`Motor hazır · ffmpeg ${state.engine.caps.versionText.replace('version ', '')}`, 'ok');
+  } catch (e) {
+    console.error(e);
+    state.ready = false;
+    setEngine('Motor yeniden başlatılamadı: ' + (e.message || e) + ' Sayfayı yenile.', 'err');
+  } finally { $('#cancel').disabled = false; }
+});
 $('#zipAll').addEventListener('click', downloadAll);
 $('#clear').addEventListener('click', () => { state.items.forEach(i => (i.results || []).forEach(r => r.url && URL.revokeObjectURL(r.url))); state.items = []; renderItems(); renderTargets(); updateAction(); });
 $('#effort').addEventListener('change', e => { state.effort = e.target.value; });
@@ -341,12 +376,14 @@ async function pwa() {
     offlineBadge();
   } catch (e) { console.warn('SW kaydı başarısız', e); }
 }
+let badgeTimer = 0;
 async function offlineBadge() {
+  clearTimeout(badgeTimer);
   try {
     const hit = await caches.match(new URL('./vendor/core/ffmpeg-core.wasm', location.href).href);
     const n = $('#offline'); n.dataset.state = hit ? 'ok' : 'wait';
     n.textContent = hit ? 'Çevrimdışı hazır' : 'Çevrimdışı için indiriliyor…';
-    if (!hit) setTimeout(offlineBadge, 3000);
+    if (!hit) badgeTimer = setTimeout(offlineBadge, 3000);
   } catch {}
 }
 let deferred;

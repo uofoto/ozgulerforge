@@ -10,7 +10,7 @@ export function describePix(fmt) {
   if (/^ya(8|16)/.test(f)) { d.cls = 'graya'; d.alpha = true; d.depth = f.includes('16') ? 16 : 8; return d; }
   if (/^gray/.test(f)) {
     d.cls = 'gray';
-    const m = f.match(/gray(\d+)/); d.depth = m ? Math.min(16, +m[1]) : 8;
+    const m = f.match(/gray(\d+)/); d.depth = m ? (+m[1] > 8 ? 16 : 8) : 8; // 9-14 bit de 16 bit hedefe sığar
     d.float = /f32/.test(f); if (d.float) d.depth = 16;
     return d;
   }
@@ -259,7 +259,9 @@ function planImage(info, v, d, t, ctx, effort, res) {
   }
   args.push(...(t.id === 'webp' ? ['-f', 'webp'] : ['-f', 'image2', '-update', '1']), ctx.outPath);
   res.args = args;
-  res.verify = res.exact && pix ? { v: { index: v.index, pix } } : { skip: res.exact ? '' : 'Kayıplı hedef; bit-bit karşılaştırma yapılmadı.' };
+  // GIF'te palet sırası değişebileceğinden ham indeks yerine çözülmüş RGBA karşılaştırılır.
+  const vpix = t.id === 'gif' && res.exact ? 'rgba' : pix;
+  res.verify = res.exact && vpix ? { v: { index: v.index, pix: vpix } } : { skip: res.exact ? '' : 'Kayıplı hedef; bit-bit karşılaştırma yapılmadı.' };
   res.summary = `${t.label}${pix ? ' · ' + pix : ''}`;
   return res;
 }
@@ -288,7 +290,7 @@ function planAnim(info, v, d, t, ctx, effort, pass, res) {
   res.args = args; res.frames = isFrames;
   if (!res.exact) res.verify = { skip: 'Kayıplı hedef; bit-bit karşılaştırma yapılmadı.' };
   else if (t.id === 'webp-anim') res.verify = { skip: 'ffmpeg hareketli WebP\'i çözemediği için bu çıktı doğrulanamaz.' };
-  else res.verify = { v: { index: v.index, pix }, frames: isFrames };
+  else res.verify = { v: { index: v.index, pix: pix || 'rgba' }, frames: isFrames };
   res.summary = `${t.label}${pix ? ' · ' + pix : ''}`;
   if (info.streams.some(s => s.type === 'audio')) res.notes.push('Ses bu hedefe aktarılmaz.');
   return res;
