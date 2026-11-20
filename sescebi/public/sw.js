@@ -1,9 +1,9 @@
-const CACHE_NAME = 'sescebi-shell-v18';
+const CACHE_NAME = 'sescebi-shell-v17';
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/manus-routes.json', '/icons/icon-192.svg', '/icons/icon-512.svg', '/icons/icon-192.png', '/icons/icon-512.png', '/icons/icon-maskable-192.png', '/icons/icon-maskable-512.png'];
 
 async function precacheAppShell() {
   const cache = await caches.open(CACHE_NAME);
-  const response = await fetch('/?sw-shell=18', { cache: 'no-store' });
+  const response = await fetch('/?sw-shell=17', { cache: 'no-store' });
   const html = await response.clone().text();
   const assets = [...html.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css))["']/g)].map((match) => match[1]);
   const urls = [...new Set([...APP_SHELL, ...assets])];
