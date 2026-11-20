@@ -7,11 +7,27 @@
     <meta name="description" content="ozguler forge tarafından hazırlanan, izinli sesleri cihazında saklayan kişisel mobil ses arşivi." />
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="src/styles.css" />
     <title>ozguler forge · Ses Cebi</title>
   </head>
   <body>
+    <div id="splash" class="splash-screen" aria-hidden="true">
+      <div class="splash-inner">
+        <div class="splash-logo">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="14" width="48" height="36" rx="7" />
+            <circle cx="22" cy="32" r="6" />
+            <circle cx="42" cy="32" r="6" />
+            <path d="M18 44h28" />
+            <path d="M22 14V9M42 14V9" />
+          </svg>
+        </div>
+        <span class="splash-brand">ozguler forge</span>
+        <strong class="splash-title">Ses Cebi</strong>
+        <div class="splash-bar"><span></span></div>
+      </div>
+    </div>
     <div id="app"></div>
-    <script type="module" src="main.js"></script>
+    <script type="module" src="src/main.ts"></script>
   </body>
 </html>
