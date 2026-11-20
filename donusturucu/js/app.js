@@ -20,6 +20,7 @@ const fmtSize = n => n < 1024 ? n + ' B'
   : (n / 1073741824).toFixed(2) + ' GB';
 const fmtDur = ms => ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(2)} sn`;
 const KIND_TR = { image: 'Resim', video: 'Video', animated: 'Hareketli resim', audio: 'Ses', unknown: 'Bilinmiyor' };
+const isHeicFile = f => /\.(heic|heif)$/i.test(f?.name || '') || /^image\/(heic|heif)/i.test(f?.type || '');
 
 const PRESETS = {
   archive: { target: 'png', fallbackVideo: 'mkv-ffv1', effort: 'small', verify: true },
@@ -71,14 +72,18 @@ function cacheCore() {
 }
 
 function makeThumbUrl(file) {
-  if (!file || (!file.type.startsWith('image/') && !/\.(png|jpe?g|webp|gif|bmp|avif|heic|heif|tiff?|qoi)$/i.test(file.name))) return null;
+  if (!file) return null;
+  // Tarayıcıların çoğu HEIC için doğrudan <img> önizlemesi çizemez; çözüldükten sonra PNG'den çizilecek
+  if (isHeicFile(file)) return null;
+  if (!file.type.startsWith('image/') && !/\.(png|jpe?g|webp|gif|bmp|avif|tiff?|qoi)$/i.test(file.name)) return null;
   try { return URL.createObjectURL(file); } catch { return null; }
 }
 
 function addFiles(files) {
+  if (!files || !files.length) return;
   for (const f of files) {
     state.items.push({
-      id: state.nextId++, file: f, thumbUrl: makeThumbUrl(f),
+      id: state.nextId++, file: f, origName: f.name, origSize: f.size, thumbUrl: makeThumbUrl(f),
       status: 'queued', kind: null, info: null, error: null, result: null,
       progress: 0, phase: '', elapsedMs: 0,
     });
@@ -87,11 +92,50 @@ function addFiles(files) {
   if (state.ready) probePending();
 }
 
+// HEIC / HEIF dosyalarını önce tarayıcının yerleşik çözücüsüyle, desteklemiyorsa (Windows Chrome/Edge gibi)
+// isteğe bağlı hafif WASM HEIC çözücü (heic2any) ile kayıpsız PNG ara katmanına çevirir.
+let heicLibPromise = null;
+function loadHeicDecoder() {
+  if (window.heic2any) return Promise.resolve(window.heic2any);
+  if (!heicLibPromise) {
+    heicLibPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js';
+      s.onload = () => window.heic2any ? resolve(window.heic2any) : reject(new Error('HEIC çözücü yüklenemedi'));
+      s.onerror = () => { heicLibPromise = null; reject(new Error('HEIC çözücü indirilemedi')); };
+      document.head.appendChild(s);
+    });
+  }
+  return heicLibPromise;
+}
+
+async function decodeHeicToPngBlob(file) {
+  // 1. Adım: Tarayıcı yerleşik olarak destekliyorsa (Safari, macOS, yeni Chrome/Android) doğrudan çöz
+  try {
+    const bmp = await createImageBitmap(file, { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
+    const c = new OffscreenCanvas(bmp.width, bmp.height);
+    c.getContext('2d').drawImage(bmp, 0, 0);
+    bmp.close();
+    return await c.convertToBlob({ type: 'image/png' });
+  } catch {}
+
+  // 2. Adım: Tarayıcı yerleşik olarak desteklemiyorsa (Windows Chrome/Firefox vb.) heic2any ile çöz
+  const heic2any = await loadHeicDecoder();
+  const res = await heic2any({ blob: file, toType: 'image/png' });
+  return Array.isArray(res) ? res[0] : res;
+}
+
 function probePending() {
   state.chain = state.chain.then(async () => {
     for (const it of state.items.filter(i => i.status === 'queued')) {
       it.status = 'probing'; renderItems();
       try {
+        // HEIC/HEIF dosyaları standart FFmpeg.wasm derlemesinde libheif olmadan açılamaz; doğrudan özel çözücüye yönlendir
+        if (isHeicFile(it.file)) {
+          await tryBrowserDecode(it);
+          renderItems(); renderTargets(); updateAction();
+          continue;
+        }
         const p = await state.engine.mountInput(it.id, it.file);
         it.info = await state.engine.probe(p, it.file);
         it.kind = kindOf(it.info);
@@ -109,14 +153,20 @@ function probePending() {
 }
 
 async function tryBrowserDecode(it) {
-  if (!/^image\//.test(it.file.type) && !/\.(avif|heic|heif|jxl)$/i.test(it.file.name)) return;
+  const heic = isHeicFile(it.file);
+  if (!heic && !/^image\//.test(it.file.type) && !/\.(avif|heic|heif|jxl)$/i.test(it.file.name)) return;
   try {
-    const bmp = await createImageBitmap(it.file, { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
-    const c = new OffscreenCanvas(bmp.width, bmp.height);
-    c.getContext('2d').drawImage(bmp, 0, 0);
-    bmp.close();
-    const png = await c.convertToBlob({ type: 'image/png' });
-    const base = it.file.name.replace(/\.[^.]+$/, '');
+    let png;
+    if (heic) {
+      png = await decodeHeicToPngBlob(it.file);
+    } else {
+      const bmp = await createImageBitmap(it.file, { colorSpaceConversion: 'none', premultiplyAlpha: 'none' });
+      const c = new OffscreenCanvas(bmp.width, bmp.height);
+      c.getContext('2d').drawImage(bmp, 0, 0);
+      bmp.close();
+      png = await c.convertToBlob({ type: 'image/png' });
+    }
+    const base = (it.origName || it.file.name).replace(/\.[^.]+$/, '');
     if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl);
     it.file = new File([png], base + '.png', { type: 'image/png' });
     it.thumbUrl = makeThumbUrl(it.file);
@@ -124,8 +174,13 @@ async function tryBrowserDecode(it) {
     const p = await state.engine.mountInput(it.id, it.file);
     it.info = await state.engine.probe(p, it.file); it.kind = kindOf(it.info);
     it.status = it.kind === 'image' ? 'ready' : 'error';
-    if (it.status === 'error') it.error = 'Tarayıcı çözücüsü de sonuç vermedi.';
-  } catch { it.status = 'error'; it.error = (it.error || 'Dosya açılamadı.') + ' Tarayıcı çözücüsü de açamadı.'; }
+    if (it.status === 'error') it.error = 'HEIC/resim çözücüsü geçerli bir kare üretemedi.';
+  } catch (err) {
+    it.status = 'error';
+    it.error = heic
+      ? 'HEIC dosyası çözülemedi: ' + (err?.message || 'Bilinmeyen hata')
+      : (it.error || 'Dosya açılamadı.') + ' Tarayıcı çözücüsü de açamadı.';
+  }
   finally { await state.engine.unmountInput(it.id); }
 }
 
@@ -184,9 +239,10 @@ function renderTargets() {
 const passArgs = () => (state.engine.caps.ver >= 5.1 ? ['-fps_mode', 'passthrough'] : ['-vsync', '0']);
 
 function outName(it, t, used) {
-  const base = it.file.name.replace(/\.[^.]+$/, '') || 'dosya';
+  const rawName = it.origName || it.file.name;
+  const base = rawName.replace(/\.[^.]+$/, '') || 'dosya';
   let n = `${base}.${t.ext}`;
-  if (n.toLowerCase() === it.file.name.toLowerCase()) n = `${base}-kayipsiz.${t.ext}`;
+  if (n.toLowerCase() === rawName.toLowerCase()) n = `${base}-kayipsiz.${t.ext}`;
   let i = 2; const stem = n.replace(/\.[^.]+$/, ''), ext = t.ext;
   while (used.has(n.toLowerCase())) n = `${stem}-${i++}.${ext}`;
   used.add(n.toLowerCase());
@@ -260,7 +316,7 @@ async function convertOne(it, t, used) {
 
     it.elapsedMs = performance.now() - t0;
     const resObj = {
-      blob, name: outName(it, t, used), size, srcSize: it.file.size,
+      blob, name: outName(it, t, used), size, srcSize: it.origSize || it.file.size,
       durationMs: it.elapsedMs, targetId: t.id, plan: p, verify, url: null,
     };
     it.result = resObj;
@@ -277,6 +333,7 @@ async function convertOne(it, t, used) {
     eng.onProgress = null;
     try { await eng.unmountInput(it.id); } catch {}
     renderItems();
+    updateAction();
   }
 }
 
@@ -314,7 +371,9 @@ function openCompareModal(it, r) {
   if (!modal || !title || !body) return;
   const beforeUrl = it.thumbUrl || URL.createObjectURL(it.file);
   const afterUrl = r.url || (r.url = URL.createObjectURL(r.blob));
-  title.textContent = `Önce / Sonra Kıyaslama · ${it.file.name} → ${r.name}`;
+  const displayName = it.origName || it.file.name;
+  const displaySize = it.origSize || it.file.size;
+  title.textContent = `Önce / Sonra Kıyaslama · ${displayName} → ${r.name}`;
   body.innerHTML = '';
   const stage = el('div', { class: 'compare-stage' },
     el('img', { src: beforeUrl, alt: 'Kaynak görüntü' }),
@@ -341,9 +400,9 @@ function openCompareModal(it, r) {
     stage.querySelector('.compare-divider').style.left = `${pct}%`;
     stage.querySelector('.compare-knob').style.left = `${pct}%`;
   });
-  const diffPct = it.file.size > 0 ? (((r.size - it.file.size) / it.file.size) * 100).toFixed(1) : '0.0';
+  const diffPct = displaySize > 0 ? (((r.size - displaySize) / displaySize) * 100).toFixed(1) : '0.0';
   const labels = el('div', { class: 'compare-labels' },
-    el('span', {}, `SOL: Kaynak (${fmtSize(it.file.size)})`),
+    el('span', {}, `SOL: Kaynak (${fmtSize(displaySize)})`),
     el('span', {}, `SAĞ: ${r.name} (${fmtSize(r.size)} · ${diffPct > 0 ? '+' + diffPct : diffPct}%)`));
   body.append(stage, slider, labels);
   modal.showModal();
@@ -413,27 +472,29 @@ function renderItems() {
   }
 
   for (const it of state.items) {
+    const displayName = it.origName || it.file.name;
+    const displaySize = it.origSize || it.file.size;
     const vStream = it.info?.streams.find(s => s.type === 'video' && !s.attached);
     const resMeta = vStream && vStream.width && vStream.height ? `${vStream.width}×${vStream.height}${vStream.pixFmt ? ' · ' + vStream.pixFmt : ''}` : null;
-    const meta = [it.kind ? KIND_TR[it.kind] : null, resMeta, fmtSize(it.file.size)].filter(Boolean).join(' · ');
+    const meta = [it.kind ? KIND_TR[it.kind] : null, resMeta, fmtSize(displaySize)].filter(Boolean).join(' · ');
     const statusText = {
       queued: 'Sırada', probing: 'İnceleniyor…', ready: 'Hazır', running: it.phase,
       done: 'Bitti', error: 'Açılamadı', 'error-run': 'Hata', skipped: 'Atlandı',
     }[it.status];
 
     const thumbEl = it.thumbUrl
-      ? el('img', { class: 'thumb', src: it.thumbUrl, alt: it.file.name, loading: 'lazy' })
-      : el('div', { class: 'thumb-ph' }, (it.file.name.split('.').pop() || 'FILE').slice(0, 4));
+      ? el('img', { class: 'thumb', src: it.thumbUrl, alt: displayName, loading: 'lazy' })
+      : el('div', { class: 'thumb-ph' }, (displayName.split('.').pop() || 'FILE').slice(0, 4));
 
     const card = el('li', { class: 'card s-' + it.status, 'data-id': it.id },
       el('div', { class: 'row' },
         thumbEl,
         el('div', { class: 'name' },
-          el('strong', {}, it.file.name),
-          el('span', { class: 'meta' }, meta + (it.viaBrowser ? ' · tarayıcı çözücüsü' : '') + (it.elapsedMs ? ` · ${fmtDur(it.elapsedMs)}` : ''))),
+          el('strong', {}, displayName),
+          el('span', { class: 'meta' }, meta + (it.viaBrowser ? ' · HEIC/tarayıcı çözücüsü' : '') + (it.elapsedMs ? ` · ${fmtDur(it.elapsedMs)}` : ''))),
         el('span', { class: 'status' }, statusText),
         el('button', {
-          class: 'x', type: 'button', 'aria-label': it.file.name + ' dosyasını kaldır',
+          class: 'x', type: 'button', 'aria-label': displayName + ' dosyasını kaldır',
           disabled: it.status === 'running',
           onclick: () => {
             if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl);
@@ -448,8 +509,13 @@ function renderItems() {
     for (const r of it.results || []) {
       const box = el('div', { class: 'res' }, renderResult(r));
       const url = r.url || (r.url = URL.createObjectURL(r.blob));
+      const dlBtn = el('a', {
+        class: 'btn primary small dl-btn',
+        href: url,
+        download: r.name,
+      }, '⬇ İndir');
       const dlRow = el('div', { class: 'dl' },
-        el('a', { class: 'btn primary small', href: url, download: r.name }, 'İndir'),
+        dlBtn,
         el('span', { class: 'meta' }, `${r.name} · ${fmtSize(r.size)} · ${r.plan.summary}`));
       const tObj = byId[r.targetId];
       if (it.kind === 'image' && tObj?.group === 'image' && tObj.id !== 'gif') {
@@ -477,13 +543,14 @@ function updateAction() {
   }
   $('#cancel').hidden = !state.running;
   const done = state.items.flatMap(i => i.results || []);
-  $('#zipAll').hidden = done.length < 2;
-  $('#zipAll').textContent = `Hepsini ZIP indir (${done.length})`;
+  $('#zipAll').hidden = done.length === 0;
+  $('#zipAll').textContent = done.length > 1 ? `Hepsini ZIP indir (${done.length})` : 'ZIP olarak indir';
   $('#clear').hidden = state.items.length === 0 || state.running;
 }
 
 async function downloadAll() {
   const done = state.items.flatMap(i => i.results || []);
+  if (!done.length) return;
   try {
     const zip = await makeZip(done.map(r => ({ name: r.name, data: r.blob })));
     const url = URL.createObjectURL(zip);
