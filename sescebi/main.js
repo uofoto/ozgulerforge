@@ -40,7 +40,7 @@ app.innerHTML = `
           <span class="brand-name">Ses Cebi</span>
         </a>
       </div>
-      <div class="header-note"><span class="live-dot"></span><span>Bu cihazda, sana ait</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir">◐</button></div>
+      <div class="header-note"><span class="live-dot"></span><span>Çevrimdışı · Yerel Arşiv</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir">◐</button></div>
     </header>
     <nav class="main-nav" aria-label="Ana gezinme">
       <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
@@ -63,7 +63,7 @@ app.innerHTML = `
       </section>
 
       <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
-        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 17</span></div>
+        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 18 · Studio UI</span></div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
           <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
@@ -868,12 +868,17 @@ function drawWave() {
         const absoluteTime = viewStart + (x / w) * viewDuration;
         const peak = s.peaks[Math.min(n - 1, Math.max(0, Math.floor((absoluteTime / duration) * n)))];
         const bar = Math.max(2 * dpr, peak * (h - 8 * dpr));
-        g.fillStyle = x >= x0 && x <= x1 ? '#d95d39' : '#cdbdab';
+        const isDark = document.documentElement.dataset.theme !== 'light';
+        g.fillStyle = x >= x0 && x <= x1 ? '#f59e0b' : (isDark ? 'rgba(148, 163, 184, 0.28)' : '#cbd5e1');
         g.fillRect(x, (h - bar) / 2, barWidth, bar);
     }
+    if (x1 > x0) {
+        g.fillStyle = 'rgba(245, 158, 11, 0.08)';
+        g.fillRect(x0, 0, x1 - x0, h);
+    }
     if (s.playhead >= 0) {
-        g.fillStyle = '#211b18';
-        g.fillRect(Math.round(((s.playhead - viewStart) / viewDuration) * w), 0, Math.max(1, Math.round(2 * dpr)), h);
+        g.fillStyle = document.documentElement.dataset.theme !== 'light' ? '#38bdf8' : '#0f172a';
+        g.fillRect(Math.round(((s.playhead - viewStart) / viewDuration) * w), 0, Math.max(2, Math.round(2 * dpr)), h);
     }
 }
 function setTrimBusy(busy, text = '') {
@@ -1348,8 +1353,9 @@ document.querySelectorAll('[data-screen]').forEach((button) => button.addEventLi
 get('studio-open-library').addEventListener('click', () => document.querySelector('[data-screen="library"]').click());
 
 const themeToggle = get('theme-toggle');
-try { if (localStorage.getItem('sescebi-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch {}
-themeToggle.addEventListener('click', () => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('sescebi-theme', dark ? 'dark' : 'light'); } catch {} });
+try { const savedTheme = localStorage.getItem('sescebi-theme'); document.documentElement.dataset.theme = savedTheme === 'light' ? 'light' : 'dark'; } catch { document.documentElement.dataset.theme = 'dark'; }
+themeToggle.addEventListener('click', () => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; themeToggle.textContent = dark ? '☀' : '☾'; document.querySelector('meta[name="theme-color"]')?.setAttribute('content', dark ? '#0B0D12' : '#F4F5F8'); try { localStorage.setItem('sescebi-theme', dark ? 'dark' : 'light'); } catch {} });
+themeToggle.textContent = document.documentElement.dataset.theme === 'dark' ? '☀' : '☾';
 function updateMediaSession() {
     if (!('mediaSession' in navigator) || !activeSong)
         return;
