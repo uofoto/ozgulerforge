@@ -11,6 +11,7 @@ let toastTimer = 0;
 let favoritesOnly = false;
 let searchQuery = '';
 let sortMode = 'newest';
+let studioSelectionMode = false;
 let sleepTimerId = 0;
 const app = document.querySelector('#app');
 if (!app)
@@ -43,96 +44,53 @@ app.innerHTML = `
       <div class="header-note"><span class="live-dot"></span><span>Bu cihazda, sana ait</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir">◐</button></div>
     </header>
     <nav class="main-nav" aria-label="Ana gezinme">
-      <a class="sidebar-brand" href="/" aria-label="Ses Cebi ana sayfa"><span class="sidebar-brand-mark">${icons.cassette}</span><span>SES CEBİ<span class="sidebar-brand-sub">PERSONAL AUDIO</span></span></a>
+      <a class="sidebar-brand" href="/" aria-label="Ses Cebi ana sayfa"><span class="sidebar-brand-mark">${icons.cassette}</span><span class="sidebar-brand-copy">Ses Cebi<small>KİŞİSEL SES ALANI</small></span></a>
       <span class="nav-caption">ÇALIŞMA ALANI</span>
       <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
-      <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Arşivim</span></button>
+      <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Ses arşivi</span><span class="nav-count" id="nav-count">0</span></button>
       <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol">〽</span><span>Ses stüdyosu</span></button>
+      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 19</span></div>
     </nav>
 
     <main>
-      <div class="screen-view active" id="screen-home">
-      <section class="hero" aria-labelledby="hero-title">
-        <div>
-          <p class="eyebrow">Kişisel ses arşivin</p>
-          <h1 id="hero-title">Kaydet, kes, dinle.</h1>
-          <p class="hero-copy">İzinli seslerini tek bir yerde topla. Kes, düzenle ve her an çevrimdışı dinle.</p>
-          <div class="hero-actions"><button class="hero-primary" id="hero-add" type="button"><span class="hero-plus">＋</span> İlk sesini ekle <span class="hero-arrow">↗</span></button><span class="hero-footnote"><i></i> Özel. Güvenli. Yalnızca bu cihazda.</span></div>
-        </div>
-        <div class="tape-illustration" aria-hidden="true">
-          <div class="tape-label"><strong>PLAY / REW</strong><span>seslerim · 01</span></div>
-          <div class="tape-reel"></div>
-          <div class="visual-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <span class="visual-index">SIDE A <b>01 — 24</b></span>
-        </div>
-      </section>
-
-      <section class="app-card" aria-label="Uygulama kurulumu ve güncelleme">
-        <div class="app-card-text"><strong>Uygulama</strong><span id="app-status" aria-live="polite">Sürüm 17</span></div>
-        <div class="app-card-actions">
-          <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
-          <button class="ghost-button" id="update-button" type="button"><span>Güncellemeleri denetle</span></button>
-          <button class="ghost-button" id="diag-button" type="button"><span>Kurulum durumu</span></button>
-        </div>
-      </section>
-
-      <section class="content-grid" aria-label="Ses ekleme">
-        <div>
-          <section class="card add-card" aria-labelledby="add-title">
-            <div class="card-heading">
-              <div><h2 id="add-title">Cebe bir ses koy</h2><p>Dosyadan seç (videodan sesi ayır) veya izinli bağlantı ekle.</p></div>
-              <span class="stamp">YEREL</span>
-            </div>
-            <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi">
-              <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="file">Dosya seç</button>
-              <button class="tab" type="button" role="tab" aria-selected="false" data-tab="url">Bağlantı ekle</button>
-            </div>
-            <div id="file-panel" role="tabpanel">
-              <label class="file-drop" for="file-input">
-                ${icons.upload}
-                <strong>Ses veya video dosyasını seç</strong>
-                <span>MP3, M4A, WAV, OGG veya MP4/MOV/WEBM video · en fazla 100 MB</span>
-                <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.mp4,.m4v,.mov,.webm,.mkv" />
-              </label>
-              <p class="file-name" id="file-name" aria-live="polite">Henüz dosya seçilmedi</p>
-            </div>
-            <div id="url-panel" class="url-panel" role="tabpanel" hidden>
-              <label class="sr-only" for="url-input">Doğrudan ses dosyası bağlantısı</label>
-              <input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" />
-              <p class="url-hint">Sadece herkese açık, doğrudan ses dosyası bağlantıları çalışır. Instagram sayfaları ve giriş gerektiren adresler desteklenmez.</p>
-            </div>
-            <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahip olduğumu veya açıkça izin verildiğini onaylıyorum.</span></label>
-            <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Kasete ekle</span></button>
-            <div class="progress-wrap" id="progress-wrap" aria-live="polite"><div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div><progress id="progress" max="100" value="0">0%</progress></div>
-          </section>
-          <div class="player" id="player" aria-live="polite">
-            <div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div>
-            <div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div>
-            <div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip" id="mode-button" type="button">Sırayla çal</button><label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button></div>
+      <section class="screen-view active" id="screen-home">
+        <div class="page-heading"><div><p class="page-kicker">KİŞİSEL SES ALANIN</p><h1>Seslerini, <em>özgürce.</em></h1><p class="page-subtitle">Kaydet, düzenle ve kendi arşivinden dinle. Her şey bu cihazda kalır.</p></div><span class="today-chip"><i></i> Çevrimdışı kullanıma hazır</span></div>
+        <section class="metric-row" aria-label="Arşiv özeti">
+          <article class="metric-card"><span class="metric-icon mint">♫</span><div><span class="metric-label">ARŞİVİNDE</span><strong id="stat-count">0</strong><small>ses kaydı</small></div><span class="metric-art art-lines"></span></article>
+          <article class="metric-card"><span class="metric-icon lilac">♡</span><div><span class="metric-label">SEVDİKLERİN</span><strong id="stat-favorites">0</strong><small>favori kayıt</small></div><span class="metric-art art-orbit"></span></article>
+          <article class="metric-card"><span class="metric-icon amber">◷</span><div><span class="metric-label">ARŞİV BOYUTU</span><strong id="stat-storage">0 B</strong><small>bu cihazda saklı</small></div><span class="metric-art art-bars"></span></article>
+        </section>
+        <div class="home-workspace">
+          <div class="home-primary">
+            <section class="card add-card" aria-labelledby="add-title">
+              <div class="card-heading"><div><p class="section-kicker">YENİ KAYIT</p><h2 id="add-title">Arşivine ses ekle</h2><p>Bir dosya seç ya da izinli, doğrudan bir ses bağlantısı ekle.</p></div><span class="stamp"><i></i> CİHAZDA</span></div>
+              <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi"><button class="tab active" type="button" role="tab" aria-selected="true" data-tab="file">Dosya yükle</button><button class="tab" type="button" role="tab" aria-selected="false" data-tab="url">Bağlantıdan ekle</button></div>
+              <div id="file-panel" role="tabpanel"><label class="file-drop" for="file-input"><span class="upload-icon">${icons.upload}</span><strong>Dosyanı buraya bırak veya <u>göz at</u></strong><span>MP3, M4A, WAV, OGG veya video · en fazla 100 MB</span><input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.mp4,.m4v,.mov,.webm,.mkv" /></label><p class="file-name" id="file-name" aria-live="polite">Henüz dosya seçilmedi</p></div>
+              <div id="url-panel" class="url-panel" role="tabpanel" hidden><label class="sr-only" for="url-input">Doğrudan ses dosyası bağlantısı</label><input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" /><p class="url-hint">Herkese açık, doğrudan ses dosyası bağlantıları desteklenir.</p></div>
+              <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahibim veya izin aldım.</span></label>
+              <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Arşive ekle</span></button>
+              <div class="progress-wrap" id="progress-wrap" aria-live="polite"><div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div><progress id="progress" max="100" value="0">0%</progress></div>
+            </section>
+            <div class="player" id="player" aria-live="polite"><div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div><div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div><div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip" id="mode-button" type="button">Sırayla çal</button><label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button></div></div>
+            <section class="install-panel"><div class="install-mark">↓</div><div class="install-copy"><strong>Ses Cebi hep yanında</strong><span id="app-status">Sürüm 18 · İsteğe bağlı kurulum</span></div><div class="app-card-actions"><button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Uygulamayı yükle</span></button><button class="ghost-button" id="update-button" type="button"><span>Güncelle</span></button><button class="ghost-button" id="diag-button" type="button"><span>Durum</span></button></div></section>
           </div>
+          <aside class="home-aside"><section class="card recent-card"><div class="aside-heading"><div><p class="section-kicker">KÜTÜPHANENDEN</p><h2>Son eklenenler</h2></div><button class="text-link" type="button" data-screen="library">Tümünü gör <span>↗</span></button></div><div id="dashboard-recent" class="recent-list"></div><div id="dashboard-empty" class="recent-empty"><span class="recent-empty-icon">♫</span><strong>Burada ilk parçan görünecek</strong><span>Bir ses ekleyerek kişisel arşivini oluşturmaya başla.</span></div></section><section class="privacy-card"><span class="privacy-icon">◈</span><div><strong>Senin seslerin, senin cihazında.</strong><p>Hesap yok, yükleme yok. Arşivini dilediğinde dışa aktarabilirsin.</p></div></section></aside>
         </div>
-
       </section>
-      </div>
       <section class="screen-view" id="screen-library">
+        <div class="page-heading library-page-heading"><div><p class="page-kicker">SENİN KÜTÜPHANEN</p><h1>Ses arşivi</h1><p class="page-subtitle">Bu cihazda saklanan kayıtlarını bul, dinle ve düzenle.</p></div><button class="primary-button library-add-button" type="button" id="library-add">${icons.plus}<span>Ses ekle</span></button></div>
         <section class="card library-card" aria-labelledby="library-title">
-          <div class="library-header"><div><h2 id="library-title">Cebimdeki sesler</h2><span class="library-count" id="library-count">0 kayıt</span></div><span class="stamp">OFFLINE</span></div>
-          <div class="library-tools"><input class="text-input library-search" id="library-search" type="search" placeholder="Arşivde ara…" aria-label="Arşivde ara" /><select class="text-input library-sort" id="library-sort" aria-label="Arşivi sırala"><option value="newest">En yeni</option><option value="oldest">En eski</option><option value="az">İsim A–Z</option><option value="duration">Süre</option></select><button class="chip filter-chip" id="favorites-filter" type="button" aria-pressed="false">♡ Favoriler</button></div>
-          <p class="storage-note">Sesler uygulamanın kendi arşivinde durur; dosya yöneticisinde görünmez. <strong>İndir</strong> dersen cihazının indirme klasörüne kaydolur, <strong>Paylaş</strong> ile mail, Drive gibi yerlere gönderebilirsin.</p>
-          <div class="backup-row"><button class="ghost-button" id="backup-button" type="button">${icons.download}<span>Yedek al</span></button><button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedekten yükle</span></button><input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" /></div>
-          <div class="empty-state" id="empty-state"><div class="empty-icon">${icons.cassette}</div><h3>Arşiv henüz boş</h3><p>İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.</p></div>
+          <div class="studio-picker-banner" id="studio-picker-banner" hidden role="status"><div><strong>Stüdyo için bir ses seç</strong><span>İşlemek istediğin kaydın yanındaki düğmeye dokun.</span></div><button class="ghost-button" id="studio-picker-cancel" type="button">Vazgeç</button></div><div class="library-header"><div><h2 id="library-title">Tüm kayıtlar</h2><span class="library-count" id="library-count">0 kayıt</span></div><span class="stamp"><i></i> YALNIZCA SENDE</span></div>
+          <div class="library-tools"><label class="search-wrap"><span class="search-symbol">⌕</span><input class="text-input library-search" id="library-search" type="search" placeholder="Kayıtlarında ara…" aria-label="Arşivde ara" /></label><select class="text-input library-sort" id="library-sort" aria-label="Arşivi sırala"><option value="newest">Son eklenen</option><option value="oldest">İlk eklenen</option><option value="az">İsim A–Z</option><option value="duration">En uzun</option></select><button class="ghost-button filter-chip" id="favorites-filter" type="button" aria-pressed="false">♡ <span>Favoriler</span></button></div>
+          <div class="library-subtools"><span>Dosyaların cihazında kalır ve çevrimdışı kullanılabilir.</span><div class="backup-row"><button class="ghost-button" id="backup-button" type="button">${icons.download}<span>Yedek al</span></button><button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedeği yükle</span></button><input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" /></div></div>
+          <div class="empty-state" id="empty-state"><div class="empty-icon">${icons.cassette}</div><h3>Arşivin yeni başlıyor</h3><p>İlk kaydını eklediğinde, burada düzenli ve çevrimdışı erişilebilir şekilde göreceksin.</p><button type="button" class="text-link empty-add" data-screen="home">İlk sesini ekle <span>→</span></button></div>
           <div class="song-list" id="song-list"></div>
         </section>
       </section>
       <section class="screen-view" id="screen-studio">
-        <div class="studio-hero">
-          <div class="studio-kicker">SES STÜDYOSU · PREMIUM</div>
-          <h1>Sesinin ritmini<br><em>sen belirle.</em></h1>
-          <p>Kaydını seç, dalga formunu yakınlaştır, başlangıç ve bitiş noktalarını hassasça ayarla. Fade ve ton kontrolleriyle kendi kesitini hazırla.</p>
-          <div class="studio-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <div class="studio-actions"><button class="primary-button" id="studio-open-library" type="button">Arşivden ses seç <span>→</span></button><span>WAV dışa aktarma · Fade · Bas / Tiz</span></div>
-        </div>
-        <div class="studio-feature-grid"><article><b>01</b><strong>Hassas kesim</strong><span>Dalga formunda yakınlaştırma ve zaman ayarı</span></article><article><b>02</b><strong>Ses karakteri</strong><span>Bas, tiz ve yumuşak giriş / çıkış</span></article><article><b>03</b><strong>Önizleme</strong><span>Kaydetmeden önce seçimini dinle</span></article></div>
+        <div class="page-heading"><div><p class="page-kicker">YARATICI ARAÇLAR</p><h1>Ses stüdyosu</h1><p class="page-subtitle">Kayıtlarını istediğin gibi kes, şekillendir ve yeni bir parçaya dönüştür.</p></div></div>
+        <section class="studio-workbench"><div class="studio-copy"><span class="studio-overline"><i></i> DÜZENLEME ALANI</span><h2>Bir sesi, <em>kendine göre</em> düzenle.</h2><p>Arşivinden kayıt seçerek kesme alanını aç. Dalga formunda aralığı belirle, yumuşak geçişler ve ton ayarları ekle; yeni kesitini WAV olarak kaydet.</p><button class="primary-button" id="studio-open-library" type="button">Arşivimden kayıt seç <span>→</span></button><div class="studio-capabilities"><span>01 <b>Hassas kesim</b></span><span>02 <b>Fade geçişleri</b></span><span>03 <b>Bas / tiz</b></span></div></div><div class="workbench-art" aria-hidden="true"><div class="workbench-grid"></div><div class="waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="wave-cursor"></span><span class="workbench-label">WAVEFORM · EDITOR</span></div></section>
+        <div class="studio-feature-grid"><article><span class="feature-number">01</span><div><strong>Kes ve yeniden çerçevele</strong><p>Yakınlaştır, dalgayı incele ve başlangıç / bitişi hassasça seç.</p></div><span class="feature-glyph">⌁</span></article><article><span class="feature-number">02</span><div><strong>Geçişleri yumuşat</strong><p>Fade-in ve fade-out ile doğal başlangıç ve bitişler oluştur.</p></div><span class="feature-glyph">◒</span></article><article><span class="feature-number">03</span><div><strong>Tonu şekillendir</strong><p>Bas ve tiz kontrolleriyle sesin karakterini ayarla.</p></div><span class="feature-glyph">≋</span></article></div>
       </section>
     </main>
 
@@ -187,7 +145,6 @@ app.innerHTML = `
   <div class="toast" id="toast" role="status"></div>
 `;
 const fileInput = get('file-input');
-get('hero-add').addEventListener('click', () => fileInput.click());
 const fileName = get('file-name');
 const consent = get('consent');
 const addButton = get('add-button');
@@ -561,28 +518,61 @@ function renderLibrary() {
     let visibleSongs = songs.filter((song) => (!favoritesOnly || song.favorite) && (!search || song.name.toLocaleLowerCase('tr').includes(search)));
     visibleSongs = [...visibleSongs].sort((a, b) => sortMode === 'oldest' ? a.createdAt - b.createdAt : sortMode === 'az' ? a.name.localeCompare(b.name, 'tr') : sortMode === 'duration' ? (b.duration || 0) - (a.duration || 0) : b.createdAt - a.createdAt);
     libraryCount.textContent = `${songs.length} kayıt · ${visibleSongs.length} gösteriliyor`;
+    get('nav-count').textContent = String(songs.length);
+    get('stat-count').textContent = String(songs.length);
+    get('stat-favorites').textContent = String(songs.filter((song) => song.favorite).length);
+    get('stat-storage').textContent = songs.length ? formatSize(songs.reduce((sum, song) => sum + (song.size || 0), 0)) : '0 B';
+    const recent = get('dashboard-recent');
+    const recentSongs = [...songs].sort((a, b) => b.createdAt - a.createdAt).slice(0, 4);
+    recent.innerHTML = recentSongs.map((song, index) => `<button class="recent-row" type="button" data-play-recent="${song.id}"><span class="recent-cover tone-${index % 4}">${icons.cassette}</span><span class="recent-track"><strong>${escapeHtml(song.name)}</strong><small>${formatTime(song.duration)} <i>·</i> ${formatSize(song.size)}</small></span><span class="recent-play">${icons.play}</span></button>`).join('');
+    get('dashboard-empty').hidden = songs.length > 0;
+    recent.hidden = songs.length === 0;
+    recent.querySelectorAll('[data-play-recent]').forEach((button) => button.addEventListener('click', () => {
+        const song = songs.find((item) => item.id === button.dataset.playRecent);
+        if (song) void toggleSong(song);
+    }));
     emptyState.hidden = visibleSongs.length > 0;
-    if (songs.length > 0 && visibleSongs.length === 0) { emptyState.querySelector('h3').textContent = 'Eşleşen ses yok'; emptyState.querySelector('p').textContent = 'Arama metnini veya favori filtresini değiştirebilirsin.'; }
-    else { emptyState.querySelector('h3').textContent = 'Arşiv henüz boş'; emptyState.querySelector('p').textContent = 'İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.'; }
-    songList.innerHTML = visibleSongs.map((song) => `
+    if (songs.length > 0 && visibleSongs.length === 0) { emptyState.querySelector('h3').textContent = 'Eşleşen kayıt bulunamadı'; emptyState.querySelector('p').textContent = 'Arama sözcüğünü veya favori filtresini değiştirebilirsin.'; }
+    else { emptyState.querySelector('h3').textContent = 'Arşivin yeni başlıyor'; emptyState.querySelector('p').textContent = 'İlk kaydını eklediğinde, burada düzenli ve çevrimdışı erişilebilir şekilde göreceksin.'; }
+    songList.innerHTML = visibleSongs.map((song, index) => `
     <article class="song-row" data-song-id="${song.id}">
-      <div class="song-art">${icons.cassette}</div>
-      <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span>·</span><span>${formatSize(song.size)}</span><span>·</span><span class="status-pill">Cihazda</span></div></div>
-      <div class="song-actions"><button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button rename-row" type="button" aria-label="Adı değiştir: ${escapeHtml(song.name)}">${icons.edit}</button><button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}">${icons.scissors}</button><button class="icon-button share-row" type="button" aria-label="Paylaş: ${escapeHtml(song.name)}">${icons.share}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
+      <div class="song-cover cover-tone-${index % 5}"><span class="cover-orbit"></span><span class="cover-mark">${icons.cassette}</span><small>${song.source === 'trim' ? 'EDIT' : song.source === 'url' ? 'LINK' : 'AUDIO'}</small></div>
+      <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span class="meta-dot">·</span><span>${formatSize(song.size)}</span><span class="meta-dot">·</span><span class="status-pill">Cihazda</span></div><span class="song-created">${new Date(song.createdAt).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}</span></div>
+      <div class="song-actions"><button class="primary-button studio-select-row" type="button" hidden>${icons.scissors}<span>Stüdyoda aç</span></button><button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">···</button><div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div></div>
     </article>`).join('');
     songList.querySelectorAll('.song-row').forEach((row) => {
         const id = row.dataset.songId;
         const song = songs.find((item) => item.id === id);
-        if (!song)
-            return;
+        if (!song) return;
+        const studioButton = row.querySelector('.studio-select-row');
+        const rowActions = row.querySelector('.song-actions');
+        rowActions?.classList.toggle('studio-picking', studioSelectionMode);
+        row.querySelectorAll('.favorite-row, .play-row, .more-row').forEach((control) => { control.hidden = studioSelectionMode; });
+        if (studioButton) studioButton.hidden = !studioSelectionMode;
+        studioButton?.addEventListener('click', () => void chooseStudioSong(song));
         row.querySelector('.favorite-row')?.addEventListener('click', () => void toggleFavorite(song));
         row.querySelector('.play-row')?.addEventListener('click', () => toggleSong(song));
+        row.querySelector('.more-row')?.addEventListener('click', (event) => {
+            const button = event.currentTarget;
+            const menu = row.querySelector('.song-more-actions');
+            const open = menu.hidden;
+            menu.hidden = !open;
+            button.setAttribute('aria-expanded', String(open));
+        });
         row.querySelector('.rename-row')?.addEventListener('click', () => openRename(song));
         row.querySelector('.trim-row')?.addEventListener('click', () => void openTrim(song));
         row.querySelector('.share-row')?.addEventListener('click', () => void shareSong(song));
         row.querySelector('.download-row')?.addEventListener('click', () => void downloadSong(song));
         row.querySelector('.delete-row')?.addEventListener('click', () => deleteSong(song));
     });
+}
+async function chooseStudioSong(song) {
+    studioSelectionMode = false;
+    get('studio-picker-banner').hidden = true;
+    renderLibrary();
+    document.querySelector('[data-screen="studio"]').click();
+    loadSong(song);
+    await openTrim(song);
 }
 async function toggleFavorite(song) {
     song.favorite = !song.favorite;
@@ -1347,11 +1337,24 @@ get('sleep-button').addEventListener('click', () => {
 });
 document.querySelectorAll('[data-screen]').forEach((button) => button.addEventListener('click', () => {
   const target = button.dataset.screen;
+  if (target !== 'library' && studioSelectionMode) { studioSelectionMode = false; get('studio-picker-banner').hidden = true; renderLibrary(); }
   document.querySelectorAll('.screen-view').forEach((view) => view.classList.toggle('active', view.id === `screen-${target}`));
   document.querySelectorAll('[data-screen]').forEach((item) => item.classList.toggle('active', item === button));
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }));
-get('studio-open-library').addEventListener('click', () => document.querySelector('[data-screen="library"]').click());
+get('studio-open-library').addEventListener('click', () => {
+  studioSelectionMode = true;
+  get('studio-picker-banner').hidden = false;
+  renderLibrary();
+  document.querySelector('[data-screen="library"]').click();
+});
+get('studio-picker-cancel').addEventListener('click', () => {
+  studioSelectionMode = false;
+  get('studio-picker-banner').hidden = true;
+  renderLibrary();
+  document.querySelector('[data-screen="studio"]').click();
+});
+get('library-add').addEventListener('click', () => document.querySelector('[data-screen="home"]').click());
 
 const themeToggle = get('theme-toggle');
 try { if (localStorage.getItem('sescebi-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch {}
@@ -1776,7 +1779,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '16';
+const APP_VERSION = '19';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
