@@ -1,6 +1,6 @@
 import './styles.css';
 
-type SourceType = 'file' | 'url';
+type SourceType = 'file' | 'url' | 'trim';
 
 type StoredSong = {
   id: string;
@@ -13,16 +13,31 @@ type StoredSong = {
   source: SourceType;
 };
 
+type TrimSession = {
+  song: StoredSong;
+  buffer: AudioBuffer | null;
+  peaks: Float32Array | null;
+  start: number;
+  end: number;
+  preview: HTMLAudioElement | null;
+  previewUrl: string;
+  playhead: number;
+};
+
 const DB_NAME = 'sescebi-db';
 const STORE_NAME = 'songs';
 const MAX_SIZE = 100 * 1024 * 1024;
+const MAX_TRIM_SECONDS = 15 * 60;
+const MIN_CLIP = 0.2;
+
 const audio = new Audio();
 let songs: StoredSong[] = [];
 let activeSong: StoredSong | null = null;
 let activeObjectUrl = '';
 let selectedFile: File | null = null;
-let activeTab: SourceType = 'file';
+let activeTab: 'file' | 'url' = 'file';
 let toastTimer = 0;
+let trimState: TrimSession | null = null;
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) throw new Error('Uygulama kökü bulunamadı.');
@@ -37,7 +52,7 @@ const icons = {
   trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v5M14 11v5M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
   rewind: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 8 4 12l5 4"/><path d="M4 12h9a4 4 0 1 1-4 4"/></svg>',
   forward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 8 5 4-5 4"/><path d="M20 12h-9a4 4 0 1 0 4 4"/></svg>',
-  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13.5 14 9.5M8.2 16.8l-1.1 1.1a3.7 3.7 0 0 1-5.2-5.2l3.7-3.7a3.7 3.7 0 0 1 5.2 0M15.8 7.2l1.1-1.1a3.7 3.7 0 0 1 5.2 5.2l-3.7 3.7a3.7 3.7 0 0 1-5.2 0"/></svg>',
+  scissors: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
 };
 
 app.innerHTML = `
@@ -45,7 +60,7 @@ app.innerHTML = `
     <header class="topbar">
       <div class="brand-cluster">
         <span class="publisher-name">ozguler forge</span>
-        <a class="brand" href="/" aria-label="Ses Cebi ana sayfa">
+        <a class="brand" href="./" aria-label="Ses Cebi ana sayfa">
           <span class="brand-mark">${icons.cassette}</span>
           <span class="brand-name">Ses Cebi</span>
         </a>
@@ -57,11 +72,11 @@ app.innerHTML = `
       <section class="hero" aria-labelledby="hero-title">
         <div>
           <p class="eyebrow">Kişisel ses arşivin</p>
-          <h1 id="hero-title">Cep kasetlerin burada.</h1>
-          <p class="hero-copy">İzinli seslerini telefonunda sakla, çevrimdışı dinle. Küçük bir arşiv, her an yanında.</p>
+          <h1 id="hero-title">Kaydet, kes, dinle.</h1>
+          <p class="hero-copy">İzinli seslerini telefonunda sakla, çevrimdışı dinle, istediğin bölümü kırpıp indir.</p>
         </div>
         <div class="tape-illustration" aria-hidden="true">
-          <div class="tape-label"><strong>PLAY / REW</strong><span>seslerim · 01</span></div>
+          <div class="tape-label"><strong>SES CEBİ · KES & ÇAL</strong><span>yerel arşiv</span></div>
           <div class="tape-reel"></div>
         </div>
       </section>
@@ -93,17 +108,37 @@ app.innerHTML = `
             </div>
             <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahip olduğumu veya açıkça izin verildiğini onaylıyorum.</span></label>
             <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Kasete ekle</span></button>
-            <div class="progress-wrap" id="progress-wrap" aria-live="polite"><div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div><progress id="progress" max="100" value="0">0%</progress></div>
+            <div class="progress-wrap" id="progress-wrap" aria-live="polite">
+              <div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div>
+              <progress id="progress" max="100" value="0">0%</progress>
+            </div>
           </section>
+
           <div class="player" id="player" aria-live="polite">
-            <div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div>
-            <div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div>
+            <div class="player-top">
+              <div class="player-art">${icons.cassette}</div>
+              <div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div>
+            </div>
+            <div class="player-controls">
+              <button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button>
+              <button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button>
+              <button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button>
+              <input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" />
+              <span class="time" id="time">00:00 / 00:00</span>
+            </div>
           </div>
         </div>
 
         <section class="card library-card" aria-labelledby="library-title">
-          <div class="library-header"><div><h2 id="library-title">Cebimdeki sesler</h2><span class="library-count" id="library-count">0 kayıt</span></div><span class="stamp">OFFLINE</span></div>
-          <div class="empty-state" id="empty-state"><div class="empty-icon">${icons.cassette}</div><h3>Arşiv henüz boş</h3><p>İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.</p></div>
+          <div class="library-header">
+            <div><h2 id="library-title">Cebimdeki sesler</h2><span class="library-count" id="library-count">0 kayıt</span></div>
+            <span class="stamp">OFFLINE</span>
+          </div>
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">${icons.cassette}</div>
+            <h3>Arşiv henüz boş</h3>
+            <p>İlk sesini eklediğinde burada, bu cihazda ve internet olmasa da görünecek.</p>
+          </div>
           <div class="song-list" id="song-list"></div>
         </section>
       </section>
@@ -120,8 +155,50 @@ app.innerHTML = `
       <p class="legal-note">Uygulamayı kullanarak yukarıdaki kullanım, telif ve depolama koşullarını kabul etmiş olursunuz. Yasal haklarınız ve yükümlülükleriniz için ilgili mevzuatı ve içerik sahibinin izin şartlarını ayrıca kontrol edin.</p>
     </footer>
   </div>
+
+  <div class="overlay" id="trim-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="trim-title">
+      <div class="sheet-head">
+        <h2 id="trim-title">Sesi kes</h2>
+        <button class="icon-button" id="trim-close" type="button" aria-label="Kapat">✕</button>
+      </div>
+      <p class="sheet-sub" id="trim-name"></p>
+      <p class="sheet-status" id="trim-status" aria-live="polite" hidden></p>
+      <canvas class="wave" id="wave" height="96" aria-label="Ses dalga biçimi"></canvas>
+      <div class="trim-field">
+        <div class="trim-label"><span>Başlangıç</span><strong id="trim-start-label">00:00.0</strong></div>
+        <div class="trim-row">
+          <button class="nudge" type="button" data-nudge="start" data-delta="-1">−1 sn</button>
+          <input id="trim-start" type="range" min="0" max="100" step="any" value="0" aria-label="Başlangıç" />
+          <button class="nudge" type="button" data-nudge="start" data-delta="1">+1 sn</button>
+        </div>
+      </div>
+      <div class="trim-field">
+        <div class="trim-label"><span>Bitiş</span><strong id="trim-end-label">00:00.0</strong></div>
+        <div class="trim-row">
+          <button class="nudge" type="button" data-nudge="end" data-delta="-1">−1 sn</button>
+          <input id="trim-end" type="range" min="0" max="100" step="any" value="100" aria-label="Bitiş" />
+          <button class="nudge" type="button" data-nudge="end" data-delta="1">+1 sn</button>
+        </div>
+      </div>
+      <p class="sheet-sub" id="trim-summary"></p>
+      <label class="consent sheet-check"><input id="trim-keep" type="checkbox" checked /><span>Orijinal ses de arşivde kalsın</span></label>
+      <div class="sheet-actions">
+        <button class="ghost-button" id="trim-preview" type="button" disabled>Seçimi dinle</button>
+        <button class="primary-button" id="trim-save" type="button" disabled>${icons.scissors}<span>Kes ve kaydet</span></button>
+      </div>
+      <p class="sheet-sub small">Kesilen bölüm WAV olarak arşive kaydedilir; ardından İndir tuşuyla cihazına alabilirsin.</p>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status"></div>
 `;
+
+function get<T extends Element>(selector: string): T {
+  const element = document.querySelector<T>(`#${selector}`);
+  if (!element) throw new Error(`Eksik arayüz öğesi: ${selector}`);
+  return element;
+}
 
 const fileInput = get<HTMLInputElement>('file-input');
 const fileName = get<HTMLParagraphElement>('file-name');
@@ -142,11 +219,18 @@ const playButton = get<HTMLButtonElement>('play-button');
 const seek = get<HTMLInputElement>('seek');
 const timeLabel = get<HTMLSpanElement>('time');
 
-function get<T extends Element>(selector: string): T {
-  const element = document.querySelector<T>(`#${selector}`);
-  if (!element) throw new Error(`Eksik arayüz öğesi: ${selector}`);
-  return element;
-}
+const trimOverlay = get<HTMLDivElement>('trim-overlay');
+const trimName = get<HTMLParagraphElement>('trim-name');
+const trimStatus = get<HTMLParagraphElement>('trim-status');
+const waveCanvas = get<HTMLCanvasElement>('wave');
+const trimStart = get<HTMLInputElement>('trim-start');
+const trimEnd = get<HTMLInputElement>('trim-end');
+const trimStartLabel = get<HTMLElement>('trim-start-label');
+const trimEndLabel = get<HTMLElement>('trim-end-label');
+const trimSummary = get<HTMLParagraphElement>('trim-summary');
+const trimKeep = get<HTMLInputElement>('trim-keep');
+const trimPreviewButton = get<HTMLButtonElement>('trim-preview');
+const trimSaveButton = get<HTMLButtonElement>('trim-save');
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -199,6 +283,13 @@ function formatTime(value: number): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
+function formatClock(value: number): string {
+  const tenths = Math.max(0, Math.round(value * 10));
+  const minutes = Math.floor(tenths / 600);
+  const seconds = (tenths % 600) / 10;
+  return `${String(minutes).padStart(2, '0')}:${seconds.toFixed(1).padStart(4, '0')}`;
+}
+
 function formatSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
@@ -224,7 +315,7 @@ function updateAddButton(): void {
   addButton.disabled = !consent.checked || !hasSource;
 }
 
-function switchTab(tab: SourceType): void {
+function switchTab(tab: 'file' | 'url'): void {
   activeTab = tab;
   document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach((button) => {
     const selected = button.dataset.tab === tab;
@@ -334,15 +425,16 @@ function isVideoFile(file: File): boolean {
 }
 
 function decodeAudio(ctx: AudioContext, data: ArrayBuffer): Promise<AudioBuffer> {
-  // Eski Safari sürümleri için geri çağırmalı biçim de kullanılır.
   return new Promise((resolve, reject) => {
     try { ctx.decodeAudioData(data, resolve, reject)?.then?.(resolve, reject); } catch (error) { reject(error); }
   });
 }
 
-function encodeWav(buffer: AudioBuffer): Blob {
+function encodeWav(buffer: AudioBuffer, from = 0, to = buffer.length): Blob {
   const channels = Math.min(2, buffer.numberOfChannels);
-  const length = buffer.length;
+  const safeFrom = Math.max(0, Math.min(from, buffer.length));
+  const safeTo = Math.max(safeFrom, Math.min(to, buffer.length));
+  const length = safeTo - safeFrom;
   const sampleRate = buffer.sampleRate;
   const dataSize = length * channels * 2;
   const out = new ArrayBuffer(44 + dataSize);
@@ -356,7 +448,7 @@ function encodeWav(buffer: AudioBuffer): Blob {
   let offset = 44;
   for (let i = 0; i < length; i++) {
     for (let c = 0; c < channels; c++) {
-      const sample = Math.max(-1, Math.min(1, data[c][i]));
+      const sample = Math.max(-1, Math.min(1, data[c][safeFrom + i]));
       view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
       offset += 2;
     }
@@ -401,18 +493,14 @@ async function addSelectedAudio(): Promise<void> {
   try {
     let blob: Blob;
     let name: string;
-    let source: SourceType = activeTab;
+    const source: SourceType = activeTab;
     if (activeTab === 'file') {
       if (!selectedFile) throw new Error('Önce bir ses veya video dosyası seç.');
       const isVideo = isVideoFile(selectedFile);
       if (!isVideo && !selectedFile.type.startsWith('audio/') && !/\.(mp3|m4a|wav|ogg|aac|flac)$/i.test(selectedFile.name)) throw new Error('Bu dosya desteklenen bir ses veya video formatında değil.');
       if (selectedFile.size > MAX_SIZE) throw new Error('Bu dosya 100 MB sınırını aşıyor.');
       name = selectedFile.name;
-      if (isVideo) {
-        blob = await extractAudioFromVideo(selectedFile);
-      } else {
-        blob = selectedFile;
-      }
+      blob = isVideo ? await extractAudioFromVideo(selectedFile) : selectedFile;
       setProgress('Cihaza kaydediliyor…', 90);
     } else {
       const url = validateDirectUrl(urlInput.value.trim());
@@ -445,22 +533,44 @@ function resetSource(): void {
   updateAddButton();
 }
 
+function sourceLabel(source: SourceType): string {
+  if (source === 'url') return 'İzinli bağlantı';
+  if (source === 'trim') return 'Kesit';
+  return 'Dosya';
+}
+
 function renderLibrary(): void {
   libraryCount.textContent = `${songs.length} kayıt`;
   emptyState.hidden = songs.length > 0;
   songList.innerHTML = songs.map((song) => `
     <article class="song-row" data-song-id="${song.id}">
       <div class="song-art">${icons.cassette}</div>
-      <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span>·</span><span>${formatSize(song.size)}</span><span>·</span><span class="status-pill">Cihazda</span></div></div>
-      <div class="song-actions"><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
+      <div class="song-main">
+        <p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p>
+        <div class="song-meta">
+          <span>${formatTime(song.duration)}</span>
+          <span>·</span>
+          <span>${formatSize(song.size)}</span>
+          <span>·</span>
+          <span class="status-pill">Cihazda</span>
+        </div>
+      </div>
+      <div class="song-actions">
+        <button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button>
+        <button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}" title="Sesi kes">${icons.scissors}</button>
+        <button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}" title="İndir">${icons.download}</button>
+        <button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}" title="Sil">${icons.trash}</button>
+      </div>
     </article>`).join('');
+
   songList.querySelectorAll<HTMLElement>('.song-row').forEach((row) => {
     const id = row.dataset.songId;
     const song = songs.find((item) => item.id === id);
     if (!song) return;
-    row.querySelector<HTMLButtonElement>('.play-row')?.addEventListener('click', () => toggleSong(song));
+    row.querySelector<HTMLButtonElement>('.play-row')?.addEventListener('click', () => void toggleSong(song));
+    row.querySelector<HTMLButtonElement>('.trim-row')?.addEventListener('click', () => void openTrim(song));
     row.querySelector<HTMLButtonElement>('.download-row')?.addEventListener('click', () => downloadSong(song));
-    row.querySelector<HTMLButtonElement>('.delete-row')?.addEventListener('click', () => deleteSong(song));
+    row.querySelector<HTMLButtonElement>('.delete-row')?.addEventListener('click', () => void deleteSong(song));
   });
 }
 
@@ -476,7 +586,7 @@ function loadSong(song: StoredSong): void {
   audio.load();
   player.classList.add('visible');
   playerTitle.textContent = song.name;
-  playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : 'Dosya'} · cihazda saklanıyor`;
+  playerSubtitle.textContent = `${sourceLabel(song.source)} · cihazda saklanıyor`;
   seek.value = '0';
   updatePlayerUI();
 }
@@ -515,12 +625,16 @@ function downloadSong(song: StoredSong): void {
 }
 
 function extensionFor(type: string): string {
-  const map: Record<string, string> = { 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/ogg': 'ogg', 'audio/aac': 'aac', 'audio/flac': 'flac' };
+  const map: Record<string, string> = { 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/wav': 'wav', 'audio/x-wav': 'wav', 'audio/ogg': 'ogg', 'audio/aac': 'aac', 'audio/flac': 'flac', 'audio/webm': 'webm' };
   return map[type] || 'audio';
 }
 
 async function deleteSong(song: StoredSong): Promise<void> {
   if (!window.confirm(`“${song.name}” arşivden silinsin mi?`)) return;
+  await removeSong(song);
+}
+
+async function removeSong(song: StoredSong): Promise<void> {
   try {
     await dbDelete(song.id);
     songs = songs.filter((item) => item.id !== song.id);
@@ -539,6 +653,223 @@ async function deleteSong(song: StoredSong): Promise<void> {
   }
 }
 
+function openOverlay(node: HTMLElement): void {
+  node.hidden = false;
+  document.body.classList.add('modal-open');
+}
+
+function closeOverlay(node: HTMLElement): void {
+  node.hidden = true;
+  if (trimOverlay.hidden) document.body.classList.remove('modal-open');
+}
+
+function computePeaks(buffer: AudioBuffer, buckets: number): Float32Array {
+  const peaks = new Float32Array(buckets);
+  const size = Math.max(1, Math.floor(buffer.length / buckets));
+  const stride = Math.max(1, Math.floor(size / 200));
+  for (let c = 0; c < Math.min(2, buffer.numberOfChannels); c++) {
+    const data = buffer.getChannelData(c);
+    for (let b = 0; b < buckets; b++) {
+      let max = 0;
+      const end = Math.min(buffer.length, b * size + size);
+      for (let i = b * size; i < end; i += stride) {
+        const value = Math.abs(data[i]);
+        if (value > max) max = value;
+      }
+      if (max > peaks[b]) peaks[b] = max;
+    }
+  }
+  return peaks;
+}
+
+function drawWave(): void {
+  const s = trimState;
+  if (!s || !s.peaks || !s.buffer) return;
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(200, Math.round(waveCanvas.clientWidth * dpr));
+  const h = Math.round(96 * dpr);
+  if (waveCanvas.width !== w) waveCanvas.width = w;
+  if (waveCanvas.height !== h) waveCanvas.height = h;
+  const g = waveCanvas.getContext('2d');
+  if (!g) return;
+  g.clearRect(0, 0, w, h);
+  const duration = s.buffer.duration;
+  const x0 = (s.start / duration) * w;
+  const x1 = (s.end / duration) * w;
+  const n = s.peaks.length;
+  const step = Math.max(2, Math.round(3 * dpr));
+  const barWidth = Math.max(1, Math.round(2 * dpr));
+  for (let x = 0; x < w; x += step) {
+    const peak = s.peaks[Math.min(n - 1, Math.floor((x / w) * n))];
+    const bar = Math.max(2 * dpr, peak * (h - 8 * dpr));
+    g.fillStyle = x >= x0 && x <= x1 ? '#d95d39' : '#cdbdab';
+    g.fillRect(x, (h - bar) / 2, barWidth, bar);
+  }
+  if (s.playhead >= 0) {
+    g.fillStyle = '#211b18';
+    g.fillRect(Math.round((s.playhead / duration) * w), 0, Math.max(1, Math.round(2 * dpr)), h);
+  }
+}
+
+function setTrimBusy(busy: boolean, text = ''): void {
+  trimStatus.textContent = text;
+  trimStatus.hidden = !text;
+  trimStart.disabled = busy;
+  trimEnd.disabled = busy;
+  trimPreviewButton.disabled = busy;
+  trimSaveButton.disabled = busy;
+  trimOverlay.querySelectorAll<HTMLButtonElement>('.nudge').forEach((button) => { button.disabled = busy; });
+}
+
+function syncTrim(changed?: 'start' | 'end'): void {
+  const s = trimState;
+  if (!s || !s.buffer) return;
+  const duration = s.buffer.duration;
+  let start = Number(trimStart.value);
+  let end = Number(trimEnd.value);
+  if (changed === 'start' && start > end - MIN_CLIP) start = Math.max(0, end - MIN_CLIP);
+  if (changed === 'end' && end < start + MIN_CLIP) end = Math.min(duration, start + MIN_CLIP);
+  s.start = start;
+  s.end = end;
+  trimStart.value = String(start);
+  trimEnd.value = String(end);
+  trimStartLabel.textContent = formatClock(start);
+  trimEndLabel.textContent = formatClock(end);
+  const length = Math.max(0, end - start);
+  const bytes = Math.round(length * s.buffer.sampleRate) * Math.min(2, s.buffer.numberOfChannels) * 2 + 44;
+  trimSummary.textContent = `Seçili süre: ${formatClock(length)} · yaklaşık ${formatSize(bytes)}`;
+  drawWave();
+}
+
+async function openTrim(song: StoredSong): Promise<void> {
+  if (song.duration > MAX_TRIM_SECONDS) {
+    toast(`Kesme en çok ${MAX_TRIM_SECONDS / 60} dakikalık seslerde çalışır.`, true);
+    return;
+  }
+  audio.pause();
+  closeTrim();
+  const state: TrimSession = { song, buffer: null, peaks: null, start: 0, end: song.duration, preview: null, previewUrl: '', playhead: -1 };
+  trimState = state;
+  trimName.textContent = song.name;
+  trimSummary.textContent = '';
+  trimStartLabel.textContent = formatClock(0);
+  trimEndLabel.textContent = formatClock(song.duration);
+  setTrimBusy(true, 'Ses çözülüyor…');
+  openOverlay(trimOverlay);
+  const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+  const ctx = new AudioCtx();
+  try {
+    const buffer = await decodeAudio(ctx, await song.blob.arrayBuffer());
+    if (trimState !== state) return;
+    if (!buffer.length || buffer.duration <= 0) throw new Error('empty');
+    state.buffer = buffer;
+    state.peaks = computePeaks(buffer, 400);
+    state.start = 0;
+    state.end = buffer.duration;
+    trimStart.max = String(buffer.duration);
+    trimEnd.max = String(buffer.duration);
+    trimStart.value = '0';
+    trimEnd.value = String(buffer.duration);
+    trimKeep.checked = true;
+    setTrimBusy(false);
+    trimPreviewButton.textContent = 'Seçimi dinle';
+    syncTrim();
+  } catch {
+    if (trimState === state) {
+      closeTrim();
+      toast('Bu ses tarayıcıda çözülemedi, kesilemiyor.', true);
+    }
+  } finally {
+    ctx.close().catch(() => undefined);
+  }
+}
+
+function closeTrim(): void {
+  const s = trimState;
+  if (s?.preview) {
+    s.preview.pause();
+    s.preview.removeAttribute('src');
+    s.preview.load();
+  }
+  if (s?.previewUrl) URL.revokeObjectURL(s.previewUrl);
+  trimState = null;
+  closeOverlay(trimOverlay);
+}
+
+function stopTrimPreview(): void {
+  const s = trimState;
+  if (!s?.preview) return;
+  s.preview.pause();
+  s.playhead = -1;
+  trimPreviewButton.textContent = 'Seçimi dinle';
+  drawWave();
+}
+
+function toggleTrimPreview(): void {
+  const s = trimState;
+  if (!s?.buffer) return;
+  if (s.preview && !s.preview.paused) {
+    stopTrimPreview();
+    return;
+  }
+  if (!s.preview) {
+    s.previewUrl = URL.createObjectURL(s.song.blob);
+    const preview = new Audio(s.previewUrl);
+    preview.addEventListener('timeupdate', () => {
+      s.playhead = preview.currentTime;
+      if (preview.currentTime >= s.end) stopTrimPreview();
+      else drawWave();
+    });
+    preview.addEventListener('ended', stopTrimPreview);
+    s.preview = preview;
+  }
+  const preview = s.preview;
+  const begin = () => {
+    preview.currentTime = s.start;
+    preview.play().then(() => { trimPreviewButton.textContent = 'Durdur'; }).catch(() => toast('Önizleme çalınamadı.', true));
+  };
+  if (preview.readyState >= 1) begin();
+  else {
+    preview.addEventListener('loadedmetadata', begin, { once: true });
+    preview.load();
+  }
+}
+
+async function saveTrim(): Promise<void> {
+  const s = trimState;
+  if (!s?.buffer) return;
+  stopTrimPreview();
+  setTrimBusy(true, 'Kesit hazırlanıyor…');
+  try {
+    const rate = s.buffer.sampleRate;
+    const from = Math.max(0, Math.floor(s.start * rate));
+    const to = Math.min(s.buffer.length, Math.ceil(s.end * rate));
+    if (to - from < rate * MIN_CLIP * 0.5) throw new Error('Seçilen bölüm çok kısa.');
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    const clip = await createSong(encodeWav(s.buffer, from, to), `${s.song.name} (kesit)`, 'trim');
+    await dbPut(clip);
+    songs = [clip, ...songs];
+    const keep = trimKeep.checked;
+    const original = s.song;
+    closeTrim();
+    if (!keep) await removeSong(original);
+    renderLibrary();
+    toast(keep ? 'Kesit yeni kayıt olarak eklendi.' : 'Kesit kaydedildi, orijinal silindi.');
+  } catch (error) {
+    if (trimState === s) setTrimBusy(false);
+    toast(error instanceof Error ? error.message : 'Kesit kaydedilemedi.', true);
+  }
+}
+
+function dismissSplash(): void {
+  const splash = document.querySelector<HTMLDivElement>('#splash');
+  if (!splash) return;
+  window.setTimeout(() => {
+    splash.classList.add('hide');
+    window.setTimeout(() => splash.remove(), 500);
+  }, 650);
+}
+
 fileInput.addEventListener('change', () => {
   selectedFile = fileInput.files?.[0] || null;
   fileName.textContent = selectedFile ? `${selectedFile.name} · ${formatSize(selectedFile.size)}` : 'Henüz dosya seçilmedi';
@@ -547,7 +878,10 @@ fileInput.addEventListener('change', () => {
 consent.addEventListener('change', updateAddButton);
 urlInput.addEventListener('input', updateAddButton);
 addButton.addEventListener('click', () => void addSelectedAudio());
-document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach((button) => button.addEventListener('click', () => switchTab(button.dataset.tab as SourceType)));
+document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach((button) => {
+  button.addEventListener('click', () => switchTab(button.dataset.tab === 'url' ? 'url' : 'file'));
+});
+
 playButton.addEventListener('click', async () => {
   if (!activeSong) return;
   if (audio.paused) {
@@ -565,7 +899,36 @@ audio.addEventListener('play', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('ended', () => { updatePlayerUI(); renderLibrary(); });
 
+trimStart.addEventListener('input', () => syncTrim('start'));
+trimEnd.addEventListener('input', () => syncTrim('end'));
+trimOverlay.querySelectorAll<HTMLButtonElement>('.nudge').forEach((button) => {
+  button.addEventListener('click', () => {
+    const s = trimState;
+    if (!s?.buffer) return;
+    const which = button.dataset.nudge === 'end' ? 'end' : 'start';
+    const input = which === 'start' ? trimStart : trimEnd;
+    input.value = String(Math.min(s.buffer.duration, Math.max(0, Number(input.value) + Number(button.dataset.delta))));
+    syncTrim(which);
+  });
+});
+waveCanvas.addEventListener('pointerdown', (event) => {
+  const s = trimState;
+  if (!s?.buffer) return;
+  const rect = waveCanvas.getBoundingClientRect();
+  const time = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width)) * s.buffer.duration;
+  const which = Math.abs(time - s.start) <= Math.abs(time - s.end) ? 'start' : 'end';
+  (which === 'start' ? trimStart : trimEnd).value = String(time);
+  syncTrim(which);
+});
+trimPreviewButton.addEventListener('click', toggleTrimPreview);
+trimSaveButton.addEventListener('click', () => void saveTrim());
+get<HTMLButtonElement>('trim-close').addEventListener('click', closeTrim);
+trimOverlay.addEventListener('click', (event) => { if (event.target === trimOverlay) closeTrim(); });
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !trimOverlay.hidden) closeTrim(); });
+window.addEventListener('resize', drawWave);
+
 async function init(): Promise<void> {
+  dismissSplash();
   if (navigator.storage?.persist) {
     try { await navigator.storage.persist(); } catch { /* Tarayıcı kalıcılığı reddedebilir; uygulama çalışmaya devam eder. */ }
   }
