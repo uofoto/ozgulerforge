@@ -284,3 +284,23 @@ body.modal-open{overflow:hidden}.overlay{position:fixed;inset:0;z-index:30;displ
 .song-row.menu-open { z-index:50; }
 .song-row:has(.song-more-actions:not([hidden])) { z-index:50; }
 .song-more-actions { z-index:60; }
+
+/* Dinleme özeti: varsayılan kapalı, başlıktan açılıp kapanır. */
+.listening-stats.is-collapsed .listening-stats-grid,
+.listening-stats.is-collapsed .stats-footnote { display:none; }
+.listening-stats.is-collapsed { padding-bottom:13px; }
+.stats-heading-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+.stats-toggle {
+  display:inline-flex; align-items:center; gap:6px; min-height:30px; padding:0 9px;
+  color:#4d7566; background:#eef8f3; border:1px solid #d7ebe2; border-radius:8px;
+  font-size:.62rem; font-weight:750; transition:background .18s, transform .18s;
+}
+.stats-toggle:hover { background:#e3f4ec; }
+.stats-toggle-icon { font-size:.95rem; line-height:1; transition:transform .18s; }
+.stats-toggle[aria-expanded="true"] .stats-toggle-icon { transform:rotate(180deg); }
+.nav-studio-icon svg { width:21px; height:21px; }
+@media(max-width:700px) {
+  .stats-heading { align-items:flex-start; }
+  .stats-heading-actions { align-items:flex-end; flex-direction:column; gap:6px; }
+  .stats-toggle { min-height:28px; }
+}

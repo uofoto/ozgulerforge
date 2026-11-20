@@ -33,6 +33,7 @@ const icons = {
     scissors: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.1 15.9M14.5 14.5 20 20M8.1 8.1 12 12"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>',
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
+    studio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13.5c2.2 0 2.2-5 4.4-5s2.2 7 4.4 7 2.2-9 4.4-9S19.4 13.5 21 13.5"/><path d="M4 18.5h16"/></svg>',
 };
 app.innerHTML = `
   <div class="app-shell">
@@ -51,7 +52,7 @@ app.innerHTML = `
       <span class="nav-caption">ÇALIŞMA ALANI</span>
       <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
       <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Ses arşivi</span><span class="nav-count" id="nav-count">0</span></button>
-      <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol">〽</span><span>Ses stüdyosu</span></button>
+      <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol nav-studio-icon">${icons.studio}</span><span>Ses stüdyosu</span></button>
       <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 22</span></div>
     </nav>
 
@@ -64,8 +65,8 @@ app.innerHTML = `
           <article class="metric-card"><span class="metric-icon amber">◷</span><div><span class="metric-label">ARŞİV BOYUTU</span><strong id="stat-storage">0 B</strong><small>bu cihazda saklı</small></div><span class="metric-art art-bars"></span></article>
         </section>
         <section class="listening-stats" id="listening-stats-panel" aria-labelledby="listening-stats-title">
-          <div class="stats-heading"><div><p class="section-kicker">BU CİHAZDAKİ DİNLEME GEÇMİŞİN</p><h2 id="listening-stats-title">Dinleme özeti</h2><p>Seslerini nasıl kullandığını sadece sen görebilirsin.</p></div><span class="stats-local-badge"><i></i> YEREL İSTATİSTİK</span></div>
-          <div class="listening-stats-grid">
+          <div class="stats-heading"><div><p class="section-kicker">BU CİHAZDAKİ DİNLEME GEÇMİŞİN</p><h2 id="listening-stats-title">Dinleme özeti</h2><p>Seslerini nasıl kullandığını sadece sen görebilirsin.</p></div><div class="stats-heading-actions"><span class="stats-local-badge"><i></i> YEREL İSTATİSTİK</span><button class="stats-toggle" id="stats-toggle" type="button" aria-expanded="false" aria-controls="listening-stats-content"><span>Göster</span><span class="stats-toggle-icon" aria-hidden="true">⌄</span></button></div></div>
+          <div class="listening-stats-grid" id="listening-stats-content">
             <article class="listen-stat-card"><span class="listen-stat-icon play-stat">▶</span><div><span class="listen-stat-label">TOPLAM ÇALMA</span><strong id="stat-play-count">0</strong><small>oynatma başlangıcı</small></div></article>
             <article class="listen-stat-card"><span class="listen-stat-icon time-stat">◷</span><div><span class="listen-stat-label">DİNLEME SÜRESİ</span><strong id="stat-listen-time">0 sn</strong><small>aktif dinleme zamanı</small></div></article>
             <article class="listen-stat-card"><span class="listen-stat-icon tracks-stat">♫</span><div><span class="listen-stat-label">FARKLI KAYIT</span><strong id="stat-unique-tracks">0</strong><small>dinlemeye başladığın ses</small></div></article>
@@ -220,6 +221,18 @@ const trimSaveButton = get('trim-save');
 const infoOverlay = get('info-overlay');
 const infoBody = get('info-body');
 const infoShareButton = get('info-share');
+const statsPanel = get('listening-stats-panel');
+const statsToggle = get('stats-toggle');
+function setStatsExpanded(expanded) {
+    statsPanel.classList.toggle('is-collapsed', !expanded);
+    statsToggle.setAttribute('aria-expanded', String(expanded));
+    statsToggle.querySelector('span').textContent = expanded ? 'Gizle' : 'Göster';
+}
+setStatsExpanded(false);
+statsToggle.addEventListener('click', () => {
+    const expanded = statsToggle.getAttribute('aria-expanded') === 'true';
+    setStatsExpanded(!expanded);
+});
 function get(selector) {
     const element = document.querySelector(`#${selector}`);
     if (!element)
