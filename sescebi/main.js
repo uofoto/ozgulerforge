@@ -658,7 +658,17 @@ function renderLibrary() {
             const button = event.currentTarget;
             const menu = row.querySelector('.song-more-actions');
             const open = menu.hidden;
+            document.querySelectorAll('.song-row.menu-open').forEach((openRow) => {
+                if (openRow !== row) {
+                    openRow.classList.remove('menu-open');
+                    const openMenu = openRow.querySelector('.song-more-actions');
+                    const openButton = openRow.querySelector('.more-row');
+                    if (openMenu) openMenu.hidden = true;
+                    openButton?.setAttribute('aria-expanded', 'false');
+                }
+            });
             menu.hidden = !open;
+            row.classList.toggle('menu-open', open);
             button.setAttribute('aria-expanded', String(open));
         });
         row.querySelector('.rename-row')?.addEventListener('click', () => openRename(song));

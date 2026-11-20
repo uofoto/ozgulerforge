@@ -279,3 +279,8 @@ body.modal-open{overflow:hidden}.overlay{position:fixed;inset:0;z-index:30;displ
   :root:not([data-theme="dark"]) .nav-item { color:#668078; }
   :root:not([data-theme="dark"]) .nav-item.active { color:#23604e; background:#dff5e9; }
 }
+
+/* Arşiv işlem menüsü: açık olan kayıt kartı komşu kartların üstünde kalır. */
+.song-row.menu-open { z-index:50; }
+.song-row:has(.song-more-actions:not([hidden])) { z-index:50; }
+.song-more-actions { z-index:60; }
