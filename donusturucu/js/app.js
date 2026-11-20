@@ -6,24 +6,49 @@ const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, attrs = {}, ...kids) => {
   const e = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
-    if (k === 'class') e.className = v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
-    else if (v === true) e.setAttribute(k, ''); else if (v !== false && v != null) e.setAttribute(k, v);
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, '');
+    else if (v !== false && v != null) e.setAttribute(k, v);
   }
   for (const k of kids.flat()) if (k != null) e.append(k.nodeType ? k : document.createTextNode(k));
   return e;
 };
-const fmtSize = n => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(1) + ' KB' : n < 1073741824 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1073741824).toFixed(2) + ' GB';
+const fmtSize = n => n < 1024 ? n + ' B'
+  : n < 1048576 ? (n / 1024).toFixed(1) + ' KB'
+  : n < 1073741824 ? (n / 1048576).toFixed(1) + ' MB'
+  : (n / 1073741824).toFixed(2) + ' GB';
+const fmtDur = ms => ms < 1000 ? `${Math.round(ms)} ms` : `${(ms / 1000).toFixed(2)} sn`;
 const KIND_TR = { image: 'Resim', video: 'Video', animated: 'Hareketli resim', audio: 'Ses', unknown: 'Bilinmiyor' };
+
+const PRESETS = {
+  archive: { target: 'png', fallbackVideo: 'mkv-ffv1', effort: 'small', verify: true },
+  'web-lossless': { target: 'webp', fallbackVideo: 'mp4-h264', effort: 'balanced', verify: true },
+  frames: { target: 'frames-png', effort: 'balanced', verify: true },
+  anim: { target: 'apng', effort: 'balanced', verify: true },
+};
 
 const state = {
   engine: new Engine(), ready: false, items: [], nextId: 1, targetId: 'png',
-  effort: 'balanced', verify: true, running: false, cancelled: false, chain: Promise.resolve(), current: null,
+  activePreset: 'archive', effort: 'small', verify: true, running: false, cancelled: false,
+  chain: Promise.resolve(), current: null,
 };
-window.__app = state; // test ve hata ayıklama için
+$('#effort').value = state.effort;
+$('#verify').checked = state.verify;
+window.__app = state;
 
-/* ---------- Motor ---------- */
+function setBadge(id, text, cls) {
+  const n = $(id);
+  if (!n) return;
+  n.dataset.state = cls;
+  const sp = n.querySelector('span');
+  if (sp) sp.textContent = text;
+  else n.textContent = text;
+}
+function setEngine(text, cls) { setBadge('#engine', text, cls); }
+
 async function boot() {
-  setEngine('Motor yükleniyor… (ilk açılışta ~32 MB, sonra çevrimdışı çalışır)', 'busy');
+  setEngine('Motor yükleniyor… (ilk açılışta ~32 MB)', 'busy');
   try {
     await state.engine.load();
     state.ready = true;
@@ -39,21 +64,29 @@ async function boot() {
   state.chain = state.chain.then(() => null);
   probePending();
 }
-// Kurulum 32 MB'lık wasm'ı beklemesin: motor yüklendikten sonra servis çalışanından arka planda saklamasını iste.
+
 function cacheCore() {
   if (!('serviceWorker' in navigator)) return;
   navigator.serviceWorker.ready.then(r => r.active?.postMessage({ type: 'cache-core' })).catch(() => {});
 }
-function setEngine(text, cls) { const n = $('#engine'); n.textContent = text; n.dataset.state = cls; }
 
-/* ---------- Dosya ekleme ---------- */
+function makeThumbUrl(file) {
+  if (!file || (!file.type.startsWith('image/') && !/\.(png|jpe?g|webp|gif|bmp|avif|heic|heif|tiff?|qoi)$/i.test(file.name))) return null;
+  try { return URL.createObjectURL(file); } catch { return null; }
+}
+
 function addFiles(files) {
   for (const f of files) {
-    state.items.push({ id: state.nextId++, file: f, status: 'queued', kind: null, info: null, error: null, result: null, progress: 0, phase: '' });
+    state.items.push({
+      id: state.nextId++, file: f, thumbUrl: makeThumbUrl(f),
+      status: 'queued', kind: null, info: null, error: null, result: null,
+      progress: 0, phase: '', elapsedMs: 0,
+    });
   }
   renderItems(); updateAction();
   if (state.ready) probePending();
 }
+
 function probePending() {
   state.chain = state.chain.then(async () => {
     for (const it of state.items.filter(i => i.status === 'queued')) {
@@ -74,7 +107,7 @@ function probePending() {
     }
   });
 }
-// FFmpeg açamadıysa (AVIF, HEIC, JXL gibi) tarayıcının kendi çözücüsünü dene. 8 bit sRGB PNG üretir.
+
 async function tryBrowserDecode(it) {
   if (!/^image\//.test(it.file.type) && !/\.(avif|heic|heif|jxl)$/i.test(it.file.name)) return;
   try {
@@ -84,9 +117,10 @@ async function tryBrowserDecode(it) {
     bmp.close();
     const png = await c.convertToBlob({ type: 'image/png' });
     const base = it.file.name.replace(/\.[^.]+$/, '');
+    if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl);
     it.file = new File([png], base + '.png', { type: 'image/png' });
+    it.thumbUrl = makeThumbUrl(it.file);
     it.viaBrowser = true; it.error = null; it.status = 'queued';
-    // Yeniden probe edilecek. İlk bağlama hâlâ duruyor; mountInput eskisini kaldırıp yenisini bağlar.
     const p = await state.engine.mountInput(it.id, it.file);
     it.info = await state.engine.probe(p, it.file); it.kind = kindOf(it.info);
     it.status = it.kind === 'image' ? 'ready' : 'error';
@@ -95,14 +129,32 @@ async function tryBrowserDecode(it) {
   finally { await state.engine.unmountInput(it.id); }
 }
 
-/* ---------- Hedef seçici ---------- */
+function applyPreset(key) {
+  const pr = PRESETS[key];
+  if (!pr) return;
+  state.activePreset = key;
+  state.effort = pr.effort;
+  state.verify = pr.verify;
+  $('#effort').value = pr.effort;
+  $('#verify').checked = pr.verify;
+  const kinds = new Set(state.items.filter(i => i.kind && i.status !== 'error').map(i => i.kind));
+  const hasVid = kinds.has('video') || kinds.has('animated');
+  let chosen = pr.target;
+  if (hasVid && pr.fallbackVideo && byId[chosen]?.group === 'image') chosen = pr.fallbackVideo;
+  if (byId[chosen] && !byId[chosen].unstable && !(state.ready && missingEncoders(byId[chosen], state.engine.caps).length)) {
+    state.targetId = chosen;
+  }
+  document.querySelectorAll('.preset').forEach(b => b.classList.toggle('active', b.dataset.preset === key));
+  renderTargets(); renderItems(); updateAction();
+}
+
 function renderTargets() {
   const box = $('#targets'); box.replaceChildren();
   const kinds = new Set(state.items.filter(i => i.kind && i.status !== 'error').map(i => i.kind));
   const isUsable = t => !(state.ready && missingEncoders(t, state.engine.caps).length)
     && (kinds.size === 0 || [...kinds].some(k => targetAllowed(k, t))) && !t.unstable;
   const cur = byId[state.targetId];
-  if (!cur || !isUsable(cur)) { // ör. yalnız video eklenmişken PNG seçili kalmasın
+  if (!cur || !isUsable(cur)) {
     const first = TARGETS.find(isUsable);
     if (first) state.targetId = first.id;
   }
@@ -115,21 +167,20 @@ function renderTargets() {
       const usable = kinds.size === 0 || [...kinds].some(k => targetAllowed(k, t));
       const dis = missing.length > 0 || !usable || !!t.unstable;
       const b = el('button', {
-        class: 'chip' + (state.targetId === t.id ? ' on' : '') + (t.lossless ? '' : ' lossy'), type: 'button', role: 'radio',
-        'aria-checked': String(state.targetId === t.id), disabled: dis,
+        class: 'chip' + (state.targetId === t.id ? ' on' : '') + (t.lossless ? '' : ' lossy'),
+        type: 'button', role: 'radio', 'aria-checked': String(state.targetId === t.id), disabled: dis,
         title: t.unstable ? t.unstable : missing.length ? `Bu ffmpeg derlemesinde yok: ${missing.join(', ')}` : t.hint,
-        onclick: () => { state.targetId = t.id; renderTargets(); renderItems(); updateAction(); },
+        onclick: () => { state.targetId = t.id; state.activePreset = null; document.querySelectorAll('.preset').forEach(x => x.classList.remove('active')); renderTargets(); renderItems(); updateAction(); },
       }, t.label, t.lossless ? null : el('span', { class: 'tag' }, 'kayıplı'));
       chips.append(b);
     }
     row.append(chips); box.append(row);
   }
   const t = byId[state.targetId];
-  $('#targetNote').textContent = t ? t.hint + (t.lossless ? '' : ' Bu hedef bit-bit aynı sonuç vermez.') : '';
+  $('#targetNote').textContent = t ? t.hint + (t.lossless ? ' · Kayıpsız hedef' : ' · Bu hedef bit-bit aynı sonuç vermez.') : '';
   if (t && !t.lossless) $('#targetNote').dataset.lossy = '1'; else delete $('#targetNote').dataset.lossy;
 }
 
-/* ---------- Dönüştürme ---------- */
 const passArgs = () => (state.engine.caps.ver >= 5.1 ? ['-fps_mode', 'passthrough'] : ['-vsync', '0']);
 
 function outName(it, t, used) {
@@ -158,6 +209,7 @@ async function convertAll() {
 
 async function convertOne(it, t, used) {
   const eng = state.engine;
+  const t0 = performance.now();
   it.error = null; it.progress = 0; it.phase = 'Hazırlanıyor';
   if (!targetAllowed(it.kind, t)) {
     it.error = `${t.label} bu dosya türü (${KIND_TR[it.kind]}) için kullanılamaz.`;
@@ -176,16 +228,15 @@ async function convertOne(it, t, used) {
     if (p.error) throw new Error(p.error);
     eng.onProgress = v => { it.progress = v; paintProgress(it); };
     it.phase = 'Dönüştürülüyor'; renderItems();
-    let r = await eng.run(p.args), usedFallback = false;
+    let r = await eng.run(p.args);
     if (r.code !== 0 && p.fallbackArgs && !state.cancelled) {
-      await eng.rm(outFile); usedFallback = true;
+      await eng.rm(outFile);
       r = await eng.run(p.fallbackArgs);
       if (r.code === 0) p.warnings.push('Altyazı akışları aktarılamadı; altyazısız yazıldı.');
     }
     if (state.cancelled) throw new Error('İptal edildi.');
     if (r.code !== 0) throw new Error('ffmpeg hata verdi: ' + (r.log.split('\n').filter(Boolean).slice(-3).join(' ') || 'kod ' + r.code));
 
-    // Çıktıyı oku
     let blob, size;
     if (isFrames) {
       const names = (await eng.ff.listDir(frameDir)).filter(n => !n.isDir).map(n => n.name).sort();
@@ -200,7 +251,6 @@ async function convertOne(it, t, used) {
     }
     size = blob.size;
 
-    // Bit-bit doğrulama
     let verify = null;
     if (state.verify && p.verify && p.verify.v) {
       it.phase = 'Doğrulanıyor'; it.progress = 0; renderItems();
@@ -208,14 +258,20 @@ async function convertOne(it, t, used) {
     } else if (p.verify?.skip) verify = { skipped: p.verify.skip };
     if (isFrames) await eng.rmDir(frameDir); else await eng.rm(outFile);
 
-    it.result = { blob, name: outName(it, t, used), size, targetId: t.id, plan: p, verify, url: null, usedFallback };
-    it.results = [...(it.results || []).filter(r => r.targetId !== t.id), it.result];
+    it.elapsedMs = performance.now() - t0;
+    const resObj = {
+      blob, name: outName(it, t, used), size, srcSize: it.file.size,
+      durationMs: it.elapsedMs, targetId: t.id, plan: p, verify, url: null,
+    };
+    it.result = resObj;
+    it.results = [...(it.results || []).filter(r => r.targetId !== t.id), resObj];
     it.status = 'done';
   } catch (e) {
+    it.elapsedMs = performance.now() - t0;
     it.status = it.results?.length ? 'done' : 'error-run';
     it.error = state.cancelled ? 'İptal edildi.' : e.fault ? 'ffmpeg çöktü (' + (e.message || 'bilinmeyen hata') + '). Motor yeniden başlatıldı.' : (e.message || String(e));
     const crashed = state.cancelled || e.fault || /RuntimeError|out of bounds|unreachable|terminated|abort/i.test(it.error);
-    if (crashed) { try { await eng.reset(); } catch {} } // çökmüş çekirdeğe komut göndermek takılır; önce yeniden başlat
+    if (crashed) { try { await eng.reset(); } catch {} }
     else { await eng.rm(outFile); await eng.rmDir(frameDir); }
   } finally {
     eng.onProgress = null;
@@ -231,7 +287,11 @@ async function runVerify(it, p, inPath, outRef, t) {
     const src = await eng.frameHashes(['-i', inPath], '0:' + v.v.index, v.v.srcPix || v.v.pix, pass, 's' + it.id);
     const outInput = v.frames ? ['-framerate', '1', '-start_number', '1', '-i', `${outRef}/f_%06d.${t.id === 'frames-tiff' ? 'tiff' : 'png'}`] : ['-i', outRef];
     const out = await eng.frameHashes(outInput, '0:v:0', v.v.outPix || v.v.pix, pass, 'o' + it.id, v.v.outVf);
-    const res = { frames: src.length, outFrames: out.length, hashes: src.map(h => h.split(':')[1]), outHashes: out.map(h => h.split(':')[1]), ok: false, audioOk: true, audioChecked: 0 };
+    const res = {
+      frames: src.length, outFrames: out.length,
+      hashes: src.map(h => h.split(':')[1]), outHashes: out.map(h => h.split(':')[1]),
+      ok: false, audioOk: true, audioChecked: 0,
+    };
     res.ok = src.length > 0 && src.length === out.length && src.every((h, i) => h === out[i]);
     if (!v.frames && v.audio?.length) {
       for (const a of v.audio) {
@@ -242,12 +302,53 @@ async function runVerify(it, p, inPath, outRef, t) {
     }
     return res;
   } catch (e) {
-    if (e.fault) { try { await eng.reset(); } catch {} } // çöken çekirdekle sonraki işler takılmasın
+    if (e.fault) { try { await eng.reset(); } catch {} }
     return { error: e.message || String(e) };
   }
 }
 
-/* ---------- Arayüz ---------- */
+function openCompareModal(it, r) {
+  const modal = $('#legalModal');
+  const title = $('#modalTitle');
+  const body = $('#modalBody');
+  if (!modal || !title || !body) return;
+  const beforeUrl = it.thumbUrl || URL.createObjectURL(it.file);
+  const afterUrl = r.url || (r.url = URL.createObjectURL(r.blob));
+  title.textContent = `Önce / Sonra Kıyaslama · ${it.file.name} → ${r.name}`;
+  body.innerHTML = '';
+  const stage = el('div', { class: 'compare-stage' },
+    el('img', { src: beforeUrl, alt: 'Kaynak görüntü' }),
+    el('div', { class: 'compare-after-wrap', style: 'clip-path: inset(0 0 0 50%);' },
+      el('img', { src: afterUrl, alt: 'Dönüştürülmüş görüntü' })),
+    el('div', { class: 'compare-divider', style: 'left: 50%;' }),
+    el('div', { class: 'compare-knob', style: 'left: 50%;' }, '↔'));
+  const slider = el('input', {
+    type: 'range', min: '0', max: '100', value: '50', class: 'compare-slider',
+    'aria-label': 'Karşılaştırma çizgisi',
+    oninput: e => {
+      const val = Number(e.target.value);
+      stage.querySelector('.compare-after-wrap').style.clipPath = `inset(0 0 0 ${val}%)`;
+      stage.querySelector('.compare-divider').style.left = `${val}%`;
+      stage.querySelector('.compare-knob').style.left = `${val}%`;
+    },
+  });
+  stage.addEventListener('pointermove', e => {
+    if (e.buttons !== 1 && e.pointerType === 'mouse') return;
+    const rect = stage.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    slider.value = String(pct);
+    stage.querySelector('.compare-after-wrap').style.clipPath = `inset(0 0 0 ${pct}%)`;
+    stage.querySelector('.compare-divider').style.left = `${pct}%`;
+    stage.querySelector('.compare-knob').style.left = `${pct}%`;
+  });
+  const diffPct = it.file.size > 0 ? (((r.size - it.file.size) / it.file.size) * 100).toFixed(1) : '0.0';
+  const labels = el('div', { class: 'compare-labels' },
+    el('span', {}, `SOL: Kaynak (${fmtSize(it.file.size)})`),
+    el('span', {}, `SAĞ: ${r.name} (${fmtSize(r.size)} · ${diffPct > 0 ? '+' + diffPct : diffPct}%)`));
+  body.append(stage, slider, labels);
+  modal.showModal();
+}
+
 function paintProgress(it) {
   const n = document.querySelector(`[data-id="${it.id}"] .bar > i`);
   if (n) n.style.width = (it.progress * 100).toFixed(1) + '%';
@@ -258,9 +359,9 @@ function strip(hashes, other) {
   const box = el('div', { class: 'strip', 'aria-hidden': 'true' });
   for (let i = 0; i < n; i++) {
     const idx = n === hashes.length ? i : Math.floor(i * hashes.length / n);
-    const h = hashes[idx] || '000000', hue = parseInt(h.slice(0, 3), 16) % 360, l = 38 + (parseInt(h.slice(3, 5), 16) % 30);
+    const h = hashes[idx] || '000000', hue = parseInt(h.slice(0, 3), 16) % 360, l = 42 + (parseInt(h.slice(3, 5), 16) % 24);
     const bad = other && other[idx] !== hashes[idx];
-    box.append(el('b', { style: `background:hsl(${hue} 55% ${l}%)`, class: bad ? 'bad' : '' }));
+    box.append(el('b', { style: `background:hsl(${hue} 62% ${l}%)`, class: bad ? 'bad' : '' }));
   }
   return box;
 }
@@ -274,8 +375,8 @@ function renderResult(r) {
   else if (v) {
     const all = v.ok && v.audioOk;
     verdict = el('p', { class: 'verdict ' + (all ? 'ok' : 'bad') },
-      all ? `Doğrulandı: ${v.frames} kare bit-bit aynı${v.audioChecked ? ', ses de aynı' : ''}.`
-        : `Fark bulundu: kaynak ${v.frames} kare, çıktı ${v.outFrames} kare${v.ok ? '' : ', kare özetleri uyuşmuyor'}${v.audioOk ? '' : ', ses uyuşmuyor'}.`);
+      all ? `✓ Bit-bit doğrulandı: ${v.frames} kare birebir aynı${v.audioChecked ? ', ses akışı da aynı' : ''}.`
+        : `✕ Fark bulundu: kaynak ${v.frames} kare, çıktı ${v.outFrames} kare${v.ok ? '' : ', kare özetleri farklı'}${v.audioOk ? '' : ', ses farklı'}.`);
   } else verdict = el('p', { class: 'verdict neutral' }, 'Kayıpsız hedef; doğrulama kapalı.');
   box.append(verdict);
   if (v && v.hashes) {
@@ -291,23 +392,73 @@ function renderResult(r) {
 function renderItems() {
   const list = $('#list'); list.replaceChildren();
   $('#empty').hidden = state.items.length > 0;
+
+  const allRes = state.items.flatMap(i => i.results || []);
+  const batchBar = $('#batchBar');
+  if (allRes.length > 0) {
+    const inSum = allRes.reduce((s, r) => s + r.srcSize, 0);
+    const outSum = allRes.reduce((s, r) => s + r.size, 0);
+    const delta = inSum > 0 ? ((outSum - inSum) / inSum) * 100 : 0;
+    const totalMs = allRes.reduce((s, r) => s + (r.durationMs || 0), 0);
+    batchBar.hidden = false;
+    batchBar.replaceChildren(
+      el('span', {}, 'Tamamlanan: ', el('strong', {}, `${allRes.length} çıktı`)),
+      el('span', {}, 'Kaynak: ', el('strong', {}, fmtSize(inSum))),
+      el('span', {}, 'Çıktı: ', el('strong', {}, fmtSize(outSum))),
+      el('span', { class: delta <= 0 ? 'gain-ok' : '' }, `Fark: ${delta > 0 ? '+' : ''}${delta.toFixed(1)}%`),
+      el('span', {}, 'Süre: ', el('strong', {}, fmtDur(totalMs)))
+    );
+  } else {
+    batchBar.hidden = true;
+  }
+
   for (const it of state.items) {
-    const meta = [it.kind ? KIND_TR[it.kind] : null, it.info?.streams.find(s => s.type === 'video') ? (() => { const s = it.info.streams.find(s => s.type === 'video' && !s.attached); return s ? `${s.width}×${s.height} ${s.pixFmt}` : null; })() : null, fmtSize(it.file.size)].filter(Boolean).join(' · ');
-    const statusText = { queued: 'Sırada', probing: 'İnceleniyor…', ready: 'Hazır', running: it.phase, done: 'Bitti', error: 'Açılamadı', 'error-run': 'Hata', skipped: 'Atlandı' }[it.status];
+    const vStream = it.info?.streams.find(s => s.type === 'video' && !s.attached);
+    const resMeta = vStream && vStream.width && vStream.height ? `${vStream.width}×${vStream.height}${vStream.pixFmt ? ' · ' + vStream.pixFmt : ''}` : null;
+    const meta = [it.kind ? KIND_TR[it.kind] : null, resMeta, fmtSize(it.file.size)].filter(Boolean).join(' · ');
+    const statusText = {
+      queued: 'Sırada', probing: 'İnceleniyor…', ready: 'Hazır', running: it.phase,
+      done: 'Bitti', error: 'Açılamadı', 'error-run': 'Hata', skipped: 'Atlandı',
+    }[it.status];
+
+    const thumbEl = it.thumbUrl
+      ? el('img', { class: 'thumb', src: it.thumbUrl, alt: it.file.name, loading: 'lazy' })
+      : el('div', { class: 'thumb-ph' }, (it.file.name.split('.').pop() || 'FILE').slice(0, 4));
+
     const card = el('li', { class: 'card s-' + it.status, 'data-id': it.id },
       el('div', { class: 'row' },
-        el('div', { class: 'name' }, el('strong', {}, it.file.name), el('span', { class: 'meta' }, meta + (it.viaBrowser ? ' · tarayıcı çözücüsüyle okundu' : ''))),
+        thumbEl,
+        el('div', { class: 'name' },
+          el('strong', {}, it.file.name),
+          el('span', { class: 'meta' }, meta + (it.viaBrowser ? ' · tarayıcı çözücüsü' : '') + (it.elapsedMs ? ` · ${fmtDur(it.elapsedMs)}` : ''))),
         el('span', { class: 'status' }, statusText),
-        el('button', { class: 'x', type: 'button', 'aria-label': it.file.name + ' dosyasını kaldır', disabled: it.status === 'running',
-          onclick: () => { (it.results || []).forEach(r => r.url && URL.revokeObjectURL(r.url)); state.items = state.items.filter(i => i !== it); renderItems(); renderTargets(); updateAction(); } }, '×')),
+        el('button', {
+          class: 'x', type: 'button', 'aria-label': it.file.name + ' dosyasını kaldır',
+          disabled: it.status === 'running',
+          onclick: () => {
+            if (it.thumbUrl) URL.revokeObjectURL(it.thumbUrl);
+            (it.results || []).forEach(r => r.url && URL.revokeObjectURL(r.url));
+            state.items = state.items.filter(i => i !== it);
+            renderItems(); renderTargets(); updateAction();
+          },
+        }, '×')),
       it.status === 'running' ? el('div', { class: 'bar' }, el('i', { style: `width:${(it.progress * 100).toFixed(1)}%` })) : null,
       it.error ? el('p', { class: 'err' }, it.error) : null);
+
     for (const r of it.results || []) {
       const box = el('div', { class: 'res' }, renderResult(r));
       const url = r.url || (r.url = URL.createObjectURL(r.blob));
-      box.append(el('div', { class: 'dl' },
-        el('a', { class: 'btn primary', href: url, download: r.name }, 'İndir'),
-        el('span', { class: 'meta' }, `${r.name} · ${fmtSize(r.size)} · ${r.plan.summary}`)));
+      const dlRow = el('div', { class: 'dl' },
+        el('a', { class: 'btn primary small', href: url, download: r.name }, 'İndir'),
+        el('span', { class: 'meta' }, `${r.name} · ${fmtSize(r.size)} · ${r.plan.summary}`));
+      const tObj = byId[r.targetId];
+      if (it.kind === 'image' && tObj?.group === 'image' && tObj.id !== 'gif') {
+        dlRow.append(el('button', {
+          type: 'button', class: 'btn small',
+          onclick: () => openCompareModal(it, r),
+        }, 'Önce / Sonra Kıyasla'));
+      }
+      box.append(dlRow);
       card.append(box);
     }
     list.append(card);
@@ -319,10 +470,11 @@ function updateAction() {
   const ready = state.items.filter(i => ['ready', 'done', 'error-run'].includes(i.status) && i.info);
   const btn = $('#go');
   btn.disabled = !state.ready || state.running || ready.length === 0;
-  btn.textContent = state.running ? 'Dönüştürülüyor…' : `${t ? t.label : ''} olarak dönüştür`;
+  btn.textContent = state.running ? 'Dönüştürülüyor…' : `${t ? t.label : ''} olarak dönüştür (${ready.length || 0})`;
   $('#cancel').hidden = !state.running;
   const done = state.items.flatMap(i => i.results || []);
   $('#zipAll').hidden = done.length < 2;
+  $('#zipAll').textContent = `Hepsini ZIP indir (${done.length})`;
   $('#clear').hidden = state.items.length === 0 || state.running;
 }
 
@@ -331,7 +483,7 @@ async function downloadAll() {
   try {
     const zip = await makeZip(done.map(r => ({ name: r.name, data: r.blob })));
     const url = URL.createObjectURL(zip);
-    const a = el('a', { href: url, download: 'donusturulenler.zip' });
+    const a = el('a', { href: url, download: 'kontak-studio-cikti.zip' });
     document.body.append(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 60000);
   } catch (e) {
@@ -339,7 +491,6 @@ async function downloadAll() {
   }
 }
 
-/* ---------- Olaylar ---------- */
 const drop = $('#drop'), input = $('#file');
 input.addEventListener('change', () => { addFiles([...input.files]); input.value = ''; });
 ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
@@ -348,6 +499,17 @@ drop.addEventListener('drop', e => addFiles([...e.dataTransfer.files]));
 window.addEventListener('dragover', e => e.preventDefault());
 window.addEventListener('drop', e => { e.preventDefault(); if (e.target !== drop && !drop.contains(e.target)) addFiles([...e.dataTransfer.files]); });
 window.addEventListener('paste', e => { const f = [...(e.clipboardData?.files || [])]; if (f.length) addFiles(f); });
+window.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'enter' && !$('#go').disabled) {
+    e.preventDefault();
+    convertAll();
+  }
+});
+
+document.querySelectorAll('.preset').forEach(btn => {
+  btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+});
+
 $('#go').addEventListener('click', convertAll);
 $('#cancel').addEventListener('click', async () => {
   state.cancelled = true; $('#cancel').disabled = true;
@@ -362,17 +524,26 @@ $('#cancel').addEventListener('click', async () => {
   } finally { $('#cancel').disabled = false; }
 });
 $('#zipAll').addEventListener('click', downloadAll);
-$('#clear').addEventListener('click', () => { state.items.forEach(i => (i.results || []).forEach(r => r.url && URL.revokeObjectURL(r.url))); state.items = []; renderItems(); renderTargets(); updateAction(); });
+$('#clear').addEventListener('click', () => {
+  state.items.forEach(i => {
+    if (i.thumbUrl) URL.revokeObjectURL(i.thumbUrl);
+    (i.results || []).forEach(r => r.url && URL.revokeObjectURL(r.url));
+  });
+  state.items = [];
+  renderItems(); renderTargets(); updateAction();
+});
 $('#effort').addEventListener('change', e => { state.effort = e.target.value; });
 $('#verify').addEventListener('change', e => { state.verify = e.target.checked; });
 
-/* ---------- PWA ---------- */
 async function pwa() {
   if (!('serviceWorker' in navigator)) return;
   try {
     const reg = await navigator.serviceWorker.register('./sw.js');
     navigator.serviceWorker.addEventListener('message', e => { if (e.data?.type === 'precached') offlineBadge(); });
-    reg.addEventListener('updatefound', () => { const w = reg.installing; w?.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) $('#update').hidden = false; }); });
+    reg.addEventListener('updatefound', () => {
+      const w = reg.installing;
+      w?.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) $('#update').hidden = false; });
+    });
     offlineBadge();
   } catch (e) { console.warn('SW kaydı başarısız', e); }
 }
@@ -380,19 +551,15 @@ let badgeTimer = 0;
 async function offlineBadge() {
   clearTimeout(badgeTimer);
   try {
-    const n = $('#offline');
-    if (state.engine.wasm?.source === 'cdn') { // wasm CDN'den geldi; çevrimdışı çalışması için dosya sunucuya konmalı
-      n.dataset.state = 'wait'; n.textContent = 'Çevrimdışı değil · wasm CDN’den'; return;
+    if (state.engine.wasm?.source === 'cdn') {
+      setBadge('#offline', 'Çevrimdışı değil · wasm CDN', 'wait'); return;
     }
     const hit = await caches.match(new URL('./vendor/core/ffmpeg-core.wasm', location.href).href);
-    n.dataset.state = hit ? 'ok' : 'wait';
-    n.textContent = hit ? 'Çevrimdışı hazır' : 'Çevrimdışı için indiriliyor…';
+    setBadge('#offline', hit ? 'Çevrimdışı hazır' : 'WASM önbellekleniyor…', hit ? 'ok' : 'wait');
     if (!hit) badgeTimer = setTimeout(offlineBadge, 3000);
   } catch {}
 }
-let deferred;
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; $('#install').hidden = false; });
-$('#install').addEventListener('click', async () => { if (!deferred) return; deferred.prompt(); await deferred.userChoice; deferred = null; $('#install').hidden = true; });
 $('#update').addEventListener('click', () => location.reload());
 
+document.querySelector(`.preset[data-preset="${state.activePreset}"]`)?.classList.add('active');
 renderTargets(); renderItems(); updateAction(); pwa(); boot();
