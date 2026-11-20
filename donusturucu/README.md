@@ -9,6 +9,8 @@ Statik bir sunucu yeterli (servis çalışanı için `localhost` veya HTTPS gere
     cd donusturucu
     python3 -m http.server 8765      # sonra http://localhost:8765
 
+`vendor/core/ffmpeg-core.wasm` (32 MB) depoda/zip'te bulunmaz; `@ffmpeg/core@0.12.9` paketinin ESM yapısından alınıp `vendor/core/` içine konmalıdır. Yoksa motor yüklenemez.
+
 Yayınlamak için klasörü olduğu gibi herhangi bir statik barındırmaya koyun. `ffmpeg-core.wasm` (32 MB) için sunucuda brotli/gzip açın.
 Çekirdek tek iş parçacıklıdır; COOP/COEP başlığı gerekmez.
 

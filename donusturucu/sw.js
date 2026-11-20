@@ -1,26 +1,36 @@
-const VERSION = 'kontak-v2';
+const VERSION = 'kontak-v3';
 const SHELL = ['./', 'index.html', 'styles.css', 'manifest.webmanifest', 'js/app.js', 'js/engine.js', 'js/formats.js', 'js/zip.js',
   'vendor/ffmpeg/index.js', 'vendor/ffmpeg/classes.js', 'vendor/ffmpeg/const.js', 'vendor/ffmpeg/errors.js', 'vendor/ffmpeg/utils.js', 'vendor/ffmpeg/types.js', 'vendor/ffmpeg/worker.js',
   'vendor/core/ffmpeg-core.js', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png'];
 const BIG = ['vendor/core/ffmpeg-core.wasm'];
 
 self.addEventListener('install', e => {
+  // Yalnızca küçük kabuk kurulumu bekletir. 32 MB'lık wasm kurulumu engellemesin diye 'cache-core' mesajıyla arka planda alınır.
   e.waitUntil((async () => {
     const c = await caches.open(VERSION);
     await c.addAll(SHELL);
-    self.skipWaiting();
-    // 32 MB'lık wasm kurulumu engellemesin; arka planda indirilir.
-    e.waitUntil?.(Promise.resolve());
-    for (const u of BIG) { try { await c.add(u); } catch {} }
-    const cl = await self.clients.matchAll(); cl.forEach(x => x.postMessage({ type: 'precached' }));
+    await self.skipWaiting();
   })());
 });
+
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
     for (const k of await caches.keys()) if (k !== VERSION) await caches.delete(k);
     await self.clients.claim();
   })());
 });
+
+// Sayfa motoru yükledikten sonra wasm'ı önbelleğe al (sayfa zaten indirdiği için çoğunlukla HTTP önbelleğinden gelir).
+self.addEventListener('message', e => {
+  if (e.data?.type !== 'cache-core') return;
+  e.waitUntil((async () => {
+    const c = await caches.open(VERSION);
+    for (const u of BIG) { try { if (!(await c.match(u))) await c.add(u); } catch {} }
+    const cl = await self.clients.matchAll({ includeUncontrolled: true });
+    cl.forEach(x => x.postMessage({ type: 'precached' }));
+  })());
+});
+
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
@@ -29,7 +39,8 @@ self.addEventListener('fetch', e => {
     if (hit) return hit;
     try {
       const res = await fetch(r);
-      if (res.ok) (await caches.open(VERSION)).put(r, res.clone());
+      // Önbelleğe yazma hatası (kota dolu, 206 kısmi yanıt) başarılı bir ağ yanıtını bozmasın.
+      if (res.ok && res.status === 200) e.waitUntil(caches.open(VERSION).then(c => c.put(r, res.clone())).catch(() => {}));
       return res;
     } catch {
       if (r.mode === 'navigate') return (await caches.match('index.html')) || Response.error();
