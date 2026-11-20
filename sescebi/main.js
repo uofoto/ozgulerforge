@@ -17,7 +17,8 @@ const icons = {
     upload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>',
     play: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6a1.2 1.2 0 0 0 1.8 1l9.7-6.8a1.2 1.2 0 0 0 0-2L9.8 4.2A1.2 1.2 0 0 0 8 5.2Z"/></svg>',
     pause: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 5.5A1.5 1.5 0 0 1 8.5 4h1A1.5 1.5 0 0 1 11 5.5v13A1.5 1.5 0 0 1 9.5 20h-1A1.5 1.5 0 0 1 7 18.5v-13ZM13 5.5A1.5 1.5 0 0 1 14.5 4h1A1.5 1.5 0 0 1 17 5.5v13a1.5 1.5 0 0 1-1.5 1h-1a1.5 1.5 0 0 1-1.5-1v-13Z"/></svg>',
-    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M8 11l4 4 4-4M5 20h14"/></svg>',
+    external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M8 11l4 4 4-4M5 20h14"/></svg>',
     trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v5M14 11v5M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
     rewind: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 8 4 12l5 4"/><path d="M4 12h9a4 4 0 1 1-4 4"/></svg>',
     forward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 8 5 4-5 4"/><path d="M20 12h-9a4 4 0 1 0 4 4"/></svg>',
@@ -142,7 +143,7 @@ app.innerHTML = `
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="info-title">
       <div class="sheet-head"><h2 id="info-title">Kayıt bilgisi</h2><button class="icon-button" id="info-close" type="button" aria-label="Kapat">✕</button></div>
       <div id="info-body"></div>
-      <div class="sheet-actions"><button class="ghost-button" id="info-share" type="button" hidden>${icons.share}<span>Paylaş</span></button><button class="primary-button" id="info-ok" type="button">Tamam</button></div>
+      <div class="sheet-actions"><button class="ghost-button" id="info-open" type="button" hidden>${icons.external}<span>Çalarla aç</span></button><button class="ghost-button" id="info-share" type="button" hidden>${icons.share}<span>Paylaş</span></button><button class="primary-button" id="info-ok" type="button">Tamam</button></div>
     </div>
   </div>
   <div class="overlay" id="rename-overlay" hidden>
@@ -188,6 +189,7 @@ const trimSaveButton = get('trim-save');
 const infoOverlay = get('info-overlay');
 const infoBody = get('info-body');
 const infoShareButton = get('info-share');
+const infoOpenButton = get('info-open');
 function get(selector) {
     const element = document.querySelector(`#${selector}`);
     if (!element)
@@ -526,7 +528,7 @@ function renderLibrary() {
     <article class="song-row" data-song-id="${song.id}">
       <div class="song-art">${icons.cassette}</div>
       <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span>·</span><span>${formatSize(song.size)}</span><span>·</span><span class="status-pill">Cihazda</span></div></div>
-      <div class="song-actions"><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button rename-row" type="button" aria-label="Adı değiştir: ${escapeHtml(song.name)}">${icons.edit}</button><button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}">${icons.scissors}</button><button class="icon-button share-row" type="button" aria-label="Paylaş: ${escapeHtml(song.name)}">${icons.share}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
+      <div class="song-actions"><button class="icon-button play-row" type="button" aria-label="${activeSong?.id === song.id && !audio.paused ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${activeSong?.id === song.id && !audio.paused ? icons.pause : icons.play}</button><button class="icon-button rename-row" type="button" aria-label="Adı değiştir: ${escapeHtml(song.name)}">${icons.edit}</button><button class="icon-button trim-row" type="button" aria-label="Kes: ${escapeHtml(song.name)}">${icons.scissors}</button><button class="icon-button share-row" type="button" aria-label="Paylaş: ${escapeHtml(song.name)}">${icons.share}</button><button class="icon-button open-row" type="button" aria-label="Çalarla aç: ${escapeHtml(song.name)}" title="Varsayılan çalarla aç">${icons.external}</button><button class="icon-button download-row" type="button" aria-label="İndir: ${escapeHtml(song.name)}">${icons.download}</button><button class="icon-button danger delete-row" type="button" aria-label="Sil: ${escapeHtml(song.name)}">${icons.trash}</button></div>
     </article>`).join('');
     songList.querySelectorAll('.song-row').forEach((row) => {
         const id = row.dataset.songId;
@@ -537,6 +539,7 @@ function renderLibrary() {
         row.querySelector('.rename-row')?.addEventListener('click', () => openRename(song));
         row.querySelector('.trim-row')?.addEventListener('click', () => void openTrim(song));
         row.querySelector('.share-row')?.addEventListener('click', () => void shareSong(song));
+        row.querySelector('.open-row')?.addEventListener('click', () => void openInDefaultPlayer(song));
         row.querySelector('.download-row')?.addEventListener('click', () => void downloadSong(song));
         row.querySelector('.delete-row')?.addEventListener('click', () => deleteSong(song));
     });
@@ -684,6 +687,7 @@ function showSaveInfo(file, pickedName, isAudio = true) {
     ${steps.length ? `<ul class="info-list">${steps.map((step) => `<li>${escapeHtml(step)}</li>`).join('')}</ul>` : ''}
     <p class="sheet-sub small">${escapeHtml(info.note)}</p>`;
     infoShareButton.hidden = !canShareFile(file);
+    infoOpenButton.hidden = !canShareFile(file);
     openOverlay(infoOverlay);
 }
 function closeInfo() {
@@ -761,6 +765,37 @@ async function shareSong(song) {
         return;
     }
     await shareFile(file, song.name);
+}
+
+// Web uygulaması cihazdaki varsayılan çaları doğrudan başlatamaz. En yakın yol: dosyayı doğru ad/uzantı/MIME ile
+// sistemin paylaşım menüsüne vermek (müzik çalarlar listelenir); menü yoksa indirip dosyadan açtırmak.
+async function openInDefaultPlayer(song) {
+    let file;
+    try {
+        file = await exportFile(song);
+    }
+    catch {
+        toast('Dosya hazırlanamadı.', true);
+        return;
+    }
+    await openFileInPlayer(file, song);
+}
+async function openFileInPlayer(file, song) {
+    if (canShareFile(file)) {
+        try {
+            await navigator.share({ files: [file], title: song ? song.name : file.name });
+            return;
+        }
+        catch (error) {
+            if (error && error.name === 'AbortError')
+                return;
+            toast('Çalar listesi açılamadı; dosya indiriliyor.', true);
+        }
+    }
+    else {
+        toast('Bu tarayıcı çalar seçtirmeyi desteklemiyor; dosya indiriliyor. İndirince dosyaya dokunup varsayılan çaların ile aç.');
+    }
+    await saveFile(file, true);
 }
 
 // ---- kesme ----
@@ -1014,6 +1049,8 @@ trimSaveButton.addEventListener('click', () => void saveTrim());
 get('trim-close').addEventListener('click', closeTrim);
 get('info-close').addEventListener('click', closeInfo);
 get('info-ok').addEventListener('click', closeInfo);
+infoOpenButton.addEventListener('click', () => { if (infoFile)
+    void openFileInPlayer(infoFile); });
 infoShareButton.addEventListener('click', () => { if (infoFile)
     void shareFile(infoFile, infoFile.name); });
 trimOverlay.addEventListener('click', (event) => { if (event.target === trimOverlay)

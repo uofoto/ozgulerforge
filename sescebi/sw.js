@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sescebi-shell-v15';
+const CACHE_NAME = 'sescebi-shell-v16';
 // Service worker hangi alt klasörde yayınlanırsa onun kapsamını kullanır (örn. /sescebi/).
 const BASE = self.registration.scope;
 const scoped = (path) => new URL(path, BASE).href;
