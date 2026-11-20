@@ -300,19 +300,30 @@ function formatSize(bytes) {
 }
 function readListeningStats() {
     try {
-        const parsed = JSON.parse(window.localStorage.getItem(LISTENING_STATS_KEY) || '{}');
+        const keys = [LISTENING_STATS_KEY, 'sescebi-listening-stats', 'sescebi-stats-v1', 'sescebi-play-stats'];
+        let raw = '';
+        for (const key of keys) {
+            raw = window.localStorage.getItem(key) || window.sessionStorage.getItem(key) || '';
+            if (raw) break;
+        }
+        const parsed = JSON.parse(raw || '{}');
         const tracks = Object.create(null);
-        if (parsed && parsed.tracks && typeof parsed.tracks === 'object') {
-            for (const [id, entry] of Object.entries(parsed.tracks)) {
+        const source = parsed?.tracks && typeof parsed.tracks === 'object' ? parsed.tracks : parsed?.songs && typeof parsed.songs === 'object' ? parsed.songs : {};
+        if (source && typeof source === 'object') {
+            for (const [id, entry] of Object.entries(source)) {
                 if (!entry || typeof entry !== 'object') continue;
-                tracks[id] = { name: typeof entry.name === 'string' ? entry.name : 'Ses kaydı', plays: Math.max(0, Number(entry.plays) || 0), seconds: Math.max(0, Number(entry.seconds) || 0) };
+                const plays = Number(entry.plays ?? entry.playCount ?? entry.count);
+                const seconds = Number(entry.seconds ?? entry.listenSeconds ?? entry.durationListened);
+                tracks[String(id)] = { name: typeof entry.name === 'string' ? entry.name : typeof entry.title === 'string' ? entry.title : 'Ses kaydı', plays: Math.max(0, Number.isFinite(plays) ? plays : 0), seconds: Math.max(0, Number.isFinite(seconds) ? seconds : 0) };
             }
         }
         return { tracks };
     } catch { return { tracks: Object.create(null) }; }
 }
 function persistListeningStats() {
-    try { window.localStorage.setItem(LISTENING_STATS_KEY, JSON.stringify(listeningStats)); } catch { /* depolama kapalı olsa da oturum içi sayaçlar çalışır */ }
+    const serialized = JSON.stringify(listeningStats);
+    try { window.localStorage.setItem(LISTENING_STATS_KEY, serialized); } catch { /* özel modda oturum yedeği kullanılabilir */ }
+    try { window.sessionStorage.setItem(LISTENING_STATS_KEY, serialized); } catch { /* depolama tamamen kapalı olabilir */ }
     renderListeningStats();
 }
 function formatListeningTime(value) {
@@ -2263,6 +2274,6 @@ async function init() {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=17', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=23', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();
