@@ -45,7 +45,7 @@ app.innerHTML = `
           <span class="brand-name">Ses Cebi</span>
         </a>
       </div>
-      <div class="header-note"><span class="live-dot"></span><span>Bu cihazda, sana ait</span><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir">◐</button></div>
+      <div class="header-note"><span class="live-dot"></span><span>Bu cihazda, sana ait</span><button class="motion-toggle" id="motion-toggle" type="button" aria-label="Ekolayzer animasyonunu kapat" title="Ekolayzer animasyonu açık">∿</button><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir">◐</button></div>
     </header>
     <nav class="main-nav" aria-label="Ana gezinme">
       <a class="sidebar-brand" href="/" aria-label="Ses Cebi ana sayfa"><span class="sidebar-brand-mark">${icons.cassette}</span><span class="sidebar-brand-copy">Ses Cebi<small>KİŞİSEL SES ALANI</small></span></a>
@@ -86,7 +86,7 @@ app.innerHTML = `
               <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Arşive ekle</span></button>
               <div class="progress-wrap" id="progress-wrap" aria-live="polite"><div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div><progress id="progress" max="100" value="0">0%</progress></div>
             </section>
-            <div class="player" id="player" aria-live="polite"><div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div><div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div><div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip" id="mode-button" type="button">Sırayla çal</button><label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button></div></div>
+            <div class="player" id="player" aria-live="polite"><div class="player-top"><div class="player-art">${icons.cassette}</div><div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div></div><div class="player-equalizer" id="player-equalizer" aria-label="Ses seviyesi görselleştirmesi" role="img"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="player-controls"><button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button><button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button><button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button><input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" /><span class="time" id="time">00:00 / 00:00</span></div><div class="player-extra"><button class="chip" id="prev-button" type="button">Önceki</button><button class="chip" id="next-button" type="button">Sonraki</button><button class="chip" id="mode-button" type="button">Sırayla çal</button><label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label><button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button></div></div>
             <section class="install-panel" aria-label="Ses Cebi uygulamasını yükle">
               <div class="install-mark" aria-hidden="true">${icons.cassette}</div>
               <div class="install-copy"><span class="install-eyebrow">KİŞİSEL ARŞİVİN · HER AN YANINDA</span><strong>Ses Cebi, hep yanında.</strong><span>Uygulamayı cihazına ekle; ses arşivin tek dokunuşla açılsın.</span><small id="app-status">Sürüm 21 · İsteğe bağlı kurulum</small></div>
@@ -209,6 +209,7 @@ const libraryCount = get('library-count');
 const player = get('player');
 const playerTitle = get('player-title');
 const playerSubtitle = get('player-subtitle');
+const playerEqualizer = get('player-equalizer');
 const playButton = get('play-button');
 const seek = get('seek');
 const timeLabel = get('time');
@@ -923,6 +924,7 @@ function updatePlayerUI() {
     if (!activeSong)
         return;
     playButton.innerHTML = audio.paused ? icons.play : icons.pause;
+    playerEqualizer.classList.toggle('is-playing', !audio.paused);
     playButton.setAttribute('aria-label', audio.paused ? 'Oynat' : 'Duraklat');
     const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : activeSong.duration;
     const current = audio.currentTime || 0;
@@ -1670,7 +1672,19 @@ get('studio-picker-cancel').addEventListener('click', () => {
 get('library-add').addEventListener('click', () => document.querySelector('[data-screen="home"]').click());
 
 const themeToggle = get('theme-toggle');
+const motionToggle = get('motion-toggle');
 try { if (localStorage.getItem('sescebi-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch {}
+function setMotionEnabled(enabled) {
+    document.documentElement.classList.toggle('motion-off', !enabled);
+    motionToggle.setAttribute('aria-label', enabled ? 'Ekolayzer animasyonunu kapat' : 'Ekolayzer animasyonunu aç');
+    motionToggle.title = enabled ? 'Ekolayzer animasyonu açık' : 'Ekolayzer animasyonu kapalı · pil tasarrufu';
+    motionToggle.classList.toggle('is-off', !enabled);
+    try { localStorage.setItem('sescebi-motion', enabled ? 'on' : 'off'); } catch {}
+}
+let motionEnabled = true;
+try { motionEnabled = localStorage.getItem('sescebi-motion') !== 'off'; } catch {}
+setMotionEnabled(motionEnabled);
+motionToggle.addEventListener('click', () => setMotionEnabled(document.documentElement.classList.contains('motion-off')));
 themeToggle.addEventListener('click', () => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('sescebi-theme', dark ? 'dark' : 'light'); } catch {} });
 function updateMediaSession() {
     if (!('mediaSession' in navigator) || !activeSong)
