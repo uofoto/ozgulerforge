@@ -22,7 +22,16 @@
 
   <main>
     <h2>Nasıl kullanılır?</h2>
-    <p>hadiGET, telefonla bilgisayarın birbirine <b>doğrudan</b> bağlanıp dosya gönderdiği bir araçtır. Arada sunucu, hesap ya da kablo yoktur. Bağlanmak için iki cihaz birbirine iki küçük QR kod (ya da bunların metin hâli) gösterir.</p>
+    <p>hadiGET, telefonla bilgisayarın birbirine <b>doğrudan</b> bağlanıp dosya gönderdiği bir araçtır. Dosyalar arada bir sunucuya, hesaba ya da kabloya uğramaz. Aynı ağdaki cihazlar birbirini listede görür; birine dokunup diğer cihazda <b>Kabul et</b>'e basmanız yeter.</p>
+
+    <h2>Hızlı bağlantı (önerilen)</h2>
+    <ol class="steps">
+      <li><b>İki cihazda da hadiGET'i açın</b> ve aynı Wi-Fi'a bağlı olduklarından emin olun.</li>
+      <li><b>“Yakındaki cihazlar” listesinde diğer cihazı görün</b> ve dokunun.</li>
+      <li><b>Diğer cihazda “Kabul et”e basın.</b> Birkaç saniyede “Bağlandı” yazar. QR okutmak, kod yapıştırmak gerekmez.</li>
+    </ol>
+    <div class="note">Cihaz listede görünmüyorsa (farklı ağlar, misafir Wi-Fi, ağ yalıtımı ya da bir cihazın IPv6, diğerinin IPv4 kullanması gibi nedenlerle olabilir): iki cihazda da <b>Kodla bağlan</b>'a basın. Birinde <i>Yeni kod oluştur</i>'u seçin, çıkan 6 haneli kodu diğerine yazın. İki cihaz aynı odaya düşünce birbirini görür.</div>
+    <p>Aşağıdaki QR yöntemi, eşleştirme sunucusuna ulaşılamadığında ya da internet olmadığında kullanılan yedek yoldur.</p>
 
     <h2>Başlamadan önce</h2>
     <ul>
@@ -31,7 +40,7 @@
       <li>Kamera yalnızca QR okumak içindir. İzin vermek istemezseniz kodu yapıştırarak da bağlanabilirsiniz.</li>
     </ul>
 
-    <h2>Adım adım: bilgisayar ↔ telefon</h2>
+    <h2>Yedek yöntem: QR ile adım adım</h2>
     <ol class="steps">
       <li><b>Bilgisayarda “Bağlantı başlat”a basın.</b> Ekranda bir QR kod belirir.</li>
       <li><b>Telefonun kamerasını QR'a tutun</b> ve çıkan bağlantıya dokunun. hadiGET telefonda açılır ve kendiliğinden bir <b>cevap QR kodu</b> gösterir. (Uygulama telefonda zaten açıksa: <i>Bağlantıya katıl</i> ▸ <i>QR kodu kamerayla oku</i>.)</li>
@@ -79,6 +88,18 @@
     <table>
       <tr><th>Belirti</th><th>Ne yapmalı</th></tr>
       <tr>
+        <td>Diğer cihaz listede görünmüyor</td>
+        <td>İki cihaz aynı Wi-Fi'da mı? Misafir Wi-Fi ve bazı ağlar yalıtım yapar; bir cihaz IPv6, diğeri IPv4 kullanıyorsa da birbirini görmeyebilir. İki cihazda da <b>Kodla bağlan</b>'ı kullanıp aynı 6 haneli kodu girin. Olmuyorsa QR yöntemini deneyin.</td>
+      </tr>
+      <tr>
+        <td>“Eşleştirme sunucusuna ulaşılamadı”</td>
+        <td>İnternet bağlantınızı kontrol edin; uygulama kendiliğinden yeniden dener. İnternet yoksa ana ekrandaki <b>QR ile bağlan</b> yedek yolunu kullanın.</td>
+      </tr>
+      <tr>
+        <td>Listede tanımadığım bir cihaz var</td>
+        <td>Ortak Wi-Fi'larda ya da mobil veride aynı ağdaki başka kişiler de görünebilir. Bağlantı yalnızca siz dokunursanız ya da gelen isteği <b>Kabul et</b>'erseniz kurulur; tanımadığınız cihazın isteğini reddedin.</td>
+      </tr>
+      <tr>
         <td>“Bağlantı kurulamadı” / “Bağlanılamadı”</td>
         <td>İki cihaz aynı ağda mı? Misafir Wi-Fi'ları ve bazı halka açık ağlar cihazların birbirini görmesini engeller (“istemci yalıtımı”). Telefonun hotspot'unu açıp bilgisayarı ona bağlayın. VPN'leri kapatın. Cihazlar farklı ağlardaysa ana ekranda <b>Farklı ağlardayız</b>'ı işaretleyip baştan başlayın.</td>
       </tr>
@@ -109,7 +130,7 @@
     </table>
 
     <h2>Gizlilik</h2>
-    <p>Dosyalarınız hiçbir sunucuya yüklenmez, iki cihaz arasında şifreli bir kanaldan geçer. Ayrıntılar için <a href="gizlilik.html">Gizlilik Politikası</a>'na bakın.</p>
+    <p>Dosyalarınız hiçbir sunucuya yüklenmez, iki cihaz arasında şifreli bir kanaldan geçer. Cihazların birbirini bulması için kullanılan eşleştirme sunucusu yalnızca bağlantı bilgisini iletir, hiçbir şeyi saklamaz. Ayrıntılar için <a href="gizlilik.html">Gizlilik Politikası</a>'na bakın.</p>
 
     <h2>Yardım</h2>
     <p>Çözemediğiniz bir sorun ya da önerinizi <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> adresine yazabilirsiniz. Yazarken tarayıcınızı, cihazınızı ve hangi adımda takıldığınızı belirtmeniz işimizi kolaylaştırır.</p>

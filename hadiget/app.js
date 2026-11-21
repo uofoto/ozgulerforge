@@ -2,20 +2,29 @@ import { Peer } from './peer.js';
 import { qrSvg } from './qr.js';
 import { startScan, scanAvailable } from './scan.js';
 import { parseCode } from './signal.js';
+import { Discovery } from './discover.js';
 
 const $ = (s) => document.querySelector(s);
-const VIEWS = ['home', 'host', 'join', 'live'];
+const VIEWS = ['home', 'ask', 'wait', 'host', 'join', 'live'];
 
 let peer = null;
 let stopScan = null;
 let wakeLock = null;
 let pendingOffer = null; // ilk bilgiyi alan taraf için bekleyen cevap kodu
+let disc = null; // yakındaki cihazları bulan bağlantı (yalnızca ana ekranda açık)
+let roomCode = null; // 6 haneli oda kodu (yoksa aynı ağdakiler görünür)
+let outgoing = null; // cevap beklediğimiz cihaz {id, name}
+let incomingReq = null; // onay bekleyen istek {from, name, code}
+let peerName = null; // bağlandığımız cihazın adı (biliniyorsa)
+let waitTimer = null;
 
 // --- küçük yardımcılar ---------------------------------------------------
 
 function show(name) {
   stopCamera();
   VIEWS.forEach((v) => ($('#v-' + v).hidden = v !== name));
+  if (['home', 'ask', 'wait'].includes(name)) startDisc();
+  else stopDisc();
   clearError();
   window.scrollTo(0, 0);
 }
@@ -83,7 +92,7 @@ function makePeer() {
     localStorage.setItem('stun', $('#opt-stun').checked ? '1' : '0');
   } catch {}
   return new Peer({
-    stun: $('#opt-stun').checked,
+    stun: $('#opt-stun').checked || !!roomCode,
     onOpen: goLive,
     onClose: onLost,
     onIncoming: onIncoming,
@@ -98,6 +107,9 @@ function dropPeer() {
   peer?.close();
   peer = null;
   pendingOffer = null;
+  outgoing = null;
+  peerName = null;
+  clearTimeout(waitTimer);
 }
 
 // --- ana ekran -----------------------------------------------------------
@@ -117,6 +129,240 @@ document.querySelectorAll('.back').forEach((b) => {
     show('home');
   };
 });
+
+// --- yakındaki cihazlar --------------------------------------------------
+
+function startDisc() {
+  if (disc) return;
+  disc = new Discovery(
+    {
+      onStatus: setNearbyStatus,
+      onPeers: renderPeers,
+      onSignal: onSignal,
+      onGone: onGone,
+    },
+    roomCode
+  );
+  $('#me-name').textContent = 'Bu cihazın adı: ' + disc.name;
+}
+
+function stopDisc() {
+  disc?.stop();
+  disc = null;
+}
+
+function restartDisc() {
+  stopDisc();
+  renderPeers([]);
+  startDisc();
+}
+
+let discState = 'connecting';
+let peerCount = 0;
+
+function setNearbyStatus(st) {
+  discState = st;
+  updateNearby();
+}
+
+function updateNearby() {
+  const el = $('#nearby-status');
+  if (discState === 'connecting') el.textContent = 'Yakındaki cihazlar aranıyor…';
+  else if (discState === 'offline') {
+    el.textContent = 'Eşleştirme sunucusuna ulaşılamadı. Yeniden deneniyor; istersen aşağıdan QR ile de bağlanabilirsin.';
+  } else if (peerCount) {
+    el.textContent = roomCode ? `Kod ${roomCode} odasındaki cihazlar. Dokunarak bağlan:` : 'Dokunarak bağlan:';
+  } else if (roomCode) {
+    el.textContent = `Kod ${roomCode} odasındasın. Diğer cihazda da aynı kodu gir.`;
+  } else {
+    el.textContent = 'Aynı Wi-Fi\u2019daki cihazlar burada görünür. Diğer cihazda da hadiGET\u2019i aç.';
+  }
+}
+
+function renderPeers(list) {
+  peerCount = list.length;
+  const ul = $('#peer-list');
+  ul.innerHTML = '';
+  for (const p of list) {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    const n = document.createElement('span');
+    n.className = 'pname';
+    n.textContent = p.name;
+    const g = document.createElement('span');
+    g.className = 'go';
+    g.textContent = 'Bağlan →';
+    b.append(n, g);
+    b.onclick = () => requestPeer(p);
+    li.append(b);
+    ul.append(li);
+  }
+  updateNearby();
+  // İstek gönderen cihaz listeden düştüyse onay ekranını kapat.
+  if (incomingReq && !list.some((p) => p.id === incomingReq.from)) {
+    incomingReq = null;
+    show('home');
+  }
+}
+
+// Biz bağlanmak istiyoruz: teklifi hazırla, karşıya ilet, onay bekle.
+async function requestPeer(p) {
+  dropPeer();
+  incomingReq = null;
+  outgoing = { id: p.id, name: p.name };
+  peerName = p.name;
+  show('wait');
+  $('#wait-text').textContent = `${p.name} için hazırlanıyor…`;
+  peer = makePeer();
+  const mine = peer;
+  try {
+    const code = await mine.createOffer();
+    if (peer !== mine) return; // bu arada vazgeçildi
+    if (!disc?.send(p.id, { k: 'offer', code })) throw new Error('Eşleştirme sunucusuna ulaşılamadı.');
+    $('#wait-text').textContent = `${p.name} cihazında “Kabul et”e basması bekleniyor…`;
+    clearTimeout(waitTimer);
+    waitTimer = setTimeout(() => {
+      if (peer === mine && outgoing) {
+        const name = outgoing.name;
+        cancelWait(true);
+        showError(`${name} cevap vermedi.`);
+      }
+    }, 60000);
+  } catch (e) {
+    if (peer !== mine) return;
+    cancelWait(false);
+    showError(e.message || String(e));
+  }
+}
+
+function cancelWait(notify) {
+  if (notify && outgoing) disc?.send(outgoing.id, { k: 'cancel' });
+  dropPeer();
+  show('home');
+}
+
+$('#wait-cancel').onclick = () => cancelWait(true);
+
+// Karşı taraftan gelen eşleşme iletileri.
+async function onSignal(from, name, data) {
+  const k = data && data.k;
+  if (k === 'offer') {
+    const c = parseCode(data.code);
+    if (!c || c.kind !== 'o') return;
+    const busy = peer || incomingReq || $('#v-home').hidden;
+    if (busy) {
+      disc?.send(from, { k: 'decline', why: 'busy' });
+      return;
+    }
+    incomingReq = { from, name: String(name || 'Bir cihaz'), code: c.code };
+    $('#ask-text').textContent = `${incomingReq.name} seninle bağlanmak istiyor. Tanımadığın bir cihazsa reddet.`;
+    show('ask');
+    navigator.vibrate?.(150);
+  } else if (k === 'answer') {
+    if (!outgoing || outgoing.id !== from || !peer) return;
+    const c = parseCode(data.code);
+    if (!c || c.kind !== 'a') return;
+    clearTimeout(waitTimer);
+    $('#wait-text').textContent = 'Bağlanılıyor…';
+    try {
+      await peer.acceptAnswer(c.code);
+      armTimeout();
+    } catch (e) {
+      cancelWait(false);
+      showError(e.message || String(e));
+    }
+  } else if (k === 'decline') {
+    if (!outgoing || outgoing.id !== from) return;
+    const n = outgoing.name;
+    cancelWait(false);
+    showError(data.why === 'busy' ? `${n} şu an başka bir işlemde.` : `${n} isteği reddetti.`);
+  } else if (k === 'cancel') {
+    if (incomingReq && incomingReq.from === from) {
+      incomingReq = null;
+      show('home');
+    }
+  }
+}
+
+// Gönderdiğimiz ileti hedefe ulaşmadı: karşı cihaz ayrılmış.
+function onGone(id) {
+  if (outgoing && outgoing.id === id) {
+    const n = outgoing.name;
+    cancelWait(false);
+    showError(`${n} artık görünmüyor.`);
+  }
+}
+
+$('#ask-no').onclick = () => {
+  if (incomingReq) disc?.send(incomingReq.from, { k: 'decline' });
+  incomingReq = null;
+  show('home');
+};
+
+$('#ask-yes').onclick = async () => {
+  const r = incomingReq;
+  if (!r) return;
+  incomingReq = null;
+  dropPeer();
+  peerName = r.name;
+  show('wait');
+  $('#wait-text').textContent = 'Bağlanılıyor…';
+  peer = makePeer();
+  const mine = peer;
+  try {
+    const answer = await mine.acceptOffer(r.code);
+    if (peer !== mine) return;
+    if (!disc?.send(r.from, { k: 'answer', code: answer })) throw new Error('Eşleştirme sunucusuna ulaşılamadı.');
+    armTimeout();
+  } catch (e) {
+    if (peer !== mine) return;
+    dropPeer();
+    show('home');
+    showError(e.message || String(e));
+  }
+};
+
+// Kodla bağlan: aynı 6 haneli kodu giren cihazlar aynı odaya düşer.
+$('#btn-code').onclick = () => {
+  const p = $('#code-panel');
+  p.hidden = !p.hidden;
+};
+
+function joinRoom(code) {
+  roomCode = code;
+  $('#code-input').value = code;
+  $('#code-room').hidden = false;
+  $('#code-room').innerHTML = '';
+  const label = document.createElement('span');
+  label.textContent = 'Oda kodun: ';
+  const big = document.createElement('span');
+  big.className = 'bigcode';
+  big.textContent = code;
+  $('#code-room').append(label, big);
+  $('#code-leave').hidden = false;
+  restartDisc();
+}
+
+$('#code-new').onclick = () => {
+  const a = new Uint32Array(1);
+  crypto.getRandomValues(a);
+  joinRoom(String(100000 + (a[0] % 900000)));
+};
+
+$('#code-go').onclick = () => {
+  const v = $('#code-input').value.replace(/\D/g, '');
+  if (v.length !== 6) return showError('Kod 6 haneli olmalı.');
+  clearError();
+  joinRoom(v);
+};
+
+$('#code-leave').onclick = () => {
+  roomCode = null;
+  $('#code-room').hidden = true;
+  $('#code-leave').hidden = true;
+  $('#code-input').value = '';
+  restartDisc();
+};
 
 // --- başlatan cihaz ------------------------------------------------------
 
@@ -181,7 +427,11 @@ function armTimeout() {
   const p = peer;
   connTimer = setTimeout(() => {
     if (peer === p && $('#v-live').hidden) {
-      showError('Bağlanılamadı. İki cihaz aynı ağda mı? Değilse ana ekrandaki “Farklı ağlardayız” seçeneğini aç ve baştan dene.');
+      if (!$('#v-wait').hidden) {
+        dropPeer();
+        show('home');
+      }
+      showError('Bağlanılamadı. İki cihaz aynı ağda mı? Değilse “Kodla bağlan”ı ya da “Farklı ağlardayız” seçeneğini dene.');
     }
   }, 20000);
 }
@@ -277,11 +527,17 @@ scanAvailable().then((ok) => {
   doJoin(c.code);
 })();
 
+if (!$('#v-home').hidden) startDisc();
+
 // --- bağlı ekran ---------------------------------------------------------
 
 async function goLive() {
   clearTimeout(connTimer);
+  clearTimeout(waitTimer);
+  outgoing = null;
+  incomingReq = null;
   show('live');
+  $('#live-status').textContent = peerName ? '● Bağlandı · ' + peerName : '● Bağlandı';
   $('#transfers').innerHTML = '';
   try {
     wakeLock = await navigator.wakeLock?.request('screen');

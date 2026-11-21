@@ -32,6 +32,7 @@
       <li>hadiGET dosyalarınızı, mesajlarınızı veya kimliğinizi toplamaz, saklamaz ve görmez.</li>
       <li>Hesap, üyelik, reklam, izleme ya da analiz aracı yoktur.</li>
       <li>Dosyalar iki cihaz arasında doğrudan ve şifreli akar; bir sunucuya yüklenmez.</li>
+      <li>Cihazların birbirini bulması için küçük bir eşleştirme sunucusu kullanılır; yalnızca bağlantı bilgisini iletir, hiçbir şeyi saklamaz ve bağlantı kurulunca devreden çıkar.</li>
     </ul>
 
     <h3>2. Kimiz?</h3>
@@ -46,7 +47,11 @@
       </tr>
       <tr>
         <td>Bağlantı kodları (QR)</td>
-        <td>Eşleşme için cihazınızın ağ adreslerini (yerel IP adresi; “Farklı ağlardayız” açıksa genel IP adresi) ve oturuma özgü anahtar bilgilerini içerir. Kodu okuyan cihaz bu adresleri görebilir; bu yüzden kodu yalnızca eşleşmek istediğiniz cihaza gösterin. Kodlar bir sunucuya gönderilmez.</td>
+        <td>Eşleşme için cihazınızın ağ adreslerini (yerel IP adresi; “Farklı ağlardayız” açıksa genel IP adresi) ve oturuma özgü anahtar bilgilerini içerir. Kodu okuyan cihaz bu adresleri görebilir; bu yüzden kodu yalnızca eşleşmek istediğiniz cihaza gösterin. QR ile bağlanırken kodlar hiçbir sunucuya gönderilmez. “Yakındaki cihazlar” yönteminde kodlar eşleştirme sunucusu üzerinden karşı cihaza iletilir (aşağıdaki satıra bakın).</td>
+      </tr>
+      <tr>
+        <td>Yakındaki cihazlar ve eşleştirme sunucusu</td>
+        <td>Uygulamanın ana ekranı açıkken, aynı ağdaki cihazları listelemek için bir eşleştirme sunucusuna (Cloudflare Workers üzerinde çalışır) bağlanır. Sunucuya şunlar gider: sekmeye özgü rastgele bir cihaz kimliği, cihaz adı (örn. “Android telefon · K3F”; tarayıcıdan türetilir, kişisel bilgi içermez), bağlantı adresiniz (IP) ve bağlanırken karşı cihaza ileteceğiniz kısa bağlantı kodları. IP adresiniz yalnızca aynı ağdaki cihazları aynı odaya koymak için o anda, tek yönlü bir özet (hash) hâlinde oda adı olarak kullanılır; sunucu kodumuz bunu ve diğer bilgileri kalıcı olarak kaydetmez. Dosyalarınız ve metinleriniz bu sunucudan geçmez. İki cihaz bağlanınca ya da ana ekrandan ayrılınca sunucu bağlantısı kapanır. Aynı ağdaki başka kullanıcılar (örn. ortak Wi-Fi ya da operatörün ortak IP adresi) cihaz adınızı listelerinde görebilir; bağlantı kurulması için sizin “Kabul et”e basmanız gerekir. “Kodla bağlan”da aynı 6 haneli kodu giren cihazlar birbirini görür.</td>
       </tr>
       <tr>
         <td>Kamera</td>
@@ -54,7 +59,7 @@
       </tr>
       <tr>
         <td>Cihazınızda saklananlar</td>
-        <td>Tarayıcı deposunda yalnızca “Farklı ağlardayız” tercihiniz ve uygulamanın çevrimdışı açılabilmesi için uygulama dosyalarının önbelleği tutulur. Tarayıcı ayarlarından silebilirsiniz.</td>
+        <td>Tarayıcı deposunda yalnızca “Farklı ağlardayız” tercihiniz, sekme kapanınca silinen rastgele bir cihaz kimliği ve uygulamanın çevrimdışı açılabilmesi için uygulama dosyalarının önbelleği tutulur. Tarayıcı ayarlarından silebilirsiniz.</td>
       </tr>
       <tr>
         <td>Çerez ve izleme</td>
@@ -69,12 +74,13 @@
     <h3>4. Üçüncü taraflar</h3>
     <ul>
       <li><b>Barındırma hizmeti.</b> hadiGET bir barındırma hizmetinden sunulur. Sayfaları ve uygulama dosyalarını yüklerken bu hizmet, tüm web sitelerinde olduğu gibi IP adresiniz ve tarayıcı bilginiz gibi standart sunucu kayıtları tutabilir. Bu kayıtların dosyalarınızla ilgisi yoktur. Yayın yeri değişirse bu metin güncellenir.</li>
-      <li><b>Google STUN (isteğe bağlı).</b> Yalnızca “Farklı ağlardayız” kutusunu işaretlerseniz, cihazınız genel IP adresini öğrenmek için Google'ın <code>stun.l.google.com</code> sunucusuna küçük bir istek gönderir. Google bu isteği ve IP adresinizi görür; dosyalarınız ya da kodlarınız oraya gitmez. Bu isteğe Google'ın gizlilik politikası uygulanır. Kutuyu işaretlemezseniz, sayfa yüklendikten sonra uygulama hiçbir dış hizmete başvurmaz.</li>
+      <li><b>Eşleştirme sunucusu (Cloudflare).</b> Cihazların birbirini bulması için kullandığımız küçük sunucu Cloudflare, Inc.'in Workers hizmetinde çalışır. Cloudflare, tüm altyapı sağlayıcıları gibi, bağlantı adresiniz gibi standart teknik kayıtlar tutabilir; bunlara Cloudflare'in gizlilik politikası uygulanır. Bu kayıtlarda dosyalarınız ya da metinleriniz yer almaz. Bu sunucuya yalnızca uygulamanın ana ekranı açıkken bağlanılır. QR ile bağlanıyorsanız ya da internet yoksa sunucuya hiç başvurulmaz.</li>
+      <li><b>Google STUN (isteğe bağlı).</b> Yalnızca “Farklı ağlardayız” kutusunu işaretlerseniz ya da “Kodla bağlan”ı kullanırsanız, cihazınız genel IP adresini öğrenmek için Google'ın <code>stun.l.google.com</code> sunucusuna küçük bir istek gönderir. Google bu isteği ve IP adresinizi görür; dosyalarınız ya da kodlarınız oraya gitmez. Bu isteğe Google'ın gizlilik politikası uygulanır. Kutuyu işaretlemez ve kodla bağlanmazsanız, STUN için hiçbir dış hizmete başvurulmaz.</li>
       <li><b>Paylaşım yok.</b> Verilerinizi satmayız, reklam amacıyla kimseyle paylaşmayız.</li>
     </ul>
 
     <h3>5. KVKK Aydınlatma Metni</h3>
-    <p>6698 sayılı Kişisel Verilerin Korunması Kanunu'nun (“KVKK”) 10. maddesi uyarınca bilgilendiriyoruz: hadiGET'i kullanırken Özgüler Forge tarafında kişisel veri işlenmez (3. ve 4. bölümde anlatılan durumlar sizin cihazınızda ya da ilgili hizmet sağlayıcıda gerçekleşir). Verileriniz yalnızca bize e-posta ile yazarsanız işlenir:</p>
+    <p>6698 sayılı Kişisel Verilerin Korunması Kanunu'nun (“KVKK”) 10. maddesi uyarınca bilgilendiriyoruz: hadiGET'i kullanırken Özgüler Forge hiçbir kişisel veriyi kaydetmez ya da saklamaz. Tek istisna, “Yakındaki cihazlar” özelliğinde eşleştirme sunucusunun IP adresinizi cihazları aynı odaya koymak için o bağlantı süresince bellekte anlık olarak kullanmasıdır; bu veri kaydedilmez ve bağlantı kapanınca yok olur. 3. ve 4. bölümde anlatılan diğer durumlar sizin cihazınızda ya da ilgili hizmet sağlayıcıda gerçekleşir. Verileriniz bunun dışında yalnızca bize e-posta ile yazarsanız işlenir:</p>
     <table>
       <tr><th>Başlık</th><th>Açıklama</th></tr>
       <tr><td>Veri sorumlusu</td><td>Özgüler Forge · <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></td></tr>
@@ -101,7 +107,7 @@
     <p><b>Başvuru:</b> Taleplerinizi <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> adresine iletebilirsiniz. Başvuruda kimliğinizi doğrulamamıza yardım edecek bilgileri ve talebinizi açıkça belirtin. Talepleri niteliğine göre en geç otuz gün içinde sonuçlandırırız; işlem ayrıca bir maliyet gerektirirse Kişisel Verileri Koruma Kurulu'nca belirlenen tarifedeki ücret istenebilir (KVKK m.13). Yanıtımızdan memnun kalmazsanız Kişisel Verileri Koruma Kurulu'na şikâyette bulunma hakkınız saklıdır (KVKK m.14).</p>
 
     <h3>6. Güvenlik</h3>
-    <p>Aktarım, WebRTC'nin DTLS şifrelemesini kullanır. Eşleşmeyi yalnızca kendi cihazlarınız ve güvendiğiniz kişilerle yapın; QR kodu herkese açık yerde göstermeyin ve paylaşmayın. Cihazınızın ve tarayıcınızın güncel tutulması sizin sorumluluğunuzdadır. Bir güvenlik açığı fark ederseniz lütfen e-posta ile bildirin.</p>
+    <p>Aktarım, WebRTC'nin DTLS şifrelemesini kullanır. Eşleşmeyi yalnızca kendi cihazlarınız ve güvendiğiniz kişilerle yapın; QR kodu herkese açık yerde göstermeyin ve paylaşmayın. Tanımadığınız bir cihazdan gelen bağlantı isteğini reddedin. Cihazınızın ve tarayıcınızın güncel tutulması sizin sorumluluğunuzdadır. Bir güvenlik açığı fark ederseniz lütfen e-posta ile bildirin.</p>
 
     <h3>7. Çocuklar</h3>
     <p>hadiGET kullanıcı verisi toplamaz; çocuklardan bilerek kişisel veri toplamaz. Çocukların kullanımında ebeveyn gözetimi önerilir.</p>
@@ -125,6 +131,7 @@
       <li>hadiGET does not collect, store or see your files, messages or identity.</li>
       <li>There are no accounts, ads, tracking or analytics tools.</li>
       <li>Files travel directly and encrypted between your two devices; they are not uploaded to any server.</li>
+      <li>A small pairing server helps devices find each other; it only relays connection info, stores nothing, and drops out once the devices are connected.</li>
     </ul>
 
     <h3>2. Who we are</h3>
@@ -139,7 +146,11 @@
       </tr>
       <tr>
         <td>Connection codes (QR)</td>
-        <td>For pairing they contain your device's network addresses (local IP address; public IP address if “Farklı ağlardayız” / different networks is on) and session-specific key information. The device that reads a code can see these addresses, so show a code only to the device you want to pair with. Codes are never sent to a server.</td>
+        <td>For pairing they contain your device's network addresses (local IP address; public IP address if “Farklı ağlardayız” / different networks is on) and session-specific key information. The device that reads a code can see these addresses, so show a code only to the device you want to pair with. When pairing by QR, codes are never sent to any server. With “Nearby devices” the codes are relayed to the other device through the pairing server (see the next row).</td>
+      </tr>
+      <tr>
+        <td>Nearby devices and the pairing server</td>
+        <td>While the app's home screen is open, it connects to a pairing server (running on Cloudflare Workers) to list devices on the same network. The server receives: a random per-tab device ID, a device name (e.g. “Android telefon · K3F”, derived from the browser, no personal information), your connection address (IP) and the short connection codes you pass to the other device. Your IP address is used only at that moment, as a one-way hash, to name the room that puts devices from the same network together; our server code does not permanently record it or anything else. Your files and text never pass through this server. The server connection is closed once two devices connect or you leave the home screen. Other users on the same network (e.g. shared Wi-Fi or a carrier's shared IP address) may see your device name in their list; a connection is only made if you press “Kabul et” (Accept). With “Kodla bağlan” (connect by code), devices that enter the same 6-digit code see each other.</td>
       </tr>
       <tr>
         <td>Camera</td>
@@ -147,7 +158,7 @@
       </tr>
       <tr>
         <td>Stored on your device</td>
-        <td>Only your “different networks” preference and a cache of the app files so it can open offline. You can clear them in your browser settings.</td>
+        <td>Only your “different networks” preference, a random device ID that is deleted when you close the tab, and a cache of the app files so it can open offline. You can clear them in your browser settings.</td>
       </tr>
       <tr>
         <td>Cookies and tracking</td>
@@ -162,16 +173,17 @@
     <h3>4. Third parties</h3>
     <ul>
       <li><b>Hosting.</b> hadiGET is served from a hosting provider. When you load the pages and app files, that provider may keep standard server logs such as your IP address and browser details, as any website does. These logs are unrelated to your files. If the hosting location changes, this text will be updated.</li>
-      <li><b>Google STUN (optional).</b> Only if you tick “different networks”, your device sends a small request to Google's <code>stun.l.google.com</code> server to discover its public IP address. Google sees that request and your IP address; your files and codes are not sent there. Google's privacy policy applies to that request. If you leave the box unticked, the app contacts no outside service after the page has loaded.</li>
+      <li><b>Pairing server (Cloudflare).</b> The small server that helps devices find each other runs on Cloudflare, Inc.'s Workers service. Like any infrastructure provider, Cloudflare may keep standard technical logs such as your connection address; Cloudflare's privacy policy applies to those. Those logs contain no files or text from your transfers. The app contacts this server only while its home screen is open. If you pair by QR, or you are offline, the server is not contacted at all.</li>
+      <li><b>Google STUN (optional).</b> Only if you tick “different networks” or use “connect by code”, your device sends a small request to Google's <code>stun.l.google.com</code> server to discover its public IP address. Google sees that request and your IP address; your files and codes are not sent there. Google's privacy policy applies to that request. If you leave the box unticked and do not connect by code, no outside service is contacted for STUN.</li>
       <li><b>No sharing.</b> We do not sell your data or share it for advertising.</li>
     </ul>
 
     <h3>5. If you contact us (data protection notice)</h3>
-    <p>Using hadiGET does not involve us processing personal data. If you email us, we process the data you send (your name if you give it, your email address, and your message) to answer your request and improve the app, based on our legitimate interests. We do not pass it on to third parties except where required by law or requested by a competent authority; your message travels through email infrastructure providers. We keep it for as long as needed to resolve your request and for any retention or limitation periods required by law, then delete or anonymise it.</p>
+    <p>Using hadiGET does not involve us recording or storing personal data. The one exception is that, for “Nearby devices”, the pairing server uses your IP address momentarily in memory, only for the length of that connection, to put devices from the same network in one room; it is not recorded and disappears when the connection closes. If you email us, we process the data you send (your name if you give it, your email address, and your message) to answer your request and improve the app, based on our legitimate interests. We do not pass it on to third parties except where required by law or requested by a competent authority; your message travels through email infrastructure providers. We keep it for as long as needed to resolve your request and for any retention or limitation periods required by law, then delete or anonymise it.</p>
     <p>Under Turkish Personal Data Protection Law No. 6698 (KVKK, Art. 11) you may ask whether your data is processed, request information about it, learn its purpose and recipients, request correction, deletion or destruction, request that such actions be notified to recipients, object to an adverse result produced solely by automated analysis, and claim compensation for damage caused by unlawful processing. Send requests to <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a>. We answer within thirty days at the latest. You also have the right to complain to the Turkish Personal Data Protection Board (Kişisel Verileri Koruma Kurulu).</p>
 
     <h3>6. Security</h3>
-    <p>Transfers use WebRTC's DTLS encryption. Pair only your own devices and people you trust; do not display or share the QR code publicly. Keeping your device and browser up to date is your responsibility. If you find a security issue, please tell us by email.</p>
+    <p>Transfers use WebRTC's DTLS encryption. Pair only your own devices and people you trust; do not display or share the QR code publicly, and decline connection requests from devices you do not recognise. Keeping your device and browser up to date is your responsibility. If you find a security issue, please tell us by email.</p>
 
     <h3>7. Children</h3>
     <p>hadiGET collects no user data and does not knowingly collect personal data from children. Parental supervision is recommended for children's use.</p>

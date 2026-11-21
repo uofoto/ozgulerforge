@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>hadiGET: telefon ve bilgisayar arasında dosya aktar</title>
-  <meta name="description" content="hadiGET ile telefonunla bilgisayarın arasında dosya aktar. Sunucu yok, hesap yok, ücretsiz ve açık kaynak.">
+  <meta name="description" content="hadiGET ile telefonunla bilgisayarın arasında dosya aktar. Dosyalar sunucuya yüklenmez, hesap yok, ücretsiz ve açık kaynak.">
   <meta name="theme-color" content="#0f766e">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -19,27 +19,48 @@
         <span class="word"><span class="w1">hadi</span><span class="w2">GET</span></span>
       </a>
     </h1>
-    <p class="tag">Telefonunla bilgisayarın arasında dosya aktar. Sunucu yok, hesap yok.</p>
+    <p class="tag">Telefonunla bilgisayarın arasında dosya aktar. Dosyalar sunucuya yüklenmez, hesap yok.</p>
   </header>
 
   <main>
     <!-- 1. Ana ekran -->
     <section id="v-home" class="view">
-      <button id="btn-host" class="primary">Bağlantı başlat</button>
-      <button id="btn-join">Bağlantıya katıl</button>
-      <p class="hint">İki cihazdan birinde <b>başlat</b>, diğerinde <b>katıl</b> seç. Hangisinin hangisi olduğu fark etmez.</p>
+      <div class="card nearby">
+        <h2>Yakındaki cihazlar</h2>
+        <p id="nearby-status" class="status">Aranıyor…</p>
+        <ul id="peer-list" class="peers" aria-live="polite"></ul>
+        <p id="me-name" class="hint"></p>
+      </div>
+
+      <button id="btn-code" class="link">Cihaz görünmüyor mu? Kodla bağlan</button>
+      <div id="code-panel" class="card" hidden>
+        <h2>Kodla bağlan</h2>
+        <p class="hint">İki cihaz aynı 6 haneli kodu girince birbirini görür. Farklı ağlardaki cihazlar için de çalışır.</p>
+        <button id="code-new">Yeni kod oluştur</button>
+        <input id="code-input" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="veya diğer cihazdaki kodu yaz" aria-label="6 haneli kod">
+        <button id="code-go" class="primary">Odaya gir</button>
+        <p id="code-room" class="status" hidden></p>
+        <button id="code-leave" class="link" hidden>Koddan çık</button>
+        <p class="hint">Kodla bağlanırken farklı ağlar için Google STUN sunucusu kullanılır.</p>
+      </div>
 
       <div class="card">
         <h2>Nasıl kullanılır?</h2>
         <ol>
-          <li>İki cihazı <b>aynı Wi-Fi</b>'a bağla ve hadiGET'i ikisinde de aç.</li>
-          <li>Birinde <b>Bağlantı başlat</b>'a bas; QR kod çıkar.</li>
-          <li>Diğerinde <b>Bağlantıya katıl</b>'ı seçip QR'ı okut. Telefonun kamera uygulaması da olur.</li>
-          <li>Katılan cihazın gösterdiği <b>cevap kodunu</b> başlatan cihazda okut ya da yapıştır.</li>
-          <li>Bağlandınız: dosya seç, sürükle bırak ya da metin gönder.</li>
+          <li>İki cihazda da hadiGET'i aç (aynı Wi-Fi'da olsunlar).</li>
+          <li>Diğer cihaz yukarıdaki listede görünür; ona dokun.</li>
+          <li>Diğer cihazda <b>Kabul et</b>'e bas. Bağlandınız.</li>
+          <li>Dosya seç, sürükle bırak ya da metin gönder.</li>
         </ol>
-        <p><a href="nasil-kullanilir.html" target="_blank" rel="noopener">Ayrıntılı kılavuz ve sorun giderme →</a></p>
+        <p>Cihaz görünmüyorsa <b>Kodla bağlan</b>'ı dene. <a href="nasil-kullanilir.html" target="_blank" rel="noopener">Ayrıntılı kılavuz →</a></p>
       </div>
+
+      <details id="qr-mode">
+        <summary>QR ile bağlan (eşleştirme sunucusu olmadan)</summary>
+        <p class="hint">Yukarıdaki yöntem çalışmazsa ya da internet yoksa kullan. Bir cihazda <b>başlat</b>, diğerinde <b>katıl</b> seç; iki QR kod okutulur.</p>
+        <button id="btn-host">Bağlantı başlat</button>
+        <button id="btn-join">Bağlantıya katıl</button>
+      </details>
 
       <button id="btn-install" hidden>Ana ekrana ekle</button>
       <p id="ios-hint" class="hint" hidden>Yüklemek için Safari'de <b>Paylaş</b> ▸ <b>Ana Ekrana Ekle</b>'ye dokun.</p>
@@ -48,6 +69,20 @@
         <input type="checkbox" id="opt-stun">
         <span>Farklı ağlardayız (Google STUN sunucusuna başvurur)</span>
       </label>
+    </section>
+
+    <!-- 1b. Gelen istek -->
+    <section id="v-ask" class="view" hidden>
+      <h2>Bağlantı isteği</h2>
+      <p id="ask-text"></p>
+      <button id="ask-yes" class="primary">Kabul et</button>
+      <button id="ask-no">Reddet</button>
+    </section>
+
+    <!-- 1c. Cevap bekleniyor -->
+    <section id="v-wait" class="view" hidden>
+      <p id="wait-text" class="status">Bağlanılıyor…</p>
+      <button id="wait-cancel" class="link">← Vazgeç</button>
     </section>
 
     <!-- 2. Başlatan cihaz -->
@@ -91,7 +126,7 @@
 
     <!-- 4. Bağlandı -->
     <section id="v-live" class="view" hidden>
-      <p class="status ok">● Bağlandı</p>
+      <p id="live-status" class="status ok">● Bağlandı</p>
 
       <label id="drop" class="drop">
         <input type="file" id="file-input" multiple hidden>

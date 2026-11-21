@@ -1,14 +1,14 @@
 {
   "name": "hadiget",
   "version": "1.0.0",
-  "description": "hadiGET: telefon ve bilgisayar arasında sunucusuz dosya aktarımı (WebRTC PWA).",
+  "description": "hadiGET: telefon ve bilgisayar arasında doğrudan (WebRTC) dosya aktarımı, yakındaki cihazları otomatik bulur.",
   "homepage": "https://ozgulerforge.com.tr",
   "private": true,
   "type": "module",
   "license": "MIT",
   "scripts": {
     "start": "python3 -m http.server 8000",
-    "test": "node test/e2e.mjs"
+    "test": "node test/e2e.mjs && node test/e2e-yakin.mjs && node worker/test.mjs"
   },
   "devDependencies": {
     "playwright": "^1.50.0"

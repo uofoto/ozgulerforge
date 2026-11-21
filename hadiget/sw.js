@@ -1,7 +1,7 @@
 // Uygulama kabuğunu önbelleğe alır; ilk yüklemeden sonra internet olmadan da
 // açılır (aynı Wi-Fi ağında internet olmasa bile aktarım çalışır).
 // Sürüm değişince VERSION'ı artırın.
-const VERSION = 'hadiget-v2';
+const VERSION = 'hadiget-v3';
 const ASSETS = [
   './',
   'index.html',
@@ -12,6 +12,7 @@ const ASSETS = [
   'app.js',
   'peer.js',
   'signal.js',
+  'discover.js',
   'qr.js',
   'scan.js',
   'vendor/qrcode-generator.js',

@@ -137,3 +137,16 @@ video { width: 100%; border-radius: 12px; background: #000; max-height: 50vh; ob
 .doc .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-text); font-weight: 700; display: grid; place-items: center; font-size: 0.9rem; }
 
 .transfers a.dl, .transfers button { justify-self: start; padding: 8px 12px; font-size: 0.92rem; border-radius: 10px; border: 1px solid var(--accent); color: var(--accent); background: none; text-decoration: none; }
+
+/* Yakındaki cihazlar */
+.nearby h2 { margin-bottom: 4px; }
+.peers { list-style: none; margin: 8px 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.peers button { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; text-align: left; }
+.peers .pname { font-weight: 600; overflow-wrap: anywhere; }
+.peers .go { color: var(--accent); font-size: 0.9rem; white-space: nowrap; }
+.peers:empty { display: none; }
+input#code-input {
+  font: inherit; font-size: 1.3rem; letter-spacing: 0.25em; text-align: center; padding: 12px;
+  border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: inherit; width: 100%;
+}
+.bigcode { font-size: 1.8rem; font-weight: 800; letter-spacing: 0.2em; color: var(--accent); }
