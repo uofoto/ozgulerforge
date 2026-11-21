@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PosterForge Studio Pro 2.1.0 — Mobil Poster Tasarım ve Baskı Stüdyosu</title>
+    <title>PosterForge Studio Pro 2.1.1 — Mobil Poster Tasarım ve Baskı Stüdyosu</title>
 
     <meta name="theme-color" content="#09090b">
     <meta name="description" content="PosterForge Studio Pro — mobil uyumlu, çok sayfalı poster tasarım ve baskı hazırlama uygulaması.">
@@ -103,7 +103,6 @@
           #btnExportPDF { padding: 8px 10px !important; }
           #btnExportPDF span { font-size: 10px; }
           #btnExportPNG { padding: 8px !important; }
-          #btnLegal { padding: 8px !important; }
           .tab-btn { min-height: 42px; font-size: 10px !important; padding-left: 4px !important; padding-right: 4px !important; }
           aside { max-height: 42dvh !important; }
           .workspace-grid { min-height: 38dvh; }
@@ -130,7 +129,7 @@
             </div>
             <div>
                 <h1 class="font-bold text-sm tracking-tight flex items-center gap-2">
-                    PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro 2.1.0</span>
+                    PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro 2.1.1</span>
                 </h1>
                 <p class="text-[11px] text-zinc-400 hidden sm:block">Çok Sayfalı Duvar Posteri & Halftone Motoru</p>
             </div>
@@ -152,8 +151,7 @@
         <!-- Sağ Aksiyon Butonları -->
         <div class="flex items-center gap-1.5">
             <button id="btnInstallPWA" class="hidden px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-[11px] font-semibold text-white" type="button">Yükle</button>
-            <button id="btnLegal" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] text-zinc-200 border border-zinc-700" type="button" aria-haspopup="dialog" aria-controls="legalDialog">Yasal</button>
-            <div class="hidden sm:flex items-center gap-1 mr-1 border-r border-zinc-700 pr-2">
+                <div class="hidden sm:flex items-center gap-1 mr-1 border-r border-zinc-700 pr-2">
                 <button id="btnUndo" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 disabled:opacity-30" title="Geri al" disabled>↶</button>
                 <button id="btnRedo" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 disabled:opacity-30" title="Yinele" disabled>↷</button>
                 <button id="btnSaveProject" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300" title="Projeyi JSON olarak kaydet">Kaydet</button>
@@ -541,34 +539,48 @@
         </main>
     </div>
 
+    <!-- Sade alt bilgi: hukuki ve kurumsal bağlantılar -->
+    <footer class="shrink-0 border-t border-zinc-800/80 bg-studio-900/95 px-4 py-2 text-[10px] sm:text-[11px] text-zinc-500">
+      <div class="mx-auto flex max-w-screen-2xl flex-wrap items-center justify-between gap-x-4 gap-y-1.5">
+        <div class="flex items-center gap-2"><span class="font-semibold tracking-wide text-zinc-400">POSTERFORGE</span><span class="text-zinc-700">·</span><span>Özgüler Forge</span></div>
+        <nav aria-label="Kurumsal bağlantılar" class="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <button type="button" data-legal-target="aboutSection" class="transition hover:text-indigo-300">Hakkında</button>
+          <button type="button" data-legal-target="privacySection" class="transition hover:text-indigo-300">Gizlilik Politikası</button>
+          <button type="button" data-legal-target="termsSection" class="transition hover:text-indigo-300">Kullanım Koşulları</button>
+          <a class="transition hover:text-indigo-300" href="mailto:iletisim@ozgulerforge.com.tr">İletişim</a>
+          <a class="transition hover:text-indigo-300" href="https://ozgulerforge.com.tr" target="_blank" rel="noopener noreferrer">ozgulerforge.com.tr</a>
+        </nav>
+      </div>
+    </footer>
 
-    <!-- Yasal Bilgiler ve PWA bilgilendirmesi -->
+    <!-- Kurumsal bilgiler ve politika metinleri -->
     <div id="legalDialog" class="hidden fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
       <div class="max-w-3xl mx-auto my-4 bg-studio-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden">
         <div class="flex items-center justify-between gap-3 p-4 border-b border-zinc-800 sticky top-0 bg-studio-900/95 backdrop-blur z-10">
-          <div><h2 id="legalTitle" class="font-bold text-base">Yasal Bilgiler</h2><p class="text-[11px] text-zinc-400">PosterForge Studio Pro · Sürüm 2.1.0</p></div>
+          <div><h2 id="legalTitle" class="font-bold text-base">PosterForge Studio Pro</h2><p class="text-[11px] text-zinc-400">Ürün bilgileri ve politikalar · Sürüm 2.1.1</p></div>
           <button id="btnCloseLegal" class="rounded-lg px-3 py-2 bg-zinc-800 text-sm" type="button" aria-label="Kapat">Kapat ✕</button>
         </div>
         <div class="p-4 sm:p-6 space-y-6 text-sm text-zinc-300 leading-relaxed select-text">
-          <section>
-            <h3 class="font-bold text-white mb-2">Uygulama ve sürüm bilgisi</h3>
+          <section id="aboutSection">
+            <h3 class="font-bold text-white mb-2">Hakkında ve sürüm bilgisi</h3>
             <p><strong>Ürün:</strong> PosterForge Studio Pro</p>
-            <p><strong>Sürüm:</strong> 2.1.0 (PWA)</p>
+            <p><strong>Sürüm:</strong> 2.1.1 (PWA)</p>
             <p><strong>Sürüm tarihi:</strong> 21 Kasım 2026</p>
             <p><strong>Dağıtım:</strong> Web / yüklenebilir PWA</p>
-            <p><strong>Değişiklikler:</strong> Mobil kullanım iyileştirmeleri, PWA manifesti ve çevrimdışı uygulama kabuğu, ana ekrana yükleme desteği, yasal bilgilendirme ekranı, sürüm ve güncelleme bildirimi.</p>
+            <p><strong>Değişiklikler:</strong> 2.1.0 sürümündeki PWA özelliklerine ek olarak alt bilgi bağlantıları ve kurumsal iletişim alanı tasarımı yenilendi.</p>
           </section>
-          <section>
-            <h3 class="font-bold text-white mb-2">Gizlilik bildirimi ve kişisel veriler</h3>
+          <section id="privacySection">
+            <h3 class="font-bold text-white mb-2">Gizlilik Politikası</h3>
             <p>PosterForge, bu sürümde görsel seçme, önizleme, efekt uygulama ve dışa aktarma işlemlerini kullanıcının tarayıcısında/cihazında gerçekleştirmek üzere tasarlanmıştır. Uygulama kodunda görselleri veya proje içeriğini bir PosterForge sunucusuna yükleyen bir hesap ya da uygulama API'si bulunmamaktadır. Kullanıcı, proje dosyasını kendi tercihiyle cihazına indirir.</p>
             <p class="mt-2">Uygulamanın çalışması için Tailwind CSS, jsPDF, Lucide ve Google Fonts gibi üçüncü taraf kaynaklar çevrimiçi olarak çağrılabilir. Bu sağlayıcılar bağlantı sırasında IP adresi, tarayıcı/cihaz bilgisi veya teknik günlük verilerini kendi politikalarına göre işleyebilir. Bu üçüncü tarafların veri işlemesi PosterForge'un kontrolünde değildir. Çevrimdışı kullanım, ilgili kaynaklar daha önce önbelleğe alınmadıysa sınırlı olabilir.</p>
             <p class="mt-2">PWA hizmet çalışanı uygulamanın temel dosyalarını ve erişilebilen statik kaynakları cihaz önbelleğinde tutabilir. Tarayıcı ayarlarından site verilerini/önbelleği temizleyebilirsiniz. Uygulama bu sürümde reklam, analiz veya izleme çerezi yerleştirmek üzere tasarlanmamıştır.</p>
-            <p class="mt-2"><strong>Veri sorumlusu / yayıncı:</strong> [Yayıncı adı veya işletme unvanı eklenmelidir]</p>
-            <p><strong>İletişim:</strong> [Geçerli e-posta ve tebligat adresi eklenmelidir]</p>
+            <p class="mt-2"><strong>Yayıncı / web sitesi:</strong> Özgüler Forge — <a class="text-indigo-300 underline" href="https://ozgulerforge.com.tr" target="_blank" rel="noopener noreferrer">ozgulerforge.com.tr</a></p>
+            <p><strong>İletişim e-postası:</strong> <a class="text-indigo-300 underline" href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
+            <p><strong>Not:</strong> Veri sorumlusunun tam ticari/gerçek kişi unvanı ve gerekli tebligat adresi, varsa işletme kayıtlarıyla uyumlu şekilde ayrıca yayımlanmalıdır.</p>
             <p class="mt-2">Bu metin genel bir ürün bilgilendirmesidir; KVKK kapsamında gerekli aydınlatma yükümlülüklerinin ve varsa yurt dışına veri aktarımı açıklamalarının yerine geçtiği garanti edilmez. Yayına almadan önce yayıncı kimliği, iletişim bilgileri, kullanılan hizmetlerin güncel veri akışları ve hukuki dayanaklar doğrulanarak metin yetkin bir hukuk uzmanına inceletilmelidir.</p>
           </section>
-          <section>
-            <h3 class="font-bold text-white mb-2">Kullanım koşulları</h3>
+          <section id="termsSection">
+            <h3 class="font-bold text-white mb-2">Kullanım Koşulları</h3>
             <ul class="list-disc pl-5 space-y-1">
               <li>Uygulamayı yalnızca hukuka uygun amaçlarla kullanabilirsiniz.</li>
               <li>Yüklediğiniz görsellerin kullanım, çoğaltma ve baskı haklarına sahip olduğunuzdan veya gerekli izinleri aldığınızdan siz sorumlusunuz.</li>
@@ -593,12 +605,12 @@
           </section>
           <section>
             <h3 class="font-bold text-white mb-2">İletişim ve metinlerin güncellenmesi</h3>
-            <p>Yasal metinler, gerçek yayıncı bilgileri ve kullanılan servislerin fiili yapılandırmasıyla uyumlu olacak şekilde güncellenmelidir. Bu metinlerin son güncelleme tarihi 21.11.2026'dır.</p>
-            <p class="mt-2 text-amber-300 text-xs">Yayın öncesi zorunlu işlem: Köşeli parantez içindeki yayıncı ve iletişim alanlarını doldurun. Bu alanlar tamamlanmadan uygulamayı ticari/yaygın kullanıma açmayın.</p>
+            <p>Politika metinleri, yayıncı bilgileri ve kullanılan servislerin fiili yapılandırmasıyla uyumlu olacak şekilde güncellenmelidir. Son güncelleme: 21.11.2026.</p>
+            <p class="mt-2 text-amber-300 text-xs">Yayın öncesinde veri sorumlusunun tam unvanını/kimliğini ve mevzuatın gerektirdiği adres bilgisini ekleyin; KVKK ve olası yurt dışına veri aktarımı yükümlülüklerini hukuk uzmanına doğrulatın.</p>
           </section>
         </div>
         <div class="p-4 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
-          <span>PosterForge Studio Pro · v2.1.0</span>
+          <span>PosterForge Studio Pro · v2.1.1</span>
           <button id="btnLegalBottomClose" class="px-3 py-2 rounded-lg bg-indigo-600 text-white" type="button">Anladım</button>
         </div>
       </div>
@@ -1653,7 +1665,12 @@
         (() => {
             const legal = document.getElementById('legalDialog');
             const closeLegal = () => legal?.classList.add('hidden');
-            document.getElementById('btnLegal')?.addEventListener('click', () => legal?.classList.remove('hidden'));
+            const openLegal = (targetId) => {
+                legal?.classList.remove('hidden');
+                if (targetId) requestAnimationFrame(() => document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+            };
+            document.querySelectorAll('[data-legal-target]').forEach(link => link.addEventListener('click', () => openLegal(link.dataset.legalTarget)));
+            document.querySelectorAll('#legalDialog section[id]').forEach(section => { section.style.scrollMarginTop = '76px'; });
             document.getElementById('btnCloseLegal')?.addEventListener('click', closeLegal);
             document.getElementById('btnLegalBottomClose')?.addEventListener('click', closeLegal);
             legal?.addEventListener('click', e => { if (e.target === legal) closeLegal(); });
