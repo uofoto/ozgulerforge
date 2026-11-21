@@ -117,21 +117,99 @@
           body { padding-top: env(safe-area-inset-top); }
         }
 
+        /* 3. Logo Animasyonu: Halftone & Poster Izgara Senfonisi */
+        .logo-box-3 {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+        }
+
+        .logo-group-3:hover .logo-box-3 {
+            transform: scale(1.07);
+            box-shadow: 0 0 22px rgba(99, 102, 241, 0.5);
+        }
+
+        .pf-tile-1,
+        .pf-tile-2,
+        .pf-tile-3,
+        .pf-dot-4 {
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+
+        .pf-tile-1 {
+            animation: pfTilePulse 3.2s ease-in-out infinite;
+            animation-delay: 0s;
+        }
+
+        .pf-tile-2 {
+            animation: pfTilePulse 3.2s ease-in-out infinite;
+            animation-delay: 0.35s;
+        }
+
+        .pf-tile-3 {
+            animation: pfTilePulse 3.2s ease-in-out infinite;
+            animation-delay: 0.7s;
+        }
+
+        .pf-dot-4 {
+            animation: pfHalftoneMorph 3.2s ease-in-out infinite;
+            animation-delay: 1.05s;
+        }
+
+        .logo-group-3:hover .pf-tile-1 { transform: translate(-1px, -1px) scale(1.05); }
+        .logo-group-3:hover .pf-tile-2 { transform: translate(1px, -1px) scale(1.05); }
+        .logo-group-3:hover .pf-tile-3 { transform: translate(-1px, 1px) scale(1.05); }
+        .logo-group-3:hover .pf-dot-4  { transform: translate(1px, 1px) scale(1.22); }
+
+        @keyframes pfTilePulse {
+            0%, 100% {
+                opacity: 0.95;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.45;
+                transform: scale(0.84);
+            }
+        }
+
+        @keyframes pfHalftoneMorph {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.65;
+                transform: scale(0.62);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .pf-tile-1, .pf-tile-2, .pf-tile-3, .pf-dot-4 {
+                animation: none !important;
+            }
+        }
+
     </style>
 </head>
 <body class="bg-studio-950 text-zinc-100 font-sans antialiased h-screen flex flex-col overflow-hidden select-none">
 
     <!-- Üst Gezinme Çubuğu (Header) -->
     <header class="h-14 border-b border-zinc-800/80 bg-studio-900/90 backdrop-blur-md px-4 flex items-center justify-between z-30 shrink-0">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                <i data-lucide="grid" class="w-4 h-4 text-white"></i>
+        <div class="logo-group-3 flex items-center gap-3 cursor-pointer">
+            <div class="logo-box-3 w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-600 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-indigo-500/25">
+                <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <rect class="pf-tile-1" x="3.5" y="3.5" width="7.2" height="7.2" rx="1.6" fill="currentColor" />
+                    <rect class="pf-tile-2" x="13.3" y="3.5" width="7.2" height="7.2" rx="1.6" fill="currentColor" fill-opacity="0.82" />
+                    <rect class="pf-tile-3" x="3.5" y="13.3" width="7.2" height="7.2" rx="1.6" fill="currentColor" fill-opacity="0.82" />
+                    <circle class="pf-dot-4" cx="16.9" cy="16.9" r="3.9" fill="currentColor" />
+                </svg>
             </div>
             <div>
                 <h1 class="font-bold text-sm tracking-tight flex items-center gap-2">
                     PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro 2.3.0</span>
                 </h1>
-                <p class="text-[11px] text-zinc-400 hidden sm:block">Çok Sayfalı Duvar Posteri & Halftone Motoru</p>
+                <p class="text-[11px] text-zinc-400 hidden sm:block">Çok Sayfalı Duvar Posteri &amp; Halftone Motoru</p>
             </div>
         </div>
 
