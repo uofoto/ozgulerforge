@@ -4,7 +4,7 @@
 
 const D = {
   tr: {
-    'tag': 'Telefon ile bilgisayar arasında dosya aktar.',
+    'tag': 'Kablo yok, Bluetooth yavaşlığı yok: Telefon ve bilgisayar arasında anında dosya aktar.',
     'nearby.title': 'Yakındaki cihazlar',
     'nearby.connecting': 'Yakındaki cihazlar aranıyor…',
     'nearby.offline': 'Eşleştirme sunucusuna ulaşılamadı. Yeniden deneniyor; istersen aşağıdan QR ile de bağlanabilirsin.',
@@ -200,7 +200,7 @@ const D = {
   },
 
   en: {
-    'tag': 'Send files between your phone and computer.',
+    'tag': 'No cables, no slow Bluetooth: send files between your phone and computer instantly.',
     'nearby.title': 'Nearby devices',
     'nearby.connecting': 'Looking for nearby devices…',
     'nearby.offline': 'Can’t reach the pairing server. Retrying; you can also connect with a QR code below.',
