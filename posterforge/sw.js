@@ -1,5 +1,5 @@
-/* PosterForge Studio Pro PWA service worker — v2.1.0 */
-const CACHE_NAME = 'posterforge-shell-v2.1.0';
+/* PosterForge Studio Pro PWA service worker — v2.3.1 */
+const CACHE_NAME = 'posterforge-shell-v2.3.1';
 const CORE = [
   './',
   './index.html',
