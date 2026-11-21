@@ -33,8 +33,8 @@ const ok = (cond, msg) => { console.log((cond ? 'PASS ' : 'FAIL ') + msg); if (!
 const args = process.env.MDNS ? [] : ['--disable-features=WebRtcHideLocalIpsWithMdns'];
 const browser = await chromium.launch({ args });
 try {
-  const a = await (await browser.newContext()).newPage();
-  const b = await (await browser.newContext()).newPage();
+  const a = await (await browser.newContext({ locale: 'tr-TR' })).newPage();
+  const b = await (await browser.newContext({ locale: 'tr-TR' })).newPage();
   for (const [n, pg] of [['A', a], ['B', b]]) {
     pg.on('pageerror', (e) => { console.log(`[${n}] pageerror`, e.message); failed++; });
   }
@@ -130,7 +130,7 @@ print(val)
   ok(/<title>hadiGET/.test(home), 'başlıkta yeni ad var');
 
   // 8) Adresle otomatik katılım (#o.kod)
-  const c = await (await browser.newContext()).newPage();
+  const c = await (await browser.newContext({ locale: 'tr-TR' })).newPage();
   await a.click('#btn-host');
   await a.waitForFunction(() => document.querySelector('#host-code').value.length > 10);
   const offer2 = await a.inputValue('#host-code');

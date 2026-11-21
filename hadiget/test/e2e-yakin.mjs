@@ -87,7 +87,7 @@ const waitPeers = (pg, n) => pg.waitForFunction((n) => document.querySelectorAll
 const browser = await chromium.launch({ args: ['--disable-features=WebRtcHideLocalIpsWithMdns'] });
 try {
   const mk = async () => {
-    const pg = await (await browser.newContext()).newPage();
+    const pg = await (await browser.newContext({ locale: 'tr-TR' })).newPage();
     pg.on('pageerror', (e) => { console.log('pageerror', e.message); failed++; });
     await bridge(pg);
     await pg.goto(base);
@@ -150,6 +150,26 @@ try {
   await waitPeers(a, 1); await waitPeers(b, 1);
   ok(true, 'kesildikten sonra iki cihaz yine birbirini görüyor');
 
+  // 7b) Güvenilen cihaz: B, A'ya güvenir; "otomatik kabul" açıkken A'nın isteği onaysız kabul edilir
+  await a.click('#peer-list button');
+  await b.waitForSelector('#v-ask:not([hidden])', { timeout: 10000 });
+  await b.click('#ask-yes');
+  await Promise.all([a.waitForSelector('#v-live:not([hidden])', { timeout: 20000 }), b.waitForSelector('#v-live:not([hidden])', { timeout: 20000 })]);
+  ok(!(await b.isHidden('#btn-trust')), 'bağlıyken "Bu cihaza güven" düğmesi görünüyor');
+  await b.click('#btn-trust');
+  ok((await b.textContent('#btn-trust')).includes('Güvenilen'), 'cihaz güvenilenlere eklendi');
+  await b.click('#btn-disconnect');
+  await a.waitForSelector('#v-home:not([hidden])', { timeout: 15000 });
+  await waitPeers(a, 1); await waitPeers(b, 1);
+  await b.evaluate(() => { const c = document.querySelector('#opt-auto'); c.checked = true; c.dispatchEvent(new Event('change')); });
+  await a.click('#peer-list button');
+  await Promise.all([a.waitForSelector('#v-live:not([hidden])', { timeout: 20000 }), b.waitForSelector('#v-live:not([hidden])', { timeout: 20000 })]);
+  ok(true, 'güvenilen cihazdan gelen istek onay sorulmadan kabul edildi');
+  await a.click('#btn-disconnect');
+  await b.waitForSelector('#v-home:not([hidden])', { timeout: 15000 });
+  await waitPeers(a, 1); await waitPeers(b, 1);
+  await b.evaluate(() => { const c = document.querySelector('#opt-auto'); c.checked = false; c.dispatchEvent(new Event('change')); });
+
   // 8) Kodla bağlan: yalnızca aynı kodu girenler görünür
   const c = await mk();
   await waitPeers(c, 2);
@@ -170,7 +190,7 @@ try {
   ok(true, 'koddan çıkınca varsayılan odaya dönülüyor');
 
   // 9) Sunucu kapalıysa uygulama bunu söyler, QR yolu kullanılabilir kalır
-  const d = await (await browser.newContext()).newPage();
+  const d = await (await browser.newContext({ locale: 'tr-TR' })).newPage();
   await d.routeWebSocket('**/ws*', (ws) => ws.close());
   await d.goto(base);
   await d.waitForFunction(() => document.querySelector('#nearby-status').textContent.includes('ulaşılamadı'), null, { timeout: 10000 });
