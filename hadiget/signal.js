@@ -7,6 +7,8 @@
 // Yalnızca veri kanalı için gereken alanlar taşınır; geri kalanı
 // codeToDesc() içinde standart bir veri kanalı SDP'sine yeniden kurulur.
 
+import { t } from './i18n.js';
+
 const toB64u = (s) => {
   let bin = '';
   new TextEncoder().encode(s).forEach((b) => (bin += String.fromCharCode(b)));
@@ -24,7 +26,7 @@ export function descToCode(desc) {
   const sdp = desc.sdp;
   const grab = (re, what) => {
     const m = sdp.match(re);
-    if (!m) throw new Error(`Bağlantı bilgisi eksik (${what}).`);
+    if (!m) throw new Error(t('sig.missing', { what }));
     return m[1].trim();
   };
   const ufrag = grab(/^a=ice-ufrag:(.+)$/m, 'ice-ufrag');
@@ -35,7 +37,7 @@ export function descToCode(desc) {
     .filter((c) => / udp /i.test(c))
     .slice(0, 6);
   if (!cands.length) {
-    throw new Error('Ağ adresi bulunamadı. Wi-Fi veya ağ bağlantısı açık mı?');
+    throw new Error(t('sig.noAddr'));
   }
   const kind = desc.type === 'offer' ? 'o' : 'a';
   return kind + '.' + toB64u([ufrag, pwd, fp, cands.join(';')].join('|'));
@@ -43,15 +45,15 @@ export function descToCode(desc) {
 
 export function codeToDesc(code) {
   const m = /^([oa])\.([A-Za-z0-9_-]+)$/.exec(code);
-  if (!m) throw new Error('Geçersiz kod.');
+  if (!m) throw new Error(t('sig.invalid'));
   let parts;
   try {
     parts = fromB64u(m[2]).split('|');
   } catch {
-    throw new Error('Kod okunamadı, eksik veya bozuk olabilir.');
+    throw new Error(t('sig.unreadable'));
   }
   const [ufrag, pwd, fp, cs] = parts;
-  if (!ufrag || !pwd || !fp || fp.length !== 64) throw new Error('Kod eksik veya bozuk.');
+  if (!ufrag || !pwd || !fp || fp.length !== 64) throw new Error(t('sig.broken'));
   const type = m[1] === 'o' ? 'offer' : 'answer';
   const lines = [
     'v=0',

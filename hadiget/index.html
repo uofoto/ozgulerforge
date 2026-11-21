@@ -20,15 +20,20 @@
         <span class="word"><span class="w1">hadi</span><span class="w2">GET</span></span>
       </a>
     </h1>
-    <p class="tag">Telefon ile bilgisayar arasında dosya aktar.</p>
+    <p class="tag" data-i18n="tag">Telefon ile bilgisayar arasında dosya aktar.</p>
   </header>
 
   <main>
     <!-- 1. Ana ekran -->
     <section id="v-home" class="view">
+      <div id="share-banner" class="banner" hidden>
+        <span id="share-text"></span>
+        <button id="share-drop" class="link" data-i18n="share.drop">Vazgeç</button>
+      </div>
+
       <div class="card nearby">
-        <h2>Yakındaki cihazlar</h2>
-        <p id="nearby-status" class="status">Aranıyor…</p>
+        <h2 data-i18n="nearby.title">Yakındaki cihazlar</h2>
+        <p id="nearby-status" class="status" aria-live="polite">…</p>
         <ul id="peer-list" class="peers" aria-live="polite"></ul>
         <p id="me-name" class="hint"></p>
       </div>
@@ -36,127 +41,167 @@
       <!-- Tıkla-aç satırlar: aynı anda yalnızca biri açık kalır -->
       <div class="acc-group">
         <details class="acc" name="home-acc">
-          <summary>Nasıl kullanılır?</summary>
+          <summary data-i18n="how.title">Nasıl kullanılır?</summary>
           <div class="acc-body">
             <ol>
-              <li>İki cihazda da hadiGET'i aç (aynı Wi-Fi'da olsunlar).</li>
-              <li>Diğer cihaz yukarıdaki listede görünür; ona dokun.</li>
-              <li>Diğer cihazda <b>Kabul et</b>'e bas. Bağlandınız.</li>
-              <li>Dosya seç, sürükle bırak ya da metin gönder.</li>
+              <li data-i18n-html="how.1"></li>
+              <li data-i18n-html="how.2"></li>
+              <li data-i18n-html="how.3"></li>
+              <li data-i18n-html="how.4"></li>
             </ol>
-            <p>Cihaz görünmüyorsa <b>Kodla bağlan</b>'ı dene.</p>
-            <p><a href="nasil-kullanilir.html" target="_blank" rel="noopener">Ayrıntılı kılavuz →</a></p>
+            <p data-i18n-html="how.fail"></p>
+            <p><a href="nasil-kullanilir.html" target="_blank" rel="noopener" data-i18n="how.guide">Ayrıntılı kılavuz →</a></p>
           </div>
         </details>
 
         <details class="acc" id="code-details" name="home-acc">
-          <summary id="btn-code">Kodla bağlan</summary>
+          <summary id="btn-code" data-i18n="code.title">Kodla bağlan</summary>
           <div id="code-panel" class="acc-body">
-            <p class="hint">Cihaz görünmüyorsa: iki cihaz aynı 6 haneli kodu girince birbirini görür. Farklı ağlardaki cihazlar için de çalışır.</p>
-            <button id="code-new">Yeni kod oluştur</button>
-            <input id="code-input" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="veya diğer cihazdaki kodu yaz" aria-label="6 haneli kod">
-            <button id="code-go" class="primary">Odaya gir</button>
+            <p class="hint" data-i18n="code.hint"></p>
+            <button id="code-new" data-i18n="code.new"></button>
+            <input id="code-input" inputmode="numeric" maxlength="6" autocomplete="off" data-i18n-ph="code.ph" data-i18n-aria="code.aria">
+            <button id="code-go" class="primary" data-i18n="code.go"></button>
             <p id="code-room" class="status" hidden></p>
-            <button id="code-leave" class="link" hidden>Koddan çık</button>
-            <p class="hint">Kodla bağlanırken farklı ağlar için Google STUN sunucusu kullanılır.</p>
+            <button id="code-leave" class="link" hidden data-i18n="code.leave"></button>
+            <p class="hint" data-i18n="code.stun"></p>
           </div>
         </details>
 
         <details class="acc" id="qr-mode" name="home-acc">
-          <summary>QR ile bağlan</summary>
+          <summary data-i18n="qr.title">QR ile bağlan</summary>
           <div class="acc-body">
-            <p class="hint">Eşleştirme sunucusu olmadan, internet yokken de çalışır. Bir cihazda <b>başlat</b>, diğerinde <b>katıl</b> seç; iki QR kod okutulur.</p>
-            <button id="btn-host">Bağlantı başlat</button>
-            <button id="btn-join">Bağlantıya katıl</button>
+            <p class="hint" data-i18n-html="qr.hint"></p>
+            <button id="btn-host" data-i18n="qr.host"></button>
+            <button id="btn-join" data-i18n="qr.join"></button>
           </div>
         </details>
 
-        <details class="acc" name="home-acc">
-          <summary>Ayarlar</summary>
+        <details class="acc" id="hist-details" name="home-acc">
+          <summary data-i18n="hist.title">Bu oturumdaki aktarımlar</summary>
           <div class="acc-body">
-            <label class="check">
-              <input type="checkbox" id="opt-stun">
-              <span>Farklı ağlardayız (Google STUN sunucusuna başvurur)</span>
+            <p class="hint" data-i18n="hist.hint"></p>
+            <ul id="hist-list" class="hist"></ul>
+            <button id="hist-clear" class="link" hidden data-i18n="hist.clear"></button>
+          </div>
+        </details>
+
+        <details class="acc" id="set-details" name="home-acc">
+          <summary data-i18n="set.title">Ayarlar</summary>
+          <div class="acc-body">
+            <label class="field">
+              <span data-i18n="set.name">Bu cihazın adı</span>
+              <input id="set-name" type="text" maxlength="30" autocomplete="off" data-i18n-ph="set.namePh">
             </label>
+            <label class="field">
+              <span data-i18n="set.lang">Dil</span>
+              <select id="set-lang">
+                <option value="auto" data-i18n="set.langAuto">Otomatik</option>
+                <option value="tr">Türkçe</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+            <label class="check"><input type="checkbox" id="opt-stun"><span data-i18n="set.stun"></span></label>
+            <label class="check"><input type="checkbox" id="opt-sound"><span data-i18n="set.sound"></span></label>
+            <label class="check"><input type="checkbox" id="opt-notif"><span data-i18n="set.notif"></span></label>
+            <label class="check"><input type="checkbox" id="opt-auto"><span data-i18n="set.auto"></span></label>
+            <div>
+              <p class="hint" data-i18n="set.trusted"></p>
+              <ul id="trusted-list" class="hist"></ul>
+            </div>
           </div>
         </details>
       </div>
 
-      <button id="btn-install" class="link" hidden>Ana ekrana ekle</button>
-      <p id="ios-hint" class="hint" hidden>Yüklemek için Safari'de <b>Paylaş</b> ▸ <b>Ana Ekrana Ekle</b>'ye dokun.</p>
+      <button id="btn-install" class="link" hidden data-i18n="install"></button>
+      <p id="ios-hint" class="hint" hidden data-i18n-html="ios"></p>
     </section>
 
     <!-- 1b. Gelen istek -->
     <section id="v-ask" class="view" hidden>
-      <h2>Bağlantı isteği</h2>
+      <h2 data-i18n="ask.title"></h2>
       <p id="ask-text"></p>
-      <button id="ask-yes" class="primary">Kabul et</button>
-      <button id="ask-no">Reddet</button>
+      <button id="ask-yes" class="primary" data-i18n="ask.yes"></button>
+      <button id="ask-no" data-i18n="ask.no"></button>
     </section>
 
     <!-- 1c. Cevap bekleniyor -->
     <section id="v-wait" class="view" hidden>
-      <p id="wait-text" class="status">Bağlanılıyor…</p>
-      <button id="wait-cancel" class="link">← Vazgeç</button>
+      <p id="wait-text" class="status" aria-live="polite">…</p>
+      <button id="wait-cancel" class="link" data-i18n="wait.cancel"></button>
     </section>
 
     <!-- 2. Başlatan cihaz -->
     <section id="v-host" class="view" hidden>
-      <h2>1. QR kodu diğer cihaza okut</h2>
-      <p id="host-status" class="status">Kod hazırlanıyor…</p>
+      <h2 data-i18n="host.t1"></h2>
+      <p id="host-status" class="status"></p>
       <div id="host-qr" class="qr"></div>
-      <textarea id="host-code" readonly rows="3" aria-label="Bağlantı kodu"></textarea>
-      <button id="host-copy">Kodu kopyala</button>
+      <textarea id="host-code" readonly rows="3" data-i18n-aria="host.codeAria"></textarea>
+      <button id="host-copy" data-i18n="host.copy"></button>
 
-      <h2>2. Diğer cihazın cevabını al</h2>
-      <button id="host-scan">Cevap QR kodunu kamerayla oku</button>
+      <h2 data-i18n="host.t2"></h2>
+      <button id="host-scan" data-i18n="host.scan"></button>
       <video id="host-video" hidden muted playsinline></video>
-      <textarea id="host-answer" rows="3" placeholder="veya cevap kodunu buraya yapıştır"></textarea>
-      <button id="host-connect" class="primary">Bağlan</button>
+      <textarea id="host-answer" rows="3" data-i18n-ph="host.answerPh"></textarea>
+      <button id="host-connect" class="primary" data-i18n="host.connect"></button>
 
-      <button class="link back">← Vazgeç</button>
+      <button class="link back" data-i18n="back"></button>
     </section>
 
     <!-- 3. Katılan cihaz -->
     <section id="v-join" class="view" hidden>
       <div id="join-step1">
-        <h2>1. Diğer cihazdaki QR kodu oku</h2>
-        <p class="hint">Telefonun kamera uygulaması da olur; uygulama kendiliğinden açılır.</p>
-        <button id="join-scan">QR kodu kamerayla oku</button>
+        <h2 data-i18n="join.t1"></h2>
+        <p class="hint" data-i18n="join.hint"></p>
+        <button id="join-scan" data-i18n="join.scan"></button>
         <video id="join-video" hidden muted playsinline></video>
-        <textarea id="join-offer" rows="3" placeholder="veya bağlantı kodunu buraya yapıştır"></textarea>
-        <button id="join-go" class="primary">Devam</button>
+        <textarea id="join-offer" rows="3" data-i18n-ph="join.offerPh"></textarea>
+        <button id="join-go" class="primary" data-i18n="join.go"></button>
       </div>
 
       <div id="join-step2" hidden>
-        <h2>2. Bu QR kodu diğer cihaza okut</h2>
-        <p id="join-status" class="status">Cevap hazırlanıyor…</p>
+        <h2 data-i18n="join.t2"></h2>
+        <p id="join-status" class="status"></p>
         <div id="join-qr" class="qr"></div>
-        <textarea id="join-code" readonly rows="3" aria-label="Cevap kodu"></textarea>
-        <button id="join-copy">Kodu kopyala</button>
+        <textarea id="join-code" readonly rows="3" data-i18n-aria="join.codeAria"></textarea>
+        <button id="join-copy" data-i18n="host.copy"></button>
       </div>
 
-      <button class="link back">← Vazgeç</button>
+      <button class="link back" data-i18n="back"></button>
     </section>
 
     <!-- 4. Bağlandı -->
     <section id="v-live" class="view" hidden>
-      <p id="live-status" class="status ok">● Bağlandı</p>
+      <div class="live-head">
+        <p id="live-status" class="status ok" aria-live="polite"></p>
+        <button id="btn-trust" class="link" hidden></button>
+      </div>
 
-      <label id="drop" class="drop">
+      <label id="drop" class="drop" tabindex="0">
         <input type="file" id="file-input" multiple hidden>
-        <strong>Dosya seç</strong>
-        <span>ya da buraya sürükle bırak</span>
+        <strong data-i18n="live.pick">Dosya seç</strong>
+        <span data-i18n="live.dropHint"></span>
       </label>
 
+      <div class="quick">
+        <label class="btn" id="dir-btn" hidden>
+          <input type="file" id="dir-input" webkitdirectory multiple hidden>
+          <span data-i18n="live.folder"></span>
+        </label>
+        <label class="btn" id="cam-btn" hidden>
+          <input type="file" id="cam-input" accept="image/*" capture="environment" hidden>
+          <span data-i18n="live.camera"></span>
+        </label>
+      </div>
+      <label class="check"><input type="checkbox" id="opt-zip"><span data-i18n="set.zip"></span></label>
+
       <div class="textbox">
-        <textarea id="text-input" rows="2" placeholder="Kısa metin ya da bağlantı gönder"></textarea>
-        <button id="text-send">Metni gönder</button>
+        <textarea id="text-input" rows="2" data-i18n-ph="live.textPh"></textarea>
+        <button id="text-send" data-i18n="live.textSend"></button>
       </div>
 
       <ul id="transfers" class="transfers" aria-live="polite"></ul>
 
-      <button id="btn-disconnect" class="link">Bağlantıyı kes</button>
+      <button id="btn-disconnect" class="link" data-i18n="live.disconnect"></button>
     </section>
 
     <p id="error" class="error" role="alert" hidden></p>
@@ -164,10 +209,10 @@
 
   <!-- Bağlantılar yeni sekmede açılır; aksi halde etkin bağlantı kopar. -->
   <footer>
-    <nav aria-label="Alt bağlantılar">
-      <a href="gizlilik.html" target="_blank" rel="noopener">Gizlilik</a>
-      <a href="kosullar.html" target="_blank" rel="noopener">Koşullar</a>
-      <a href="mailto:iletisim@ozgulerforge.com.tr">İletişim</a>
+    <nav data-i18n-aria="foot.nav">
+      <a href="gizlilik.html" target="_blank" rel="noopener" data-i18n="foot.privacy">Gizlilik</a>
+      <a href="kosullar.html" target="_blank" rel="noopener" data-i18n="foot.terms">Koşullar</a>
+      <a href="mailto:iletisim@ozgulerforge.com.tr" data-i18n="foot.contact">İletişim</a>
     </nav>
     <p class="ver">hadiGET <span data-version>sürüm</span> · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Özgüler Forge</a> · MIT</p>
   </footer>

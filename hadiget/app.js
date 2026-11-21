@@ -1,24 +1,64 @@
-import { Peer } from './peer.js';
+import { Peer, cleanInbox } from './peer.js';
 import { qrSvg } from './qr.js';
 import { startScan, scanAvailable } from './scan.js';
 import { parseCode } from './signal.js';
 import { Discovery } from './discover.js';
+import { makeZip } from './zip.js';
+import { openEditor } from './editor.js';
+import { t, setLang, applyI18n } from './i18n.js';
 
 const $ = (s) => document.querySelector(s);
-
-document.querySelectorAll('[data-version]').forEach((e) => (e.textContent = 'sürüm ' + (self.APP_VERSION || '')));
 const VIEWS = ['home', 'ask', 'wait', 'host', 'join', 'live'];
+const BASE_TITLE = document.title;
 
 let peer = null;
 let stopScan = null;
 let wakeLock = null;
-let pendingOffer = null; // ilk bilgiyi alan taraf için bekleyen cevap kodu
 let disc = null; // yakındaki cihazları bulan bağlantı (yalnızca ana ekranda açık)
 let roomCode = null; // 6 haneli oda kodu (yoksa aynı ağdakiler görünür)
 let outgoing = null; // cevap beklediğimiz cihaz {id, name}
-let incomingReq = null; // onay bekleyen istek {from, name, code}
+let incomingReq = null; // onay bekleyen istek {from, name, code, pid}
 let peerName = null; // bağlandığımız cihazın adı (biliniyorsa)
+let peerPid = null; // karşı cihazın kalıcı kimliği (güvenilen cihaz için)
 let waitTimer = null;
+let pendingShare = null; // paylaşım menüsünden gelen, gönderilmeyi bekleyen öğeler {files, text}
+
+// --- ayarlar (yalnızca bu cihazda, localStorage) ------------------------
+
+function load(key, def) {
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? def : JSON.parse(v);
+  } catch {
+    return def;
+  }
+}
+function save(key, val) {
+  try {
+    localStorage.setItem(key, JSON.stringify(val));
+  } catch {}
+}
+
+const settings = Object.assign(
+  { lang: 'auto', name: '', stun: false, sound: true, notif: false, auto: false, zip: false },
+  load('hg.settings', {})
+);
+const trusted = load('hg.trusted', {}); // { pid: ad }
+const persist = () => save('hg.settings', settings);
+
+// Bu cihaza özgü, kalıcı kimlik: "güvenilen cihaz" eşleşmesi için.
+const myPid = (() => {
+  let p = load('hg.pid', null);
+  if (!p) {
+    const a = new Uint8Array(12);
+    crypto.getRandomValues(a);
+    p = [...a].map((b) => b.toString(16).padStart(2, '0')).join('');
+    save('hg.pid', p);
+  }
+  return p;
+})();
+
+setLang(settings.lang);
 
 // --- küçük yardımcılar ---------------------------------------------------
 
@@ -58,8 +98,15 @@ function fmtBytes(n) {
   return n.toFixed(n < 10 ? 1 : 0) + ' ' + u[i];
 }
 
+function fmtEta(sec) {
+  if (!isFinite(sec) || sec < 0) return '';
+  if (sec < 60) return t('tr.sec', { n: Math.max(1, Math.round(sec)) });
+  if (sec < 3600) return t('tr.min', { n: Math.round(sec / 60) });
+  return t('tr.hour', { n: (sec / 3600).toFixed(1) });
+}
+
 function safeName(name) {
-  return name.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_') || 'dosya';
+  return name.replace(/[\\/:*?"<>|\u0000-\u001f]/g, '_') || t('tr.fileDefault');
 }
 
 async function copy(text, btn) {
@@ -74,7 +121,7 @@ async function copy(text, btn) {
     ta.remove();
   }
   const old = btn.textContent;
-  btn.textContent = 'Kopyalandı';
+  btn.textContent = t('tr.copied');
   setTimeout(() => (btn.textContent = old), 1500);
 }
 
@@ -90,17 +137,15 @@ function qrPayload(code) {
 }
 
 function makePeer() {
-  try {
-    localStorage.setItem('stun', $('#opt-stun').checked ? '1' : '0');
-  } catch {}
   return new Peer({
-    stun: $('#opt-stun').checked || !!roomCode,
+    stun: settings.stun || !!roomCode,
     onOpen: goLive,
     onClose: onLost,
     onIncoming: onIncoming,
     onProgress: onProgress,
     onFile: onFile,
     onError: onTransferError,
+    onCancelled: onCancelledByPeer,
     onText: onText,
   });
 }
@@ -108,17 +153,99 @@ function makePeer() {
 function dropPeer() {
   peer?.close();
   peer = null;
-  pendingOffer = null;
   outgoing = null;
   peerName = null;
+  peerPid = null;
   clearTimeout(waitTimer);
 }
 
-// --- ana ekran -----------------------------------------------------------
+// --- ayarlar ekranı ------------------------------------------------------
 
-try {
-  $('#opt-stun').checked = localStorage.getItem('stun') === '1';
-} catch {}
+function bindCheck(id, key, after) {
+  const el = $(id);
+  el.checked = !!settings[key];
+  el.onchange = () => {
+    settings[key] = el.checked;
+    persist();
+    after?.(el);
+  };
+}
+
+bindCheck('#opt-stun', 'stun');
+bindCheck('#opt-sound', 'sound');
+bindCheck('#opt-zip', 'zip');
+bindCheck('#opt-auto', 'auto');
+bindCheck('#opt-notif', 'notif', async (el) => {
+  if (!el.checked) return;
+  let perm = typeof Notification !== 'undefined' ? Notification.permission : 'denied';
+  if (perm === 'default') perm = await Notification.requestPermission();
+  if (perm !== 'granted') {
+    el.checked = false;
+    settings.notif = false;
+    persist();
+    showError(t('set.notifDenied'));
+  }
+});
+
+$('#set-lang').value = settings.lang;
+$('#set-lang').onchange = (e) => {
+  settings.lang = e.target.value;
+  persist();
+  setLang(settings.lang);
+  refreshDynamicText();
+};
+
+$('#set-name').value = settings.name;
+$('#set-name').onchange = (e) => {
+  settings.name = e.target.value.trim().slice(0, 30);
+  e.target.value = settings.name;
+  persist();
+  if (!$('#v-home').hidden) restartDisc();
+};
+
+function renderTrusted() {
+  const ul = $('#trusted-list');
+  ul.innerHTML = '';
+  const ids = Object.keys(trusted);
+  if (!ids.length) {
+    const li = document.createElement('li');
+    li.className = 'hint';
+    li.textContent = t('set.trustedNone');
+    ul.append(li);
+    return;
+  }
+  for (const pid of ids) {
+    const li = document.createElement('li');
+    const n = document.createElement('span');
+    n.textContent = trusted[pid];
+    const b = document.createElement('button');
+    b.className = 'link';
+    b.textContent = t('set.forget');
+    b.onclick = () => {
+      delete trusted[pid];
+      save('hg.trusted', trusted);
+      renderTrusted();
+      updateTrustBtn();
+    };
+    li.append(n, b);
+    ul.append(li);
+  }
+}
+
+function refreshDynamicText() {
+  updateNearby();
+  renderTrusted();
+  renderHistory();
+  updateShareBanner();
+  if (disc) $('#me-name').textContent = t('nearby.me', { name: disc.name });
+  if (!$('#v-live').hidden) {
+    $('#live-status').textContent = peerName ? t('live.connectedTo', { name: peerName }) : t('live.connected');
+    updateTrustBtn();
+  }
+  if (roomCode) renderRoom();
+}
+
+// --- ana ekran -----------------------------------------------------------
 
 $('#btn-host').onclick = startHost;
 $('#btn-join').onclick = () => {
@@ -143,9 +270,10 @@ function startDisc() {
       onSignal: onSignal,
       onGone: onGone,
     },
-    roomCode
+    roomCode,
+    settings.name || null
   );
-  $('#me-name').textContent = 'Bu cihazın adı: ' + disc.name;
+  $('#me-name').textContent = t('nearby.me', { name: disc.name });
 }
 
 function stopDisc() {
@@ -169,16 +297,11 @@ function setNearbyStatus(st) {
 
 function updateNearby() {
   const el = $('#nearby-status');
-  if (discState === 'connecting') el.textContent = 'Yakındaki cihazlar aranıyor…';
-  else if (discState === 'offline') {
-    el.textContent = 'Eşleştirme sunucusuna ulaşılamadı. Yeniden deneniyor; istersen aşağıdan QR ile de bağlanabilirsin.';
-  } else if (peerCount) {
-    el.textContent = roomCode ? `Kod ${roomCode} odasındaki cihazlar. Dokunarak bağlan:` : 'Dokunarak bağlan:';
-  } else if (roomCode) {
-    el.textContent = `Kod ${roomCode} odasındasın. Diğer cihazda da aynı kodu gir.`;
-  } else {
-    el.textContent = 'Aynı Wi-Fi\u2019daki cihazlar burada görünür. Diğer cihazda da hadiGET\u2019i aç.';
-  }
+  if (discState === 'connecting') el.textContent = t('nearby.connecting');
+  else if (discState === 'offline') el.textContent = t('nearby.offline');
+  else if (peerCount) el.textContent = roomCode ? t('nearby.tapRoom', { code: roomCode }) : t('nearby.tap');
+  else if (roomCode) el.textContent = t('nearby.inRoom', { code: roomCode });
+  else el.textContent = t('nearby.empty');
 }
 
 function renderPeers(list) {
@@ -193,7 +316,7 @@ function renderPeers(list) {
     n.textContent = p.name;
     const g = document.createElement('span');
     g.className = 'go';
-    g.textContent = 'Bağlan →';
+    g.textContent = t('nearby.go');
     b.append(n, g);
     b.onclick = () => requestPeer(p);
     li.append(b);
@@ -214,20 +337,20 @@ async function requestPeer(p) {
   outgoing = { id: p.id, name: p.name };
   peerName = p.name;
   show('wait');
-  $('#wait-text').textContent = `${p.name} için hazırlanıyor…`;
+  $('#wait-text').textContent = t('wait.preparing', { name: p.name });
   peer = makePeer();
   const mine = peer;
   try {
     const code = await mine.createOffer();
     if (peer !== mine) return; // bu arada vazgeçildi
-    if (!disc?.send(p.id, { k: 'offer', code })) throw new Error('Eşleştirme sunucusuna ulaşılamadı.');
-    $('#wait-text').textContent = `${p.name} cihazında “Kabul et”e basması bekleniyor…`;
+    if (!disc?.send(p.id, { k: 'offer', code, pid: myPid })) throw new Error(t('err.server'));
+    $('#wait-text').textContent = t('wait.accept', { name: p.name });
     clearTimeout(waitTimer);
     waitTimer = setTimeout(() => {
       if (peer === mine && outgoing) {
         const name = outgoing.name;
         cancelWait(true);
-        showError(`${name} cevap vermedi.`);
+        showError(t('err.noAnswer', { name }));
       }
     }, 60000);
   } catch (e) {
@@ -256,16 +379,24 @@ async function onSignal(from, name, data) {
       disc?.send(from, { k: 'decline', why: 'busy' });
       return;
     }
-    incomingReq = { from, name: String(name || 'Bir cihaz'), code: c.code };
-    $('#ask-text').textContent = `${incomingReq.name} seninle bağlanmak istiyor. Tanımadığın bir cihazsa reddet.`;
+    const pid = typeof data.pid === 'string' ? data.pid.slice(0, 32) : null;
+    incomingReq = { from, name: String(name || t('dev.someone')), code: c.code, pid };
+    if (settings.auto && pid && trusted[pid]) {
+      notifyUser(t('notif.autoAccepted', { name: incomingReq.name }), '');
+      acceptIncoming();
+      return;
+    }
+    $('#ask-text').textContent = t('ask.text', { name: incomingReq.name });
     show('ask');
     navigator.vibrate?.(150);
+    if (document.hidden) notifyUser(t('ask.title'), incomingReq.name);
   } else if (k === 'answer') {
     if (!outgoing || outgoing.id !== from || !peer) return;
     const c = parseCode(data.code);
     if (!c || c.kind !== 'a') return;
+    peerPid = typeof data.pid === 'string' ? data.pid.slice(0, 32) : null;
     clearTimeout(waitTimer);
-    $('#wait-text').textContent = 'Bağlanılıyor…';
+    $('#wait-text').textContent = t('wait.connecting');
     try {
       await peer.acceptAnswer(c.code);
       armTimeout();
@@ -277,7 +408,7 @@ async function onSignal(from, name, data) {
     if (!outgoing || outgoing.id !== from) return;
     const n = outgoing.name;
     cancelWait(false);
-    showError(data.why === 'busy' ? `${n} şu an başka bir işlemde.` : `${n} isteği reddetti.`);
+    showError(data.why === 'busy' ? t('err.busy', { name: n }) : t('err.declined', { name: n }));
   } else if (k === 'cancel') {
     if (incomingReq && incomingReq.from === from) {
       incomingReq = null;
@@ -291,7 +422,7 @@ function onGone(id) {
   if (outgoing && outgoing.id === id) {
     const n = outgoing.name;
     cancelWait(false);
-    showError(`${n} artık görünmüyor.`);
+    showError(t('err.gone', { name: n }));
   }
 }
 
@@ -301,20 +432,23 @@ $('#ask-no').onclick = () => {
   show('home');
 };
 
-$('#ask-yes').onclick = async () => {
+$('#ask-yes').onclick = () => acceptIncoming();
+
+async function acceptIncoming() {
   const r = incomingReq;
   if (!r) return;
   incomingReq = null;
   dropPeer();
   peerName = r.name;
+  peerPid = r.pid;
   show('wait');
-  $('#wait-text').textContent = 'Bağlanılıyor…';
+  $('#wait-text').textContent = t('wait.connecting');
   peer = makePeer();
   const mine = peer;
   try {
     const answer = await mine.acceptOffer(r.code);
     if (peer !== mine) return;
-    if (!disc?.send(r.from, { k: 'answer', code: answer })) throw new Error('Eşleştirme sunucusuna ulaşılamadı.');
+    if (!disc?.send(r.from, { k: 'answer', code: answer, pid: myPid })) throw new Error(t('err.server'));
     armTimeout();
   } catch (e) {
     if (peer !== mine) return;
@@ -322,22 +456,25 @@ $('#ask-yes').onclick = async () => {
     show('home');
     showError(e.message || String(e));
   }
-};
+}
 
 // Kodla bağlan: aynı 6 haneli kodu giren cihazlar aynı odaya düşer.
+function renderRoom() {
+  $('#code-room').hidden = false;
+  $('#code-room').innerHTML = '';
+  const label = document.createElement('span');
+  label.textContent = t('code.yours');
+  const big = document.createElement('span');
+  big.className = 'bigcode';
+  big.textContent = roomCode;
+  $('#code-room').append(label, big);
+  $('#code-leave').hidden = false;
+}
 
 function joinRoom(code) {
   roomCode = code;
   $('#code-input').value = code;
-  $('#code-room').hidden = false;
-  $('#code-room').innerHTML = '';
-  const label = document.createElement('span');
-  label.textContent = 'Oda kodun: ';
-  const big = document.createElement('span');
-  big.className = 'bigcode';
-  big.textContent = code;
-  $('#code-room').append(label, big);
-  $('#code-leave').hidden = false;
+  renderRoom();
   restartDisc();
 }
 
@@ -349,7 +486,7 @@ $('#code-new').onclick = () => {
 
 $('#code-go').onclick = () => {
   const v = $('#code-input').value.replace(/\D/g, '');
-  if (v.length !== 6) return showError('Kod 6 haneli olmalı.');
+  if (v.length !== 6) return showError(t('code.six'));
   clearError();
   joinRoom(v);
 };
@@ -370,13 +507,13 @@ async function startHost() {
   $('#host-qr').innerHTML = '';
   $('#host-code').value = '';
   $('#host-answer').value = '';
-  $('#host-status').textContent = 'Kod hazırlanıyor…';
+  $('#host-status').textContent = t('host.preparing');
   peer = makePeer();
   try {
     const code = await peer.createOffer();
     $('#host-code').value = code;
     $('#host-qr').innerHTML = qrSvg(qrPayload(code));
-    $('#host-status').textContent = 'Diğer cihazda “Bağlantıya katıl”ı seçip bu kodu okut.';
+    $('#host-status').textContent = t('host.ready');
   } catch (e) {
     showError(e.message || String(e));
   }
@@ -407,10 +544,10 @@ $('#host-connect').onclick = finishHost;
 async function finishHost() {
   clearError();
   const c = parseCode($('#host-answer').value);
-  if (!c) return showError('Cevap kodu geçersiz. Diğer cihazın gösterdiği kodu eksiksiz yapıştır.');
-  if (c.kind !== 'a') return showError('Bu bir bağlantı kodu; burada diğer cihazın cevap kodu gerekiyor.');
+  if (!c) return showError(t('err.answerInvalid'));
+  if (c.kind !== 'a') return showError(t('err.notAnswer'));
   try {
-    $('#host-status').textContent = 'Bağlanılıyor…';
+    $('#host-status').textContent = t('wait.connecting');
     await peer.acceptAnswer(c.code);
     armTimeout();
   } catch (e) {
@@ -429,7 +566,7 @@ function armTimeout() {
         dropPeer();
         show('home');
       }
-      showError('Bağlanılamadı. İki cihaz aynı ağda mı? Değilse “Kodla bağlan”ı ya da “Farklı ağlardayız” seçeneğini dene.');
+      showError(t('err.timeout'));
     }
   }, 20000);
 }
@@ -464,8 +601,8 @@ $('#join-scan').onclick = async () => {
 
 $('#join-go').onclick = () => {
   const c = parseCode($('#join-offer').value);
-  if (!c) return showError('Kod geçersiz. Diğer cihazın gösterdiği kodu eksiksiz yapıştır.');
-  if (c.kind !== 'o') return showError('Bu bir cevap kodu; burada diğer cihazın bağlantı kodu gerekiyor.');
+  if (!c) return showError(t('err.offerInvalid'));
+  if (c.kind !== 'o') return showError(t('err.notOffer'));
   doJoin(c.code);
 };
 
@@ -478,13 +615,13 @@ async function doJoin(offerCode) {
   $('#join-step1').hidden = true;
   $('#join-step2').hidden = false;
   $('#join-qr').innerHTML = '';
-  $('#join-status').textContent = 'Cevap hazırlanıyor…';
+  $('#join-status').textContent = t('join.preparing');
   peer = makePeer();
   try {
     const answer = await peer.acceptOffer(offerCode);
     $('#join-code').value = answer;
     $('#join-qr').innerHTML = qrSvg(qrPayload(answer));
-    $('#join-status').textContent = 'Diğer cihazda “Cevap QR kodunu kamerayla oku”ya basıp bunu okut.';
+    $('#join-status').textContent = t('join.ready');
     armTimeout();
   } catch (e) {
     $('#join-step1').hidden = false;
@@ -495,11 +632,11 @@ async function doJoin(offerCode) {
 
 function cameraError(e) {
   if (e && e.message === 'unsupported') {
-    showError('Bu tarayıcı QR okumayı desteklemiyor. Kodu kopyalayıp diğer cihaza yapıştır ya da telefonun kamera uygulamasıyla oku.');
+    showError(t('err.camUnsupported'));
   } else if (e && e.name === 'NotAllowedError') {
-    showError('Kamera izni verilmedi. Tarayıcı ayarlarından izin ver ya da kodu yapıştır.');
+    showError(t('err.camDenied'));
   } else {
-    showError('Kamera açılamadı. Kodu yapıştırarak devam edebilirsin.');
+    showError(t('err.cam'));
   }
 }
 
@@ -517,7 +654,7 @@ scanAvailable().then((ok) => {
   if (!c) return;
   history.replaceState(null, '', location.pathname + location.search);
   if (c.kind !== 'o') {
-    showError('Bu bir cevap kodu. Bağlantıyı başlatan cihazda “Cevap QR kodunu kamerayla oku”ya basıp okut.');
+    showError(t('err.answerHash'));
     return;
   }
   show('join');
@@ -527,6 +664,122 @@ scanAvailable().then((ok) => {
 
 if (!$('#v-home').hidden) startDisc();
 
+
+// --- bildirim, ses, titreşim --------------------------------------------
+
+let unread = 0;
+let audioCtx = null;
+
+function beep() {
+  try {
+    audioCtx ??= new AudioContext();
+    audioCtx.resume?.();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.value = 880;
+    g.gain.value = 0.07;
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + 0.12);
+  } catch {}
+}
+
+function notifyUser(title, body) {
+  if (settings.sound) {
+    navigator.vibrate?.(120);
+    beep();
+  }
+  if (document.hidden) {
+    unread++;
+    document.title = `(${unread}) ${BASE_TITLE}`;
+    if (settings.notif && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      try {
+        new Notification(title, { body, icon: 'icons/icon-192.png', tag: 'hadiget' });
+      } catch {}
+    }
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    unread = 0;
+    document.title = BASE_TITLE;
+  }
+});
+
+// --- bu oturumun geçmişi (yalnızca bellekte) -----------------------------
+
+const history_ = [];
+
+function record(dir, name, size) {
+  history_.unshift({ dir, name, size, ts: new Date(), who: peerName || '' });
+  if (history_.length > 100) history_.pop();
+  renderHistory();
+}
+
+function renderHistory() {
+  const ul = $('#hist-list');
+  ul.innerHTML = '';
+  $('#hist-clear').hidden = !history_.length;
+  if (!history_.length) {
+    const li = document.createElement('li');
+    li.className = 'hint';
+    li.textContent = t('hist.empty');
+    ul.append(li);
+    return;
+  }
+  for (const h of history_) {
+    const li = document.createElement('li');
+    const hh = h.ts.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    li.textContent = `${hh} · ${t(h.dir === 'sent' ? 'hist.sent' : 'hist.recv')} · ${h.name} (${fmtBytes(h.size)})${h.who ? ' · ' + h.who : ''}`;
+    ul.append(li);
+  }
+}
+
+$('#hist-clear').onclick = () => {
+  history_.length = 0;
+  renderHistory();
+};
+
+// --- paylaşım menüsünden gelenler (Web Share Target) ---------------------
+
+function updateShareBanner() {
+  const n = pendingShare ? pendingShare.files.length + (pendingShare.text ? 1 : 0) : 0;
+  $('#share-banner').hidden = !n;
+  if (n) $('#share-text').textContent = t('share.banner', { n });
+}
+
+$('#share-drop').onclick = () => {
+  pendingShare = null;
+  updateShareBanner();
+};
+
+async function loadShare() {
+  if (!('caches' in window)) return;
+  try {
+    const c = await caches.open('hadiget-share');
+    const reqs = await c.keys();
+    const files = [];
+    let text = '';
+    for (const r of reqs) {
+      const res = await c.match(r);
+      if (new URL(r.url).pathname.endsWith('/text')) {
+        text = await res.text();
+      } else {
+        const blob = await res.blob();
+        const name = decodeURIComponent(res.headers.get('X-Name') || '') || t('tr.fileDefault');
+        files.push(new File([blob], name, { type: res.headers.get('X-Type') || blob.type }));
+      }
+    }
+    await Promise.all(reqs.map((r) => c.delete(r)));
+    if (files.length || text) {
+      pendingShare = { files, text };
+      updateShareBanner();
+    }
+  } catch {}
+}
+
 // --- bağlı ekran ---------------------------------------------------------
 
 async function goLive() {
@@ -535,38 +788,84 @@ async function goLive() {
   outgoing = null;
   incomingReq = null;
   show('live');
-  $('#live-status').textContent = peerName ? '● Bağlandı · ' + peerName : '● Bağlandı';
-  $('#transfers').innerHTML = '';
+  $('#live-status').textContent = peerName ? t('live.connectedTo', { name: peerName }) : t('live.connected');
+  clearItems();
+  updateTrustBtn();
   try {
     wakeLock = await navigator.wakeLock?.request('screen');
   } catch {}
+  if (pendingShare && peer) {
+    const p = pendingShare;
+    pendingShare = null;
+    updateShareBanner();
+    if (p.text) sendTextNow(p.text);
+    sendSelection(p.files);
+  }
+}
+
+function leaveLive() {
+  wakeLock?.release?.().catch(() => {});
+  wakeLock = null;
+  clearItems();
 }
 
 function onLost() {
   clearTimeout(connTimer);
-  wakeLock?.release?.().catch(() => {});
-  wakeLock = null;
   const wasLive = !$('#v-live').hidden;
+  leaveLive();
   dropPeer();
   show('home');
-  showError(
-    wasLive
-      ? 'Bağlantı koptu.'
-      : 'Bağlantı kurulamadı. İki cihaz aynı ağda mı? Değilse “Farklı ağlardayız” seçeneğini aç ve baştan dene.'
-  );
+  showError(wasLive ? t('err.lost') : t('err.notEstablished'));
 }
 
 $('#btn-disconnect').onclick = () => {
   dropPeer();
-  wakeLock?.release?.().catch(() => {});
+  leaveLive();
   show('home');
 };
 
+function updateTrustBtn() {
+  const b = $('#btn-trust');
+  b.hidden = !peerPid;
+  if (!peerPid) return;
+  b.textContent = trusted[peerPid] ? t('live.trusted') : t('live.trust');
+}
+
+$('#btn-trust').onclick = () => {
+  if (!peerPid) return;
+  if (trusted[peerPid]) delete trusted[peerPid];
+  else trusted[peerPid] = peerName || t('dev.someone');
+  save('hg.trusted', trusted);
+  renderTrusted();
+  updateTrustBtn();
+};
+
+// Dosya seçici, klasör, kamera
 const fileInput = $('#file-input');
 fileInput.onchange = () => {
-  sendFiles([...fileInput.files]);
+  sendSelection([...fileInput.files]);
   fileInput.value = '';
 };
+
+if ('webkitdirectory' in HTMLInputElement.prototype) $('#dir-btn').hidden = false;
+if (matchMedia('(pointer: coarse)').matches) $('#cam-btn').hidden = false;
+
+$('#dir-input').onchange = (e) => {
+  sendSelection([...e.target.files], { folder: true });
+  e.target.value = '';
+};
+$('#cam-input').onchange = (e) => {
+  sendSelection([...e.target.files]);
+  e.target.value = '';
+};
+
+// Klavyeyle de seçilebilsin
+$('#drop').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') {
+    e.preventDefault();
+    fileInput.click();
+  }
+});
 
 const drop = $('#drop');
 ['dragenter', 'dragover'].forEach((ev) =>
@@ -581,15 +880,64 @@ const drop = $('#drop');
     drop.classList.remove('over');
   })
 );
-drop.addEventListener('drop', (e) => sendFiles([...e.dataTransfer.files]));
+
+async function walk(entry, prefix, out) {
+  if (entry.isFile) {
+    const f = await new Promise((res, rej) => entry.file(res, rej));
+    f._rel = prefix + entry.name;
+    out.push(f);
+  } else if (entry.isDirectory) {
+    const reader = entry.createReader();
+    for (;;) {
+      const batch = await new Promise((res, rej) => reader.readEntries(res, rej));
+      if (!batch.length) break;
+      for (const en of batch) await walk(en, prefix + entry.name + '/', out);
+    }
+  }
+}
+
+drop.addEventListener('drop', async (e) => {
+  // dataTransfer yalnızca olay sırasında geçerli: girdileri hemen al
+  const entries = [...(e.dataTransfer.items || [])].map((i) => i.webkitGetAsEntry?.()).filter(Boolean);
+  const plain = [...e.dataTransfer.files];
+  if (entries.some((en) => en.isDirectory)) {
+    const files = [];
+    try {
+      for (const en of entries) await walk(en, '', files);
+    } catch {}
+    sendSelection(files, { folder: true });
+  } else {
+    sendSelection(plain);
+  }
+});
+
+// Panodan yapıştır (görsel/dosya)
+document.addEventListener('paste', (e) => {
+  if ($('#v-live').hidden || !peer) return;
+  const files = [...(e.clipboardData?.files || [])];
+  if (!files.length) return;
+  e.preventDefault();
+  const stamp = new Date().toTimeString().slice(0, 8).replaceAll(':', '');
+  sendSelection(
+    files.map((f, i) => {
+      if (f.name && !/^image\.\w+$/i.test(f.name)) return f;
+      const ext = (f.type.split('/')[1] || 'bin').replace('jpeg', 'jpg').replace(/\+.*/, '');
+      return new File([f], `${t('tr.pasted')}-${stamp}${files.length > 1 ? '-' + (i + 1) : ''}.${ext}`, { type: f.type });
+    })
+  );
+});
+
+function sendTextNow(v) {
+  peer.sendText(v);
+  addNote(t('tr.noteSent'), v);
+}
 
 $('#text-send').onclick = () => {
   const box = $('#text-input');
   const v = box.value.trim();
   if (!v) return;
   try {
-    peer.sendText(v);
-    addNote('Gönderilen', v);
+    sendTextNow(v);
     box.value = '';
   } catch (e) {
     showError(e.message);
@@ -598,7 +946,24 @@ $('#text-send').onclick = () => {
 
 // --- aktarım listesi -----------------------------------------------------
 
-function addItem(dir, name, size) {
+const items = new Set();
+
+function clearItems() {
+  for (const it of items) {
+    it.urls.forEach((u) => URL.revokeObjectURL(u));
+    try { it.cleanup?.(); } catch {}
+  }
+  items.clear();
+  $('#transfers').innerHTML = '';
+}
+
+function url(item, blob) {
+  const u = URL.createObjectURL(blob);
+  item.urls.push(u);
+  return u;
+}
+
+function addItem(label, name, size) {
   const li = document.createElement('li');
   const row = document.createElement('div');
   row.className = 'row';
@@ -607,21 +972,123 @@ function addItem(dir, name, size) {
   n.textContent = name;
   const m = document.createElement('span');
   m.className = 'meta';
-  m.textContent = `${dir} · ${fmtBytes(size)}`;
+  m.textContent = `${label} · ${fmtBytes(size)}`;
   row.append(n, m);
   const bar = document.createElement('progress');
   bar.max = 1;
   bar.value = 0;
-  li.append(row, bar);
+  bar.setAttribute('aria-label', name);
+  const stats = document.createElement('div');
+  stats.className = 'meta stats';
+  const preview = document.createElement('div');
+  preview.className = 'preview';
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+  li.append(row, bar, stats, preview, actions);
   $('#transfers').prepend(li);
-  return { li, bar, meta: m, last: 0 };
+  const item = { li, bar, meta: m, stats, preview, actions, size, name, urls: [], last: 0, t0: 0, lt: 0, lb: 0, speed: 0, cancelBtn: null, cleanup: null };
+  items.add(item);
+  return item;
 }
 
 function setProgress(item, p, force) {
   const now = performance.now();
+  if (!item.t0) {
+    item.t0 = item.lt = now;
+  }
   if (!force && now - item.last < 100) return; // arayüzü yormamak için seyrelt
   item.last = now;
   item.bar.value = p;
+  const bytes = p * item.size;
+  const dt = (now - item.lt) / 1000;
+  if (dt > 0.2) {
+    const inst = (bytes - item.lb) / dt;
+    item.speed = item.speed ? item.speed * 0.7 + inst * 0.3 : inst;
+    item.lt = now;
+    item.lb = bytes;
+  }
+  if (p < 1 && item.speed > 0) {
+    item.stats.textContent = `${fmtBytes(item.speed)}/${t('tr.sec', { n: '' }).trim()} · ${t('tr.eta', { t: fmtEta((item.size - bytes) / item.speed) })}`;
+  } else {
+    item.stats.textContent = '';
+  }
+}
+
+function addCancel(item, fn) {
+  const b = document.createElement('button');
+  b.className = 'danger';
+  b.textContent = t('tr.cancel');
+  b.onclick = () => {
+    b.disabled = true;
+    fn();
+  };
+  item.cancelBtn = b;
+  item.actions.append(b);
+}
+
+function endItem(item, label) {
+  item.cancelBtn?.remove();
+  item.cancelBtn = null;
+  item.stats.textContent = '';
+  item.meta.textContent = `${label} · ${fmtBytes(item.size)}`;
+}
+
+const IMG_OK = /^image\/(png|jpe?g|gif|webp|bmp|avif)$/i;
+
+async function addPreview(item, blob, name) {
+  const type = blob.type || '';
+  if (IMG_OK.test(type) && blob.size < 50 * 1024 * 1024) {
+    const img = document.createElement('img');
+    img.alt = name;
+    img.loading = 'lazy';
+    img.src = url(item, blob);
+    item.preview.append(img);
+  } else if (/^video\//.test(type)) {
+    const v = document.createElement('video');
+    v.controls = true;
+    v.preload = 'metadata';
+    v.playsInline = true;
+    v.src = url(item, blob);
+    item.preview.append(v);
+  } else if (/^audio\//.test(type)) {
+    const a = document.createElement('audio');
+    a.controls = true;
+    a.preload = 'metadata';
+    a.src = url(item, blob);
+    item.preview.append(a);
+  } else if ((/^text\//.test(type) || /\.(txt|md|csv|json|log)$/i.test(name)) && blob.size <= 2 * 1024 * 1024) {
+    try {
+      const txt = await blob.slice(0, 1500).text();
+      const pre = document.createElement('pre');
+      pre.textContent = txt + (blob.size > 1500 ? '\n…' : '');
+      item.preview.append(pre);
+    } catch {}
+  }
+}
+
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = safeName(name);
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 30000);
+}
+
+function addEdit(item, blob, name) {
+  if (!IMG_OK.test(blob.type || '') || blob.size > 50 * 1024 * 1024) return;
+  const b = document.createElement('button');
+  b.className = 'edit';
+  b.textContent = t('tr.edit');
+  b.onclick = () =>
+    openEditor(blob, {
+      name,
+      canSend: () => !!peer && !$('#v-live').hidden && peer.dc?.readyState === 'open',
+      onSave: (out, outName) => download(out, outName),
+      onSend: (out, outName) => sendFiles([new File([out], outName, { type: out.type })]),
+    });
+  item.actions.append(b);
 }
 
 function addNote(label, text) {
@@ -632,33 +1099,79 @@ function addNote(label, text) {
   n.className = 'meta';
   n.textContent = label;
   row.append(n);
-  const t = document.createElement('div');
-  t.className = 'text';
-  t.textContent = text;
+  const tx = document.createElement('div');
+  tx.className = 'text';
+  tx.textContent = text;
   const b = document.createElement('button');
-  b.textContent = 'Kopyala';
+  b.textContent = t('tr.copy');
   b.onclick = () => copy(text, b);
-  li.append(row, t, b);
+  li.append(row, tx, b);
   $('#transfers').prepend(li);
 }
 
-async function sendFiles(files) {
+// Dosya(lar)ı gönder; klasör ya da "tek zip" seçiliyse önce zip hazırla.
+async function sendSelection(files, opts = {}) {
+  files = files.filter(Boolean);
+  if (!files.length || !peer) return;
+  const rel = (f) => f._rel || f.webkitRelativePath || f.name;
+  const zip = opts.folder || (settings.zip && files.length > 1);
+  if (!zip) return sendFiles(files);
+  const first = rel(files[0]);
+  const zname = opts.folder && first.includes('/') ? first.split('/')[0] + '.zip' : `hadiGET-${new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '').replace(/^(\d{8})/, '$1-')}.zip`;
+  const total = files.reduce((a, f) => a + f.size, 0);
+  const item = addItem(t('tr.zipping'), zname, total);
+  try {
+    const blob = await makeZip(files.map((f) => ({ name: rel(f), file: f })), (p) => setProgress(item, p));
+    item.li.remove();
+    items.delete(item);
+    sendFiles([new File([blob], zname, { type: 'application/zip' })]);
+  } catch (e) {
+    item.li.remove();
+    items.delete(item);
+    showError(t('tr.zipFail', { msg: e.message === 'too-big' ? t('tr.zipBig') : e.message }));
+  }
+}
+
+function sendFiles(files) {
+  const p = peer;
+  if (!p) return;
   for (const file of files) {
-    const item = addItem('Gönderiliyor', file.name, file.size);
+    const item = addItem(t('tr.queued'), file.name, file.size);
+    let tr;
     try {
-      await peer.sendFile(file, (p) => setProgress(item, p));
-      setProgress(item, 1, true);
-      item.meta.textContent = `Gönderildi · ${fmtBytes(file.size)}`;
+      tr = p.sendFile(file, (pr) => setProgress(item, pr));
     } catch (e) {
-      item.meta.textContent = 'Gönderilemedi';
-      showError(e.message || String(e));
-      break;
+      endItem(item, t('tr.failed'));
+      showError(e.message);
+      continue;
     }
+    tr.onStart = () => (item.meta.textContent = `${t('tr.sending')} · ${fmtBytes(file.size)}`);
+    addCancel(item, () => tr.cancel());
+    tr.done.then(
+      () => {
+        setProgress(item, 1, true);
+        endItem(item, t('tr.sent'));
+        record('sent', file.name, file.size);
+        addPreview(item, file, file.name);
+        addEdit(item, file, file.name);
+      },
+      (e) => {
+        if (e && e.cancelled) endItem(item, e.byPeer ? t('tr.cancelledByPeer') : t('tr.cancelled'));
+        else {
+          endItem(item, t('tr.failed'));
+          showError(e.message || String(e));
+        }
+      }
+    );
   }
 }
 
 function onIncoming(f) {
-  f.ui = addItem('Alınıyor', f.name, f.size);
+  f.ui = addItem(t('tr.receiving'), f.name, f.size);
+  addCancel(f.ui, () => {
+    peer?.cancelIncoming(f);
+    endItem(f.ui, t('tr.cancelled'));
+  });
 }
 
 function onProgress(f) {
@@ -669,23 +1182,36 @@ function onFile(f, blob) {
   const item = f.ui;
   if (!item) return;
   setProgress(item, 1, true);
-  item.meta.textContent = `Alındı · ${fmtBytes(f.size)}`;
+  endItem(item, t('tr.received'));
+  item.cleanup = f.cleanup || null;
   const a = document.createElement('a');
   a.className = 'dl';
-  a.href = URL.createObjectURL(blob);
+  a.href = url(item, blob);
   a.download = safeName(f.name);
-  a.textContent = 'Kaydet';
-  item.li.append(a);
+  a.textContent = t('tr.save');
+  item.actions.append(a);
+  addPreview(item, blob, f.name);
+  addEdit(item, blob, f.name);
+  record('recv', f.name, f.size);
+  notifyUser(t('notif.file', { name: peerName || t('notif.someone') }), f.name);
+}
+
+function onCancelledByPeer(f) {
+  if (f.ui) endItem(f.ui, t('tr.cancelledByPeer'));
 }
 
 function onTransferError(f, err) {
-  if (f.ui) f.ui.meta.textContent = 'Eksik geldi';
+  if (f.ui) endItem(f.ui, t('tr.incomplete'));
   showError(err.message);
 }
 
 function onText(v) {
-  addNote('Alınan metin', v);
+  addNote(t('tr.noteRecv'), v);
+  notifyUser(t('notif.text', { name: peerName || t('notif.someone') }), v.slice(0, 80));
 }
+
+// Ses, kullanıcı etkileşiminden sonra çalabilir: ilk dokunuşta hazırla.
+window.addEventListener('pointerdown', () => { try { audioCtx ??= new AudioContext(); audioCtx.resume?.(); } catch {} }, { once: true });
 
 // --- ana ekrana ekleme ---------------------------------------------------
 
@@ -715,6 +1241,18 @@ const isIOS =
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 if (isIOS && !isStandalone) $('#ios-hint').hidden = false;
+
+// --- açılış --------------------------------------------------------------
+
+applyI18n();
+renderTrusted();
+renderHistory();
+updateNearby();
+cleanInbox();
+if (location.search.includes('share=1')) {
+  history.replaceState(null, '', location.pathname);
+  loadShare();
+}
 
 // --- hizmet çalışanı -----------------------------------------------------
 

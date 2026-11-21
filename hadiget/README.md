@@ -25,6 +25,19 @@ Cihaz listede görünmüyorsa (farklı ağ, misafir Wi-Fi, bir cihazın IPv6, di
 
 Ayrıntılı kılavuz, ana ekrana ekleme adımları ve sorun giderme tablosu uygulamanın içinde: [`nasil-kullanilir.html`](nasil-kullanilir.html).
 
+## Özellikler (v1.2)
+
+- **Paylaş menüsünden gönder:** uygulama kurulunca galeri/dosya yöneticisinden *Paylaş ▸ hadiGET* (Web Share Target; hizmet çalışanı gerekir, yani HTTPS'te yayında çalışır).
+- **Yapıştır ve fotoğraf çek:** bilgisayarda Ctrl+V ile görsel, telefonda doğrudan kamera.
+- **Önizleme:** gelen/giden görsel, video, ses ve metin dosyaları listede görünür.
+- **Çizim editörü:** görselde *Düzenle*: kalem, fosforlu, ok, kutu, metin; sonra *Kaydet* ya da *Karşıya gönder*.
+- **Hız ve kalan süre, iptal:** iki taraf da sürmekte olan aktarımı iptal edebilir.
+- **Büyük dosya:** 64 MB üstü dosyalar belleğe değil tarayıcının özel disk alanına (OPFS) yazılır.
+- **Klasör / çoklu seçim → zip** (sıkıştırmasız, 4 GB'a kadar).
+- **Güvenilen cihaz** (isteğe bağlı otomatik kabul), **cihaz adı**, **ses/titreşim/bildirim**, **oturum geçmişi** (yalnızca bellekte), **Türkçe/İngilizce** arayüz.
+
+Sürüm numarası tek yerde: `version.js`. Yayında değişiklik yaptığında onu artır (önbellek adı ondan türetilir).
+
 ## Gizlilik ve yasal metinler
 
 - Dosyalar hiçbir sunucuya yüklenmez; iki cihaz arasında şifreli (DTLS) bir kanaldan geçer.

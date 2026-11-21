@@ -4,6 +4,8 @@
 // cihaz arasında taşır. Dosyalar ve metinler buradan geçmez; onlar WebRTC ile
 // doğrudan akar. Bağlantı kurulunca bu soket kapatılır.
 //
+import { t } from './i18n.js';
+
 // Eşleştirme sunucusunun adresi (worker/ klasöründeki Cloudflare Worker):
 export const SERVER = 'wss://hadigit.uozguler.workers.dev/ws';
 
@@ -29,24 +31,24 @@ export function deviceId() {
 
 export function deviceName(id = deviceId()) {
   const ua = navigator.userAgent;
-  let base = 'Cihaz';
+  let base = t('dev.device');
   if (/iPhone/.test(ua)) base = 'iPhone';
   else if (/iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) base = 'iPad';
-  else if (/Android/.test(ua)) base = /Mobile/.test(ua) ? 'Android telefon' : 'Android tablet';
-  else if (/Windows/.test(ua)) base = 'Windows bilgisayar';
+  else if (/Android/.test(ua)) base = /Mobile/.test(ua) ? t('dev.androidPhone') : t('dev.androidTablet');
+  else if (/Windows/.test(ua)) base = t('dev.windows');
   else if (/CrOS/.test(ua)) base = 'Chromebook';
   else if (/Mac/.test(ua)) base = 'Mac';
-  else if (/Linux/.test(ua)) base = 'Linux bilgisayar';
+  else if (/Linux/.test(ua)) base = t('dev.linux');
   return `${base} · ${id.slice(0, 3).toUpperCase()}`;
 }
 
 export class Discovery {
   // o: { onStatus('connecting'|'online'|'offline'), onPeers(liste), onSignal(from, name, data), onGone(id) }
-  constructor(o, code = null) {
+  constructor(o, code = null, name = null) {
     this.o = o;
     this.code = code;
     this.id = deviceId();
-    this.name = deviceName(this.id);
+    this.name = name ? name.slice(0, 30) : deviceName(this.id);
     this.ws = null;
     this.closed = false;
     this.retry = 0;

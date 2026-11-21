@@ -1,18 +1,78 @@
 // WebRTC bağlantısı ve dosya aktarım protokolü.
 //
 // Tek bir güvenilir, sıralı veri kanalı kullanılır. Kanaldan iki tür ileti geçer:
-//   - metin (JSON):  {t:'meta',name,size,type} → dosya başlıyor
-//                    {t:'end'}                 → dosya bitti
-//                    {t:'text',v}              → kısa metin
+//   - metin (JSON):  {t:'meta',id,name,size,type} → dosya başlıyor
+//                    {t:'end',id}                 → dosya bitti
+//                    {t:'cancel-send',id}         → gönderen vazgeçti
+//                    {t:'cancel-recv',id}         → alan vazgeçti, gönderme dursun
+//                    {t:'text',v}                 → kısa metin
 //   - ikili: dosya parçaları (16 KB)
+//
+// Büyük dosyalar (OPFS varsa) belleğe değil, tarayıcının özel disk alanına yazılır;
+// böylece birkaç GB'lık dosyalar da alınabilir.
 
 import { descToCode, codeToDesc } from './signal.js';
+import { t } from './i18n.js';
 
 const CHUNK = 16 * 1024; // tarayıcılar arası en güvenli ileti boyutu
 const SLICE = 1024 * 1024; // diskten tek seferde okunan miktar
 const HIGH = 4 * 1024 * 1024; // gönderim tamponu bunu aşarsa bekle
 const LOW = 1024 * 1024; // tampon bunun altına inince devam et
+const OPFS_MIN = 64 * 1024 * 1024; // bundan büyük dosyalar diske yazılır
+const INBOX = 'hadiget-inbox';
 const STUN = 'stun:stun.l.google.com:19302';
+
+// --- alınan dosyanın depolanması ----------------------------------------
+
+function memorySink(type) {
+  const chunks = [];
+  return {
+    write: (b) => void chunks.push(b),
+    finish: async () => new Blob(chunks, { type }),
+    abort: async () => { chunks.length = 0; },
+    cleanup: () => {},
+  };
+}
+
+async function opfsSink(type, id) {
+  const root = await navigator.storage.getDirectory();
+  const dir = await root.getDirectoryHandle(INBOX, { create: true });
+  const fname = `${id}-${Math.random().toString(36).slice(2)}`;
+  const fh = await dir.getFileHandle(fname, { create: true });
+  const w = await fh.createWritable(); // eski Safari'de yok → çağıran belleğe düşer
+  const rm = async () => { try { await dir.removeEntry(fname); } catch {} };
+  return {
+    write: (b) => w.write(b),
+    finish: async () => {
+      await w.close();
+      const f = await fh.getFile();
+      return f.slice(0, f.size, type); // diske dayalı Blob, belleğe yüklenmez
+    },
+    abort: async () => { try { await w.abort(); } catch {} await rm(); },
+    cleanup: rm,
+  };
+}
+
+async function makeSink(meta) {
+  if (meta.size >= OPFS_MIN && navigator.storage?.getDirectory) {
+    try { return await opfsSink(meta.type, meta.id); } catch {}
+  }
+  return memorySink(meta.type);
+}
+
+// Önceki oturumlardan kalan geçici dosyaları sil (6 saatten eskiler).
+export async function cleanInbox() {
+  try {
+    const root = await navigator.storage.getDirectory();
+    const dir = await root.getDirectoryHandle(INBOX);
+    for await (const [name, h] of dir.entries()) {
+      try {
+        const f = await h.getFile();
+        if (Date.now() - f.lastModified > 6 * 3600 * 1000) await dir.removeEntry(name);
+      } catch {}
+    }
+  } catch {}
+}
 
 export class Peer {
   constructor(opts = {}) {
@@ -20,6 +80,8 @@ export class Peer {
     this.dc = null;
     this.incoming = null;
     this.chain = Promise.resolve();
+    this.seq = 0;
+    this.cur = null; // şu an gönderilen aktarım
     this.closed = false;
     this.pc = new RTCPeerConnection({
       iceServers: opts.stun ? [{ urls: STUN }] : [],
@@ -97,33 +159,67 @@ export class Peer {
   }
 
   // Dosyalar sırayla gider; aynı anda iki dosya birbirine karışmaz.
+  // Dönen nesne: { id, cancel(), done: Promise }. İptalde done, .cancelled alanlı bir hatayla biter.
   sendFile(file, onProgress) {
-    const run = () => this._sendFile(file, onProgress);
-    const p = this.chain.then(run, run);
-    this.chain = p.catch(() => {});
-    return p;
+    const tr = { id: String(++this.seq), cancelled: false, byPeer: false };
+    tr.cancel = () => {
+      if (tr.cancelled) return;
+      tr.cancelled = true;
+      if (this.cur === tr) {
+        try { this.dc.send(JSON.stringify({ t: 'cancel-send', id: tr.id })); } catch {}
+      }
+    };
+    const run = () => this._sendFile(tr, file, onProgress);
+    tr.done = this.chain.then(run, run);
+    this.chain = tr.done.catch(() => {});
+    return tr;
   }
 
-  async _sendFile(file, onProgress) {
+  async _sendFile(tr, file, onProgress) {
+    const stop = () => {
+      const e = new Error('cancelled');
+      e.cancelled = true;
+      e.byPeer = tr.byPeer;
+      return e;
+    };
+    if (tr.cancelled) throw stop();
     this._need();
     const dc = this.dc;
-    dc.send(JSON.stringify({ t: 'meta', name: file.name, size: file.size, type: file.type }));
-    let off = 0;
-    while (off < file.size) {
-      const buf = await file.slice(off, off + SLICE).arrayBuffer();
-      for (let i = 0; i < buf.byteLength; i += CHUNK) {
-        await this._drain();
-        dc.send(new Uint8Array(buf, i, Math.min(CHUNK, buf.byteLength - i)));
+    this.cur = tr;
+    try {
+      dc.send(JSON.stringify({ t: 'meta', id: tr.id, name: file.name, size: file.size, type: file.type }));
+      tr.onStart?.();
+      let off = 0;
+      while (off < file.size) {
+        if (tr.cancelled) throw stop();
+        const buf = await file.slice(off, off + SLICE).arrayBuffer();
+        for (let i = 0; i < buf.byteLength; i += CHUNK) {
+          await this._drain();
+          if (tr.cancelled) throw stop();
+          dc.send(new Uint8Array(buf, i, Math.min(CHUNK, buf.byteLength - i)));
+        }
+        off += buf.byteLength;
+        onProgress?.(off / file.size);
       }
-      off += buf.byteLength;
-      onProgress?.(off / file.size);
+      if (tr.cancelled) throw stop();
+      dc.send(JSON.stringify({ t: 'end', id: tr.id }));
+      if (file.size === 0) onProgress?.(1);
+    } finally {
+      if (this.cur === tr) this.cur = null;
     }
-    dc.send(JSON.stringify({ t: 'end' }));
-    if (file.size === 0) onProgress?.(1);
+  }
+
+  // Gelen dosyadan vazgeç.
+  cancelIncoming(f) {
+    if (this.incoming !== f) return;
+    this.incoming = null;
+    f.dead = true;
+    try { this.dc.send(JSON.stringify({ t: 'cancel-recv', id: f.id })); } catch {}
+    f.q.then(() => f.sink?.abort());
   }
 
   _need() {
-    if (!this.dc || this.dc.readyState !== 'open') throw new Error('Bağlantı kapalı.');
+    if (!this.dc || this.dc.readyState !== 'open') throw new Error(t('err.closed'));
   }
 
   async _drain() {
@@ -148,24 +244,62 @@ export class Peer {
       let m;
       try { m = JSON.parse(e.data); } catch { return; }
       if (m.t === 'meta') {
-        this.incoming = { name: String(m.name || 'dosya'), size: +m.size || 0, type: String(m.type || ''), chunks: [], got: 0 };
-        this.o.onIncoming?.(this.incoming);
+        const f = { id: String(m.id ?? ''), name: String(m.name || t('tr.fileDefault')), size: +m.size || 0, type: String(m.type || ''), got: 0, dead: false, sink: null };
+        f.q = makeSink(f).then((s) => { f.sink = s; });
+        this.incoming = f;
+        this.o.onIncoming?.(f);
       } else if (m.t === 'end') {
         const f = this.incoming;
+        if (!f || (m.id !== undefined && String(m.id) !== f.id)) return;
         this.incoming = null;
-        if (!f) return;
         if (f.got !== f.size) {
-          this.o.onError?.(f, new Error('Dosya eksik geldi.'));
-        } else {
-          this.o.onFile?.(f, new Blob(f.chunks, { type: f.type }));
+          f.q.then(() => f.sink?.abort());
+          this.o.onError?.(f, new Error(t('err.incomplete')));
+          return;
+        }
+        f.q = f.q.then(async () => {
+          if (f.dead) return;
+          try {
+            const blob = await f.sink.finish();
+            f.cleanup = f.sink.cleanup;
+            this.o.onFile?.(f, blob);
+          } catch (err) {
+            this.o.onError?.(f, new Error(t('err.disk')));
+          }
+        });
+      } else if (m.t === 'cancel-send') {
+        const f = this.incoming;
+        if (f && f.id === String(m.id)) {
+          this.incoming = null;
+          f.dead = true;
+          f.q.then(() => f.sink?.abort());
+          this.o.onCancelled?.(f);
+        }
+      } else if (m.t === 'cancel-recv') {
+        if (this.cur && this.cur.id === String(m.id)) {
+          this.cur.byPeer = true;
+          this.cur.cancelled = true;
         }
       } else if (m.t === 'text') {
         this.o.onText?.(String(m.v));
       }
     } else if (this.incoming) {
       const f = this.incoming;
-      f.chunks.push(e.data);
       f.got += e.data.byteLength;
+      const buf = e.data;
+      f.q = f.q.then(async () => {
+        if (f.dead) return;
+        try {
+          await f.sink.write(buf);
+        } catch {
+          if (f.dead) return;
+          f.dead = true;
+          if (this.incoming === f) this.incoming = null;
+          try { this.dc.send(JSON.stringify({ t: 'cancel-recv', id: f.id })); } catch {}
+          await f.sink.abort();
+          this.o.onError?.(f, new Error(t('err.disk')));
+        }
+      });
       this.o.onProgress?.(f);
     }
   }
