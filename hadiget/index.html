@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>hadiGET: telefon ve bilgisayar arasında dosya aktar</title>
+  <meta name="description" content="hadiGET ile telefonunla bilgisayarın arasında dosya aktar. Sunucu yok, hesap yok, ücretsiz ve açık kaynak.">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>
+      <a class="logo" href="./" aria-label="hadiGET">
+        <img src="icons/icon.svg" alt="" width="44" height="44">
+        <span class="word"><span class="w1">hadi</span><span class="w2">GET</span></span>
+      </a>
+    </h1>
+    <p class="tag">Telefonunla bilgisayarın arasında dosya aktar. Sunucu yok, hesap yok.</p>
+  </header>
+
+  <main>
+    <!-- 1. Ana ekran -->
+    <section id="v-home" class="view">
+      <button id="btn-host" class="primary">Bağlantı başlat</button>
+      <button id="btn-join">Bağlantıya katıl</button>
+      <p class="hint">İki cihazdan birinde <b>başlat</b>, diğerinde <b>katıl</b> seç. Hangisinin hangisi olduğu fark etmez.</p>
+
+      <div class="card">
+        <h2>Nasıl kullanılır?</h2>
+        <ol>
+          <li>İki cihazı <b>aynı Wi-Fi</b>'a bağla ve hadiGET'i ikisinde de aç.</li>
+          <li>Birinde <b>Bağlantı başlat</b>'a bas; QR kod çıkar.</li>
+          <li>Diğerinde <b>Bağlantıya katıl</b>'ı seçip QR'ı okut. Telefonun kamera uygulaması da olur.</li>
+          <li>Katılan cihazın gösterdiği <b>cevap kodunu</b> başlatan cihazda okut ya da yapıştır.</li>
+          <li>Bağlandınız: dosya seç, sürükle bırak ya da metin gönder.</li>
+        </ol>
+        <p><a href="nasil-kullanilir.html" target="_blank" rel="noopener">Ayrıntılı kılavuz ve sorun giderme →</a></p>
+      </div>
+
+      <button id="btn-install" hidden>Ana ekrana ekle</button>
+      <p id="ios-hint" class="hint" hidden>Yüklemek için Safari'de <b>Paylaş</b> ▸ <b>Ana Ekrana Ekle</b>'ye dokun.</p>
+
+      <label class="check">
+        <input type="checkbox" id="opt-stun">
+        <span>Farklı ağlardayız (Google STUN sunucusuna başvurur)</span>
+      </label>
+    </section>
+
+    <!-- 2. Başlatan cihaz -->
+    <section id="v-host" class="view" hidden>
+      <h2>1. QR kodu diğer cihaza okut</h2>
+      <p id="host-status" class="status">Kod hazırlanıyor…</p>
+      <div id="host-qr" class="qr"></div>
+      <textarea id="host-code" readonly rows="3" aria-label="Bağlantı kodu"></textarea>
+      <button id="host-copy">Kodu kopyala</button>
+
+      <h2>2. Diğer cihazın cevabını al</h2>
+      <button id="host-scan">Cevap QR kodunu kamerayla oku</button>
+      <video id="host-video" hidden muted playsinline></video>
+      <textarea id="host-answer" rows="3" placeholder="veya cevap kodunu buraya yapıştır"></textarea>
+      <button id="host-connect" class="primary">Bağlan</button>
+
+      <button class="link back">← Vazgeç</button>
+    </section>
+
+    <!-- 3. Katılan cihaz -->
+    <section id="v-join" class="view" hidden>
+      <div id="join-step1">
+        <h2>1. Diğer cihazdaki QR kodu oku</h2>
+        <p class="hint">Telefonun kamera uygulaması da olur; uygulama kendiliğinden açılır.</p>
+        <button id="join-scan">QR kodu kamerayla oku</button>
+        <video id="join-video" hidden muted playsinline></video>
+        <textarea id="join-offer" rows="3" placeholder="veya bağlantı kodunu buraya yapıştır"></textarea>
+        <button id="join-go" class="primary">Devam</button>
+      </div>
+
+      <div id="join-step2" hidden>
+        <h2>2. Bu QR kodu diğer cihaza okut</h2>
+        <p id="join-status" class="status">Cevap hazırlanıyor…</p>
+        <div id="join-qr" class="qr"></div>
+        <textarea id="join-code" readonly rows="3" aria-label="Cevap kodu"></textarea>
+        <button id="join-copy">Kodu kopyala</button>
+      </div>
+
+      <button class="link back">← Vazgeç</button>
+    </section>
+
+    <!-- 4. Bağlandı -->
+    <section id="v-live" class="view" hidden>
+      <p class="status ok">● Bağlandı</p>
+
+      <label id="drop" class="drop">
+        <input type="file" id="file-input" multiple hidden>
+        <strong>Dosya seç</strong>
+        <span>ya da buraya sürükle bırak</span>
+      </label>
+
+      <div class="textbox">
+        <textarea id="text-input" rows="2" placeholder="Kısa metin ya da bağlantı gönder"></textarea>
+        <button id="text-send">Metni gönder</button>
+      </div>
+
+      <ul id="transfers" class="transfers" aria-live="polite"></ul>
+
+      <button id="btn-disconnect" class="link">Bağlantıyı kes</button>
+    </section>
+
+    <p id="error" class="error" role="alert" hidden></p>
+  </main>
+
+  <!-- Bağlantılar yeni sekmede açılır; aksi halde etkin bağlantı kopar. -->
+  <footer>
+    <nav aria-label="Alt bağlantılar">
+      <a href="nasil-kullanilir.html" target="_blank" rel="noopener">Nasıl kullanılır</a>
+      <a href="gizlilik.html" target="_blank" rel="noopener">Gizlilik</a>
+      <a href="kosullar.html" target="_blank" rel="noopener">Koşullar</a>
+      <a href="mailto:iletisim@ozgulerforge.com.tr">İletişim</a>
+    </nav>
+    <p>hadiGET, <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Özgüler Forge</a> tarafından geliştirilen açık kaynaklı (MIT) bir araçtır. Dosyalar cihazlarının dışına çıkmaz.</p>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
