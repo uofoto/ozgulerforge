@@ -3,7 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PosterForge Studio — Yeni Nesil Dev Poster & Halftone Motoru</title>
+    <title>PosterForge Studio Pro 2.1.0 — Mobil Poster Tasarım ve Baskı Stüdyosu</title>
+
+    <meta name="theme-color" content="#09090b">
+    <meta name="description" content="PosterForge Studio Pro — mobil uyumlu, çok sayfalı poster tasarım ve baskı hazırlama uygulaması.">
+    <meta name="application-name" content="PosterForge Studio Pro">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PosterForge">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="./icons/icon-192.png">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- jsPDF (İstemci tarafında çok sayfalı yüksek kaliteli PDF üretimi için) -->
@@ -77,6 +89,35 @@
                 radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
             background-size: 20px 20px;
         }
+    
+        /* PWA / mobil uyumluluk */
+        html, body { min-height: 100%; overscroll-behavior: none; }
+        body { padding-bottom: env(safe-area-inset-bottom); }
+        button, label, input, select { touch-action: manipulation; }
+        button, label[for] { min-height: 36px; }
+        @media (max-width: 640px) {
+          header { min-height: 58px; height: auto !important; padding: 8px 10px !important; gap: 8px; flex-wrap: wrap; }
+          header > div:first-child { min-width: 0; }
+          header h1 { font-size: 12px; }
+          header > div:last-child { gap: 5px; }
+          #btnExportPDF { padding: 8px 10px !important; }
+          #btnExportPDF span { font-size: 10px; }
+          #btnExportPNG { padding: 8px !important; }
+          #btnLegal { padding: 8px !important; }
+          .tab-btn { min-height: 42px; font-size: 10px !important; padding-left: 4px !important; padding-right: 4px !important; }
+          aside { max-height: 42dvh !important; }
+          .workspace-grid { min-height: 38dvh; }
+          #legalDialog { padding: 8px; }
+          #legalDialog > div { margin-top: 4px; margin-bottom: 4px; border-radius: 14px; }
+        }
+        @media (max-width: 380px) {
+          header > div:first-child p { display:none !important; }
+          #btnExportPDF span { max-width: 92px; line-height: 1.15; }
+        }
+        @media (display-mode: standalone) {
+          body { padding-top: env(safe-area-inset-top); }
+        }
+
     </style>
 </head>
 <body class="bg-studio-950 text-zinc-100 font-sans antialiased h-screen flex flex-col overflow-hidden select-none">
@@ -89,7 +130,7 @@
             </div>
             <div>
                 <h1 class="font-bold text-sm tracking-tight flex items-center gap-2">
-                    PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro 2.0</span>
+                    PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro 2.1.0</span>
                 </h1>
                 <p class="text-[11px] text-zinc-400 hidden sm:block">Çok Sayfalı Duvar Posteri & Halftone Motoru</p>
             </div>
@@ -109,7 +150,9 @@
         </div>
 
         <!-- Sağ Aksiyon Butonları -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
+            <button id="btnInstallPWA" class="hidden px-2.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-[11px] font-semibold text-white" type="button">Yükle</button>
+            <button id="btnLegal" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-[11px] text-zinc-200 border border-zinc-700" type="button" aria-haspopup="dialog" aria-controls="legalDialog">Yasal</button>
             <div class="hidden sm:flex items-center gap-1 mr-1 border-r border-zinc-700 pr-2">
                 <button id="btnUndo" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 disabled:opacity-30" title="Geri al" disabled>↶</button>
                 <button id="btnRedo" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 disabled:opacity-30" title="Yinele" disabled>↷</button>
@@ -496,6 +539,72 @@
             </div>
 
         </main>
+    </div>
+
+
+    <!-- Yasal Bilgiler ve PWA bilgilendirmesi -->
+    <div id="legalDialog" class="hidden fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+      <div class="max-w-3xl mx-auto my-4 bg-studio-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden">
+        <div class="flex items-center justify-between gap-3 p-4 border-b border-zinc-800 sticky top-0 bg-studio-900/95 backdrop-blur z-10">
+          <div><h2 id="legalTitle" class="font-bold text-base">Yasal Bilgiler</h2><p class="text-[11px] text-zinc-400">PosterForge Studio Pro · Sürüm 2.1.0</p></div>
+          <button id="btnCloseLegal" class="rounded-lg px-3 py-2 bg-zinc-800 text-sm" type="button" aria-label="Kapat">Kapat ✕</button>
+        </div>
+        <div class="p-4 sm:p-6 space-y-6 text-sm text-zinc-300 leading-relaxed select-text">
+          <section>
+            <h3 class="font-bold text-white mb-2">Uygulama ve sürüm bilgisi</h3>
+            <p><strong>Ürün:</strong> PosterForge Studio Pro</p>
+            <p><strong>Sürüm:</strong> 2.1.0 (PWA)</p>
+            <p><strong>Sürüm tarihi:</strong> 21 Kasım 2026</p>
+            <p><strong>Dağıtım:</strong> Web / yüklenebilir PWA</p>
+            <p><strong>Değişiklikler:</strong> Mobil kullanım iyileştirmeleri, PWA manifesti ve çevrimdışı uygulama kabuğu, ana ekrana yükleme desteği, yasal bilgilendirme ekranı, sürüm ve güncelleme bildirimi.</p>
+          </section>
+          <section>
+            <h3 class="font-bold text-white mb-2">Gizlilik bildirimi ve kişisel veriler</h3>
+            <p>PosterForge, bu sürümde görsel seçme, önizleme, efekt uygulama ve dışa aktarma işlemlerini kullanıcının tarayıcısında/cihazında gerçekleştirmek üzere tasarlanmıştır. Uygulama kodunda görselleri veya proje içeriğini bir PosterForge sunucusuna yükleyen bir hesap ya da uygulama API'si bulunmamaktadır. Kullanıcı, proje dosyasını kendi tercihiyle cihazına indirir.</p>
+            <p class="mt-2">Uygulamanın çalışması için Tailwind CSS, jsPDF, Lucide ve Google Fonts gibi üçüncü taraf kaynaklar çevrimiçi olarak çağrılabilir. Bu sağlayıcılar bağlantı sırasında IP adresi, tarayıcı/cihaz bilgisi veya teknik günlük verilerini kendi politikalarına göre işleyebilir. Bu üçüncü tarafların veri işlemesi PosterForge'un kontrolünde değildir. Çevrimdışı kullanım, ilgili kaynaklar daha önce önbelleğe alınmadıysa sınırlı olabilir.</p>
+            <p class="mt-2">PWA hizmet çalışanı uygulamanın temel dosyalarını ve erişilebilen statik kaynakları cihaz önbelleğinde tutabilir. Tarayıcı ayarlarından site verilerini/önbelleği temizleyebilirsiniz. Uygulama bu sürümde reklam, analiz veya izleme çerezi yerleştirmek üzere tasarlanmamıştır.</p>
+            <p class="mt-2"><strong>Veri sorumlusu / yayıncı:</strong> [Yayıncı adı veya işletme unvanı eklenmelidir]</p>
+            <p><strong>İletişim:</strong> [Geçerli e-posta ve tebligat adresi eklenmelidir]</p>
+            <p class="mt-2">Bu metin genel bir ürün bilgilendirmesidir; KVKK kapsamında gerekli aydınlatma yükümlülüklerinin ve varsa yurt dışına veri aktarımı açıklamalarının yerine geçtiği garanti edilmez. Yayına almadan önce yayıncı kimliği, iletişim bilgileri, kullanılan hizmetlerin güncel veri akışları ve hukuki dayanaklar doğrulanarak metin yetkin bir hukuk uzmanına inceletilmelidir.</p>
+          </section>
+          <section>
+            <h3 class="font-bold text-white mb-2">Kullanım koşulları</h3>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>Uygulamayı yalnızca hukuka uygun amaçlarla kullanabilirsiniz.</li>
+              <li>Yüklediğiniz görsellerin kullanım, çoğaltma ve baskı haklarına sahip olduğunuzdan veya gerekli izinleri aldığınızdan siz sorumlusunuz.</li>
+              <li>Uygulama, üçüncü kişilerin telif, marka, kişilik ve diğer haklarını ihlal edecek içeriklerin hazırlanması için kullanılmamalıdır.</li>
+              <li>Üretilen PDF/PNG dosyalarının doğruluğunu, kâğıt ölçüsünü, yazıcı ayarlarını, renkleri ve fiziksel baskı sonucunu baskı öncesinde kontrol etmelisiniz.</li>
+              <li>Yazıcıların basılamayan kenar alanları, sürücü ölçekleme seçenekleri, kâğıt toleransları ve renk profilleri nedeniyle ekranda görünen sonuç ile fiziksel baskı farklı olabilir. Gerçek boyut / %100 ölçek seçeneğini ve uygun kâğıt ayarlarını kontrol edin.</li>
+              <li>Uygulama “olduğu gibi” sunulur. Emredici tüketici ve veri koruma mevzuatından doğan haklar saklı kalmak kaydıyla, kesintisiz çalışma, her cihazla uyumluluk veya belirli baskı sonucu taahhüt edilmez.</li>
+              <li>Bu koşullar, yürürlükteki emredici mevzuatın izin vermediği ölçüde sorumluluğu ortadan kaldırmaz veya tüketicinin kanuni haklarını sınırlamaz.</li>
+            </ul>
+          </section>
+          <section>
+            <h3 class="font-bold text-white mb-2">Fikri mülkiyet ve kullanıcı içeriği</h3>
+            <p>PosterForge arayüzü, yazılımı, adı ve tasarım unsurları ilgili hak sahiplerine aittir. Kullanıcı, kendi görsel ve proje içeriklerinin haklarını korur. Uygulamaya görsel yüklemek, bu görsellerin mülkiyetini yayıncıya devretmez.</p>
+          </section>
+          <section>
+            <h3 class="font-bold text-white mb-2">Çevrimdışı kullanım ve güncellemeler</h3>
+            <p>Uygulama HTTPS üzerinden yayımlandığında ve servis çalışanı tarayıcı tarafından desteklendiğinde ana ekrana yüklenebilir. İlk ziyaret ve temel dosyaların önbelleğe alınması için internet bağlantısı gerekir. Uygulama güncellendiğinde yeni sürüm indirilir; güncellemenin etkinleşmesi için sayfayı yenilemeniz gerekebilir. Önbellek, cihaz alanı ve tarayıcı politikaları nedeniyle her kaynağın çevrimdışı kullanılacağı garanti edilmez.</p>
+          </section>
+          <section>
+            <h3 class="font-bold text-white mb-2">Çerezler ve üçüncü taraf hizmetler</h3>
+            <p>Uygulamanın kendi kodu reklam/analitik amaçlı çerez kullanmaz. Bununla birlikte dış kaynak sağlayıcılarının kendi teknik çerezleri veya bağlantı günlükleri olabilir. Bu hizmetler kullanılmadan önce sağlayıcıların güncel gizlilik ve çerez politikalarını inceleyin.</p>
+          </section>
+          <section>
+            <h3 class="font-bold text-white mb-2">İletişim ve metinlerin güncellenmesi</h3>
+            <p>Yasal metinler, gerçek yayıncı bilgileri ve kullanılan servislerin fiili yapılandırmasıyla uyumlu olacak şekilde güncellenmelidir. Bu metinlerin son güncelleme tarihi 21.11.2026'dır.</p>
+            <p class="mt-2 text-amber-300 text-xs">Yayın öncesi zorunlu işlem: Köşeli parantez içindeki yayıncı ve iletişim alanlarını doldurun. Bu alanlar tamamlanmadan uygulamayı ticari/yaygın kullanıma açmayın.</p>
+          </section>
+        </div>
+        <div class="p-4 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
+          <span>PosterForge Studio Pro · v2.1.0</span>
+          <button id="btnLegalBottomClose" class="px-3 py-2 rounded-lg bg-indigo-600 text-white" type="button">Anladım</button>
+        </div>
+      </div>
+    </div>
+    <div id="pwaUpdateToast" class="hidden fixed bottom-4 left-4 right-4 z-[90] mx-auto max-w-md rounded-xl border border-indigo-400/30 bg-zinc-900 p-3 shadow-2xl text-sm">
+      <div class="flex items-center justify-between gap-3"><span>PosterForge için yeni sürüm hazır.</span><button id="btnApplyUpdate" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white">Yenile</button></div>
     </div>
 
     <script>
@@ -1539,6 +1648,58 @@
             syncHistoryButtons();
             generateSampleImage('geometric');
         };
+
+        // PosterForge PWA: yükleme, yasal ekran ve servis çalışanı güncellemesi
+        (() => {
+            const legal = document.getElementById('legalDialog');
+            const closeLegal = () => legal?.classList.add('hidden');
+            document.getElementById('btnLegal')?.addEventListener('click', () => legal?.classList.remove('hidden'));
+            document.getElementById('btnCloseLegal')?.addEventListener('click', closeLegal);
+            document.getElementById('btnLegalBottomClose')?.addEventListener('click', closeLegal);
+            legal?.addEventListener('click', e => { if (e.target === legal) closeLegal(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLegal(); });
+
+            let installPrompt = null;
+            const installBtn = document.getElementById('btnInstallPWA');
+            window.addEventListener('beforeinstallprompt', e => {
+                e.preventDefault(); installPrompt = e;
+                installBtn?.classList.remove('hidden');
+            });
+            installBtn?.addEventListener('click', async () => {
+                if (!installPrompt) return;
+                installPrompt.prompt();
+                await installPrompt.userChoice;
+                installPrompt = null;
+                installBtn.classList.add('hidden');
+            });
+            window.addEventListener('appinstalled', () => installBtn?.classList.add('hidden'));
+
+            if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+                window.addEventListener('load', async () => {
+                    try {
+                        const reg = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+                        if (reg.waiting) document.getElementById('pwaUpdateToast')?.classList.remove('hidden');
+                        reg.addEventListener('updatefound', () => {
+                            const worker = reg.installing;
+                            worker?.addEventListener('statechange', () => {
+                                if (worker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    document.getElementById('pwaUpdateToast')?.classList.remove('hidden');
+                                }
+                            });
+                        });
+                        document.getElementById('btnApplyUpdate')?.addEventListener('click', () => {
+                            if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                            else location.reload();
+                        });
+                        let refreshing = false;
+                        navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            if (!refreshing) { refreshing = true; location.reload(); }
+                        });
+                    } catch (err) { console.warn('PWA servis çalışanı kaydedilemedi:', err); }
+                });
+            }
+        })();
+
     </script>
 </body>
 </html>
