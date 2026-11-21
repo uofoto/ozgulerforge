@@ -89,7 +89,7 @@
             </div>
             <div>
                 <h1 class="font-bold text-sm tracking-tight flex items-center gap-2">
-                    PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro</span>
+                    PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro 2.0</span>
                 </h1>
                 <p class="text-[11px] text-zinc-400 hidden sm:block">Çok Sayfalı Duvar Posteri & Halftone Motoru</p>
             </div>
@@ -171,6 +171,27 @@
                             Letter <span class="block text-[10px] text-zinc-500 font-mono">216×279mm</span>
                         </button>
                     </div>
+                    <div class="grid grid-cols-3 gap-2 mt-2">
+                        <button class="paper-btn py-2 px-3 rounded-lg border border-zinc-800 bg-studio-800/50 text-xs text-zinc-300" data-paper="A5">A5 <span class="block text-[10px] text-zinc-500 font-mono">148×210</span></button>
+                        <button class="paper-btn py-2 px-3 rounded-lg border border-zinc-800 bg-studio-800/50 text-xs text-zinc-300" data-paper="A2">A2 <span class="block text-[10px] text-zinc-500 font-mono">420×594</span></button>
+                        <button class="paper-btn py-2 px-3 rounded-lg border border-zinc-800 bg-studio-800/50 text-xs text-zinc-300" data-paper="A1">A1 <span class="block text-[10px] text-zinc-500 font-mono">594×841</span></button>
+                        <button class="paper-btn py-2 px-3 rounded-lg border border-zinc-800 bg-studio-800/50 text-xs text-zinc-300" data-paper="LEGAL">Legal <span class="block text-[10px] text-zinc-500 font-mono">216×356</span></button>
+                        <button class="paper-btn py-2 px-3 rounded-lg border border-zinc-800 bg-studio-800/50 text-xs text-zinc-300" data-paper="TABLOID">Tabloid <span class="block text-[10px] text-zinc-500 font-mono">279×432</span></button>
+                        <button class="paper-btn py-2 px-3 rounded-lg border border-zinc-800 bg-studio-800/50 text-xs text-zinc-300" data-paper="CUSTOM">Özel <span class="block text-[10px] text-zinc-500 font-mono">mm</span></button>
+                    </div>
+                    <div id="customPaperControls" class="hidden mt-3 grid grid-cols-2 gap-2">
+                        <label class="text-[11px] text-zinc-400">Kağıt genişliği (mm)<input id="customPaperW" type="number" min="80" max="1000" value="210" class="mt-1 w-full rounded-lg bg-studio-950 border border-zinc-700 px-2 py-2 text-zinc-100"></label>
+                        <label class="text-[11px] text-zinc-400">Kağıt yüksekliği (mm)<input id="customPaperH" type="number" min="80" max="1000" value="297" class="mt-1 w-full rounded-lg bg-studio-950 border border-zinc-700 px-2 py-2 text-zinc-100"></label>
+                    </div>
+                </div>
+
+                <!-- Poster ölçüsü ve çıktı çözünürlüğü -->
+                <div class="bg-studio-800/40 p-3.5 rounded-xl border border-zinc-800/80 space-y-3">
+                    <div class="flex justify-between items-center"><label class="text-xs font-semibold text-zinc-200">Bitmiş poster genişliği</label><span class="text-[10px] text-zinc-500">cm</span></div>
+                    <input id="targetWidthCm" type="number" min="5" max="450" step="0.1" placeholder="Boş: sayfa sayısına göre" class="w-full rounded-lg bg-studio-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100">
+                    <p class="text-[11px] text-zinc-400">Ölçü girildiğinde sayfa sayısı otomatik hesaplanır; görsel oranı korunur. Boş bırakılırsa yatay sayfa sayısı kullanılır.</p>
+                    <label class="text-xs font-semibold text-zinc-300 block">PDF / PNG çözünürlüğü</label>
+                    <select id="outputDpi" class="w-full rounded-lg bg-studio-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100"><option value="150">150 DPI — Taslak / büyük işler</option><option value="200">200 DPI — Yüksek kalite</option><option value="300" selected>300 DPI — Baskı önerisi</option><option value="600">600 DPI — Çok yüksek (bellek gerektirir)</option></select>
                 </div>
 
                 <!-- Kağıt Yönü -->
@@ -219,7 +240,7 @@
                         <span id="valOverlap" class="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">5 mm</span>
                     </div>
                     <input type="range" id="inputOverlap" min="0" max="20" value="5" class="w-full">
-                    <p class="text-[11px] text-zinc-400 leading-relaxed">Komşu sayfaların üst üste basılacak ortak alanı. Birleştirmeyi kolaylaştırır; toplam poster ölçüsünü etkiler.</p>
+                    <p class="text-[11px] text-zinc-400 leading-relaxed">Komşu sayfaların ortak basılacak alanı. Poster ölçüsü sabitlenmişse gerekli sayfa sayısı buna göre hesaplanır.</p>
                 </div>
 
                 <!-- Özet Kartı -->
@@ -333,6 +354,15 @@
                             <span id="valDotScale" class="text-xs font-mono font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded">%95</span>
                         </div>
                         <input type="range" id="inputDotScale" min="40" max="135" value="95" class="w-full">
+                    </div>
+
+                    <div class="bg-studio-800/40 p-3.5 rounded-xl border border-zinc-800/80 space-y-3">
+                        <label class="text-xs font-semibold text-zinc-200 block">Raster geometrisi</label>
+                        <select id="rasterShape" class="w-full rounded-lg bg-studio-950 border border-zinc-700 px-3 py-2 text-xs text-zinc-100"><option value="circle">Daire</option><option value="square">Kare</option><option value="diamond">Elmas</option><option value="triangle">Üçgen</option><option value="line">Çizgi</option><option value="ellipse">Elips</option></select>
+                        <div class="flex justify-between"><label class="text-[11px] text-zinc-300">Minimum nokta oranı</label><span id="valDotMin" class="text-[11px] font-mono text-indigo-300">%8</span></div>
+                        <input id="dotMinScale" type="range" min="0" max="60" value="8" class="w-full">
+                        <div class="flex justify-between"><label class="text-[11px] text-zinc-300">Raster açısı</label><span id="valRasterAngle" class="text-[11px] font-mono text-indigo-300">45°</span></div>
+                        <input id="rasterAngle" type="range" min="0" max="90" value="45" class="w-full">
                     </div>
 
                     <!-- Tek Renk Mürekkep Seçici -->
@@ -474,9 +504,9 @@
 
         // Kağıt Boyutları (mm cinsinden)
         const PAPER_SIZES = {
-            A4: { w: 210, h: 297 },
-            A3: { w: 297, h: 420 },
-            LETTER: { w: 215.9, h: 279.4 }
+            A5: { w: 148, h: 210 }, A4: { w: 210, h: 297 }, A3: { w: 297, h: 420 },
+            A2: { w: 420, h: 594 }, A1: { w: 594, h: 841 },
+            LETTER: { w: 215.9, h: 279.4 }, LEGAL: { w: 215.9, h: 355.6 }, TABLOID: { w: 279.4, h: 431.8 }
         };
 
         // Uygulama Durumu (State)
@@ -488,6 +518,8 @@
             rows: 4,
             marginMm: 10,
             overlapMm: 5,
+            customPaperW: 210, customPaperH: 297, targetWidthCm: '', outputDpi: 300,
+            dotMinScale: 0.08, rasterShape: 'circle', rasterAngle: 45,
             style: 'halftone-color', // 'halftone-color' | 'halftone-mono' | 'cmyk' | 'squares' | 'lines' | 'original'
             dotSizeMm: 10,
             dotScale: 0.95,
@@ -552,6 +584,9 @@
             const values = {
                 inputCols: state.cols, inputMargin: state.marginMm, inputOverlap: state.overlapMm,
                 inputDotSize: state.dotSizeMm, inputDotScale: Math.round(state.dotScale * 100),
+                customPaperW: state.customPaperW, customPaperH: state.customPaperH,
+                targetWidthCm: state.targetWidthCm, outputDpi: state.outputDpi,
+                rasterShape: state.rasterShape, dotMinScale: Math.round(state.dotMinScale * 100), rasterAngle: state.rasterAngle,
                 inputContrast: state.contrast, inputBrightness: state.brightness,
                 inputInkColor: state.inkColor, inputBgColor: state.bgColor,
                 chkCropMarks: state.cropMarks, chkPageLabels: state.pageLabels, chkShowGrid: state.showGrid
@@ -563,6 +598,7 @@
             const labels = {
                 valCols: `${state.cols} Sayfa`, valMargin: `${state.marginMm} mm`,
                 valOverlap: `${state.overlapMm} mm`, valDotSize: `${state.dotSizeMm} mm`,
+                valDotMin: `%${Math.round(state.dotMinScale * 100)}`, valRasterAngle: `${state.rasterAngle}°`,
                 valDotScale: `%${Math.round(state.dotScale * 100)}`,
                 valContrast: `${state.contrast >= 0 ? '+' : ''}${state.contrast}%`,
                 valBrightness: `${state.brightness >= 0 ? '+' : ''}${state.brightness}%`
@@ -571,6 +607,7 @@
                 const el = document.getElementById(id); if (el) el.textContent = value;
             });
             document.querySelectorAll('.paper-btn').forEach(b => b.classList.toggle('active', b.dataset.paper === state.paper));
+            const customBox = document.getElementById('customPaperControls'); if (customBox) customBox.classList.toggle('hidden', state.paper !== 'CUSTOM');
             document.querySelectorAll('.style-btn').forEach(b => {
                 const active = b.dataset.style === state.style;
                 b.classList.toggle('active', active);
@@ -583,17 +620,21 @@
             document.getElementById('monoColorPicker').classList.toggle('hidden', !['halftone-mono','lines'].includes(state.style));
         }
         function getPrintLayout() {
-            const base = PAPER_SIZES[state.paper];
+            const base = state.paper === 'CUSTOM' ? { w: Number(state.customPaperW) || 210, h: Number(state.customPaperH) || 297 } : PAPER_SIZES[state.paper];
             const pageW = state.orientation === 'portrait' ? base.w : base.h;
             const pageH = state.orientation === 'portrait' ? base.h : base.w;
             const printableW = Math.max(20, pageW - state.marginMm * 2);
             const printableH = Math.max(20, pageH - state.marginMm * 2);
-            const stepW = Math.max(1, printableW - state.overlapMm);
-            const stepH = Math.max(1, printableH - state.overlapMm);
-            const totalWidthMm = printableW + (state.cols - 1) * stepW;
-            const totalHeightMm = totalWidthMm * (state.img ? state.img.height / state.img.width : 1);
+            const stepW = Math.max(1, printableW - Math.min(state.overlapMm, printableW - 1));
+            const stepH = Math.max(1, printableH - Math.min(state.overlapMm, printableH - 1));
+            const aspect = state.img ? state.img.height / state.img.width : 1;
+            const targetW = Number(state.targetWidthCm);
+            const fixedWidth = Number.isFinite(targetW) && targetW >= 5 ? targetW * 10 : null;
+            const cols = fixedWidth ? Math.max(1, Math.min(40, Math.ceil(Math.max(0, fixedWidth - printableW) / stepW) + 1)) : state.cols;
+            const totalWidthMm = fixedWidth || (printableW + (cols - 1) * stepW);
+            const totalHeightMm = totalWidthMm * aspect;
             const rows = Math.max(1, Math.ceil(Math.max(0, totalHeightMm - printableH) / stepH) + 1);
-            return { pageW, pageH, printableW, printableH, stepW, stepH, totalWidthMm, totalHeightMm, rows };
+            return { pageW, pageH, printableW, printableH, stepW, stepH, totalWidthMm, totalHeightMm, rows, cols };
         }
         function saveProjectFile() {
             if (!state.img) { showToast('Önce bir görsel yükleyin.'); return; }
@@ -602,7 +643,7 @@
                 imageCanvas.width = state.img.naturalWidth || state.img.width;
                 imageCanvas.height = state.img.naturalHeight || state.img.height;
                 imageCanvas.getContext('2d').drawImage(state.img, 0, 0);
-                const project = { app: 'PosterForge Studio', version: 2, savedAt: new Date().toISOString(),
+                const project = { app: 'PosterForge Studio', version: 3, savedAt: new Date().toISOString(),
                     settings: Object.fromEntries(Object.entries(state).filter(([k]) => k !== 'img' && k !== 'peekingOriginal')),
                     imageData: imageCanvas.toDataURL('image/png') };
                 const blob = new Blob([JSON.stringify(project)], {type:'application/json'});
@@ -767,13 +808,132 @@
             if (!state.img) return;
             const layout = getPrintLayout();
             state.rows = layout.rows;
-            const totalPages = state.cols * state.rows;
+            if (Number(state.targetWidthCm) >= 5) state.cols = layout.cols;
+            const totalPages = layout.cols * layout.rows;
+            const colsSlider = document.getElementById('inputCols'); if (colsSlider) { colsSlider.value = Math.min(15, state.cols); colsSlider.disabled = Number(state.targetWidthCm) >= 5; colsSlider.title = colsSlider.disabled ? 'Bitmiş poster genişliği sayfa sayısını otomatik belirliyor.' : ''; }
+            const colsLabel = document.getElementById('valCols'); if (colsLabel) colsLabel.textContent = `${state.cols} Sayfa`;
             const widthCm = (layout.totalWidthMm / 10).toFixed(1);
             const heightCm = (layout.totalHeightMm / 10).toFixed(1);
             document.getElementById('badgeDimensions').textContent = `${widthCm} × ${heightCm} cm`;
             document.getElementById('badgePages').textContent = `${totalPages} Sayfa (${state.cols}×${state.rows} ${state.paper})`;
             document.getElementById('summarySize').textContent = `${widthCm} × ${heightCm} cm`;
             document.getElementById('summaryGrid').textContent = `${state.cols} × ${state.rows} = ${totalPages} ${state.paper}`;
+        }
+
+        function drawRasterMark(targetCtx, cx, cy, diameter, shape, angleDeg, color) {
+            const size = Math.max(0.25, diameter);
+            targetCtx.save(); targetCtx.translate(cx, cy); targetCtx.rotate((angleDeg || 0) * Math.PI / 180);
+            targetCtx.fillStyle = color; targetCtx.beginPath();
+            if (shape === 'square') targetCtx.rect(-size/2, -size/2, size, size);
+            else if (shape === 'diamond') { targetCtx.moveTo(0,-size/2); targetCtx.lineTo(size/2,0); targetCtx.lineTo(0,size/2); targetCtx.lineTo(-size/2,0); targetCtx.closePath(); }
+            else if (shape === 'triangle') { targetCtx.moveTo(0,-size/2); targetCtx.lineTo(size/2,size/2); targetCtx.lineTo(-size/2,size/2); targetCtx.closePath(); }
+            else if (shape === 'line') { targetCtx.rect(-size/2, -Math.max(0.5,size*0.12), size, Math.max(1,size*0.24)); }
+            else if (shape === 'ellipse') targetCtx.ellipse(0,0,size*0.5,size*0.28,0,0,Math.PI*2);
+            else targetCtx.arc(0,0,size/2,0,Math.PI*2);
+            targetCtx.fill(); targetCtx.restore();
+        }
+
+        // Tek tek sayfa işleme: PDF'de bütün posteri tek dev tuvale sığdırmak yerine
+        // her yaprağı kendi gerçek baskı çözünürlüğünde üretir. Raster ızgarası global koordinatta kalır.
+        function drawProcessedTile(targetCtx, widthPx, heightPx, layout, regionXmm, regionYmm, regionWmm, regionHmm, dpi) {
+            if (!state.img) return;
+            const pxPerMm = dpi / 25.4;
+            const sx = regionXmm / layout.totalWidthMm * state.img.width;
+            const sy = regionYmm / layout.totalHeightMm * state.img.height;
+            const sw = regionWmm / layout.totalWidthMm * state.img.width;
+            const sh = regionHmm / layout.totalHeightMm * state.img.height;
+            const brightnessVal = 100 + state.brightness;
+            const contrastVal = 100 + state.contrast;
+            const filterStr = `brightness(${brightnessVal}%) contrast(${contrastVal}%)`;
+            targetCtx.clearRect(0, 0, widthPx, heightPx);
+
+            if (state.style === 'original' || state.peekingOriginal) {
+                targetCtx.save(); targetCtx.filter = filterStr;
+                targetCtx.drawImage(state.img, sx, sy, sw, sh, 0, 0, widthPx, heightPx);
+                targetCtx.restore(); return;
+            }
+            if (['vintage','grayscale','duotone'].includes(state.style)) {
+                const effect = state.style === 'vintage' ? 'sepia(0.72) saturate(0.82) contrast(1.08)' :
+                    state.style === 'grayscale' ? 'grayscale(1) contrast(1.12)' :
+                    'grayscale(1) sepia(1) hue-rotate(165deg) saturate(1.8) contrast(1.08)';
+                targetCtx.save(); targetCtx.filter = `${effect} ${filterStr}`;
+                targetCtx.drawImage(state.img, sx, sy, sw, sh, 0, 0, widthPx, heightPx);
+                targetCtx.restore(); return;
+            }
+
+            const mono = ['halftone-mono','lines'].includes(state.style);
+            targetCtx.fillStyle = mono ? state.bgColor : '#ffffff';
+            targetCtx.fillRect(0, 0, widthPx, heightPx);
+
+            const dotMm = Math.max(0.5, Number(state.dotSizeMm) || 10);
+            const startCellX = Math.floor(regionXmm / dotMm);
+            const startCellY = Math.floor(regionYmm / dotMm);
+            const endCellX = Math.ceil((regionXmm + regionWmm) / dotMm);
+            const endCellY = Math.ceil((regionYmm + regionHmm) / dotMm);
+            const cellsX = Math.max(1, endCellX - startCellX);
+            const cellsY = Math.max(1, endCellY - startCellY);
+            const sampleCanvas = document.createElement('canvas');
+            sampleCanvas.width = cellsX; sampleCanvas.height = cellsY;
+            const sctx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+            const cropX = startCellX * dotMm / layout.totalWidthMm * state.img.width;
+            const cropY = startCellY * dotMm / layout.totalHeightMm * state.img.height;
+            const cropRight = Math.min(layout.totalWidthMm, endCellX * dotMm) / layout.totalWidthMm * state.img.width;
+            const cropBottom = Math.min(layout.totalHeightMm, endCellY * dotMm) / layout.totalHeightMm * state.img.height;
+            sctx.filter = filterStr;
+            sctx.drawImage(state.img, Math.max(0,cropX), Math.max(0,cropY),
+                Math.max(0.01,cropRight-Math.max(0,cropX)), Math.max(0.01,cropBottom-Math.max(0,cropY)),
+                0, 0, cellsX, cellsY);
+            const data = sctx.getImageData(0,0,cellsX,cellsY).data;
+            const mark = (x,y,d,color,angle=state.rasterAngle) =>
+                drawRasterMark(targetCtx, x, y, d, state.rasterShape, angle, color);
+
+            if (state.style === 'cmyk') {
+                const channels = [
+                    { color:'#00ffff', angle:15, getVal:(r,g,b)=>1-r/255 },
+                    { color:'#ff00ff', angle:75, getVal:(r,g,b)=>1-g/255 },
+                    { color:'#ffff00', angle:0, getVal:(r,g,b)=>1-b/255 },
+                    { color:'#18181b', angle:45, getVal:(r,g,b)=>1-Math.max(r,g,b)/255 }
+                ];
+                targetCtx.save(); targetCtx.globalCompositeOperation = 'multiply';
+                for (const ch of channels) {
+                    for (let yy=0; yy<cellsY; yy++) for (let xx=0; xx<cellsX; xx++) {
+                        const i=(yy*cellsX+xx)*4, val=ch.getVal(data[i],data[i+1],data[i+2]);
+                        if (val<=0.025) continue;
+                        const gx=startCellX+xx, gy=startCellY+yy;
+                        const cx=((gx+0.5)*dotMm-regionXmm)*pxPerMm;
+                        const cy=((gy+0.5)*dotMm-regionYmm)*pxPerMm;
+                        const d=dotMm*pxPerMm*Math.sqrt(val)*state.dotScale;
+                        mark(cx,cy,d,ch.color,ch.angle);
+                    }
+                }
+                targetCtx.restore(); return;
+            }
+
+            for (let yy=0; yy<cellsY; yy++) for (let xx=0; xx<cellsX; xx++) {
+                const i=(yy*cellsX+xx)*4, r=data[i], g=data[i+1], b=data[i+2];
+                const lum=(0.299*r+0.587*g+0.114*b)/255, darkness=1-lum;
+                const gx=startCellX+xx, gy=startCellY+yy;
+                const cx=((gx+0.5)*dotMm-regionXmm)*pxPerMm;
+                const cy=((gy+0.5)*dotMm-regionYmm)*pxPerMm;
+                const cellPx=dotMm*pxPerMm;
+                if (state.style==='halftone-color') {
+                    const minScale=Math.min(state.dotMinScale,state.dotScale); const factor=minScale+Math.sqrt(darkness)*(state.dotScale-minScale);
+                    mark(cx,cy,cellPx*Math.max(0,factor),`rgb(${r},${g},${b})`);
+                } else if (state.style==='halftone-mono') {
+                    if (darkness>0.01) {
+                        const minScale=Math.min(state.dotMinScale,state.dotScale); const factor=minScale+Math.sqrt(darkness)*(state.dotScale-minScale);
+                        mark(cx,cy,cellPx*Math.max(0,factor),state.inkColor);
+                    }
+                } else if (state.style==='squares') {
+                    const d=cellPx*Math.sqrt(Math.max(0.02,darkness))*state.dotScale;
+                    targetCtx.fillStyle=`rgb(${r},${g},${b})`;
+                    targetCtx.fillRect(cx-d/2,cy-d/2,d,d);
+                } else if (state.style==='lines' && darkness>0.01) {
+                    const thickness=cellPx*darkness*state.dotScale;
+                    targetCtx.fillStyle=state.inkColor;
+                    targetCtx.fillRect(cx-cellPx/2,cy-thickness/2,cellPx+1,thickness);
+                }
+            }
         }
 
         // Seçilen Stile Göre Görseli Tuvale İşleyen Çekirdek Motor
@@ -855,9 +1015,7 @@
                             const cx = (x + 0.5) * cellSizePx + Math.cos(ch.angle) * cellSizePx * 0.12;
                             const cy = (y + 0.5) * cellSizePx + Math.sin(ch.angle) * cellSizePx * 0.12;
 
-                            targetCtx.beginPath();
-                            targetCtx.arc(cx, cy, radius, 0, Math.PI * 2);
-                            targetCtx.fill();
+                            drawRasterMark(targetCtx, cx, cy, radius * 2, state.rasterShape, ch.angle * 180 / Math.PI, ch.color);
                         }
                     }
                 }
@@ -881,19 +1039,15 @@
                     const cy = (y + 0.5) * cellSizePx;
 
                     if (state.style === 'halftone-color') {
-                        const radius = (cellSizePx * 0.5) * Math.sqrt(Math.max(0.08, darkness)) * state.dotScale;
-                        targetCtx.fillStyle = `rgb(${r},${g},${b})`;
-                        targetCtx.beginPath();
-                        targetCtx.arc(cx, cy, radius, 0, Math.PI * 2);
-                        targetCtx.fill();
+                        const minScale = Math.min(state.dotMinScale, state.dotScale); const factor = minScale + Math.sqrt(darkness) * (state.dotScale - minScale);
+                        const diameter = cellSizePx * Math.max(0, factor);
+                        drawRasterMark(targetCtx, cx, cy, diameter, state.rasterShape, state.rasterAngle, `rgb(${r},${g},${b})`);
                     } 
                     else if (state.style === 'halftone-mono') {
                         if (darkness <= 0.02) continue;
-                        const radius = (cellSizePx * 0.5) * Math.sqrt(darkness) * state.dotScale;
-                        targetCtx.fillStyle = state.inkColor;
-                        targetCtx.beginPath();
-                        targetCtx.arc(cx, cy, radius, 0, Math.PI * 2);
-                        targetCtx.fill();
+                        const minScale = Math.min(state.dotMinScale, state.dotScale); const factor = minScale + Math.sqrt(darkness) * (state.dotScale - minScale);
+                        const diameter = cellSizePx * Math.max(0, factor);
+                        drawRasterMark(targetCtx, cx, cy, diameter, state.rasterShape, state.rasterAngle, state.inkColor);
                     } 
                     else if (state.style === 'squares') {
                         const size = cellSizePx * Math.sqrt(Math.max(0.15, darkness)) * state.dotScale;
@@ -915,7 +1069,8 @@
             if (!state.img) return;
 
             const layout = getPrintLayout();
-            const { totalWidthMm, totalHeightMm, printableW, printableH, stepW, stepH } = layout;
+            const { totalWidthMm, totalHeightMm, printableW, printableH, stepW, stepH, cols } = layout;
+            state.cols = cols; state.rows = layout.rows;
             const aspectRatio = state.img.height / state.img.width;
 
             // Önizleme Tuval Boyutu (Hızlı ve Keskin Render için)
@@ -941,8 +1096,9 @@
 
             gridOverlay.style.display = 'block';
 
-            for (let r = 0; r < state.rows; r++) {
-                for (let c = 0; c < state.cols; c++) {
+            const layout = getPrintLayout();
+            for (let r = 0; r < layout.rows; r++) {
+                for (let c = 0; c < layout.cols; c++) {
                     const leftPct = ((c * stepW) / totalW) * 100;
                     const topPct = ((r * stepH) / totalH) * 100;
                     const widthPct = Math.min(100 - leftPct, (printableW / totalW) * 100);
@@ -971,8 +1127,9 @@
             if (!state.img) { showToast('Önce bir görsel yükleyin.'); return; }
             const layout = getPrintLayout();
             const ratio = state.img.height / state.img.width;
-            let exportW = Math.max(1200, Math.round(layout.totalWidthMm / 25.4 * 300));
-            exportW = Math.min(8000, exportW);
+            const requestedDpi = Math.max(72, Math.min(600, Number(state.outputDpi) || 300));
+            let exportW = Math.max(1200, Math.round(layout.totalWidthMm / 25.4 * requestedDpi));
+            exportW = Math.min(12000, exportW);
             let exportH = Math.round(exportW * ratio);
             if (exportH > 8000) { exportW = Math.floor(exportW * 8000 / exportH); exportH = 8000; }
             if (exportW * exportH > 24000000) {
@@ -984,16 +1141,17 @@
             exportCanvas.width = Math.max(1, exportW);
             exportCanvas.height = Math.max(1, exportH);
             const ectx = exportCanvas.getContext('2d');
+            const effectiveDpi = exportW / layout.totalWidthMm * 25.4;
             if (!ectx) { showToast('Tarayıcı dışa aktarma tuvalini oluşturamadı.'); return; }
             drawProcessedArtwork(ectx, exportCanvas.width, exportCanvas.height, layout.totalWidthMm);
             exportCanvas.toBlob(blob => {
                 if (!blob) { showToast('PNG oluşturulamadı. Daha düşük çözünürlük deneyin.'); return; }
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
-                link.download = `PosterForge-${state.cols}x${state.rows}-${state.style}.png`;
+                link.download = `PosterForge-${layout.cols}x${layout.rows}-${state.style}-${requestedDpi}dpi.png`;
                 link.href = url; link.click();
                 setTimeout(() => URL.revokeObjectURL(url), 1500);
-                showToast(`PNG hazırlandı (${exportW} × ${exportH} px).`);
+                showToast(`PNG: ${exportW} × ${exportH} px · yaklaşık ${effectiveDpi.toFixed(0)} DPI (bellek sınırı uygulanabilir).`);
             }, 'image/png');
         });
 
@@ -1016,38 +1174,25 @@
             const margin = state.marginMm;
             const aspectRatio = state.img.height / state.img.width;
 
-            // Yaklaşık 240 DPI hedefle; bellek sınırları için tuvali kontrollü sınırla.
-            let masterW = Math.min(8000, Math.max(1600, Math.round(totalWidthMm / 25.4 * 240)));
-            let masterH = Math.round(masterW * aspectRatio);
-            if (masterH > 8000) { masterW = Math.floor(masterW * 8000 / masterH); masterH = 8000; }
-            if (masterW * masterH > 30000000) {
-                const scale = Math.sqrt(30000000 / (masterW * masterH));
-                masterW = Math.floor(masterW * scale); masterH = Math.floor(masterH * scale);
-            }
-            const masterCanvas = document.createElement('canvas');
-            masterCanvas.width = masterW;
-            masterCanvas.height = masterH;
-            const mctx = masterCanvas.getContext('2d');
-            if (!mctx) throw new Error('Ana baskı tuvali oluşturulamadı.');
-
-            drawProcessedArtwork(mctx, masterW, masterH, totalWidthMm);
+            // Her yaprağı bağımsız üret: büyük posterlerde de çözünürlük toplam mural boyutuna göre düşmez.
+            const requestedDpi = Math.max(72, Math.min(600, Number(state.outputDpi) || 300));
+            const pagePixelArea = (printableW / 25.4 * requestedDpi) * (printableH / 25.4 * requestedDpi);
+            const pageDpi = Math.min(requestedDpi, Math.sqrt(16000000 / Math.max(1, pagePixelArea)));
+            const effectiveDpi = pageDpi;
 
             // jsPDF Belgesini Başlat
-            const pdfFormat = state.paper === 'LETTER' ? 'letter' : state.paper.toLowerCase();
-            const doc = new jsPDF({
-                orientation: state.orientation,
-                unit: 'mm',
-                format: pdfFormat
-            });
+            const pdfFormat = state.paper === 'CUSTOM' ? [pageW, pageH] : (state.paper === 'LETTER' ? 'letter' : state.paper === 'LEGAL' ? 'legal' : state.paper === 'TABLOID' ? 'tabloid' : state.paper.toLowerCase());
+            const doc = new jsPDF({ orientation: state.orientation, unit: 'mm', format: pdfFormat, compress: true });
 
-            const totalPages = state.cols * state.rows;
+            const totalPages = layout.cols * layout.rows;
+            if (totalPages > 500) throw new Error('Sayfa sayısı 500 sınırını aşıyor. Poster ölçüsünü veya sayfa sayısını azaltın.');
             let pageCount = 0;
 
             const tileCanvas = document.createElement('canvas');
             const tileCtx = tileCanvas.getContext('2d');
 
-            for (let r = 0; r < state.rows; r++) {
-                for (let c = 0; c < state.cols; c++) {
+            for (let r = 0; r < layout.rows; r++) {
+                for (let c = 0; c < layout.cols; c++) {
                     if (pageCount > 0) doc.addPage();
 
                     // Bu sayfanın mm cinsinden kapladığı gerçek poster alanı
@@ -1057,18 +1202,14 @@
                     const sliceHmm = Math.min(printableH, totalHeightMm - sliceYmm);
 
                     if (sliceWmm > 0 && sliceHmm > 0) {
-                        // Ana tuvaldeki piksel karşılığı
-                        const sx = (sliceXmm / totalWidthMm) * masterW;
-                        const sy = (sliceYmm / totalHeightMm) * masterH;
-                        const sw = (sliceWmm / totalWidthMm) * masterW;
-                        const sh = (sliceHmm / totalHeightMm) * masterH;
+                        // Her sayfa kendi fiziksel ölçüsünde ve hesaplanan efektif DPI'da çizilir.
+                        tileCanvas.width = Math.max(1, Math.round(sliceWmm / 25.4 * pageDpi));
+                        tileCanvas.height = Math.max(1, Math.round(sliceHmm / 25.4 * pageDpi));
+                        if (tileCanvas.width * tileCanvas.height > 16000000) throw new Error('Sayfa belleği sınırını aştı.');
+                        drawProcessedTile(tileCtx, tileCanvas.width, tileCanvas.height, layout,
+                            sliceXmm, sliceYmm, sliceWmm, sliceHmm, pageDpi);
 
-                        tileCanvas.width = Math.max(1, Math.round(sw));
-                        tileCanvas.height = Math.max(1, Math.round(sh));
-                        tileCtx.clearRect(0, 0, tileCanvas.width, tileCanvas.height);
-                        tileCtx.drawImage(masterCanvas, sx, sy, sw, sh, 0, 0, tileCanvas.width, tileCanvas.height);
-
-                        const tileDataUrl = tileCanvas.toDataURL('image/jpeg', 0.92);
+                        const tileDataUrl = tileCanvas.toDataURL('image/jpeg', 0.96);
                         doc.addImage(tileDataUrl, 'JPEG', margin, margin, sliceWmm, sliceHmm);
                     }
 
@@ -1097,7 +1238,7 @@
                         doc.setFontSize(8);
                         doc.setTextColor(120, 120, 120);
                         doc.text(
-                            `PosterForge | Satır ${r + 1}/${state.rows} — Sütun ${c + 1}/${state.cols} (Sayfa ${pageCount + 1}/${totalPages})`,
+                            `PosterForge | Satır ${r + 1}/${layout.rows} — Sütun ${c + 1}/${layout.cols} (Sayfa ${pageCount + 1}/${totalPages})`,
                             margin,
                             pageH - Math.max(3, margin / 2)
                         );
@@ -1113,15 +1254,15 @@
                 }
             }
 
-            doc.save(`PosterForge-${state.cols}x${state.rows}-${state.paper}.pdf`);
+            doc.save(`PosterForge-${layout.cols}x${layout.rows}-${state.paper}-${requestedDpi}dpi.pdf`);
             modal.classList.add('hidden');
             progressEl.style.width = '0%';
-            showToast(`${totalPages} sayfalık PDF hazırlandı. Bindirme: ${state.overlapMm} mm.`);
+            showToast(`${totalPages} sayfalık PDF hazırlandı · efektif yaklaşık ${effectiveDpi.toFixed(0)} DPI · bindirme ${state.overlapMm} mm.`);
             } catch (error) {
                 console.error('PosterForge PDF export error:', error);
                 modal.classList.add('hidden');
                 progressEl.style.width = '0%';
-                showToast('PDF oluşturulurken hata oluştu. Daha küçük görsel veya daha az sayfa deneyin.');
+                showToast(error && error.message && error.message.includes('500 sınırını') ? error.message : 'PDF oluşturulurken hata oluştu. Daha küçük görsel veya daha az sayfa deneyin.');
             }
         });
 
@@ -1199,6 +1340,7 @@
                 btn.classList.remove('border-zinc-800', 'bg-studio-800/50', 'text-zinc-300');
 
                 state.paper = btn.dataset.paper;
+                syncControlValues();
                 updateLayoutMetrics();
                 renderPreview();
             });
@@ -1254,6 +1396,8 @@
         // Slider ve Checkbox Olayları
         document.getElementById('inputCols').addEventListener('input', (e) => {
             recordHistory();
+            state.targetWidthCm = '';
+            const targetWidthEl = document.getElementById('targetWidthCm'); if (targetWidthEl) targetWidthEl.value = '';
             state.cols = parseInt(e.target.value, 10);
             document.getElementById('valCols').textContent = `${state.cols} Sayfa`;
             updateLayoutMetrics();
@@ -1274,6 +1418,23 @@
             document.getElementById('valOverlap').textContent = `${state.overlapMm} mm`;
             updateLayoutMetrics(); renderPreview();
         });
+
+        ['customPaperW','customPaperH','targetWidthCm','outputDpi'].forEach(id => {
+            const el = document.getElementById(id);
+            el.addEventListener('change', () => {
+                recordHistory();
+                if (id === 'customPaperW') state.customPaperW = Math.max(80, Math.min(1000, Number(el.value) || 210));
+                if (id === 'customPaperH') state.customPaperH = Math.max(80, Math.min(1000, Number(el.value) || 297));
+                if (id === 'targetWidthCm') state.targetWidthCm = el.value === '' ? '' : Math.max(5, Math.min(450, Number(el.value) || 5));
+                if (id === 'outputDpi') state.outputDpi = Number(el.value) || 300;
+                updateLayoutMetrics(); renderPreview(); syncControlValues();
+            });
+        });
+        document.getElementById('rasterShape').addEventListener('change', e => { recordHistory(); state.rasterShape = e.target.value; renderPreview(); });
+        document.getElementById('dotMinScale').addEventListener('input', e => { state.dotMinScale = Math.min(0.6, Number(e.target.value)/100); document.getElementById('valDotMin').textContent = `%${e.target.value}`; renderPreview(); });
+        document.getElementById('dotMinScale').addEventListener('change', recordHistory);
+        document.getElementById('rasterAngle').addEventListener('input', e => { state.rasterAngle = Number(e.target.value); document.getElementById('valRasterAngle').textContent = `${state.rasterAngle}°`; renderPreview(); });
+        document.getElementById('rasterAngle').addEventListener('change', recordHistory);
 
         document.getElementById('inputDotSize').addEventListener('input', (e) => {
             recordHistory();
