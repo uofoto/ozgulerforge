@@ -110,6 +110,13 @@
 
         <!-- Sağ Aksiyon Butonları -->
         <div class="flex items-center gap-2">
+            <div class="hidden sm:flex items-center gap-1 mr-1 border-r border-zinc-700 pr-2">
+                <button id="btnUndo" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 disabled:opacity-30" title="Geri al" disabled>↶</button>
+                <button id="btnRedo" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300 disabled:opacity-30" title="Yinele" disabled>↷</button>
+                <button id="btnSaveProject" class="px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300" title="Projeyi JSON olarak kaydet">Kaydet</button>
+                <label for="projectInput" class="cursor-pointer px-2 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs text-zinc-300" title="Proje dosyası aç">Aç</label>
+                <input type="file" id="projectInput" accept=".posterforge,.json,application/json" class="hidden">
+            </div>
             <label for="fileInput" class="cursor-pointer px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-medium text-zinc-200 transition flex items-center gap-1.5 border border-zinc-700/60">
                 <i data-lucide="image-plus" class="w-3.5 h-3.5 text-indigo-400"></i>
                 <span>Görsel Yükle</span>
@@ -196,13 +203,23 @@
                 <!-- Kenar Boşluğu / Bindirme Payı (Overlap) -->
                 <div class="bg-studio-800/40 p-3.5 rounded-xl border border-zinc-800/80 space-y-3">
                     <div class="flex justify-between items-center">
-                        <label class="text-xs font-semibold text-zinc-200">Yapıştırma / Kesim Payı (mm)</label>
+                        <label class="text-xs font-semibold text-zinc-200">Yazdırılamayan Kenar Boşluğu (mm)</label>
                         <span id="valMargin" class="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">10 mm</span>
                     </div>
                     <input type="range" id="inputMargin" min="0" max="25" value="10" class="w-full">
                     <p class="text-[11px] text-zinc-400 leading-relaxed">
-                        Ev yazıcıları kenarlarda beyaz boşluk bırakır. Kesim çizgileri ve koordinat etiketleri otomatik eklenir.
+                        Her sayfanın yazıcı tarafından basılamayan kenar alanıdır. Poster ölçüsüne dahil edilmez.
                     </p>
+                </div>
+
+                <!-- Gerçek sayfa bindirmesi -->
+                <div class="bg-studio-800/40 p-3.5 rounded-xl border border-zinc-800/80 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold text-zinc-200">Sayfa Bindirmesi (mm)</label>
+                        <span id="valOverlap" class="text-xs font-mono font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">5 mm</span>
+                    </div>
+                    <input type="range" id="inputOverlap" min="0" max="20" value="5" class="w-full">
+                    <p class="text-[11px] text-zinc-400 leading-relaxed">Komşu sayfaların üst üste basılacak ortak alanı. Birleştirmeyi kolaylaştırır; toplam poster ölçüsünü etkiler.</p>
                 </div>
 
                 <!-- Özet Kartı -->
@@ -265,12 +282,36 @@
                             <span class="text-[10px] text-zinc-400 block mt-0.5">Değişken Kalınlıkta Hat</span>
                         </button>
 
+                        <button class="style-btn p-2.5 rounded-xl border border-zinc-800 bg-studio-800/50 hover:border-zinc-700 text-left transition" data-style="vintage">
+                            <div class="text-xs font-semibold text-zinc-200">Vintage Film</div>
+                            <span class="text-[10px] text-zinc-400 block mt-0.5">Sıcak analog ton</span>
+                        </button>
+                        <button class="style-btn p-2.5 rounded-xl border border-zinc-800 bg-studio-800/50 hover:border-zinc-700 text-left transition" data-style="grayscale">
+                            <div class="text-xs font-semibold text-zinc-200">Siyah-Beyaz</div>
+                            <span class="text-[10px] text-zinc-400 block mt-0.5">Monokrom fotoğraf</span>
+                        </button>
+                        <button class="style-btn p-2.5 rounded-xl border border-zinc-800 bg-studio-800/50 hover:border-zinc-700 text-left transition" data-style="duotone">
+                            <div class="text-xs font-semibold text-zinc-200">Duotone</div>
+                            <span class="text-[10px] text-zinc-400 block mt-0.5">İki tonlu renk efekti</span>
+                        </button>
+
                         <button class="style-btn p-2.5 rounded-xl border border-zinc-800 bg-studio-800/50 hover:border-zinc-700 text-left transition" data-style="original">
                             <div class="text-xs font-semibold text-zinc-200 flex items-center gap-1.5">
                                 <i data-lucide="image" class="w-3 h-3 text-amber-400"></i> HD Fotoğraf
                             </div>
                             <span class="text-[10px] text-zinc-400 block mt-0.5">Noktasız Tam Kalite</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- Tek tıkla baskı ve efekt ön ayarları -->
+                <div class="bg-studio-800/40 p-3.5 rounded-xl border border-zinc-800/80 space-y-2">
+                    <label class="text-xs font-semibold text-zinc-200 block">Hazır Tasarım Ayarları</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button class="preset-btn text-xs p-2 rounded-lg border border-zinc-700 bg-studio-950/60 hover:border-indigo-500" data-preset="fine">İnce Detay</button>
+                        <button class="preset-btn text-xs p-2 rounded-lg border border-zinc-700 bg-studio-950/60 hover:border-indigo-500" data-preset="bold">Kalın Pop-Art</button>
+                        <button class="preset-btn text-xs p-2 rounded-lg border border-zinc-700 bg-studio-950/60 hover:border-indigo-500" data-preset="vintage">Vintage Baskı</button>
+                        <button class="preset-btn text-xs p-2 rounded-lg border border-zinc-700 bg-studio-950/60 hover:border-indigo-500" data-preset="mono">Monokrom</button>
                     </div>
                 </div>
 
@@ -428,8 +469,8 @@
     </div>
 
     <script>
-        // İkonları Başlat
-        lucide.createIcons();
+        // İkon kütüphanesi yüklenmemiş olsa bile uygulama çalışmaya devam etsin.
+        if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
 
         // Kağıt Boyutları (mm cinsinden)
         const PAPER_SIZES = {
@@ -446,6 +487,7 @@
             cols: 4,
             rows: 4,
             marginMm: 10,
+            overlapMm: 5,
             style: 'halftone-color', // 'halftone-color' | 'halftone-mono' | 'cmyk' | 'squares' | 'lines' | 'original'
             dotSizeMm: 10,
             dotScale: 0.95,
@@ -463,6 +505,135 @@
         const canvas = document.getElementById('previewCanvas');
         const ctx = canvas.getContext('2d');
         const gridOverlay = document.getElementById('gridOverlay');
+
+
+        // Güvenli geçmiş: görsel referansını bellekte tutar, ayar değişikliklerini kaydeder.
+        const historyPast = [];
+        const historyFuture = [];
+        let historyLock = false;
+        function snapshotState() {
+            const snap = {};
+            Object.keys(state).forEach(k => snap[k] = state[k]);
+            return snap;
+        }
+        function syncHistoryButtons() {
+            const undo = document.getElementById('btnUndo');
+            const redo = document.getElementById('btnRedo');
+            if (undo) undo.disabled = historyPast.length === 0;
+            if (redo) redo.disabled = historyFuture.length === 0;
+        }
+        function recordHistory() {
+            if (historyLock) return;
+            historyPast.push(snapshotState());
+            if (historyPast.length > 60) historyPast.shift();
+            historyFuture.length = 0;
+            syncHistoryButtons();
+        }
+        function restoreSnapshot(snap) {
+            historyLock = true;
+            Object.keys(snap).forEach(k => state[k] = snap[k]);
+            syncControlValues();
+            updateLayoutMetrics();
+            renderPreview();
+            historyLock = false;
+            syncHistoryButtons();
+        }
+        function undoAction() {
+            if (!historyPast.length) return;
+            historyFuture.push(snapshotState());
+            restoreSnapshot(historyPast.pop());
+        }
+        function redoAction() {
+            if (!historyFuture.length) return;
+            historyPast.push(snapshotState());
+            restoreSnapshot(historyFuture.pop());
+        }
+        function syncControlValues() {
+            const values = {
+                inputCols: state.cols, inputMargin: state.marginMm, inputOverlap: state.overlapMm,
+                inputDotSize: state.dotSizeMm, inputDotScale: Math.round(state.dotScale * 100),
+                inputContrast: state.contrast, inputBrightness: state.brightness,
+                inputInkColor: state.inkColor, inputBgColor: state.bgColor,
+                chkCropMarks: state.cropMarks, chkPageLabels: state.pageLabels, chkShowGrid: state.showGrid
+            };
+            Object.entries(values).forEach(([id, value]) => {
+                const el = document.getElementById(id);
+                if (el) el.type === 'checkbox' ? el.checked = value : el.value = value;
+            });
+            const labels = {
+                valCols: `${state.cols} Sayfa`, valMargin: `${state.marginMm} mm`,
+                valOverlap: `${state.overlapMm} mm`, valDotSize: `${state.dotSizeMm} mm`,
+                valDotScale: `%${Math.round(state.dotScale * 100)}`,
+                valContrast: `${state.contrast >= 0 ? '+' : ''}${state.contrast}%`,
+                valBrightness: `${state.brightness >= 0 ? '+' : ''}${state.brightness}%`
+            };
+            Object.entries(labels).forEach(([id, value]) => {
+                const el = document.getElementById(id); if (el) el.textContent = value;
+            });
+            document.querySelectorAll('.paper-btn').forEach(b => b.classList.toggle('active', b.dataset.paper === state.paper));
+            document.querySelectorAll('.style-btn').forEach(b => {
+                const active = b.dataset.style === state.style;
+                b.classList.toggle('active', active);
+                b.classList.toggle('border-indigo-500', active);
+                b.classList.toggle('bg-indigo-500/10', active);
+                b.classList.toggle('border-zinc-800', !active);
+                b.classList.toggle('bg-studio-800/50', !active);
+            });
+            document.getElementById('dotControls').classList.toggle('hidden', ['original','vintage','grayscale','duotone'].includes(state.style));
+            document.getElementById('monoColorPicker').classList.toggle('hidden', !['halftone-mono','lines'].includes(state.style));
+        }
+        function getPrintLayout() {
+            const base = PAPER_SIZES[state.paper];
+            const pageW = state.orientation === 'portrait' ? base.w : base.h;
+            const pageH = state.orientation === 'portrait' ? base.h : base.w;
+            const printableW = Math.max(20, pageW - state.marginMm * 2);
+            const printableH = Math.max(20, pageH - state.marginMm * 2);
+            const stepW = Math.max(1, printableW - state.overlapMm);
+            const stepH = Math.max(1, printableH - state.overlapMm);
+            const totalWidthMm = printableW + (state.cols - 1) * stepW;
+            const totalHeightMm = totalWidthMm * (state.img ? state.img.height / state.img.width : 1);
+            const rows = Math.max(1, Math.ceil(Math.max(0, totalHeightMm - printableH) / stepH) + 1);
+            return { pageW, pageH, printableW, printableH, stepW, stepH, totalWidthMm, totalHeightMm, rows };
+        }
+        function saveProjectFile() {
+            if (!state.img) { showToast('Önce bir görsel yükleyin.'); return; }
+            try {
+                const imageCanvas = document.createElement('canvas');
+                imageCanvas.width = state.img.naturalWidth || state.img.width;
+                imageCanvas.height = state.img.naturalHeight || state.img.height;
+                imageCanvas.getContext('2d').drawImage(state.img, 0, 0);
+                const project = { app: 'PosterForge Studio', version: 2, savedAt: new Date().toISOString(),
+                    settings: Object.fromEntries(Object.entries(state).filter(([k]) => k !== 'img' && k !== 'peekingOriginal')),
+                    imageData: imageCanvas.toDataURL('image/png') };
+                const blob = new Blob([JSON.stringify(project)], {type:'application/json'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a'); a.href = url; a.download = 'posterforge-proje.posterforge'; a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+                showToast('Proje dosyası kaydedildi.');
+            } catch (err) { console.error(err); showToast('Proje kaydedilemedi. Görsel çok büyük olabilir.'); }
+        }
+        function openProjectFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onerror = () => showToast('Proje dosyası okunamadı.');
+            reader.onload = () => {
+                try {
+                    const project = JSON.parse(reader.result);
+                    if (project.app !== 'PosterForge Studio' || !project.imageData || !project.settings) throw new Error('Geçersiz proje');
+                    const img = new Image();
+                    img.onload = () => {
+                        recordHistory();
+                        Object.entries(project.settings).forEach(([k,v]) => { if (k in state && k !== 'img') state[k] = v; });
+                        state.img = img; state.peekingOriginal = false;
+                        syncControlValues(); updateLayoutMetrics(); renderPreview();
+                        showToast('PosterForge projesi açıldı.');
+                    };
+                    img.onerror = () => showToast('Proje görseli açılamadı.');
+                    img.src = project.imageData;
+                } catch (err) { console.error(err); showToast('Geçersiz veya bozuk proje dosyası.'); }
+            };
+            reader.readAsText(file);
+        }
 
         // Bildirim Gösterici (Alert Yerine)
         function showToast(msg) {
@@ -594,26 +765,11 @@
         // Kağıt ve Poster Ölçülerini Hesapla
         function updateLayoutMetrics() {
             if (!state.img) return;
-
-            const basePaper = PAPER_SIZES[state.paper];
-            const pageW = state.orientation === 'portrait' ? basePaper.w : basePaper.h;
-            const pageH = state.orientation === 'portrait' ? basePaper.h : basePaper.w;
-
-            // Yazdırılabilir net alan (mm)
-            const printableW = Math.max(20, pageW - state.marginMm * 2);
-            const printableH = Math.max(20, pageH - state.marginMm * 2);
-
-            const totalWidthMm = printableW * state.cols;
-            const aspectRatio = state.img.height / state.img.width;
-            const totalHeightMm = totalWidthMm * aspectRatio;
-
-            state.rows = Math.max(1, Math.ceil(totalHeightMm / printableH));
+            const layout = getPrintLayout();
+            state.rows = layout.rows;
             const totalPages = state.cols * state.rows;
-
-            // Arayüz Rozetlerini Güncelle
-            const widthCm = (totalWidthMm / 10).toFixed(1);
-            const heightCm = (totalHeightMm / 10).toFixed(1);
-
+            const widthCm = (layout.totalWidthMm / 10).toFixed(1);
+            const heightCm = (layout.totalHeightMm / 10).toFixed(1);
             document.getElementById('badgeDimensions').textContent = `${widthCm} × ${heightCm} cm`;
             document.getElementById('badgePages').textContent = `${totalPages} Sayfa (${state.cols}×${state.rows} ${state.paper})`;
             document.getElementById('summarySize').textContent = `${widthCm} × ${heightCm} cm`;
@@ -638,14 +794,34 @@
                 return;
             }
 
+            // Fotoğraf tabanlı hızlı efektler
+            if (['vintage', 'grayscale', 'duotone'].includes(state.style)) {
+                targetCtx.save();
+                const effect = state.style === 'vintage' ? 'sepia(0.72) saturate(0.82) contrast(1.08)' :
+                    state.style === 'grayscale' ? 'grayscale(1) contrast(1.12)' :
+                    'grayscale(1) sepia(1) hue-rotate(165deg) saturate(1.8) contrast(1.08)';
+                targetCtx.filter = `${effect} ${filterStr}`;
+                targetCtx.drawImage(state.img, 0, 0, widthPx, heightPx);
+                targetCtx.restore();
+                return;
+            }
+
             // Zemin Rengini Doldur
             targetCtx.fillStyle = (state.style === 'halftone-mono' || state.style === 'lines') ? state.bgColor : '#ffffff';
             targetCtx.fillRect(0, 0, widthPx, heightPx);
 
             // Nokta/Hücre Sayısını Fiziksel Boyuta (mm) Göre Hesapla
-            const cellsX = Math.max(10, Math.round(totalWidthMm / state.dotSizeMm));
-            const cellSizePx = widthPx / cellsX;
-            const cellsY = Math.max(10, Math.round(heightPx / cellSizePx));
+            let cellsX = Math.max(10, Math.round(totalWidthMm / state.dotSizeMm));
+            let cellSizePx = widthPx / cellsX;
+            let cellsY = Math.max(10, Math.round(heightPx / cellSizePx));
+            // Çok büyük mural dosyalarında örnekleme maliyetini ve donma riskini sınırla.
+            const maxSampleCells = 1800000;
+            if (cellsX * cellsY > maxSampleCells) {
+                const scale = Math.sqrt(maxSampleCells / (cellsX * cellsY));
+                cellsX = Math.max(10, Math.floor(cellsX * scale));
+                cellSizePx = widthPx / cellsX;
+                cellsY = Math.max(10, Math.floor(heightPx / cellSizePx));
+            }
 
             // Kaynak Görseli Küçük Izgara Boyutunda Örnekle (Hızlı Piksel Okuma)
             const sampleCanvas = document.createElement('canvas');
@@ -738,15 +914,9 @@
         function renderPreview() {
             if (!state.img) return;
 
-            const basePaper = PAPER_SIZES[state.paper];
-            const pageW = state.orientation === 'portrait' ? basePaper.w : basePaper.h;
-            const pageH = state.orientation === 'portrait' ? basePaper.h : basePaper.w;
-            const printableW = Math.max(20, pageW - state.marginMm * 2);
-            const printableH = Math.max(20, pageH - state.marginMm * 2);
-
-            const totalWidthMm = printableW * state.cols;
+            const layout = getPrintLayout();
+            const { totalWidthMm, totalHeightMm, printableW, printableH, stepW, stepH } = layout;
             const aspectRatio = state.img.height / state.img.width;
-            const totalHeightMm = totalWidthMm * aspectRatio;
 
             // Önizleme Tuval Boyutu (Hızlı ve Keskin Render için)
             const previewW = 1000;
@@ -758,11 +928,11 @@
             drawProcessedArtwork(ctx, previewW, previewH, totalWidthMm);
 
             // Sayfa Bölme Izgarasını Güncelle
-            updateGridOverlay(totalWidthMm, totalHeightMm, printableW, printableH);
+            updateGridOverlay(totalWidthMm, totalHeightMm, stepW, stepH, printableW, printableH);
         }
 
         // HTML Üzerindeki Keskin Kağıt Sınır Çizgilerini Çiz
-        function updateGridOverlay(totalW, totalH, pageW, pageH) {
+        function updateGridOverlay(totalW, totalH, stepW, stepH, printableW, printableH) {
             gridOverlay.innerHTML = '';
             if (!state.showGrid) {
                 gridOverlay.style.display = 'none';
@@ -773,10 +943,10 @@
 
             for (let r = 0; r < state.rows; r++) {
                 for (let c = 0; c < state.cols; c++) {
-                    const leftPct = ((c * pageW) / totalW) * 100;
-                    const topPct = ((r * pageH) / totalH) * 100;
-                    const widthPct = Math.min(100 - leftPct, (pageW / totalW) * 100);
-                    const heightPct = Math.min(100 - topPct, (pageH / totalH) * 100);
+                    const leftPct = ((c * stepW) / totalW) * 100;
+                    const topPct = ((r * stepH) / totalH) * 100;
+                    const widthPct = Math.min(100 - leftPct, (printableW / totalW) * 100);
+                    const heightPct = Math.min(100 - topPct, (printableH / totalH) * 100);
 
                     const cell = document.createElement('div');
                     cell.style.position = 'absolute';
@@ -797,59 +967,68 @@
         }
 
         // Tek Parça Yüksek Çözünürlüklü PNG İndir
-        document.getElementById('btnExportPNG').addEventListener('click', () => {
-            if (!state.img) return;
-            const basePaper = PAPER_SIZES[state.paper];
-            const pageW = state.orientation === 'portrait' ? basePaper.w : basePaper.h;
-            const printableW = Math.max(20, pageW - state.marginMm * 2);
-            const totalWidthMm = printableW * state.cols;
-            const aspectRatio = state.img.height / state.img.width;
-
+        document.getElementById('btnExportPNG').addEventListener('click', async () => {
+            if (!state.img) { showToast('Önce bir görsel yükleyin.'); return; }
+            const layout = getPrintLayout();
+            const ratio = state.img.height / state.img.width;
+            let exportW = Math.max(1200, Math.round(layout.totalWidthMm / 25.4 * 300));
+            exportW = Math.min(8000, exportW);
+            let exportH = Math.round(exportW * ratio);
+            if (exportH > 8000) { exportW = Math.floor(exportW * 8000 / exportH); exportH = 8000; }
+            if (exportW * exportH > 24000000) {
+                const scale = Math.sqrt(24000000 / (exportW * exportH));
+                exportW = Math.max(1, Math.floor(exportW * scale));
+                exportH = Math.max(1, Math.floor(exportH * scale));
+            }
             const exportCanvas = document.createElement('canvas');
-            exportCanvas.width = 2400;
-            exportCanvas.height = Math.round(2400 * aspectRatio);
+            exportCanvas.width = Math.max(1, exportW);
+            exportCanvas.height = Math.max(1, exportH);
             const ectx = exportCanvas.getContext('2d');
-
-            drawProcessedArtwork(ectx, exportCanvas.width, exportCanvas.height, totalWidthMm);
-
-            const link = document.createElement('a');
-            link.download = `PosterForge-${state.cols}x${state.rows}-${state.style}.png`;
-            link.href = exportCanvas.toDataURL('image/png');
-            link.click();
-            showToast('Yüksek çözünürlüklü PNG dosyası indirildi!');
+            if (!ectx) { showToast('Tarayıcı dışa aktarma tuvalini oluşturamadı.'); return; }
+            drawProcessedArtwork(ectx, exportCanvas.width, exportCanvas.height, layout.totalWidthMm);
+            exportCanvas.toBlob(blob => {
+                if (!blob) { showToast('PNG oluşturulamadı. Daha düşük çözünürlük deneyin.'); return; }
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.download = `PosterForge-${state.cols}x${state.rows}-${state.style}.png`;
+                link.href = url; link.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1500);
+                showToast(`PNG hazırlandı (${exportW} × ${exportH} px).`);
+            }, 'image/png');
         });
 
         // Çok Sayfalı Baskıya Hazır PDF Üretimi
         document.getElementById('btnExportPDF').addEventListener('click', async () => {
-            if (!state.img) return;
+            if (!state.img) { showToast('Önce bir görsel yükleyin.'); return; }
+            if (!window.jspdf || !window.jspdf.jsPDF) { showToast('PDF kütüphanesi yüklenemedi. Sayfayı yenileyip tekrar deneyin.'); return; }
 
             const modal = document.getElementById('exportModal');
             const progressEl = document.getElementById('modalProgress');
             const percentEl = document.getElementById('modalPercent');
             modal.classList.remove('hidden');
 
-            // UI'ın modalı boyaması için kısa gecikme
+            // Modalın çizilmesine izin ver ve hata halinde kapanmasını garanti et.
             await new Promise(r => setTimeout(r, 60));
-
+            try {
             const { jsPDF } = window.jspdf;
-            const basePaper = PAPER_SIZES[state.paper];
-            const pageW = state.orientation === 'portrait' ? basePaper.w : basePaper.h;
-            const pageH = state.orientation === 'portrait' ? basePaper.h : basePaper.w;
+            const layout = getPrintLayout();
+            const { pageW, pageH, printableW, printableH, stepW, stepH, totalWidthMm, totalHeightMm } = layout;
             const margin = state.marginMm;
-            const printableW = Math.max(20, pageW - margin * 2);
-            const printableH = Math.max(20, pageH - margin * 2);
-
-            const totalWidthMm = printableW * state.cols;
             const aspectRatio = state.img.height / state.img.width;
-            const totalHeightMm = totalWidthMm * aspectRatio;
 
-            // Yüksek Çözünürlüklü Ana Tuval Oluştur (Sayfa başına ~1200px genişlik)
-            const masterW = Math.min(6000, state.cols * 1100);
-            const masterH = Math.round(masterW * aspectRatio);
+            // Yaklaşık 240 DPI hedefle; bellek sınırları için tuvali kontrollü sınırla.
+            let masterW = Math.min(8000, Math.max(1600, Math.round(totalWidthMm / 25.4 * 240)));
+            let masterH = Math.round(masterW * aspectRatio);
+            if (masterH > 8000) { masterW = Math.floor(masterW * 8000 / masterH); masterH = 8000; }
+            if (masterW * masterH > 30000000) {
+                const scale = Math.sqrt(30000000 / (masterW * masterH));
+                masterW = Math.floor(masterW * scale); masterH = Math.floor(masterH * scale);
+            }
             const masterCanvas = document.createElement('canvas');
             masterCanvas.width = masterW;
             masterCanvas.height = masterH;
             const mctx = masterCanvas.getContext('2d');
+            if (!mctx) throw new Error('Ana baskı tuvali oluşturulamadı.');
 
             drawProcessedArtwork(mctx, masterW, masterH, totalWidthMm);
 
@@ -872,8 +1051,8 @@
                     if (pageCount > 0) doc.addPage();
 
                     // Bu sayfanın mm cinsinden kapladığı gerçek poster alanı
-                    const sliceXmm = c * printableW;
-                    const sliceYmm = r * printableH;
+                    const sliceXmm = c * stepW;
+                    const sliceYmm = r * stepH;
                     const sliceWmm = Math.min(printableW, totalWidthMm - sliceXmm);
                     const sliceHmm = Math.min(printableH, totalHeightMm - sliceYmm);
 
@@ -937,7 +1116,13 @@
             doc.save(`PosterForge-${state.cols}x${state.rows}-${state.paper}.pdf`);
             modal.classList.add('hidden');
             progressEl.style.width = '0%';
-            showToast(`${totalPages} sayfalık baskıya hazır PDF başarıyla indirildi!`);
+            showToast(`${totalPages} sayfalık PDF hazırlandı. Bindirme: ${state.overlapMm} mm.`);
+            } catch (error) {
+                console.error('PosterForge PDF export error:', error);
+                modal.classList.add('hidden');
+                progressEl.style.width = '0%';
+                showToast('PDF oluşturulurken hata oluştu. Daha küçük görsel veya daha az sayfa deneyin.');
+            }
         });
 
         // Dosya Yükleme İşleyicisi
@@ -946,10 +1131,14 @@
                 showToast('Lütfen geçerli bir resim dosyası (JPG, PNG, WEBP) seçin.');
                 return;
             }
+            if (file.size > 40 * 1024 * 1024) { showToast('Dosya 40 MB sınırını aşıyor. Daha küçük bir görsel seçin.'); return; }
             const reader = new FileReader();
+            reader.onerror = () => showToast('Görsel dosyası okunamadı.');
             reader.onload = (e) => {
                 const img = new Image();
+                img.onerror = () => showToast('Görsel çözümlenemedi veya desteklenmiyor.');
                 img.onload = () => {
+                    recordHistory();
                     state.img = img;
                     updateLayoutMetrics();
                     renderPreview();
@@ -1001,6 +1190,7 @@
         // Kağıt Boyutu Seçimi
         document.querySelectorAll('.paper-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                recordHistory();
                 document.querySelectorAll('.paper-btn').forEach(b => {
                     b.classList.remove('active', 'border-indigo-500', 'bg-indigo-500/10', 'text-white');
                     b.classList.add('border-zinc-800', 'bg-studio-800/50', 'text-zinc-300');
@@ -1016,6 +1206,7 @@
 
         // Yön Seçimi
         document.getElementById('orientPortrait').addEventListener('click', (e) => {
+            recordHistory();
             state.orientation = 'portrait';
             document.getElementById('orientPortrait').classList.add('border-indigo-500', 'bg-indigo-500/10', 'text-white');
             document.getElementById('orientPortrait').classList.remove('border-zinc-800', 'bg-studio-800/50', 'text-zinc-300');
@@ -1026,6 +1217,7 @@
         });
 
         document.getElementById('orientLandscape').addEventListener('click', (e) => {
+            recordHistory();
             state.orientation = 'landscape';
             document.getElementById('orientLandscape').classList.add('border-indigo-500', 'bg-indigo-500/10', 'text-white');
             document.getElementById('orientLandscape').classList.remove('border-zinc-800', 'bg-studio-800/50', 'text-zinc-300');
@@ -1038,6 +1230,7 @@
         // Stil Seçimi
         document.querySelectorAll('.style-btn').forEach(btn => {
             btn.addEventListener('click', () => {
+                recordHistory();
                 document.querySelectorAll('.style-btn').forEach(b => {
                     b.classList.remove('active', 'border-indigo-500', 'bg-indigo-500/10');
                     b.classList.add('border-zinc-800', 'bg-studio-800/50');
@@ -1051,7 +1244,7 @@
                 const dotControls = document.getElementById('dotControls');
                 const monoPicker = document.getElementById('monoColorPicker');
 
-                dotControls.classList.toggle('hidden', state.style === 'original');
+                dotControls.classList.toggle('hidden', ['original','vintage','grayscale','duotone'].includes(state.style));
                 monoPicker.classList.toggle('hidden', !(state.style === 'halftone-mono' || state.style === 'lines'));
 
                 renderPreview();
@@ -1060,6 +1253,7 @@
 
         // Slider ve Checkbox Olayları
         document.getElementById('inputCols').addEventListener('input', (e) => {
+            recordHistory();
             state.cols = parseInt(e.target.value, 10);
             document.getElementById('valCols').textContent = `${state.cols} Sayfa`;
             updateLayoutMetrics();
@@ -1067,19 +1261,29 @@
         });
 
         document.getElementById('inputMargin').addEventListener('input', (e) => {
+            recordHistory();
             state.marginMm = parseInt(e.target.value, 10);
             document.getElementById('valMargin').textContent = `${state.marginMm} mm`;
             updateLayoutMetrics();
             renderPreview();
         });
 
+        document.getElementById('inputOverlap').addEventListener('input', (e) => {
+            recordHistory();
+            state.overlapMm = Math.min(20, Math.max(0, parseInt(e.target.value, 10) || 0));
+            document.getElementById('valOverlap').textContent = `${state.overlapMm} mm`;
+            updateLayoutMetrics(); renderPreview();
+        });
+
         document.getElementById('inputDotSize').addEventListener('input', (e) => {
+            recordHistory();
             state.dotSizeMm = parseInt(e.target.value, 10);
             document.getElementById('valDotSize').textContent = `${state.dotSizeMm} mm`;
             renderPreview();
         });
 
         document.getElementById('inputDotScale').addEventListener('input', (e) => {
+            recordHistory();
             const val = parseInt(e.target.value, 10);
             state.dotScale = val / 100;
             document.getElementById('valDotScale').textContent = `%${val}`;
@@ -1087,37 +1291,64 @@
         });
 
         document.getElementById('inputInkColor').addEventListener('input', (e) => {
+            recordHistory();
             state.inkColor = e.target.value;
             renderPreview();
         });
 
         document.getElementById('inputBgColor').addEventListener('input', (e) => {
+            recordHistory();
             state.bgColor = e.target.value;
             renderPreview();
         });
 
         document.getElementById('inputContrast').addEventListener('input', (e) => {
+            recordHistory();
             state.contrast = parseInt(e.target.value, 10);
             document.getElementById('valContrast').textContent = `${state.contrast >= 0 ? '+' : ''}${state.contrast}%`;
             renderPreview();
         });
 
         document.getElementById('inputBrightness').addEventListener('input', (e) => {
+            recordHistory();
             state.brightness = parseInt(e.target.value, 10);
             document.getElementById('valBrightness').textContent = `${state.brightness >= 0 ? '+' : ''}${state.brightness}%`;
             renderPreview();
         });
 
-        document.getElementById('chkCropMarks').addEventListener('change', (e) => state.cropMarks = e.target.checked);
-        document.getElementById('chkPageLabels').addEventListener('change', (e) => state.pageLabels = e.target.checked);
+        document.getElementById('chkCropMarks').addEventListener('change', (e) => { recordHistory(); state.cropMarks = e.target.checked; });
+        document.getElementById('chkPageLabels').addEventListener('change', (e) => { recordHistory(); state.pageLabels = e.target.checked; });
         document.getElementById('chkShowGrid').addEventListener('change', (e) => {
+            recordHistory();
             state.showGrid = e.target.checked;
             renderPreview();
         });
 
         // Örnek Görsel Butonları
         document.querySelectorAll('.sample-btn').forEach(btn => {
-            btn.addEventListener('click', () => generateSampleImage(btn.dataset.sample));
+            btn.addEventListener('click', () => { recordHistory(); generateSampleImage(btn.dataset.sample); });
+        });
+
+
+        // Hazır ayarlar: baskı amacına göre tutarlı başlangıç değerleri.
+        document.querySelectorAll('.preset-btn').forEach(btn => btn.addEventListener('click', () => {
+            recordHistory();
+            const presets = {
+                fine: { style:'halftone-color', dotSizeMm:5, dotScale:0.78, contrast:8, brightness:2 },
+                bold: { style:'halftone-color', dotSizeMm:16, dotScale:1.12, contrast:28, brightness:0 },
+                vintage: { style:'vintage', dotSizeMm:10, dotScale:0.95, contrast:12, brightness:3 },
+                mono: { style:'halftone-mono', dotSizeMm:8, dotScale:0.9, contrast:35, brightness:0 }
+            };
+            Object.assign(state, presets[btn.dataset.preset] || {});
+            syncControlValues(); updateLayoutMetrics(); renderPreview();
+        }));
+
+        document.getElementById('btnUndo').addEventListener('click', undoAction);
+        document.getElementById('btnRedo').addEventListener('click', redoAction);
+        document.getElementById('btnSaveProject').addEventListener('click', saveProjectFile);
+        document.getElementById('projectInput').addEventListener('change', e => {
+            if (e.target.files[0]) openProjectFile(e.target.files[0]);
+            e.target.value = '';
         });
 
         // Orijinali Gör (Basılı Tut)
@@ -1131,8 +1362,20 @@
         btnOriginal.addEventListener('touchstart', (e) => { e.preventDefault(); startPeek(); });
         btnOriginal.addEventListener('touchend', endPeek);
 
+        document.addEventListener('keydown', e => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+                e.preventDefault(); e.shiftKey ? redoAction() : undoAction();
+            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+                e.preventDefault(); redoAction();
+            } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault(); saveProjectFile();
+            }
+        });
+
         // Başlangıçta Örnek Kompozisyonu Yükle
         window.onload = () => {
+            syncControlValues();
+            syncHistoryButtons();
             generateSampleImage('geometric');
         };
     </script>
