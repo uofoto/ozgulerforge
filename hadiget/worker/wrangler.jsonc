@@ -1,5 +1,5 @@
 {
-  // Cloudflare'de zaten oluşturduğun Worker'ın adı. Aynı kalmalı.
+  // Cloudflare'de zaten oluşturduğun Worker'ın adı. Aynı kalmalı. 
   "name": "hadigit",
   "main": "src/index.js",
   "compatibility_date": "2025-01-01",
