@@ -1,0 +1,13 @@
+{
+  "name": "hadiget-eslestirme",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "test": "node test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}
