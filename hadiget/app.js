@@ -5,6 +5,8 @@ import { parseCode } from './signal.js';
 import { Discovery } from './discover.js';
 
 const $ = (s) => document.querySelector(s);
+
+document.querySelectorAll('[data-version]').forEach((e) => (e.textContent = 'sürüm ' + (self.APP_VERSION || '')));
 const VIEWS = ['home', 'ask', 'wait', 'host', 'join', 'live'];
 
 let peer = null;
@@ -323,10 +325,6 @@ $('#ask-yes').onclick = async () => {
 };
 
 // Kodla bağlan: aynı 6 haneli kodu giren cihazlar aynı odaya düşer.
-$('#btn-code').onclick = () => {
-  const p = $('#code-panel');
-  p.hidden = !p.hidden;
-};
 
 function joinRoom(code) {
   roomCode = code;

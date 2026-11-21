@@ -1,7 +1,8 @@
 // Uygulama kabuğunu önbelleğe alır; ilk yüklemeden sonra internet olmadan da
 // açılır (aynı Wi-Fi ağında internet olmasa bile aktarım çalışır).
-// Sürüm değişince VERSION'ı artırın.
-const VERSION = 'hadiget-v3';
+// Yayında değişiklik yaparsanız version.js içindeki sürümü artırın.
+importScripts('version.js'); // sürüm numarası tek yerde: version.js
+const VERSION = 'hadiget-v' + self.APP_VERSION;
 const ASSETS = [
   './',
   'index.html',
@@ -9,6 +10,7 @@ const ASSETS = [
   'gizlilik.html',
   'kosullar.html',
   'style.css',
+  'version.js',
   'app.js',
   'peer.js',
   'signal.js',

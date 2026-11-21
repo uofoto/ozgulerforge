@@ -10,6 +10,7 @@
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <link rel="stylesheet" href="style.css">
+  <script src="version.js"></script>
 </head>
 <body>
   <header>
@@ -19,7 +20,7 @@
         <span class="word"><span class="w1">hadi</span><span class="w2">GET</span></span>
       </a>
     </h1>
-    <p class="tag">Telefonunla bilgisayarın arasında dosya aktar. Dosyalar sunucuya yüklenmez, hesap yok.</p>
+    <p class="tag">Telefon ile bilgisayar arasında dosya aktar.</p>
   </header>
 
   <main>
@@ -32,43 +33,57 @@
         <p id="me-name" class="hint"></p>
       </div>
 
-      <button id="btn-code" class="link">Cihaz görünmüyor mu? Kodla bağlan</button>
-      <div id="code-panel" class="card" hidden>
-        <h2>Kodla bağlan</h2>
-        <p class="hint">İki cihaz aynı 6 haneli kodu girince birbirini görür. Farklı ağlardaki cihazlar için de çalışır.</p>
-        <button id="code-new">Yeni kod oluştur</button>
-        <input id="code-input" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="veya diğer cihazdaki kodu yaz" aria-label="6 haneli kod">
-        <button id="code-go" class="primary">Odaya gir</button>
-        <p id="code-room" class="status" hidden></p>
-        <button id="code-leave" class="link" hidden>Koddan çık</button>
-        <p class="hint">Kodla bağlanırken farklı ağlar için Google STUN sunucusu kullanılır.</p>
+      <!-- Tıkla-aç satırlar: aynı anda yalnızca biri açık kalır -->
+      <div class="acc-group">
+        <details class="acc" name="home-acc">
+          <summary>Nasıl kullanılır?</summary>
+          <div class="acc-body">
+            <ol>
+              <li>İki cihazda da hadiGET'i aç (aynı Wi-Fi'da olsunlar).</li>
+              <li>Diğer cihaz yukarıdaki listede görünür; ona dokun.</li>
+              <li>Diğer cihazda <b>Kabul et</b>'e bas. Bağlandınız.</li>
+              <li>Dosya seç, sürükle bırak ya da metin gönder.</li>
+            </ol>
+            <p>Cihaz görünmüyorsa <b>Kodla bağlan</b>'ı dene.</p>
+            <p><a href="nasil-kullanilir.html" target="_blank" rel="noopener">Ayrıntılı kılavuz →</a></p>
+          </div>
+        </details>
+
+        <details class="acc" id="code-details" name="home-acc">
+          <summary id="btn-code">Kodla bağlan</summary>
+          <div id="code-panel" class="acc-body">
+            <p class="hint">Cihaz görünmüyorsa: iki cihaz aynı 6 haneli kodu girince birbirini görür. Farklı ağlardaki cihazlar için de çalışır.</p>
+            <button id="code-new">Yeni kod oluştur</button>
+            <input id="code-input" inputmode="numeric" maxlength="6" autocomplete="off" placeholder="veya diğer cihazdaki kodu yaz" aria-label="6 haneli kod">
+            <button id="code-go" class="primary">Odaya gir</button>
+            <p id="code-room" class="status" hidden></p>
+            <button id="code-leave" class="link" hidden>Koddan çık</button>
+            <p class="hint">Kodla bağlanırken farklı ağlar için Google STUN sunucusu kullanılır.</p>
+          </div>
+        </details>
+
+        <details class="acc" id="qr-mode" name="home-acc">
+          <summary>QR ile bağlan</summary>
+          <div class="acc-body">
+            <p class="hint">Eşleştirme sunucusu olmadan, internet yokken de çalışır. Bir cihazda <b>başlat</b>, diğerinde <b>katıl</b> seç; iki QR kod okutulur.</p>
+            <button id="btn-host">Bağlantı başlat</button>
+            <button id="btn-join">Bağlantıya katıl</button>
+          </div>
+        </details>
+
+        <details class="acc" name="home-acc">
+          <summary>Ayarlar</summary>
+          <div class="acc-body">
+            <label class="check">
+              <input type="checkbox" id="opt-stun">
+              <span>Farklı ağlardayız (Google STUN sunucusuna başvurur)</span>
+            </label>
+          </div>
+        </details>
       </div>
 
-      <div class="card">
-        <h2>Nasıl kullanılır?</h2>
-        <ol>
-          <li>İki cihazda da hadiGET'i aç (aynı Wi-Fi'da olsunlar).</li>
-          <li>Diğer cihaz yukarıdaki listede görünür; ona dokun.</li>
-          <li>Diğer cihazda <b>Kabul et</b>'e bas. Bağlandınız.</li>
-          <li>Dosya seç, sürükle bırak ya da metin gönder.</li>
-        </ol>
-        <p>Cihaz görünmüyorsa <b>Kodla bağlan</b>'ı dene. <a href="nasil-kullanilir.html" target="_blank" rel="noopener">Ayrıntılı kılavuz →</a></p>
-      </div>
-
-      <details id="qr-mode">
-        <summary>QR ile bağlan (eşleştirme sunucusu olmadan)</summary>
-        <p class="hint">Yukarıdaki yöntem çalışmazsa ya da internet yoksa kullan. Bir cihazda <b>başlat</b>, diğerinde <b>katıl</b> seç; iki QR kod okutulur.</p>
-        <button id="btn-host">Bağlantı başlat</button>
-        <button id="btn-join">Bağlantıya katıl</button>
-      </details>
-
-      <button id="btn-install" hidden>Ana ekrana ekle</button>
+      <button id="btn-install" class="link" hidden>Ana ekrana ekle</button>
       <p id="ios-hint" class="hint" hidden>Yüklemek için Safari'de <b>Paylaş</b> ▸ <b>Ana Ekrana Ekle</b>'ye dokun.</p>
-
-      <label class="check">
-        <input type="checkbox" id="opt-stun">
-        <span>Farklı ağlardayız (Google STUN sunucusuna başvurur)</span>
-      </label>
     </section>
 
     <!-- 1b. Gelen istek -->
@@ -150,12 +165,11 @@
   <!-- Bağlantılar yeni sekmede açılır; aksi halde etkin bağlantı kopar. -->
   <footer>
     <nav aria-label="Alt bağlantılar">
-      <a href="nasil-kullanilir.html" target="_blank" rel="noopener">Nasıl kullanılır</a>
       <a href="gizlilik.html" target="_blank" rel="noopener">Gizlilik</a>
       <a href="kosullar.html" target="_blank" rel="noopener">Koşullar</a>
       <a href="mailto:iletisim@ozgulerforge.com.tr">İletişim</a>
     </nav>
-    <p>hadiGET, <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Özgüler Forge</a> tarafından geliştirilen açık kaynaklı (MIT) bir araçtır. Dosyalar cihazlarının dışına çıkmaz.</p>
+    <p class="ver">hadiGET <span data-version>sürüm</span> · <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Özgüler Forge</a> · MIT</p>
   </footer>
 
   <script type="module" src="app.js"></script>
