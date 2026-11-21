@@ -38,7 +38,10 @@ try {
   for (const [n, pg] of [['A', a], ['B', b]]) {
     pg.on('pageerror', (e) => { console.log(`[${n}] pageerror`, e.message); failed++; });
   }
+  // Bu test sunucusuz QR yolunu sınar: eşleştirme sunucusuna hiç bağlanmasın.
+  for (const pg of [a, b]) await pg.routeWebSocket('**/ws*', (ws) => ws.close());
   await a.goto(base); await b.goto(base);
+  for (const pg of [a, b]) await pg.evaluate(() => { document.querySelector('#qr-mode').open = true; });
 
   // 1) A bağlantı başlatır
   await a.click('#btn-host');
