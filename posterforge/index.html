@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PosterForge Studio Pro 2.1.1 — Mobil Poster Tasarım ve Baskı Stüdyosu</title>
+    <title>PosterForge Studio Pro 2.2.0 — Mobil Poster Tasarım ve Baskı Stüdyosu</title>
 
     <meta name="theme-color" content="#09090b">
     <meta name="description" content="PosterForge Studio Pro — mobil uyumlu, çok sayfalı poster tasarım ve baskı hazırlama uygulaması.">
@@ -129,7 +129,7 @@
             </div>
             <div>
                 <h1 class="font-bold text-sm tracking-tight flex items-center gap-2">
-                    PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro 2.1.1</span>
+                    PosterForge <span class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Studio Pro 2.2.0</span>
                 </h1>
                 <p class="text-[11px] text-zinc-400 hidden sm:block">Çok Sayfalı Duvar Posteri & Halftone Motoru</p>
             </div>
@@ -226,11 +226,32 @@
                     </div>
                 </div>
 
-                <!-- Poster ölçüsü ve çıktı çözünürlüğü -->
-                <div class="bg-studio-800/40 p-3.5 rounded-xl border border-zinc-800/80 space-y-3">
-                    <div class="flex justify-between items-center"><label class="text-xs font-semibold text-zinc-200">Bitmiş poster genişliği</label><span class="text-[10px] text-zinc-500">cm</span></div>
-                    <input id="targetWidthCm" type="number" min="5" max="450" step="0.1" placeholder="Boş: sayfa sayısına göre" class="w-full rounded-lg bg-studio-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100">
-                    <p class="text-[11px] text-zinc-400">Ölçü girildiğinde sayfa sayısı otomatik hesaplanır; görsel oranı korunur. Boş bırakılırsa yatay sayfa sayısı kullanılır.</p>
+                <!-- Bitmiş pano ölçüsü ve çıktı çözünürlüğü -->
+                <div class="bg-studio-800/40 p-3.5 rounded-xl border border-indigo-500/25 space-y-3">
+                    <div class="flex items-center justify-between"><label class="text-xs font-semibold text-zinc-100">Bitmiş pano ölçüsü</label><span class="text-[10px] text-indigo-300">cm</span></div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <label class="text-[11px] text-zinc-400">Genişlik<input id="targetWidthCm" type="number" min="5" max="450" step="0.1" placeholder="Örn. 150" class="mt-1 w-full rounded-lg bg-studio-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100"></label>
+                      <label class="text-[11px] text-zinc-400">Yükseklik<input id="targetHeightCm" type="number" min="5" max="450" step="0.1" placeholder="Örn. 200" class="mt-1 w-full rounded-lg bg-studio-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100"></label>
+                    </div>
+                    <p class="text-[11px] text-zinc-400">İki ölçüyü de girin; uygulama A4 sayfa sayısını otomatik hesaplar. Tek ölçü girilirse görselin en-boy oranına göre diğer ölçü belirlenir. Görsel, seçtiğiniz pano oranına ortadan kırpılarak uyarlanır.</p>
+                    <div id="humanScaleCard" class="rounded-xl border border-zinc-700/80 bg-zinc-950/70 p-3 space-y-2">
+                      <div class="flex items-center justify-between"><span class="text-[11px] font-semibold text-zinc-200">Gerçek hayattaki boyutu</span><span class="text-[10px] text-zinc-500">170 cm insan ölçeği</span></div>
+                      <div class="flex items-end justify-center gap-7 h-44 overflow-hidden">
+                        <div class="flex flex-col items-center justify-end h-full">
+                          <div id="scalePoster" class="w-24 rounded-sm border-2 border-indigo-300 bg-indigo-500/20 shadow-[0_0_18px_rgba(99,102,241,.18)] relative flex items-center justify-center" style="height:150px"><span class="text-[10px] text-indigo-100 font-semibold text-center px-1">PANO</span></div>
+                          <span id="scalePosterLabel" class="mt-1 text-[10px] font-mono text-indigo-200">150 × 200 cm</span>
+                        </div>
+                        <div class="flex flex-col items-center justify-end h-full">
+                          <svg id="scaleHuman" viewBox="0 0 48 170" class="w-12 text-zinc-300" style="height:128px" aria-label="170 santimetre insan silüeti" role="img"><circle cx="24" cy="10" r="9" fill="currentColor"/><path d="M15 23 Q24 18 33 23 L37 76 L30 78 L29 52 L32 101 L29 168 L21 168 L19 108 L16 168 L8 168 L13 99 L16 52 L11 78 L4 76 L9 28 Q11 24 15 23Z" fill="currentColor"/></svg>
+                          <span class="mt-1 text-[10px] font-mono text-zinc-400">170 cm</span>
+                        </div>
+                      </div>
+                      <p id="scaleCaption" class="text-[10px] text-center text-zinc-400">Pano, 170 cm boyundaki bir insanla karşılaştırılır.</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                      <div class="rounded-lg bg-zinc-950/70 p-2"><span class="block text-[10px] text-zinc-500">Otomatik sayfa planı</span><strong id="autoPagePlan" class="font-mono text-emerald-300">—</strong></div>
+                      <div class="rounded-lg bg-zinc-950/70 p-2"><span class="block text-[10px] text-zinc-500">Tahmini A4 sayısı</span><strong id="autoPageCount" class="font-mono text-emerald-300">—</strong></div>
+                    </div>
                     <label class="text-xs font-semibold text-zinc-300 block">PDF / PNG çözünürlüğü</label>
                     <select id="outputDpi" class="w-full rounded-lg bg-studio-950 border border-zinc-700 px-3 py-2 text-sm text-zinc-100"><option value="150">150 DPI — Taslak / büyük işler</option><option value="200">200 DPI — Yüksek kalite</option><option value="300" selected>300 DPI — Baskı önerisi</option><option value="600">600 DPI — Çok yüksek (bellek gerektirir)</option></select>
                 </div>
@@ -557,14 +578,14 @@
     <div id="legalDialog" class="hidden fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm p-3 sm:p-6 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
       <div class="max-w-3xl mx-auto my-4 bg-studio-900 border border-zinc-700 rounded-2xl shadow-2xl overflow-hidden">
         <div class="flex items-center justify-between gap-3 p-4 border-b border-zinc-800 sticky top-0 bg-studio-900/95 backdrop-blur z-10">
-          <div><h2 id="legalTitle" class="font-bold text-base">PosterForge Studio Pro</h2><p class="text-[11px] text-zinc-400">Ürün bilgileri ve politikalar · Sürüm 2.1.1</p></div>
+          <div><h2 id="legalTitle" class="font-bold text-base">PosterForge Studio Pro</h2><p class="text-[11px] text-zinc-400">Ürün bilgileri ve politikalar · Sürüm 2.2.0</p></div>
           <button id="btnCloseLegal" class="rounded-lg px-3 py-2 bg-zinc-800 text-sm" type="button" aria-label="Kapat">Kapat ✕</button>
         </div>
         <div class="p-4 sm:p-6 space-y-6 text-sm text-zinc-300 leading-relaxed select-text">
           <section id="aboutSection">
             <h3 class="font-bold text-white mb-2">Hakkında ve sürüm bilgisi</h3>
             <p><strong>Ürün:</strong> PosterForge Studio Pro</p>
-            <p><strong>Sürüm:</strong> 2.1.1 (PWA)</p>
+            <p><strong>Sürüm:</strong> 2.2.0 (PWA)</p>
             <p><strong>Sürüm tarihi:</strong> 21 Kasım 2026</p>
             <p><strong>Dağıtım:</strong> Web / yüklenebilir PWA</p>
             <p><strong>Değişiklikler:</strong> 2.1.0 sürümündeki PWA özelliklerine ek olarak alt bilgi bağlantıları ve kurumsal iletişim alanı tasarımı yenilendi.</p>
@@ -610,7 +631,7 @@
           </section>
         </div>
         <div class="p-4 border-t border-zinc-800 flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500">
-          <span>PosterForge Studio Pro · v2.1.1</span>
+          <span>PosterForge Studio Pro · v2.2.0</span>
           <button id="btnLegalBottomClose" class="px-3 py-2 rounded-lg bg-indigo-600 text-white" type="button">Anladım</button>
         </div>
       </div>
@@ -639,7 +660,7 @@
             rows: 4,
             marginMm: 10,
             overlapMm: 5,
-            customPaperW: 210, customPaperH: 297, targetWidthCm: '', outputDpi: 300,
+            customPaperW: 210, customPaperH: 297, targetWidthCm: '', targetHeightCm: '', outputDpi: 300,
             dotMinScale: 0.08, rasterShape: 'circle', rasterAngle: 45,
             style: 'halftone-color', // 'halftone-color' | 'halftone-mono' | 'cmyk' | 'squares' | 'lines' | 'original'
             dotSizeMm: 10,
@@ -706,7 +727,7 @@
                 inputCols: state.cols, inputMargin: state.marginMm, inputOverlap: state.overlapMm,
                 inputDotSize: state.dotSizeMm, inputDotScale: Math.round(state.dotScale * 100),
                 customPaperW: state.customPaperW, customPaperH: state.customPaperH,
-                targetWidthCm: state.targetWidthCm, outputDpi: state.outputDpi,
+                targetWidthCm: state.targetWidthCm, targetHeightCm: state.targetHeightCm, outputDpi: state.outputDpi,
                 rasterShape: state.rasterShape, dotMinScale: Math.round(state.dotMinScale * 100), rasterAngle: state.rasterAngle,
                 inputContrast: state.contrast, inputBrightness: state.brightness,
                 inputInkColor: state.inkColor, inputBgColor: state.bgColor,
@@ -749,13 +770,33 @@
             const stepW = Math.max(1, printableW - Math.min(state.overlapMm, printableW - 1));
             const stepH = Math.max(1, printableH - Math.min(state.overlapMm, printableH - 1));
             const aspect = state.img ? state.img.height / state.img.width : 1;
-            const targetW = Number(state.targetWidthCm);
+            const targetW = Number(state.targetWidthCm), targetH = Number(state.targetHeightCm);
             const fixedWidth = Number.isFinite(targetW) && targetW >= 5 ? targetW * 10 : null;
-            const cols = fixedWidth ? Math.max(1, Math.min(40, Math.ceil(Math.max(0, fixedWidth - printableW) / stepW) + 1)) : state.cols;
-            const totalWidthMm = fixedWidth || (printableW + (cols - 1) * stepW);
-            const totalHeightMm = totalWidthMm * aspect;
-            const rows = Math.max(1, Math.ceil(Math.max(0, totalHeightMm - printableH) / stepH) + 1);
-            return { pageW, pageH, printableW, printableH, stepW, stepH, totalWidthMm, totalHeightMm, rows, cols };
+            const fixedHeight = Number.isFinite(targetH) && targetH >= 5 ? targetH * 10 : null;
+            const totalWidthMm = fixedWidth || (fixedHeight ? fixedHeight / aspect : null);
+            const finalWidthMm = totalWidthMm || (printableW + (state.cols - 1) * stepW);
+            const finalHeightMm = fixedHeight || finalWidthMm * aspect;
+            const cols = fixedWidth || fixedHeight ? Math.max(1, Math.min(40, Math.ceil(Math.max(0, finalWidthMm - printableW) / stepW) + 1)) : state.cols;
+            const rows = fixedWidth || fixedHeight ? Math.max(1, Math.min(40, Math.ceil(Math.max(0, finalHeightMm - printableH) / stepH) + 1)) : Math.max(1, Math.ceil(Math.max(0, finalHeightMm - printableH) / stepH) + 1);
+            return { pageW, pageH, printableW, printableH, stepW, stepH, totalWidthMm: finalWidthMm, totalHeightMm: finalHeightMm, rows, cols };
+        }
+
+        let cachedCropSource = null, cachedCropKey = '';
+        function getArtworkSource() {
+            if (!state.img) return null;
+            const layout = getPrintLayout();
+            const targetRatio = layout.totalWidthMm / layout.totalHeightMm;
+            const sourceRatio = state.img.width / state.img.height;
+            const key = `${state.img.src}|${targetRatio.toFixed(6)}`;
+            if (cachedCropKey === key && cachedCropSource) return cachedCropSource;
+            const canvas = document.createElement('canvas');
+            let sx=0, sy=0, sw=state.img.width, sh=state.img.height;
+            if (sourceRatio > targetRatio) { sw = state.img.height * targetRatio; sx = (state.img.width - sw) / 2; }
+            else { sh = state.img.width / targetRatio; sy = (state.img.height - sh) / 2; }
+            canvas.width = Math.max(1, Math.round(sw)); canvas.height = Math.max(1, Math.round(sh));
+            canvas.getContext('2d').drawImage(state.img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+            cachedCropKey = key; cachedCropSource = canvas;
+            return canvas;
         }
         function saveProjectFile() {
             if (!state.img) { showToast('Önce bir görsel yükleyin.'); return; }
@@ -926,19 +967,32 @@
 
         // Kağıt ve Poster Ölçülerini Hesapla
         function updateLayoutMetrics() {
-            if (!state.img) return;
             const layout = getPrintLayout();
             state.rows = layout.rows;
-            if (Number(state.targetWidthCm) >= 5) state.cols = layout.cols;
+            if (Number(state.targetWidthCm) >= 5 || Number(state.targetHeightCm) >= 5) state.cols = layout.cols;
             const totalPages = layout.cols * layout.rows;
-            const colsSlider = document.getElementById('inputCols'); if (colsSlider) { colsSlider.value = Math.min(15, state.cols); colsSlider.disabled = Number(state.targetWidthCm) >= 5; colsSlider.title = colsSlider.disabled ? 'Bitmiş poster genişliği sayfa sayısını otomatik belirliyor.' : ''; }
+            const autoSizing = Number(state.targetWidthCm) >= 5 || Number(state.targetHeightCm) >= 5;
+            const colsSlider = document.getElementById('inputCols'); if (colsSlider) { colsSlider.value = Math.min(15, state.cols); colsSlider.disabled = autoSizing; colsSlider.title = colsSlider.disabled ? 'Bitmiş pano ölçüsü sayfa sayısını otomatik belirliyor.' : ''; }
             const colsLabel = document.getElementById('valCols'); if (colsLabel) colsLabel.textContent = `${state.cols} Sayfa`;
             const widthCm = (layout.totalWidthMm / 10).toFixed(1);
             const heightCm = (layout.totalHeightMm / 10).toFixed(1);
             document.getElementById('badgeDimensions').textContent = `${widthCm} × ${heightCm} cm`;
-            document.getElementById('badgePages').textContent = `${totalPages} Sayfa (${state.cols}×${state.rows} ${state.paper})`;
+            document.getElementById('badgePages').textContent = `${totalPages} Sayfa (${layout.cols}×${layout.rows} ${state.paper})`;
             document.getElementById('summarySize').textContent = `${widthCm} × ${heightCm} cm`;
-            document.getElementById('summaryGrid').textContent = `${state.cols} × ${state.rows} = ${totalPages} ${state.paper}`;
+            document.getElementById('summaryGrid').textContent = `${layout.cols} × ${layout.rows} = ${totalPages} ${state.paper}`;
+            const plan = document.getElementById('autoPagePlan'); if (plan) plan.textContent = `${layout.cols} sütun × ${layout.rows} satır`;
+            const count = document.getElementById('autoPageCount'); if (count) count.textContent = `${totalPages} ${state.paper}`;
+            const poster = document.getElementById('scalePoster');
+            if (poster) {
+              const maxH = 150, maxW = 116;
+              const scale = Math.min(0.78, maxH / Math.max(1, layout.totalHeightMm / 10), maxW / Math.max(1, layout.totalWidthMm / 10));
+              const h = Math.max(28, layout.totalHeightMm / 10 * scale);
+              const w = Math.max(22, layout.totalWidthMm / 10 * scale);
+              poster.style.height = `${h}px`; poster.style.width = `${w}px`;
+              const human = document.getElementById('scaleHuman'); if (human) human.style.height = `${Math.min(maxH, 170 * scale)}px`;
+              const lbl = document.getElementById('scalePosterLabel'); if (lbl) lbl.textContent = `${widthCm} × ${heightCm} cm`;
+              const caption = document.getElementById('scaleCaption'); if (caption) caption.textContent = `${widthCm} × ${heightCm} cm pano, 170 cm boyundaki insanla aynı ölçekte gösterilir.`;
+            }
         }
 
         function drawRasterMark(targetCtx, cx, cy, diameter, shape, angleDeg, color) {
@@ -959,10 +1013,11 @@
         function drawProcessedTile(targetCtx, widthPx, heightPx, layout, regionXmm, regionYmm, regionWmm, regionHmm, dpi) {
             if (!state.img) return;
             const pxPerMm = dpi / 25.4;
-            const sx = regionXmm / layout.totalWidthMm * state.img.width;
-            const sy = regionYmm / layout.totalHeightMm * state.img.height;
-            const sw = regionWmm / layout.totalWidthMm * state.img.width;
-            const sh = regionHmm / layout.totalHeightMm * state.img.height;
+            const sourceImage = getArtworkSource();
+            const sx = regionXmm / layout.totalWidthMm * sourceImage.width;
+            const sy = regionYmm / layout.totalHeightMm * sourceImage.height;
+            const sw = regionWmm / layout.totalWidthMm * sourceImage.width;
+            const sh = regionHmm / layout.totalHeightMm * sourceImage.height;
             const brightnessVal = 100 + state.brightness;
             const contrastVal = 100 + state.contrast;
             const filterStr = `brightness(${brightnessVal}%) contrast(${contrastVal}%)`;
@@ -970,7 +1025,7 @@
 
             if (state.style === 'original' || state.peekingOriginal) {
                 targetCtx.save(); targetCtx.filter = filterStr;
-                targetCtx.drawImage(state.img, sx, sy, sw, sh, 0, 0, widthPx, heightPx);
+                targetCtx.drawImage(sourceImage, sx, sy, sw, sh, 0, 0, widthPx, heightPx);
                 targetCtx.restore(); return;
             }
             if (['vintage','grayscale','duotone'].includes(state.style)) {
@@ -978,7 +1033,7 @@
                     state.style === 'grayscale' ? 'grayscale(1) contrast(1.12)' :
                     'grayscale(1) sepia(1) hue-rotate(165deg) saturate(1.8) contrast(1.08)';
                 targetCtx.save(); targetCtx.filter = `${effect} ${filterStr}`;
-                targetCtx.drawImage(state.img, sx, sy, sw, sh, 0, 0, widthPx, heightPx);
+                targetCtx.drawImage(sourceImage, sx, sy, sw, sh, 0, 0, widthPx, heightPx);
                 targetCtx.restore(); return;
             }
 
@@ -996,12 +1051,12 @@
             const sampleCanvas = document.createElement('canvas');
             sampleCanvas.width = cellsX; sampleCanvas.height = cellsY;
             const sctx = sampleCanvas.getContext('2d', { willReadFrequently: true });
-            const cropX = startCellX * dotMm / layout.totalWidthMm * state.img.width;
-            const cropY = startCellY * dotMm / layout.totalHeightMm * state.img.height;
-            const cropRight = Math.min(layout.totalWidthMm, endCellX * dotMm) / layout.totalWidthMm * state.img.width;
-            const cropBottom = Math.min(layout.totalHeightMm, endCellY * dotMm) / layout.totalHeightMm * state.img.height;
+            const cropX = startCellX * dotMm / layout.totalWidthMm * sourceImage.width;
+            const cropY = startCellY * dotMm / layout.totalHeightMm * sourceImage.height;
+            const cropRight = Math.min(layout.totalWidthMm, endCellX * dotMm) / layout.totalWidthMm * sourceImage.width;
+            const cropBottom = Math.min(layout.totalHeightMm, endCellY * dotMm) / layout.totalHeightMm * sourceImage.height;
             sctx.filter = filterStr;
-            sctx.drawImage(state.img, Math.max(0,cropX), Math.max(0,cropY),
+            sctx.drawImage(sourceImage, Math.max(0,cropX), Math.max(0,cropY),
                 Math.max(0.01,cropRight-Math.max(0,cropX)), Math.max(0.01,cropBottom-Math.max(0,cropY)),
                 0, 0, cellsX, cellsY);
             const data = sctx.getImageData(0,0,cellsX,cellsY).data;
@@ -1060,6 +1115,7 @@
         // Seçilen Stile Göre Görseli Tuvale İşleyen Çekirdek Motor
         function drawProcessedArtwork(targetCtx, widthPx, heightPx, totalWidthMm) {
             if (!state.img) return;
+            const sourceImage = getArtworkSource();
 
             // Kontrast ve Parlaklık Filtresi
             const brightnessVal = 100 + state.brightness;
@@ -1070,7 +1126,7 @@
             if (state.style === 'original' || state.peekingOriginal) {
                 targetCtx.save();
                 targetCtx.filter = filterStr;
-                targetCtx.drawImage(state.img, 0, 0, widthPx, heightPx);
+                targetCtx.drawImage(sourceImage, 0, 0, widthPx, heightPx);
                 targetCtx.restore();
                 return;
             }
@@ -1082,7 +1138,7 @@
                     state.style === 'grayscale' ? 'grayscale(1) contrast(1.12)' :
                     'grayscale(1) sepia(1) hue-rotate(165deg) saturate(1.8) contrast(1.08)';
                 targetCtx.filter = `${effect} ${filterStr}`;
-                targetCtx.drawImage(state.img, 0, 0, widthPx, heightPx);
+                targetCtx.drawImage(sourceImage, 0, 0, widthPx, heightPx);
                 targetCtx.restore();
                 return;
             }
@@ -1110,7 +1166,7 @@
             sampleCanvas.height = cellsY;
             const sctx = sampleCanvas.getContext('2d');
             sctx.filter = filterStr;
-            sctx.drawImage(state.img, 0, 0, cellsX, cellsY);
+            sctx.drawImage(sourceImage, 0, 0, cellsX, cellsY);
             const imgData = sctx.getImageData(0, 0, cellsX, cellsY).data;
 
             // CMYK Matbaa Modu (Özel 4 Renkli Açılı Katman)
@@ -1192,7 +1248,7 @@
             const layout = getPrintLayout();
             const { totalWidthMm, totalHeightMm, printableW, printableH, stepW, stepH, cols } = layout;
             state.cols = cols; state.rows = layout.rows;
-            const aspectRatio = state.img.height / state.img.width;
+            const aspectRatio = totalHeightMm / totalWidthMm;
 
             // Önizleme Tuval Boyutu (Hızlı ve Keskin Render için)
             const previewW = 1000;
@@ -1247,7 +1303,7 @@
         document.getElementById('btnExportPNG').addEventListener('click', async () => {
             if (!state.img) { showToast('Önce bir görsel yükleyin.'); return; }
             const layout = getPrintLayout();
-            const ratio = state.img.height / state.img.width;
+            const ratio = layout.totalHeightMm / layout.totalWidthMm;
             const requestedDpi = Math.max(72, Math.min(600, Number(state.outputDpi) || 300));
             let exportW = Math.max(1200, Math.round(layout.totalWidthMm / 25.4 * requestedDpi));
             exportW = Math.min(12000, exportW);
@@ -1293,7 +1349,7 @@
             const layout = getPrintLayout();
             const { pageW, pageH, printableW, printableH, stepW, stepH, totalWidthMm, totalHeightMm } = layout;
             const margin = state.marginMm;
-            const aspectRatio = state.img.height / state.img.width;
+            const aspectRatio = totalHeightMm / totalWidthMm;
 
             // Her yaprağı bağımsız üret: büyük posterlerde de çözünürlük toplam mural boyutuna göre düşmez.
             const requestedDpi = Math.max(72, Math.min(600, Number(state.outputDpi) || 300));
@@ -1517,7 +1573,8 @@
         // Slider ve Checkbox Olayları
         document.getElementById('inputCols').addEventListener('input', (e) => {
             recordHistory();
-            state.targetWidthCm = '';
+            state.targetWidthCm = ''; state.targetHeightCm = '';
+            const targetHeightEl = document.getElementById('targetHeightCm'); if (targetHeightEl) targetHeightEl.value = '';
             const targetWidthEl = document.getElementById('targetWidthCm'); if (targetWidthEl) targetWidthEl.value = '';
             state.cols = parseInt(e.target.value, 10);
             document.getElementById('valCols').textContent = `${state.cols} Sayfa`;
@@ -1540,13 +1597,14 @@
             updateLayoutMetrics(); renderPreview();
         });
 
-        ['customPaperW','customPaperH','targetWidthCm','outputDpi'].forEach(id => {
+        ['customPaperW','customPaperH','targetWidthCm','targetHeightCm','outputDpi'].forEach(id => {
             const el = document.getElementById(id);
             el.addEventListener('change', () => {
                 recordHistory();
                 if (id === 'customPaperW') state.customPaperW = Math.max(80, Math.min(1000, Number(el.value) || 210));
                 if (id === 'customPaperH') state.customPaperH = Math.max(80, Math.min(1000, Number(el.value) || 297));
                 if (id === 'targetWidthCm') state.targetWidthCm = el.value === '' ? '' : Math.max(5, Math.min(450, Number(el.value) || 5));
+                if (id === 'targetHeightCm') state.targetHeightCm = el.value === '' ? '' : Math.max(5, Math.min(450, Number(el.value) || 5));
                 if (id === 'outputDpi') state.outputDpi = Number(el.value) || 300;
                 updateLayoutMetrics(); renderPreview(); syncControlValues();
             });
