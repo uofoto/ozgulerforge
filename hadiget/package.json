@@ -1,6 +1,6 @@
 {
   "name": "hadiget",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "hadiGET: telefon ve bilgisayar arasında doğrudan (WebRTC) dosya aktarımı, yakındaki cihazları otomatik bulur.",
   "homepage": "https://ozgulerforge.com.tr",
   "private": true,

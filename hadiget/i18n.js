@@ -177,6 +177,7 @@ const D = {
     'err.cam': 'Kamera açılamadı. Kodu yapıştırarak devam edebilirsin.',
     'err.closed': 'Bağlantı kapalı.',
     'err.incomplete': 'Dosya eksik geldi.',
+    'err.integrity': 'Dosya bütünlük kontrolünden geçemedi; aktarım güvenlik için iptal edildi.',
     'err.disk': 'Dosya cihaza yazılamadı (yer yetmiyor olabilir).',
 
     'sig.missing': 'Bağlantı bilgisi eksik ({what}).',
@@ -373,6 +374,7 @@ const D = {
     'err.cam': 'Couldn’t open the camera. You can continue by pasting the code.',
     'err.closed': 'The connection is closed.',
     'err.incomplete': 'The file arrived incomplete.',
+    'err.integrity': 'File integrity check failed; transfer was cancelled for safety.',
     'err.disk': 'Couldn’t write the file to the device (it may be out of space).',
 
     'sig.missing': 'Connection info is missing ({what}).',

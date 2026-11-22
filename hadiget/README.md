@@ -32,7 +32,7 @@ Ayrıntılı kılavuz, ana ekrana ekleme adımları ve sorun giderme tablosu uyg
 - **Önizleme:** gelen/giden görsel, video, ses ve metin dosyaları listede görünür.
 - **Çizim editörü:** görselde *Düzenle*: kalem, fosforlu, ok, kutu, metin; sonra *Kaydet* ya da *Karşıya gönder*.
 - **Hız ve kalan süre, iptal:** iki taraf da sürmekte olan aktarımı iptal edebilir.
-- **Büyük dosya:** 64 MB üstü dosyalar belleğe değil tarayıcının özel disk alanına (OPFS) yazılır.
+- **Büyük dosya:** 64 MB üstü dosyalar belleğe değil tarayıcının özel disk alanına (OPFS) yazılır. Dosyalar 16 KB ağ parçalarıyla aktarılır; 4 MB bloklar SHA-256 ile doğrulanır.
 - **Klasör / çoklu seçim → zip** (sıkıştırmasız, 4 GB'a kadar).
 - **Güvenilen cihaz** (isteğe bağlı otomatik kabul), **cihaz adı**, **ses/titreşim/bildirim**, **oturum geçmişi** (yalnızca bellekte), **Türkçe/İngilizce** arayüz.
 

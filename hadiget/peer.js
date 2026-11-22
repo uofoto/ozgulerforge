@@ -19,6 +19,7 @@ const SLICE = 1024 * 1024; // diskten tek seferde okunan miktar
 const HIGH = 4 * 1024 * 1024; // gönderim tamponu bunu aşarsa bekle
 const LOW = 1024 * 1024; // tampon bunun altına inince devam et
 const OPFS_MIN = 64 * 1024 * 1024; // bundan büyük dosyalar diske yazılır
+const VERIFY_CHUNK = 4 * 1024 * 1024; // SHA-256 doğrulama bloğu (4 MB)
 const INBOX = 'hadiget-inbox';
 const STUN = 'stun:stun.l.google.com:19302';
 
@@ -58,6 +59,22 @@ async function makeSink(meta) {
     try { return await opfsSink(meta.type, meta.id); } catch {}
   }
   return memorySink(meta.type);
+}
+
+// WebCrypto tek seferde hash aldığı için dosyayı 1 MB bloklarla doğrula.
+// Böylece GB boyutundaki dosyanın tamamını belleğe almak gerekmez.
+async function hashFileChunks(file) {
+  const hashes = [];
+  for (let off = 0; off < file.size; off += VERIFY_CHUNK) {
+    const bytes = await file.slice(off, off + VERIFY_CHUNK).arrayBuffer();
+    const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', bytes));
+    hashes.push([...digest].map((b) => b.toString(16).padStart(2, '0')).join(''));
+  }
+  return hashes;
+}
+
+function hexDigest(bytes) {
+  return [...bytes].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 // Önceki oturumlardan kalan geçici dosyaları sil (6 saatten eskiler).
@@ -187,7 +204,11 @@ export class Peer {
     const dc = this.dc;
     this.cur = tr;
     try {
-      dc.send(JSON.stringify({ t: 'meta', id: tr.id, name: file.name, size: file.size, type: file.type }));
+      // Aktarım başlamadan önce blok özetlerini hesapla; alıcı her bloğu
+      // diske yazmadan önce doğrulayabilir.
+      const hashes = await hashFileChunks(file);
+      if (tr.cancelled) throw stop();
+      dc.send(JSON.stringify({ t: 'meta', id: tr.id, name: file.name, size: file.size, type: file.type, verifyChunk: VERIFY_CHUNK, hashes }));
       tr.onStart?.();
       let off = 0;
       while (off < file.size) {
@@ -244,7 +265,12 @@ export class Peer {
       let m;
       try { m = JSON.parse(e.data); } catch { return; }
       if (m.t === 'meta') {
-        const f = { id: String(m.id ?? ''), name: String(m.name || t('tr.fileDefault')), size: +m.size || 0, type: String(m.type || ''), got: 0, dead: false, sink: null };
+        const f = { id: String(m.id ?? ''), name: String(m.name || t('tr.fileDefault')), size: +m.size || 0, type: String(m.type || ''), got: 0, dead: false, sink: null,
+          verifyChunk: Number(m.verifyChunk) === VERIFY_CHUNK ? VERIFY_CHUNK : 0,
+          hashes: Array.isArray(m.hashes) ? m.hashes : [], verifyBuffer: new Uint8Array(VERIFY_CHUNK), verifyUsed: 0, verifyIndex: 0, verifyFailed: false };
+        // Yeni istemcilerde SHA-256 blok doğrulaması zorunlu; eski sürümle
+        // geriye dönük bağlantı için doğrulama alanları yoksa aktarım sürer.
+        if (f.verifyChunk && f.hashes.length !== Math.ceil(f.size / VERIFY_CHUNK)) f.verifyFailed = true;
         f.q = makeSink(f).then((s) => { f.sink = s; });
         this.incoming = f;
         this.o.onIncoming?.(f);
@@ -260,6 +286,17 @@ export class Peer {
         f.q = f.q.then(async () => {
           if (f.dead) return;
           try {
+            if (f.verifyChunk && f.verifyUsed) {
+              const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', f.verifyBuffer.slice(0, f.verifyUsed)));
+              if (hexDigest(digest) !== f.hashes[f.verifyIndex]) f.verifyFailed = true;
+              f.verifyIndex++;
+              f.verifyUsed = 0;
+            }
+            if (f.verifyChunk && (f.verifyFailed || f.verifyIndex !== f.hashes.length)) {
+              await f.sink.abort();
+              this.o.onError?.(f, new Error(t('err.integrity')));
+              return;
+            }
             const blob = await f.sink.finish();
             f.cleanup = f.sink.cleanup;
             this.o.onFile?.(f, blob);
@@ -290,6 +327,21 @@ export class Peer {
       f.q = f.q.then(async () => {
         if (f.dead) return;
         try {
+          if (f.verifyChunk) {
+            let pos = 0;
+            while (pos < buf.byteLength) {
+              const take = Math.min(f.verifyChunk - f.verifyUsed, buf.byteLength - pos);
+              f.verifyBuffer.set(new Uint8Array(buf, pos, take), f.verifyUsed);
+              f.verifyUsed += take;
+              pos += take;
+              if (f.verifyUsed === f.verifyChunk) {
+                const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', f.verifyBuffer));
+                if (hexDigest(digest) !== f.hashes[f.verifyIndex]) f.verifyFailed = true;
+                f.verifyIndex++;
+                f.verifyUsed = 0;
+              }
+            }
+          }
           await f.sink.write(buf);
         } catch {
           if (f.dead) return;
