@@ -45,6 +45,12 @@ Sürüm numarası tek yerde: `version.js`. Yayında değişiklik yaptığında o
 - Destekleyen tarayıcılarda uygulama görünür durumdayken ekran Wake Lock ile açık tutulur; uygulamaya dönünce kilit yeniden istenir.
 - Tarayıcı/işletim sistemi sayfayı tamamen kapatırsa bellek kuyruğu korunamaz.
 
+## İndirme işareti (v1.3.2)
+
+- Gelen her dosyanın kendi **Kaydet** düğmesi bulunur. Kullanıcı düğmeye bastığında indirme başlatılır ve düğme **Kaydedildi ✓** durumuna geçerek devre dışı kalır; böylece aynı karttan yanlışlıkla ikinci kez indirme başlatılması önlenir.
+- Tarayıcılar web sayfasına dosyanın diske tamamen yazıldığını güvenilir biçimde bildirmez. Bu nedenle işaret, indirme komutunun başlatıldığını belirtir; kesin tamamlanma durumu tarayıcının indirmeler listesinden kontrol edilmelidir.
+- İşaret mevcut aktarım kartında ve sekme açık kaldığı sürece görünür; sayfa yenilenirse aktarım kartları gibi bu durum da sıfırlanır.
+
 ## Gizlilik ve yasal metinler
 
 - Dosyalar hiçbir sunucuya yüklenmez; iki cihaz arasında şifreli (DTLS) bir kanaldan geçer.
