@@ -111,6 +111,7 @@ const D = {
 
     'tr.sending': 'Gönderiliyor',
     'tr.queued': 'Sırada',
+    'tr.pendingReconnect': '{n} dosya bağlantı kurulunca gönderilmek üzere bekliyor. Yeniden bağlan.',
     'tr.sent': 'Gönderildi',
     'tr.receiving': 'Alınıyor',
     'tr.received': 'Alındı',
@@ -308,6 +309,7 @@ const D = {
 
     'tr.sending': 'Sending',
     'tr.queued': 'Queued',
+    'tr.pendingReconnect': '{n} file(s) are waiting to send when you reconnect.',
     'tr.sent': 'Sent',
     'tr.receiving': 'Receiving',
     'tr.received': 'Received',

@@ -38,6 +38,13 @@ Ayrıntılı kılavuz, ana ekrana ekleme adımları ve sorun giderme tablosu uyg
 
 Sürüm numarası tek yerde: `version.js`. Yayında değişiklik yaptığında onu artır (önbellek adı ondan türetilir).
 
+## Bağlantı kararlılığı (v1.3.1)
+
+- Mobil dosya seçicisine geçişte kısa süreli bağlantı durum değişiklikleri için 12 saniyelik toparlanma aralığı.
+- Bağlantı koparken seçilmiş veya gönderim kuyruğunda bekleyen dosyalar sekme belleğinde tutulur; yeni bağlantı kurulduğunda yeniden gönderim kuyruğuna alınır.
+- Destekleyen tarayıcılarda uygulama görünür durumdayken ekran Wake Lock ile açık tutulur; uygulamaya dönünce kilit yeniden istenir.
+- Tarayıcı/işletim sistemi sayfayı tamamen kapatırsa bellek kuyruğu korunamaz.
+
 ## Gizlilik ve yasal metinler
 
 - Dosyalar hiçbir sunucuya yüklenmez; iki cihaz arasında şifreli (DTLS) bir kanaldan geçer.

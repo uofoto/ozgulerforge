@@ -22,6 +22,8 @@ let peerName = null; // bağlandığımız cihazın adı (biliniyorsa)
 let peerPid = null; // karşı cihazın kalıcı kimliği (güvenilen cihaz için)
 let waitTimer = null;
 let pendingShare = null; // paylaşım menüsünden gelen, gönderilmeyi bekleyen öğeler {files, text}
+let pendingFiles = []; // bağlantı koparsa yeniden eşleşme için bellekte korunan dosyalar
+const pendingFileSet = new Set();
 
 // --- ayarlar (yalnızca bu cihazda, localStorage) ------------------------
 
@@ -705,6 +707,8 @@ document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     unread = 0;
     document.title = BASE_TITLE;
+    // iOS/Android ekran seçicisi veya başka uygulamadan dönüşte Wake Lock'u yenile.
+    keepAwake();
   }
 });
 
@@ -782,6 +786,14 @@ async function loadShare() {
 
 // --- bağlı ekran ---------------------------------------------------------
 
+async function keepAwake() {
+  if ($('#v-live').hidden || document.visibilityState !== 'visible' || wakeLock) return;
+  try {
+    wakeLock = await navigator.wakeLock?.request('screen');
+    if (wakeLock) wakeLock.addEventListener('release', () => { wakeLock = null; });
+  } catch {}
+}
+
 async function goLive() {
   clearTimeout(connTimer);
   clearTimeout(waitTimer);
@@ -791,15 +803,18 @@ async function goLive() {
   $('#live-status').textContent = peerName ? t('live.connectedTo', { name: peerName }) : t('live.connected');
   clearItems();
   updateTrustBtn();
-  try {
-    wakeLock = await navigator.wakeLock?.request('screen');
-  } catch {}
+  await keepAwake();
   if (pendingShare && peer) {
     const p = pendingShare;
     pendingShare = null;
     updateShareBanner();
     if (p.text) sendTextNow(p.text);
     sendSelection(p.files);
+  }
+  if (pendingFiles.length && peer) {
+    const retry = pendingFiles.splice(0);
+    retry.forEach((f) => pendingFileSet.delete(f));
+    sendSelection(retry, { folder: retry.some((f) => !!f.webkitRelativePath) });
   }
 }
 
@@ -1109,10 +1124,25 @@ function addNote(label, text) {
   $('#transfers').prepend(li);
 }
 
+// Bağlantı yokken de kullanıcının seçtiği File nesnelerini sekme belleğinde tut.
+// Yeni bağlantı kurulduğunda aynı dosyalar yeniden sıraya alınır.
+function queuePendingFiles(files) {
+  for (const file of files) {
+    if (!file || pendingFileSet.has(file)) continue;
+    pendingFileSet.add(file);
+    pendingFiles.push(file);
+  }
+  if (pendingFiles.length) showError(t('tr.pendingReconnect', { n: pendingFiles.length }));
+}
+
 // Dosya(lar)ı gönder; klasör ya da "tek zip" seçiliyse önce zip hazırla.
 async function sendSelection(files, opts = {}) {
   files = files.filter(Boolean);
-  if (!files.length || !peer) return;
+  if (!files.length) return;
+  if (!peer || peer.closed || peer.dc?.readyState !== 'open') {
+    queuePendingFiles(files);
+    return;
+  }
   const rel = (f) => f._rel || f.webkitRelativePath || f.name;
   const zip = opts.folder || (settings.zip && files.length > 1);
   if (!zip) return sendFiles(files);
@@ -1157,7 +1187,10 @@ function sendFiles(files) {
       },
       (e) => {
         if (e && e.cancelled) endItem(item, e.byPeer ? t('tr.cancelledByPeer') : t('tr.cancelled'));
-        else {
+        else if (!peer || peer !== p || p.closed || p.dc?.readyState !== 'open') {
+          endItem(item, t('tr.queued'));
+          queuePendingFiles([file]);
+        } else {
           endItem(item, t('tr.failed'));
           showError(e.message || String(e));
         }

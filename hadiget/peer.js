@@ -100,13 +100,17 @@ export class Peer {
     this.seq = 0;
     this.cur = null; // şu an gönderilen aktarım
     this.closed = false;
+    this.lossTimer = null;
     this.pc = new RTCPeerConnection({
       iceServers: opts.stun ? [{ urls: STUN }] : [],
     });
     this.pc.onconnectionstatechange = () => {
       const s = this.pc.connectionState;
-      // 'disconnected' geçici olabilir, kendiliğinden toparlanır; saymıyoruz.
-      if (s === 'failed' || s === 'closed') this._lost();
+      // Mobil dosya seçicisi / uygulama geçişi sırasında ağ durumu kısa süreli
+      // değişebilir. 'failed' için hemen oturumu silme; toparlanmaya süre tanı.
+      if (s === 'closed') this._lost();
+      else if (s === 'failed') this._scheduleLost();
+      else if (s === 'connected') this._clearLossTimer();
     };
   }
 
@@ -151,18 +155,36 @@ export class Peer {
     this.dc = dc;
     dc.binaryType = 'arraybuffer';
     dc.bufferedAmountLowThreshold = LOW;
-    dc.onopen = () => this.o.onOpen?.();
-    dc.onclose = () => this._lost();
+    dc.onopen = () => { this._clearLossTimer(); this.o.onOpen?.(); };
+    // Bazı mobil tarayıcılarda uygulama kısa süre arka plana geçince kanal
+    // kapanış olayı gecikmeli/yanlış zamanda gelebilir. UI'ı hemen sıfırlama.
+    dc.onclose = () => this._scheduleLost();
     dc.onmessage = (e) => this._onMessage(e);
+  }
+
+  _clearLossTimer() {
+    clearTimeout(this.lossTimer);
+    this.lossTimer = null;
+  }
+
+  _scheduleLost() {
+    if (this.closed || this.lossTimer) return;
+    this.lossTimer = setTimeout(() => {
+      this.lossTimer = null;
+      if (this.pc.connectionState === 'connected' && this.dc?.readyState === 'open') return;
+      this._lost();
+    }, 12000);
   }
 
   _lost() {
     if (this.closed) return;
+    this._clearLossTimer();
     this.closed = true;
     this.o.onClose?.();
   }
 
   close() {
+    this._clearLossTimer();
     this.closed = true;
     try { this.dc?.close(); } catch {}
     try { this.pc.close(); } catch {}
