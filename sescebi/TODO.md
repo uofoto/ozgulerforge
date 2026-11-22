@@ -12,3 +12,9 @@
 - [ ] MP3 kodlama gerekiyorsa lisans/performans değerlendirmeli encoder ekleme
 - [ ] Klasör/kategori ve toplu işlem gereksinimini kullanım geri bildirimiyle değerlendirme
 - [ ] İşletmeci bilgileriyle KVKK metnini hukuk kontrolünden geçirme
+
+## v24 (entegrasyon)
+- Servis çalışanı alt klasörde (/sescebi/) doğru çalışır; sabit "/" yolları kaldırıldı.
+- Android'de Paylaş menüsünden dosya alma (share_target) ve SKIP_WAITING mesajı.
+- Videodan çözülen ses WAV yerine MP3 (lame.min.js); yüklenemezse WAV.
+- Sürükle-bırak, kaldığı yerden devam, depolama dolu uyarısı, iOS ana ekran simgesi/meta.

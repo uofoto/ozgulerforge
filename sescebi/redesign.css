@@ -481,3 +481,5 @@ body.modal-open{overflow:hidden}.overlay{position:fixed;inset:0;z-index:30;displ
   .x-video-intro span:not(.x-video-mark), .x-video-status { font-size:.7rem; }
   .x-video-result-meta strong { font-size:.75rem; }
 }
+
+.file-drop.dragging { outline: 2px dashed var(--orange, #d95d39); outline-offset: -6px; }

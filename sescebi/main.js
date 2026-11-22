@@ -40,7 +40,7 @@ app.innerHTML = `
     <header class="topbar">
       <div class="brand-cluster">
         <span class="publisher-name">ozguler forge</span>
-        <a class="brand" href="/" aria-label="Ses Cebi ana sayfa">
+        <a class="brand" href="./" aria-label="Ses Cebi ana sayfa">
           <span class="brand-mark">${icons.cassette}</span>
           <span class="brand-name">Ses Cebi</span>
         </a>
@@ -48,7 +48,7 @@ app.innerHTML = `
       <div class="header-note"><span class="live-dot"></span><span>Bu cihazda, sana ait</span><button class="motion-toggle" id="motion-toggle" type="button" aria-label="Ekolayzer animasyonunu kapat" title="Ekolayzer animasyonu açık">∿</button><button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir">◐</button></div>
     </header>
     <nav class="main-nav" aria-label="Ana gezinme">
-      <a class="sidebar-brand" href="/" aria-label="Ses Cebi ana sayfa"><span class="sidebar-brand-mark">${icons.cassette}</span><span class="sidebar-brand-copy">Ses Cebi<small>KİŞİSEL SES ALANI</small></span></a>
+      <a class="sidebar-brand" href="./" aria-label="Ses Cebi ana sayfa"><span class="sidebar-brand-mark">${icons.cassette}</span><span class="sidebar-brand-copy">Ses Cebi<small>KİŞİSEL SES ALANI</small></span></a>
       <span class="nav-caption">ÇALIŞMA ALANI</span>
       <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
       <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Ses arşivi</span><span class="nav-count" id="nav-count">0</span></button>
@@ -718,6 +718,51 @@ function encodeWav(buffer, from = 0, to = buffer.length, fades = { fadeIn: 0, fa
     }
     return new Blob([out], { type: 'audio/wav' });
 }
+let lamePromise = null;
+function loadLame() {
+    if (window.lamejs)
+        return Promise.resolve(window.lamejs);
+    if (lamePromise)
+        return lamePromise;
+    lamePromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'lame.min.js';
+        script.onload = () => window.lamejs ? resolve(window.lamejs) : reject(new Error('MP3 kodlayıcı bulunamadı.'));
+        script.onerror = () => { lamePromise = null; reject(new Error('MP3 kodlayıcı yüklenemedi.')); };
+        document.head.appendChild(script);
+    });
+    return lamePromise;
+}
+function toInt16(source) {
+    const out = new Int16Array(source.length);
+    for (let i = 0; i < source.length; i++) {
+        const sample = Math.max(-1, Math.min(1, source[i]));
+        out[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+    }
+    return out;
+}
+async function encodeMp3(buffer) {
+    const lame = await loadLame();
+    const channels = Math.min(2, buffer.numberOfChannels);
+    const encoder = new lame.Mp3Encoder(channels, buffer.sampleRate, 128);
+    const left = toInt16(buffer.getChannelData(0));
+    const right = channels === 2 ? toInt16(buffer.getChannelData(1)) : undefined;
+    const block = 1152 * 20;
+    const parts = [];
+    for (let start = 0, n = 0; start < left.length; start += block, n++) {
+        const chunk = right ? encoder.encodeBuffer(left.subarray(start, start + block), right.subarray(start, start + block)) : encoder.encodeBuffer(left.subarray(start, start + block));
+        if (chunk.length)
+            parts.push(new Uint8Array(chunk));
+        if (n % 25 === 0) {
+            setProgress('MP3 hazırlanıyor…', 75 + (start / left.length) * 15);
+            await new Promise((resolve) => setTimeout(resolve, 0));
+        }
+    }
+    const tail = encoder.flush();
+    if (tail.length)
+        parts.push(new Uint8Array(tail));
+    return new Blob(parts, { type: 'audio/mpeg' });
+}
 async function extractAudioFromVideo(file) {
     setProgress('Video okunuyor…', 15);
     const data = await file.arrayBuffer();
@@ -736,9 +781,15 @@ async function extractAudioFromVideo(file) {
     }
     if (!decoded.length || decoded.duration <= 0)
         throw new Error('Videoda ses bulunamadı.');
-    setProgress('Ses dosyası hazırlanıyor…', 75);
+    setProgress('MP3 hazırlanıyor…', 75);
     await new Promise((resolve) => setTimeout(resolve, 30));
-    return encodeWav(decoded);
+    try {
+        return await encodeMp3(decoded);
+    }
+    catch {
+        // MP3 kodlayıcı yüklenemezse (ör. ilk açılışta internet yoksa) WAV'a düşülür.
+        return encodeWav(decoded);
+    }
 }
 async function createSong(blob, name, source) {
     const declaredType = blob.type.toLowerCase();
@@ -796,16 +847,18 @@ async function addSelectedAudio() {
     }
     catch (error) {
         setProgress('', 0, false);
-        toast(error instanceof Error ? error.message : 'Ses eklenirken beklenmeyen bir sorun oluştu.', true);
+        if (error instanceof DOMException && error.name === 'QuotaExceededError')
+            toast('Cihaz depolaması dolu. Eski kayıtları silip tekrar dene.', true);
+        else
+            toast(error instanceof Error ? error.message : 'Ses eklenirken beklenmeyen bir sorun oluştu.', true);
     }
     finally {
         updateAddButton();
     }
 }
 function resetSource() {
-    selectedFile = null;
+    setSelectedFile(null);
     fileInput.value = '';
-    fileName.textContent = 'Henüz dosya seçilmedi';
     urlInput.value = '';
     consent.checked = false;
     updateAddButton();
@@ -913,7 +966,21 @@ function loadSong(song) {
     updateMediaSession();
     playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : song.source === 'x-video' ? 'X videosundan alınan ses' : song.source === 'trim' ? 'Kesit' : 'Dosya'} · cihazda saklanıyor`;
     seek.value = '0';
+    const saved = readPosition(song.id);
+    if (saved > 2)
+        audio.addEventListener('loadedmetadata', () => { audio.currentTime = Math.max(0, Math.min(saved, (audio.duration || saved + 1) - 1)); }, { once: true });
     updatePlayerUI();
+}
+const POSITION_KEY = 'sescebi-pos:';
+let lastPositionSave = 0;
+function readPosition(id) {
+    try { return Number(localStorage.getItem(POSITION_KEY + id)) || 0; } catch { return 0; }
+}
+function writePosition(id, seconds) {
+    try { localStorage.setItem(POSITION_KEY + id, String(Math.floor(seconds))); } catch { /* konum kaydedilemezse devam edilir */ }
+}
+function clearPosition(id) {
+    try { localStorage.removeItem(POSITION_KEY + id); } catch { /* yok say */ }
 }
 async function toggleSong(song) {
     if (activeSong?.id !== song.id)
@@ -1452,6 +1519,7 @@ async function deleteSong(song) {
 async function removeSong(song) {
     try {
         await dbDelete(song.id);
+        clearPosition(song.id);
         songs = songs.filter((item) => item.id !== song.id);
         if (activeSong?.id === song.id) {
             audio.pause();
@@ -1471,11 +1539,24 @@ async function removeSong(song) {
         toast('Ses silinemedi; cihaz depolamasını kontrol et.', true);
     }
 }
-fileInput.addEventListener('change', () => {
-    selectedFile = fileInput.files?.[0] || null;
-    fileName.textContent = selectedFile ? `${selectedFile.name} · ${formatSize(selectedFile.size)}` : 'Henüz dosya seçilmedi';
+function setSelectedFile(file) {
+    selectedFile = file;
+    fileName.textContent = file ? `${file.name} · ${formatSize(file.size)}` : 'Henüz dosya seçilmedi';
     updateAddButton();
-});
+}
+fileInput.addEventListener('change', () => setSelectedFile(fileInput.files?.[0] || null));
+const dropZone = document.querySelector('.file-drop');
+if (dropZone) {
+    ['dragenter', 'dragover'].forEach((name) => dropZone.addEventListener(name, (event) => { event.preventDefault(); dropZone.classList.add('dragging'); }));
+    ['dragleave', 'drop'].forEach((name) => dropZone.addEventListener(name, () => dropZone.classList.remove('dragging')));
+    dropZone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        const file = event.dataTransfer?.files?.[0];
+        if (file) { switchTab('file'); setSelectedFile(file); }
+    });
+}
+// Sayfaya yanlışlıkla bırakılan dosya tarayıcıyı başka sayfaya götürmesin.
+['dragover', 'drop'].forEach((name) => window.addEventListener(name, (event) => { if (!event.target.closest?.('.file-drop')) event.preventDefault(); }));
 consent.addEventListener('change', updateAddButton);
 urlInput.addEventListener('input', updateAddButton);
 addButton.addEventListener('click', () => void addSelectedAudio());
@@ -1500,10 +1581,13 @@ get('back-button').addEventListener('click', () => { audio.currentTime = Math.ma
 get('forward-button').addEventListener('click', () => { audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + 10); });
 seek.addEventListener('input', () => { audio.currentTime = Number(seek.value); updatePlayerUI(); });
 audio.addEventListener('timeupdate', updatePlayerUI);
+audio.addEventListener('timeupdate', () => {
+    if (activeSong && !audio.paused && Date.now() - lastPositionSave > 3000) { lastPositionSave = Date.now(); writePosition(activeSong.id, audio.currentTime); }
+});
 audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { startListeningSession(); updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { flushListeningSession(true); updatePlayerUI(); renderLibrary(); });
-audio.addEventListener('ended', () => { flushListeningSession(true); updatePlayerUI(); renderLibrary(); void handleEnded(); });
+audio.addEventListener('ended', () => { if (activeSong) clearPosition(activeSong.id); flushListeningSession(true); updatePlayerUI(); renderLibrary(); void handleEnded(); });
 // ---- v15: ad değiştirme ----
 const renameOverlay = get('rename-overlay');
 const renameInput = get('rename-input');
@@ -2117,7 +2201,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '23';
+const APP_VERSION = '24';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -2259,6 +2343,25 @@ async function diagnose() {
 }
 get('diag-button').addEventListener('click', () => void diagnose());
 refreshAppCard();
+async function loadSharedFile() {
+    if (!new URLSearchParams(location.search).has('shared'))
+        return;
+    try {
+        const cache = await caches.open('sescebi-share');
+        const key = new URL('shared-file', document.baseURI).href;
+        const response = await cache.match(key);
+        if (response) {
+            const blob = await response.blob();
+            const name = decodeURIComponent(response.headers.get('x-file-name') || 'paylasilan-dosya');
+            switchTab('file');
+            setSelectedFile(new File([blob], name, { type: blob.type }));
+            toast('Dosya alındı. Onay kutusunu işaretleyip arşive ekle.');
+            await cache.delete(key);
+        }
+    }
+    catch { /* paylaşılan dosya okunamadı */ }
+    history.replaceState(null, '', location.pathname);
+}
 async function init() {
     if (navigator.storage?.persist) {
         try {
@@ -2273,7 +2376,8 @@ async function init() {
     catch {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
+    await loadSharedFile();
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=23', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=24', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();
