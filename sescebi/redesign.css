@@ -483,3 +483,15 @@ body.modal-open{overflow:hidden}.overlay{position:fixed;inset:0;z-index:30;displ
 }
 
 .file-drop.dragging { outline: 2px dashed var(--orange, #d95d39); outline-offset: -6px; }
+
+/* v26: açık temada koyu kenar çubuğu istatistik kartının yazıları okunsun */
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .stats-heading h2 { color:#f2f5ef; }
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .stats-heading .section-kicker { color:#a9b7a8; }
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .stats-heading p:not(.section-kicker) { color:#aab5aa; }
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .stats-local-badge { color:#c8d8c4; }
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .listen-stat-label { color:#aab5aa; }
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .listen-stat-card strong,
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .top-track-link { color:#f0f4ed; }
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .top-track-link:hover:not(:disabled),
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .top-track-link:focus-visible:not(:disabled) { color:#cfea7d; }
+:root:not([data-theme="dark"]) .listening-stats.is-sidebar .stats-footnote { color:#aab5aa; }
