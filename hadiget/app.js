@@ -1217,12 +1217,29 @@ function onFile(f, blob) {
   setProgress(item, 1, true);
   endItem(item, t('tr.received'));
   item.cleanup = f.cleanup || null;
-  const a = document.createElement('a');
-  a.className = 'dl';
-  a.href = url(item, blob);
-  a.download = safeName(f.name);
-  a.textContent = t('tr.save');
-  item.actions.append(a);
+  const saveButton = document.createElement('button');
+  saveButton.className = 'dl save-file';
+  saveButton.type = 'button';
+  saveButton.textContent = t('tr.save');
+  saveButton.setAttribute('aria-label', `${t('tr.save')}: ${f.name}`);
+  saveButton.addEventListener('click', () => {
+    if (saveButton.disabled) return;
+    try {
+      // Tarayıcının indirmesini kullanıcı hareketi içinde başlat.
+      download(blob, f.name);
+      // Tarayıcı indirme işleminin diske tamamen yazıldığını web sayfasına
+      // bildirmez. Bu işaret, indirme komutunun başlatıldığını gösterir.
+      saveButton.disabled = true;
+      saveButton.classList.add('saved');
+      saveButton.textContent = t('tr.saved');
+      saveButton.setAttribute('aria-label', `${f.name}: ${t('tr.saved')}`);
+      saveButton.title = t('tr.savedHint');
+      saveButton.setAttribute('aria-live', 'polite');
+    } catch (err) {
+      showError(err?.message || String(err));
+    }
+  });
+  item.actions.append(saveButton);
   addPreview(item, blob, f.name);
   addEdit(item, blob, f.name);
   record('recv', f.name, f.size);

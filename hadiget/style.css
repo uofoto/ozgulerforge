@@ -220,6 +220,14 @@ input#code-input {
 .transfers a.dl, .transfers button { min-height: 40px; display: inline-flex; align-items: center; }
 .transfers button.danger { border-color: var(--err); color: var(--err); }
 .transfers button.edit { border-color: var(--line); color: var(--text); }
+.transfers button.save-file.saved {
+  border-color: #16845f;
+  color: #16845f;
+  background: color-mix(in srgb, #16845f 9%, var(--card));
+  opacity: 1;
+  cursor: default;
+  font-weight: 600;
+}
 
 /* Çizim editörü */
 dialog.editor { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; padding: 0; border: 0; background: var(--bg); color: var(--text); }
