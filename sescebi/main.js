@@ -53,7 +53,7 @@ app.innerHTML = `
       <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
       <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Ses arşivi</span><span class="nav-count" id="nav-count">0</span></button>
       <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol nav-studio-icon">${icons.studio}</span><span>Ses stüdyosu</span></button>
-      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 23</span></div>
+      <div class="sidebar-bottom"><span class="sidebar-status"><i></i> Yalnızca bu cihazda</span><span class="sidebar-version">SES CEBİ · SÜRÜM 25</span></div>
     </nav>
 
     <main>
@@ -2201,7 +2201,10 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '24';
+const APP_VERSION = '25';
+const sidebarVersion = document.querySelector('.sidebar-version');
+if (sidebarVersion)
+    sidebarVersion.textContent = `SES CEBİ · SÜRÜM ${APP_VERSION}`;
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -2378,6 +2381,6 @@ async function init() {
     }
     await loadSharedFile();
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=24', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=25', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();
