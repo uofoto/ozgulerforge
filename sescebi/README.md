@@ -8,6 +8,7 @@ ozguler forge tarafından geliştirilen, sesleri cihazda saklayan ve çevrimdı�
 - Oynatma, önceki/sonraki, tekrar/karıştırma, hız ayarı ve uyku zamanlayıcısı
 - Dalga formu üzerinden yakınlaştırma, sürükleyerek aralık ayarlama, WAV kesit kaydı, bas/tiz filtresi ve fade-in/fade-out
 - ZIP yedekleme ve geri yükleme (favori bilgisi dahil)
+- İsteğe bağlı Google girişiyle favori ve dinleme istatistiklerini Cloudflare (Worker + KV) üzerinde yedekleme; ses dosyaları buluta gönderilmez
 - PWA kurulum ve çevrimdışı uygulama kabuğu
 - Açık/koyu tema
 - X videosu sekmesi: herkese açık gönderilerden video bulma, kalite seçme, videoyu indirme ve videonun sesini arşive ekleme
@@ -24,7 +25,7 @@ npm run dev
 Üretim çıktısı `dist/` klasörüdür. Önizleme için `npm run preview` kullanın. HTTPS üzerinden yayınlayın.
 
 ## Teknik notlar
-- Arşiv cihazın tarayıcı depolamasında tutulur; tarayıcı verisi silinirse kaybolabilir. Düzenli ZIP yedeği alın.
+- Ses arşivi cihazın tarayıcı depolamasında tutulur; tarayıcı verisi silinirse kaybolabilir. Düzenli ZIP yedeği alın. Favori ve istatistikler, Google ile giriş yapılmışsa buluttan geri yüklenir.
 - Kesit dışa aktarma WAV'dır. MP3/M4A kodlama bu sürümde yoktur; kaynak dosyanın özgün biçimi indirme/paylaşmada korunur.
 - Video ses ayrıştırma tüm konteyner/kodekleri desteklemez. MP4/MOV içindeki standart AAC akışı doğrudan ayrıştırılabilir; diğer biçimler tarayıcının Web Audio çözücüsüne bağlıdır.
 - Arka plan ve kilit ekranı davranışı işletim sistemi/tarayıcı kısıtlarına bağlıdır.

@@ -119,15 +119,24 @@ app.innerHTML = `
       <div class="footer-showcase">
         <div class="footer-brand">
           <div class="footer-brand-mark" aria-hidden="true">${icons.cassette}</div>
-          <div class="footer-brand-copy"><span class="footer-eyebrow">SES CEBİ · KİŞİSEL SES ALANI</span><h2>Her ses senin.<br><em>Arşivin de öyle.</em></h2><p>Kayıtların bu cihazda kalır; uygulama sunucusuna yüklenmez.</p></div>
+          <div class="footer-brand-copy"><span class="footer-eyebrow">SES CEBİ · KİŞİSEL SES ALANI</span><h2>Her ses senin.<br><em>Arşivin de öyle.</em></h2><p>Ses dosyaların bu cihazda kalır; sunucuya yüklenmez. Favori ve istatistik yedeği yalnızca Google ile giriş yaparsan buluta gider.</p></div>
         </div>
         <div class="footer-contact"><span class="footer-contact-label">OZGULER FORGE</span><a href="https://ozgulerforge.com.tr" target="_blank" rel="noreferrer"><span>Web sitesi</span><span>ozgulerforge.com.tr ↗</span></a><a href="mailto:iletisim@ozgulerforge.com.tr"><span>Bize ulaşın</span><span>iletisim@ozgulerforge.com.tr ↗</span></a></div>
       </div>
       <div class="legal-grid">
         <section><span class="legal-index">01 / İÇERİK</span><h3>Kullanım ve telif</h3><p>Ses Cebi yalnızca sahip olduğunuz veya kullanma ve indirme izniniz bulunan içerikler için kullanılmalıdır. İçerik hakları ilgili sahiplerine aittir; izinsiz çoğaltma, dağıtma veya ticari kullanım kullanıcının sorumluluğundadır.</p></section>
-        <section><span class="legal-index">02 / GİZLİLİK</span><h3>Gizlilik ve depolama</h3><p>Bu sürümde hesap oluşturulmaz. Eklediğiniz sesler tarayıcının yerel depolamasında tutulur. Tarayıcı verilerini temizlemek, uygulamayı kaldırmak veya cihaz depolamasının silinmesi kayıtların kaybolmasına neden olabilir.</p></section>
+        <section><span class="legal-index">02 / GİZLİLİK</span><h3>Gizlilik ve depolama</h3><p>Hesap açmak zorunlu değildir. Eklediğiniz sesler tarayıcının yerel depolamasında tutulur ve buluta gönderilmez. İsterseniz Google ile giriş yapıp favori listenizi ve dinleme istatistiklerinizi bulutta yedekleyebilirsiniz; giriş yapmazsanız hiçbir bilgi gönderilmez. Tarayıcı verilerini temizlemek veya uygulamayı kaldırmak yerel ses dosyalarının kaybolmasına neden olabilir, bu yüzden düzenli ZIP yedeği almanız önerilir.</p></section>
         <section><span class="legal-index">03 / ERİŞİM</span><h3>Platform sınırları</h3><p>Uygulama X'e giriş yapmaz; özel hesaplara, korumalı içeriğe veya platform kısıtlarını aşmaya yönelik erişim sağlamaz. X videosu aracı yalnızca herkese açık ve indirme hakkına sahip olduğunuz gönderiler için kullanılmalıdır.</p></section>
       </div>
+      <div class="legal-note"><details><summary>Bulut yedek ve kişisel veriler (aydınlatma)</summary>
+        <p><strong>Veri sorumlusu:</strong> Ozguler Forge, iletisim@ozgulerforge.com.tr.</p>
+        <p><strong>İşlenen veriler:</strong> Yalnızca Google ile giriş yaparsanız; Google hesabınızın e-posta adresi ve Google'ın verdiği benzersiz kullanıcı kimliği, favori işaretlediğiniz seslerin adı ve süresi, seslerin dinleme sayısı ve toplam dinleme süresi. Ses dosyalarınız, ses içerikleri ve Google şifreniz işlenmez.</p>
+        <p><strong>Amaç:</strong> Favori ve istatistiklerinizi yedeklemek; tarayıcı verileri silindiğinde veya başka bir cihazda geri yüklemek. Reklam veya profilleme amacıyla kullanılmaz.</p>
+        <p><strong>Hizmet sağlayıcılar:</strong> Giriş Google Identity Services ile yapılır; Google'ın gizlilik politikası geçerlidir. Yedek, Cloudflare altyapısında (Workers ve KV) saklanır ve bu altyapı Türkiye dışında olabilir.</p>
+        <p><strong>Saklama ve silme:</strong> Veriler siz silene kadar saklanır. Kütüphane ekranındaki "Bulut verimi sil" düğmesi buluttaki kaydınızı e-posta adresiniz dahil tamamen siler. "Çıkış yap" yalnızca bu cihazdaki oturumu kapatır, bulut verisini silmez.</p>
+        <p><strong>Yerel kayıtlar:</strong> Oturum bilgisi ve eşitleme bilgileri tarayıcınızın yerel depolamasında tutulur. Uygulamanın kendisi çerez kullanmaz; Google girişi kendi çerezlerini kullanabilir.</p>
+        <p><strong>Haklarınız:</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun 11. maddesi kapsamındaki talepleriniz için iletisim@ozgulerforge.com.tr adresine yazabilirsiniz.</p>
+      </details></div>
       <div class="legal-note"><span class="legal-note-mark" aria-hidden="true">i</span><p>Uygulamayı kullanarak yukarıdaki kullanım, telif ve depolama koşullarını kabul etmiş olursunuz. Yasal haklarınız ve yükümlülükleriniz için ilgili mevzuatı ve içerik sahibinin izin şartlarını ayrıca kontrol edin.</p></div>
       <div class="footer-bottom"><span>OZGULER FORGE <i>·</i> SES CEBİ</span><span>YEREL <i>·</i> KİŞİSEL <i>·</i> SANA AİT</span></div>
     </footer>
