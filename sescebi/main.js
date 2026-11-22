@@ -1,3 +1,4 @@
+import { initCloudSync, songKey } from './cloud-sync.js';
 const DB_NAME = 'sescebi-db';
 const STORE_NAME = 'songs';
 const MAX_SIZE = 100 * 1024 * 1024;
@@ -15,6 +16,7 @@ let studioSelectionMode = false;
 const LISTENING_STATS_KEY = 'sescebi-listening-stats-v1';
 let listeningStats = readListeningStats();
 let listeningSession = null;
+let cloudSync = null;
 let sleepTimerId = 0;
 const app = document.querySelector('#app');
 if (!app)
@@ -314,7 +316,7 @@ function readListeningStats() {
                 if (!entry || typeof entry !== 'object') continue;
                 const plays = Number(entry.plays ?? entry.playCount ?? entry.count);
                 const seconds = Number(entry.seconds ?? entry.listenSeconds ?? entry.durationListened);
-                tracks[String(id)] = { name: typeof entry.name === 'string' ? entry.name : typeof entry.title === 'string' ? entry.title : 'Ses kaydı', plays: Math.max(0, Number.isFinite(plays) ? plays : 0), seconds: Math.max(0, Number.isFinite(seconds) ? seconds : 0) };
+                tracks[String(id)] = { key: typeof entry.key === 'string' ? entry.key : '', name: typeof entry.name === 'string' ? entry.name : typeof entry.title === 'string' ? entry.title : 'Ses kaydı', plays: Math.max(0, Number.isFinite(plays) ? plays : 0), seconds: Math.max(0, Number.isFinite(seconds) ? seconds : 0) };
             }
         }
         return { tracks };
@@ -325,6 +327,7 @@ function persistListeningStats() {
     try { window.localStorage.setItem(LISTENING_STATS_KEY, serialized); } catch { /* özel modda oturum yedeği kullanılabilir */ }
     try { window.sessionStorage.setItem(LISTENING_STATS_KEY, serialized); } catch { /* depolama tamamen kapalı olabilir */ }
     renderListeningStats();
+    cloudSync?.notifyChange();
 }
 function formatListeningTime(value) {
     const seconds = Math.max(0, Math.floor(value));
@@ -370,6 +373,7 @@ function startListeningSession() {
     const id = String(activeSong.id);
     const entry = listeningStats.tracks[id] || { name: activeSong.name, plays: 0, seconds: 0 };
     entry.name = activeSong.name;
+    entry.key = songKey(activeSong);
     entry.plays += 1;
     listeningStats.tracks[id] = entry;
     listeningSession = { id, startedAt: performance.now() };
@@ -864,6 +868,7 @@ function resetSource() {
     updateAddButton();
 }
 function renderLibrary() {
+    cloudSync?.libraryRendered();
     document.querySelectorAll('.song-more-actions.menu-portal').forEach((menu) => menu.remove());
     const search = searchQuery.trim().toLocaleLowerCase('tr');
     let visibleSongs = songs.filter((song) => (!favoritesOnly || song.favorite) && (!search || song.name.toLocaleLowerCase('tr').includes(search)));
@@ -948,7 +953,7 @@ async function chooseStudioSong(song) {
 }
 async function toggleFavorite(song) {
     song.favorite = !song.favorite;
-    try { await dbPut(song); renderLibrary(); }
+    try { await dbPut(song); renderLibrary(); cloudSync?.favoriteChanged(song); }
     catch { song.favorite = !song.favorite; toast('Favori durumu kaydedilemedi.', true); }
 }
 function escapeHtml(value) {
@@ -2379,8 +2384,19 @@ async function init() {
     catch {
         toast('Yerel arşiv başlatılamadı. Tarayıcı depolama iznini kontrol et.', true);
     }
+    try {
+        cloudSync = initCloudSync({
+            getSongs: () => songs,
+            getStats: () => listeningStats,
+            saveSong: (song) => dbPut(song),
+            persistStats: () => persistListeningStats(),
+            refresh: () => renderLibrary(),
+            toast: (message, error) => toast(message, error),
+        });
+    }
+    catch { /* bulut eşitleme başlatılamazsa uygulama yerel çalışmaya devam eder */ }
     await loadSharedFile();
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=25', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js?v=26', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();

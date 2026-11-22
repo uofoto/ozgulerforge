@@ -1,0 +1,336 @@
+// Ses Cebi bulut eşitleme: favoriler + dinleme istatistikleri -> Cloudflare Worker (KV)
+// Ses dosyaları buluta gönderilmez; yalnızca küçük bir JSON gider.
+
+const API = 'https://sescebi-sync.uozguler.workers.dev';
+const GOOGLE_CLIENT_ID = '737017356172-b9m6rbst8qk8iphlc257aj5jqbge6lg0.apps.googleusercontent.com';
+const SESSION_KEY = 'sescebi-cloud-session';
+const FAV_META_KEY = 'sescebi-cloud-fav-meta';
+const LAST_SYNC_KEY = 'sescebi-cloud-last-sync';
+const PUSH_DELAY_MS = 20000;
+
+// ---------- saf yardımcılar (test edilebilir) ----------
+
+export function songKey(song) {
+  const name = String(song?.name || '').normalize('NFC').toLocaleLowerCase('tr').trim();
+  const seconds = Math.round(Number(song?.duration) || 0);
+  return `${name}|${seconds}`;
+}
+
+export function mergeData(remote, local) {
+  const merged = { v: 1, favorites: {}, stats: {} };
+  const rf = remote?.favorites && typeof remote.favorites === 'object' ? remote.favorites : {};
+  const lf = local?.favorites && typeof local.favorites === 'object' ? local.favorites : {};
+  for (const key of new Set([...Object.keys(rf), ...Object.keys(lf)])) {
+    const a = rf[key];
+    const b = lf[key];
+    if (a && b) merged.favorites[key] = (b.at > a.at || (b.at === a.at && b.fav)) ? b : a;
+    else merged.favorites[key] = a || b;
+  }
+  const rs = remote?.stats && typeof remote.stats === 'object' ? remote.stats : {};
+  const ls = local?.stats && typeof local.stats === 'object' ? local.stats : {};
+  for (const key of new Set([...Object.keys(rs), ...Object.keys(ls)])) {
+    const a = rs[key];
+    const b = ls[key];
+    if (a && b) {
+      merged.stats[key] = {
+        name: b.plays >= a.plays ? b.name : a.name,
+        plays: Math.max(a.plays || 0, b.plays || 0),
+        seconds: Math.max(a.seconds || 0, b.seconds || 0),
+      };
+    } else merged.stats[key] = a || b;
+  }
+  return merged;
+}
+
+function stable(data) {
+  const sortObject = (o) => Object.fromEntries(Object.keys(o).sort().map((k) => [k, o[k]]));
+  return JSON.stringify({ favorites: sortObject(data.favorites || {}), stats: sortObject(data.stats || {}) });
+}
+
+// ---------- ana modül ----------
+
+export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refresh, toast }) {
+  let state = { v: 1, favorites: {}, stats: {} };
+  let session = loadSession();
+  let applying = false;
+  let syncing = false;
+  let rerun = false;
+  let timer = 0;
+  let lastCount = getSongs().length;
+  let busy = false;
+  let box = null;
+
+  // --- yerel depolama yardımcıları ---
+  function loadSession() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+      if (raw && raw.token && raw.exp > Date.now()) return raw;
+    } catch { /* bozuk kayıt */ }
+    return null;
+  }
+  function saveSession(value) {
+    session = value;
+    try {
+      if (value) localStorage.setItem(SESSION_KEY, JSON.stringify(value));
+      else localStorage.removeItem(SESSION_KEY);
+    } catch { /* depolama kapalı olabilir */ }
+  }
+  function loadFavMeta() {
+    try { return JSON.parse(localStorage.getItem(FAV_META_KEY) || '{}') || {}; } catch { return {}; }
+  }
+  function saveFavMeta(meta) {
+    try { localStorage.setItem(FAV_META_KEY, JSON.stringify(meta)); } catch { /* yoksay */ }
+  }
+
+  // --- ağ ---
+  async function api(path, options = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (session && path !== '/auth/google') headers.Authorization = `Bearer ${session.token}`;
+    const response = await fetch(API + path, { ...options, headers });
+    if (response.status === 401 && path !== '/auth/google') {
+      saveSession(null);
+      renderUi();
+      throw new Error('Oturum süresi doldu. Google ile yeniden giriş yap.');
+    }
+    if (!response.ok) throw new Error('Bulut sunucusuna ulaşılamadı.');
+    return response.json();
+  }
+
+  // --- anlık görüntü ---
+  function localSnapshot() {
+    const favorites = {};
+    const meta = loadFavMeta();
+    const now = Date.now();
+    const songs = getSongs();
+    for (const song of songs) {
+      const key = songKey(song);
+      let m = meta[key];
+      if (!m) m = meta[key] = { fav: !!song.favorite, at: song.favorite ? now : 0 };
+      else if (m.fav !== !!song.favorite) m = meta[key] = { fav: !!song.favorite, at: now };
+      if (m.at > 0) favorites[key] = { name: song.name, fav: m.fav, at: m.at };
+    }
+    saveFavMeta(meta);
+
+    const stats = {};
+    const byId = new Map(songs.map((song) => [String(song.id), song]));
+    for (const [id, entry] of Object.entries(getStats().tracks)) {
+      const key = entry.key || (byId.has(id) ? songKey(byId.get(id)) : '');
+      if (!key) continue;
+      entry.key = key;
+      if (!(entry.plays > 0 || entry.seconds > 0)) continue;
+      stats[key] = { name: entry.name, plays: entry.plays, seconds: Math.round(entry.seconds) };
+    }
+    return { v: 1, favorites, stats };
+  }
+
+  // --- birleşmiş veriyi yerel kütüphaneye uygula ---
+  async function applyToLibrary(merged) {
+    applying = true;
+    try {
+      const meta = loadFavMeta();
+      let favChanged = false;
+      for (const song of getSongs()) {
+        const key = songKey(song);
+        const remote = merged.favorites[key];
+        const local = meta[key];
+        if (remote && remote.at > (local?.at || 0) && !!song.favorite !== !!remote.fav) {
+          song.favorite = !!remote.fav;
+          meta[key] = { fav: !!remote.fav, at: remote.at };
+          try { await saveSong(song); favChanged = true; } catch { /* sonraki eşitlemede denenir */ }
+        } else if (remote && !local) {
+          meta[key] = { fav: !!remote.fav, at: remote.at };
+        }
+      }
+      saveFavMeta(meta);
+
+      let statsChanged = false;
+      const stats = getStats();
+      for (const song of getSongs()) {
+        const key = songKey(song);
+        const remote = merged.stats[key];
+        if (!remote) continue;
+        const id = String(song.id);
+        const entry = stats.tracks[id] || { name: song.name, plays: 0, seconds: 0, key };
+        if ((remote.plays || 0) > entry.plays || (remote.seconds || 0) > entry.seconds) {
+          entry.plays = Math.max(entry.plays, remote.plays || 0);
+          entry.seconds = Math.max(entry.seconds, remote.seconds || 0);
+          entry.key = key;
+          stats.tracks[id] = entry;
+          statsChanged = true;
+        }
+      }
+      if (statsChanged) persistStats();
+      if (favChanged || statsChanged) refresh();
+    } finally {
+      applying = false;
+    }
+  }
+
+  // --- eşitleme ---
+  async function syncNow({ quiet = true } = {}) {
+    if (!session) return;
+    if (syncing) { rerun = true; return; }
+    syncing = true;
+    try {
+      const remote = await api('/sync');
+      const remoteData = remote?.data || { favorites: {}, stats: {} };
+      const merged = mergeData(remoteData, localSnapshot());
+      state = merged;
+      await applyToLibrary(merged);
+      const final = mergeData(merged, localSnapshot());
+      state = final;
+      if (stable(final) !== stable(remoteData)) await api('/sync', { method: 'PUT', body: JSON.stringify({ data: final }) });
+      try { localStorage.setItem(LAST_SYNC_KEY, String(Date.now())); } catch { /* yoksay */ }
+      if (!quiet) toast('Bulutla eşitlendi.');
+    } catch (error) {
+      if (!quiet) toast(error instanceof Error ? error.message : 'Eşitleme başarısız.', true);
+    } finally {
+      syncing = false;
+      renderUi();
+      if (rerun) { rerun = false; void syncNow(); }
+    }
+  }
+
+  function schedulePush() {
+    if (!session || applying || timer) return;
+    timer = window.setTimeout(() => { timer = 0; void syncNow(); }, PUSH_DELAY_MS);
+  }
+
+  // --- Google ile giriş ---
+  function loadGoogleScript() {
+    if (window.google?.accounts?.id) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[data-gsi]');
+      if (existing) { existing.addEventListener('load', resolve); existing.addEventListener('error', reject); return; }
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.dataset.gsi = '1';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
+  async function onCredential(response) {
+    busy = true;
+    renderUi();
+    try {
+      const result = await api('/auth/google', { method: 'POST', body: JSON.stringify({ credential: response.credential }) });
+      saveSession({ token: result.token, email: result.email, exp: Date.now() + result.expiresIn * 1000 - 60000 });
+      await syncNow({ quiet: false });
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Giriş yapılamadı.', true);
+    } finally {
+      busy = false;
+      renderUi();
+    }
+  }
+
+  async function mountGoogleButton(holder) {
+    try {
+      await loadGoogleScript();
+      window.google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onCredential, ux_mode: 'popup' });
+      window.google.accounts.id.renderButton(holder, { theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with', locale: 'tr' });
+    } catch {
+      holder.textContent = 'Google girişi yüklenemedi. İnternet bağlantını kontrol et.';
+    }
+  }
+
+  async function signOut() {
+    try { window.google?.accounts?.id?.disableAutoSelect(); } catch { /* yoksay */ }
+    saveSession(null);
+    renderUi();
+    toast('Çıkış yapıldı. Bulut verin silinmedi.');
+  }
+
+  async function deleteCloudData() {
+    if (!window.confirm('Buluttaki favori ve istatistik yedeğin silinsin mi? Bu cihazdaki veriler silinmez.')) return;
+    try {
+      await api('/sync', { method: 'DELETE' });
+      state = { v: 1, favorites: {}, stats: {} };
+      toast('Bulut verin silindi.');
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Silinemedi.', true);
+    }
+  }
+
+  // --- arayüz ---
+  function ensureBox() {
+    if (box && document.body.contains(box)) return box;
+    const anchor = document.querySelector('.library-subtools');
+    if (!anchor) return null;
+    const style = document.createElement('style');
+    style.textContent = '.cloud-box{margin:12px 0 0;padding:12px 14px;border:1px solid var(--border,#e4e8e2);border-radius:12px;font-size:.72rem;line-height:1.5}.cloud-box p{margin:0 0 8px}.cloud-box small{display:block;margin-top:8px;opacity:.7}.cloud-actions{display:flex;flex-wrap:wrap;gap:8px}';
+    document.head.appendChild(style);
+    box = document.createElement('div');
+    box.className = 'cloud-box';
+    anchor.insertAdjacentElement('afterend', box);
+    return box;
+  }
+
+  function renderUi() {
+    const el = ensureBox();
+    if (!el) return;
+    el.textContent = '';
+    const note = document.createElement('small');
+    note.textContent = 'Buluta yalnızca favori listesi, dinleme istatistikleri ve e-posta adresin gider. Ses dosyaların cihazında kalır.';
+
+    if (!session) {
+      const p = document.createElement('p');
+      p.textContent = 'Favorilerini ve istatistiklerini Google hesabınla yedekle. Tarayıcı geçmişi silinse bile geri gelir.';
+      const holder = document.createElement('div');
+      el.append(p, holder, note);
+      if (!busy) void mountGoogleButton(holder);
+      return;
+    }
+
+    const last = Number(localStorage.getItem(LAST_SYNC_KEY)) || 0;
+    const p = document.createElement('p');
+    p.textContent = `Bulut yedek açık: ${session.email}${last ? ` · son eşitleme ${new Date(last).toLocaleTimeString('tr', { hour: '2-digit', minute: '2-digit' })}` : ''}`;
+    const actions = document.createElement('div');
+    actions.className = 'cloud-actions';
+    const make = (label, handler) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'ghost-button';
+      button.textContent = label;
+      button.addEventListener('click', handler);
+      return button;
+    };
+    actions.append(
+      make(syncing ? 'Eşitleniyor…' : 'Şimdi eşitle', () => void syncNow({ quiet: false })),
+      make('Çıkış yap', () => void signOut()),
+      make('Bulut verimi sil', () => void deleteCloudData()),
+    );
+    el.append(p, actions, note);
+  }
+
+  // --- dış API ---
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && session && timer) {
+      window.clearTimeout(timer);
+      timer = 0;
+      void syncNow();
+    }
+  });
+
+  renderUi();
+  if (session) void syncNow();
+
+  return {
+    notifyChange() { schedulePush(); },
+    favoriteChanged(song) {
+      const meta = loadFavMeta();
+      meta[songKey(song)] = { fav: !!song.favorite, at: Date.now() };
+      saveFavMeta(meta);
+      schedulePush();
+    },
+    libraryRendered() {
+      const count = getSongs().length;
+      if (count === lastCount) return;
+      lastCount = count;
+      if (session && !applying) void applyToLibrary(state).then(() => schedulePush());
+    },
+  };
+}
