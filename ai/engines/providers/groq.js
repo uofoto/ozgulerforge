@@ -16,12 +16,31 @@ export const groq = {
     }
     return messages;
   },
-  buildBody({ model, hist, systemText }) {
-    return JSON.stringify({ model: model.model, stream: true, temperature: model.temperature, messages: [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)] });
+  buildBody({ model, hist, systemText, proxyUrl }) {
+    const payload = {
+      model: model.model,
+      stream: true,
+      temperature: model.temperature,
+      messages: [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)]
+    };
+    if (!proxyUrl) return JSON.stringify(payload);
+    return JSON.stringify({
+      provider: 'groq',
+      model: model.model,
+      body: payload
+    });
   },
-  endpoint() { return 'https://api.groq.com/openai/v1/chat/completions'; },
-  checkAuth(creds) { if (!creds.groqKey) throw Object.assign(new Error('Groq API anahtarı eksik.'), { kind: 'auth' }); },
-  headers(creds) { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + creds.groqKey }; },
+  endpoint(model, proxyUrl) {
+    if (proxyUrl) return proxyUrl.replace(/\/$/, '');
+    return 'https://api.groq.com/openai/v1/chat/completions';
+  },
+  checkAuth(creds, proxyUrl) {
+    if (!proxyUrl && !creds.groqKey) throw Object.assign(new Error('Groq API anahtarı eksik.'), { kind: 'auth' });
+  },
+  headers(creds, proxyUrl) {
+    if (proxyUrl) return { 'Content-Type': 'application/json' };
+    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + creds.groqKey };
+  },
   handleEvent(parsed, acc, emit) {
     const ch = parsed.choices && parsed.choices[0];
     if (!ch) return;
