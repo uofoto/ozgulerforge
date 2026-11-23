@@ -81,16 +81,11 @@ export const groq = {
         const tavilyData = await fetchTavilyContext(query, proxyUrl);
         if (tavilyData && tavilyData.contextText) {
           tavilySources = tavilyData.sources || [];
-          const sourceListText = tavilySources
-            .map((s, idx) => `${idx + 1}. ${s.title} — ${s.uri}`)
-            .join('\n');
-
           messages.push({
             role: 'system',
             content:
               `${tavilyData.contextText}\n\n` +
-              `KAYNAK BAĞLANTILARI:\n${sourceListText}\n\n` +
-              `Yukarıdaki güncel web sonuçlarını kullanarak yanıt ver. Bugünün tarihi ${todayStr}'dir; 2026 yılı geçmişte veya içinde bulunduğumuz yıldır, asla "henüz gerçekleşmedi" deme. Yanıtın sonunda "Kaynaklar:" başlığı altında kullandığın bağlantıları listele.`
+              `Yukarıdaki güncel web sonuçlarını kullanarak yanıt ver. Bugünün tarihi ${todayStr}'dir; 2026 yılı içinde bulunduğumuz yıldır, asla "henüz gerçekleşmedi" deme. Kaynakta olmayan tarih veya kesin sayı uydurma.`
           });
         } else {
           messages.push({
