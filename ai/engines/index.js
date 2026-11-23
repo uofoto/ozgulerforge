@@ -35,7 +35,7 @@ export async function runWithFallback({ candidates, hist, systemText, webOn, cre
       if (e.kind === 'toolarge' || e.kind === 'blocked') break;               // aynı isteği başka motora göndermek işe yaramaz
       if (e.kind === 'network' && typeof navigator !== 'undefined' && navigator.onLine === false) break;           // çevrimdışıyken denemeye gerek yok
       if (e.kind === 'auth' || e.kind === 'billing' || e.kind === 'network') skipProviders.add(cm.provider);
-      if (e.kind === 'quota') skipPools.add(poolOf(cm));
+      if (e.kind === 'quota' || e.kind === 'overloaded' || e.kind === 'badrequest' || e.kind === 'notfound') skipPools.add(poolOf(cm));
       const nextM = candidates.slice(ci + 1).find(usable);
       if (nextM && attempts.length < MAX_ATTEMPTS) H.onStage('switch', { from: cm, to: nextM, kind: e.kind });
     }
