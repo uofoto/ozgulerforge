@@ -70,9 +70,16 @@ export const groq = {
         const tavilyData = await fetchTavilyContext(query, proxyUrl);
         if (tavilyData && tavilyData.contextText) {
           tavilySources = tavilyData.sources || [];
+          const sourceListText = tavilySources
+            .map((s, idx) => `${idx + 1}. ${s.title} — ${s.uri}`)
+            .join('\n');
+
           messages.push({
             role: 'system',
-            content: `${tavilyData.contextText}\n\nYukarıdaki güncel web sonuçlarını kullanarak yanıt ver. Tarih ve güncel bilgi gerektiren kısımlarda bu kaynaklara dayan; kaynaklarda olmayan kesin tarih/sayı uydurma.`
+            content:
+              `${tavilyData.contextText}\n\n` +
+              `KAYNAK BAĞLANTILARI:\n${sourceListText}\n\n` +
+              `Yukarıdaki güncel web sonuçlarını kullanarak yanıt ver. Doğrulanan bilgileri kendi yorumundan ayır, kaynakta olmayan tarih veya kesin sayı uydurma. Yanıtın sonunda "Kaynaklar:" başlığı altında yalnızca kullandığın ilgili bağlantıları açıkça listele.`
           });
         }
       } catch {
