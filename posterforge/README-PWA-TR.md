@@ -60,3 +60,9 @@ alanlarını gerçek bilgilerle değiştirin. KVKK aydınlatma yükümlülükler
 - Form alanları, açıklamalar, küçük etiketler ve kart yüzeyleri daha net hâle getirildi.
 - Üst araç çubuğundaki ölçü kapsülü açık temayla uyumlu olacak şekilde düzenlendi.
 - Önceki uygulama içi montaj kılavuzu korunmuştur.
+
+
+## Sürüm 2.3.6 — Kontrast düzeltmesi
+- Duvar Boyutu Özeti kartı açık ve yüksek kontrastlı yüzeye dönüştürüldü.
+- Kart başlığı, ölçü ve yaprak sayısı metinleri netleştirildi.
+- Canlı Önizleme / Orijinali Göster alt araç çubuğu açık yüzeye alındı.
