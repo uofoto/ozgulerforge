@@ -39,7 +39,7 @@ async function fetchTavilyContext(query, proxyUrl) {
   const lines = results.map((r, idx) => {
     const title = r?.title || `Kaynak ${idx + 1}`;
     const url = r?.url || '';
-    const content = String(r?.content || '').trim();
+    const content = String(r?.content || '').trim().slice(0, 400);
     if (/^https?:\/\//.test(url) && !sources.some(s => s.uri === url)) {
       sources.push({ uri: url, title });
     }
