@@ -95,13 +95,13 @@ export const groq = {
         } else {
           messages.push({
             role: 'system',
-            content: `Bugünün tarihi ${todayStr}'dir. Web araması denendi ancak sonuç alınamadı (${tavilyData?.error || 'bilinmeyen neden'}). Kullanıcıya güncel web verisine şu an ulaşılamadığını dürüstçe söyle; 2026 yılını gelecekte sanma.`
+            content: `Bugünün tarihi ${todayStr}'dir. Web araması başarısız oldu. Hata detayı: "${tavilyData?.error || 'bilinmeyen'}". Kullanıcıya bu hata detayını aynen ilet; 2026 yılını gelecekte sanma.`
           });
         }
       } catch (e) {
         messages.push({
           role: 'system',
-          content: `Bugünün tarihi ${todayStr}'dir. Web araması sırasında bağlantı hatası oluştu (${e.message}). Bunu kullanıcıya açıkça belirt.`
+          content: `Bugünün tarihi ${todayStr}'dir. Web araması sırasında bağlantı hatası oluştu. Hata detayı: "${e.message}". Bunu kullanıcıya açıkça belirt.`
         });
       }
     }
