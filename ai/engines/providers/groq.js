@@ -84,19 +84,18 @@ export const groq = {
       model: model.model,
       stream: true,
       temperature: model.temperature,
-      messages,
-      _tavilySources: tavilySources
+      messages
     };
 
-    const cleanPayload = { ...payload };
-    delete cleanPayload._tavilySources;
+    const jsonBody = !proxyUrl
+      ? JSON.stringify(payload)
+      : JSON.stringify({
+          provider: 'groq',
+          model: model.model,
+          body: payload
+        });
 
-    if (!proxyUrl) return JSON.stringify(cleanPayload);
-    return JSON.stringify({
-      provider: 'groq',
-      model: model.model,
-      body: cleanPayload
-    });
+    return { body: jsonBody, sources: tavilySources };
   },
   endpoint(model, proxyUrl) {
     if (proxyUrl) return proxyUrl.replace(/\/$/, '');
