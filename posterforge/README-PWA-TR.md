@@ -20,7 +20,9 @@
 alanlarını gerçek bilgilerle değiştirin. KVKK aydınlatma yükümlülükleri, veri sorumlusu bilgileri, üçüncü taraf CDN/Google Fonts veri akışları ve olası yurt dışına aktarım konuları gerçek dağıtım yapılandırmasına göre hukuk uzmanı tarafından kontrol edilmelidir. Hazır metin, hukuki danışmanlık veya mevzuata tam uyum garantisi değildir.
 
 ## Sürüm
-- 2.1.0 — 21.11.2026
+- İlk yayın: 21.11.2026
+- Son güncelleme: 23.11.2026
+- Güncel sürüm: 2.3.6
 - Mobil düzen, PWA manifesti, servis çalışanı, yükleme/güncelleme akışı ve uygulama içi yasal bilgilendirme.
 
 
