@@ -1263,82 +1263,38 @@ function onText(v) {
 // Ses, kullanıcı etkileşiminden sonra çalabilir: ilk dokunuşta hazırla.
 window.addEventListener('pointerdown', () => { try { audioCtx ??= new AudioContext(); audioCtx.resume?.(); } catch {} }, { once: true });
 
-// --- PWA kurulumu --------------------------------------------------------
+// --- ana ekrana ekleme ---------------------------------------------------
 
 let deferredInstall = null;
-const installButton = $('#btn-install');
-const installHelp = $('#install-help');
-
-function isRunningAsInstalledApp() {
-  return matchMedia('(display-mode: standalone)').matches ||
-    matchMedia('(display-mode: minimal-ui)').matches ||
-    navigator.standalone === true;
-}
-
-function updateInstallButton() {
-  const installedHere = isRunningAsInstalledApp();
-  installButton.textContent = t(installedHere ? 'install.installed' : 'install');
-  installButton.disabled = installedHere;
-  if (installedHere) installHelp.hidden = true;
-}
-
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstall = e;
-  updateInstallButton();
+  $('#btn-install').hidden = false;
 });
-
 window.addEventListener('appinstalled', () => {
   deferredInstall = null;
-  updateInstallButton();
-  installHelp.hidden = true;
+  $('#btn-install').hidden = true;
 });
-
-installButton.onclick = async () => {
-  // Standalone mod, bu sayfanın kurulu PWA içinden açıldığını kesin olarak gösterir.
-  if (isRunningAsInstalledApp()) {
-    updateInstallButton();
-    return;
-  }
-
-  if (deferredInstall) {
-    const promptEvent = deferredInstall;
-    deferredInstall = null;
-    promptEvent.prompt();
-    let choice = null;
-    try {
-      choice = await promptEvent.userChoice;
-    } catch {}
-    if (choice?.outcome === 'accepted') {
-      installHelp.hidden = true;
-      // appinstalled olayı da düğmeyi "yüklü" durumuna geçirir.
-      return;
-    }
-  }
-
-  // beforeinstallprompt her tarayıcıda verilmez. Bu, kurulu olduğu anlamına gelmez;
-  // tarayıcının kendi kurulum menüsü için doğru yönlendirmeyi göster.
-  const isIOSDevice =
-    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isAndroid = /android/i.test(navigator.userAgent);
-  installHelp.textContent = t(
-    isIOSDevice ? 'install.help.ios' : isAndroid ? 'install.help.android' : 'install.help.desktop'
-  );
-  installHelp.hidden = false;
+$('#btn-install').onclick = async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  try {
+    await deferredInstall.userChoice;
+  } catch {}
+  deferredInstall = null;
+  $('#btn-install').hidden = true;
 };
 
 // iOS'ta yükleme istemi yoktur; yolu göster.
 const isIOS =
   /iphone|ipad|ipod/i.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const isStandalone = isRunningAsInstalledApp();
+const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 if (isIOS && !isStandalone) $('#ios-hint').hidden = false;
 
 // --- açılış --------------------------------------------------------------
 
 applyI18n();
-updateInstallButton();
 renderTrusted();
 renderHistory();
 updateNearby();
