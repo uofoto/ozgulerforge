@@ -1,4 +1,4 @@
-/* Ses Cebi · Modern Mobil Görünüm ve Okunabilirlik Katmanı
+/* Ses Cebi · Modern Mobil Görünüm ve Okunabilirlik Katmanı (Sürüm 28)
  * Temel işlevlere, veri yapılarına, IndexedDB/localStorage anahtarlarına ve oynatıcı/stüdyo mantığına dokunmaz.
  * Mobil görünümde yığılmayı önler, dokunma hedeflerini büyütür, kontrastı artırır ve gözü yormayan ferah bir hiyerarşi kurar.
  */
@@ -32,7 +32,7 @@
   --mc-danger: #f0887a;
 }
 
-/* Genel okunabilirlik ve kontrast iyileştirmeleri */
+/* Genel okunabilirlik ve kontrast iyileştirmeleri (Masaüstü ve Mobil ortak) */
 :root:not([data-theme="dark"]) {
   --ink: var(--mc-ink);
   --muted: var(--mc-ink-muted);
