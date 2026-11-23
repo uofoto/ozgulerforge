@@ -38,3 +38,18 @@ alanlarını gerçek bilgilerle değiştirin. KVKK aydınlatma yükümlülükler
 - Hakkında, Gizlilik Politikası ve Kullanım Koşulları bağlantıları için bağımsız ve olay yakalama aşamasında çalışan açma/kapama yöneticisi eklendi.
 - Yasal bilgi penceresi görünürlük, kaydırma ve ESC ile kapatma davranışları sağlamlaştırıldı.
 - Servis çalışanı önbellek sürümü yükseltildi; eski PWA kabuğunun güncel sayfayı gölgelemesi engellendi.
+
+
+## PosterForge Studio Pro 2.3.3 — Aydınlık tema
+- Kasvetli siyah arayüz, ferah açık renkli çalışma alanına dönüştürüldü.
+- Kırık beyaz yüzeyler, yumuşak mavi/lila vurgular ve mint tonları kullanıldı.
+- Paneller, alt bilgi, ayarlar, önizleme kartları ve iletişim pencereleri açık temaya uyarlandı.
+- Kontrast, form alanları ve klavye odak durumları iyileştirildi.
+- PWA servis çalışanı önbellek sürümü yükseltildi.
+
+
+## Sürüm 2.3.4 — Uygulama içi montaj kılavuzu
+- Montaj kılavuzu artık ayrı PDF açmak yerine uygulama içinde kart tabanlı bir pencerede görüntülenir.
+- Sayfa planı, A1/B1 benzeri sayfa etiketleri ve poster/baskı özeti dinamik olarak gösterilir.
+- PDF çıktısı, kılavuz ekranındaki isteğe bağlı indirme düğmesine taşındı.
+- Service worker önbelleği 2.3.4 sürümüne yükseltildi.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PosterForge Studio Pro 2.3.2 — Mobil Poster Tasarım ve Baskı Stüdyosu</title>
+    <title>PosterForge Studio Pro 2.3.4 — Mobil Poster Tasarım ve Baskı Stüdyosu</title>
 
     <meta name="theme-color" content="#09090b">
     <meta name="description" content="PosterForge Studio Pro — mobil uyumlu, çok sayfalı poster tasarım ve baskı hazırlama uygulaması.">
@@ -191,6 +191,96 @@
         }
 
     </style>
+
+<style id="posterforge-bright-theme">
+/* PosterForge — ferah, aydınlık çalışma alanı */
+:root {
+  color-scheme: light;
+  --pf-bg: #f3f6fc;
+  --pf-surface: #ffffff;
+  --pf-surface-soft: #f7f8fd;
+  --pf-border: #dce3ef;
+  --pf-text: #26334a;
+  --pf-muted: #64748b;
+  --pf-primary: #6478dc;
+  --pf-primary-hover: #5367c9;
+  --pf-mint: #dff4ed;
+  --pf-lilac: #eeebff;
+}
+html, body { background: var(--pf-bg) !important; color: var(--pf-text) !important; }
+body {
+  background-image: radial-gradient(ellipse at 8% 0%, rgba(194, 219, 255, .55), transparent 36%),
+                    radial-gradient(ellipse at 92% 8%, rgba(221, 211, 255, .45), transparent 32%) !important;
+}
+.bg-studio-950 { background-color: var(--pf-bg) !important; }
+.bg-studio-900 { background-color: var(--pf-surface) !important; }
+.bg-studio-800 { background-color: #edf1f8 !important; }
+.text-zinc-100, .text-zinc-200, .text-white { color: var(--pf-text) !important; }
+.text-zinc-300 { color: #42516a !important; }
+.text-zinc-400, .text-zinc-500 { color: var(--pf-muted) !important; }
+.border-zinc-800, .border-zinc-700 { border-color: var(--pf-border) !important; }
+.bg-zinc-950, .bg-zinc-950\/70, .bg-zinc-900, .bg-zinc-900\/80 {
+  background-color: #f7f9fd !important;
+}
+.bg-zinc-800, .bg-zinc-800\/80 { background-color: #e9eef7 !important; }
+.hover\:bg-zinc-700:hover, .hover\:bg-zinc-800:hover { background-color: #dfe7f3 !important; }
+input, select, textarea {
+  color: #26334a !important;
+  background-color: #f8faff !important;
+  border-color: #d5deeb !important;
+}
+input::placeholder, textarea::placeholder { color: #8794a8 !important; }
+header, footer {
+  background: rgba(255,255,255,.88) !important;
+  border-color: var(--pf-border) !important;
+  backdrop-filter: blur(16px);
+}
+aside {
+  background: rgba(255,255,255,.92) !important;
+  border-color: var(--pf-border) !important;
+  box-shadow: 0 10px 30px rgba(55,75,115,.06);
+}
+main { background: transparent !important; }
+button {
+  transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+}
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 3px solid rgba(100,120,220,.32) !important;
+  outline-offset: 2px;
+}
+button.bg-indigo-600, button.bg-indigo-500, .bg-indigo-600 {
+  background-color: var(--pf-primary) !important;
+  color: white !important;
+  box-shadow: 0 5px 14px rgba(100,120,220,.18);
+}
+button.bg-indigo-600:hover, button.bg-indigo-500:hover { background-color: var(--pf-primary-hover) !important; }
+.text-indigo-400, .text-indigo-300 { color: #586cc8 !important; }
+.bg-indigo-500\/10, .bg-indigo-500\/20 { background-color: var(--pf-lilac) !important; }
+.border-indigo-500, .border-indigo-400 { border-color: #aab6f0 !important; }
+#legalDialog, #printPreflight { background: rgba(35,45,68,.38) !important; }
+#legalDialog > div, #printPreflight section {
+  background: #fff !important; border-color: #dce3ef !important;
+  box-shadow: 0 24px 70px rgba(38,51,74,.2) !important;
+}
+#legalDialog .sticky { background: rgba(255,255,255,.96) !important; }
+#toastBox { background: #fff !important; color: #26334a !important; border-color: #dce3ef !important; }
+#pagePreviewPanel, #qualityCard {
+  background: rgba(255,255,255,.94) !important;
+  border-color: var(--pf-border) !important;
+  box-shadow: 0 8px 24px rgba(45,65,105,.08);
+}
+#pagePreviewPanel button { background: #f4f7fc !important; border-color: #dce3ef !important; }
+#pagePreviewPanel canvas { background: #fff !important; }
+#workspace, .workspace-grid { background: linear-gradient(145deg,#edf3fb,#f7f5ff) !important; }
+#canvas, canvas#previewCanvas { background: #fff; }
+.shadow-2xl, .shadow-xl { box-shadow: 0 12px 34px rgba(42,58,92,.12) !important; }
+::-webkit-scrollbar-thumb { background: #c4cede; border-radius: 20px; }
+::-webkit-scrollbar-track { background: #edf1f7; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
+</style>
+
 </head>
 <body class="bg-studio-950 text-zinc-100 font-sans antialiased h-screen flex flex-col overflow-hidden select-none">
 
@@ -1610,7 +1700,8 @@
           preflight.classList.add('hidden');preflight.classList.remove('flex');preflightApproved=true;
           document.getElementById('btnExportPDF').click();
         });
-        document.getElementById('btnExportGuide').addEventListener('click',()=>{
+        // Uygulama içi montaj kılavuzu: PDF yalnızca isteğe bağlı dışa aktarma seçeneğidir.
+        function createAssemblyGuidePdf(){
           if(!window.jspdf?.jsPDF){showToast('PDF kütüphanesi yüklenemedi.');return;}
           const l=getPrintLayout(),{jsPDF}=window.jspdf,doc=new jsPDF({unit:'mm',format:'a4'});
           doc.setFontSize(20);doc.text('PosterForge - Montaj Kilavuzu',15,20);doc.setFontSize(11);
@@ -1621,8 +1712,45 @@
           for(let r=0;r<l.rows;r++){doc.text(Array.from({length:l.cols},(_,c)=>pageCode(r,c)).join('   ->   '),18,y);y+=9;if(y>270&&r<l.rows-1){doc.addPage();y=20;}}
           if(y>245)doc.addPage();doc.setFontSize(10);doc.text('1. Yazdirma olcegi: %100 / Gercek Boyut. Sayfaya sigdir secenegini kapatin.',15,Math.min(275,y+8));
           doc.text('2. Kenar bosluklarini kesin; bindirme alanlarini hizalayin.',15,Math.min(283,y+16));doc.text('3. Sutun harfi ve satir numarasi etiketlerini eslestirin.',15,Math.min(291,y+24));
-          doc.save('PosterForge-Montaj-Kilavuzu.pdf');showToast('Montaj kılavuzu PDF hazır.');
-        });
+          doc.save('PosterForge-Montaj-Kilavuzu.pdf');showToast('Montaj kılavuzu PDF indirildi.');
+        }
+        const guideModal=document.createElement('div');
+        guideModal.id='assemblyGuideModal';
+        guideModal.className='hidden fixed inset-0 z-[110] bg-slate-950/45 backdrop-blur-sm p-3 sm:p-6 items-center justify-center';
+        guideModal.innerHTML=`<section role="dialog" aria-modal="true" aria-labelledby="assemblyGuideTitle" class="w-full max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white text-slate-800 shadow-2xl">
+          <header class="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:px-7">
+            <div><div class="text-[10px] font-bold tracking-[.18em] text-indigo-600">POSTERFORGE STUDIO</div><h2 id="assemblyGuideTitle" class="mt-1 text-xl font-extrabold">Poster montaj kılavuzu</h2><p class="mt-1 text-xs text-slate-500">Baskıdan duvara asmaya kadar adım adım rehber</p></div>
+            <button type="button" id="closeAssemblyGuide" aria-label="Kılavuzu kapat" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50">Kapat ✕</button>
+          </header>
+          <div class="space-y-5 px-5 py-5 sm:px-7">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4" id="guideSummary"></div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <article class="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4"><div class="mb-2 text-lg">🖨️</div><h3 class="font-bold">1. Sayfaları yazdırın</h3><p class="mt-1 text-sm leading-6 text-slate-600">Yazdırma ölçeğini <b>%100 / Gerçek Boyut</b> seçin. “Sayfaya sığdır” ve otomatik küçültme seçeneklerini kapatın.</p></article>
+              <article class="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4"><div class="mb-2 text-lg">✂️</div><h3 class="font-bold">2. Kenarları hazırlayın</h3><p class="mt-1 text-sm leading-6 text-slate-600">Birleştirme için gereken bindirme payını koruyarak yalnızca dışta kalan kesim kenarlarını düzeltin.</p></article>
+              <article class="rounded-2xl border border-violet-100 bg-violet-50/70 p-4"><div class="mb-2 text-lg">🧩</div><h3 class="font-bold">3. Etiketleri eşleştirin</h3><p class="mt-1 text-sm leading-6 text-slate-600">Sayfaları soldan sağa, yukarıdan aşağıya yerleştirin. Aynı sütun harfi ve satır numarasına sahip parçaları yan yana getirin.</p></article>
+              <article class="rounded-2xl border border-amber-100 bg-amber-50/80 p-4"><div class="mb-2 text-lg">📐</div><h3 class="font-bold">4. Hizalayın ve sabitleyin</h3><p class="mt-1 text-sm leading-6 text-slate-600">Görsel devamlılığını kontrol ederek bindirme alanlarını hizalayın; parçaları arka taraftan bantlayarak sabitleyin.</p></article>
+            </div>
+            <section class="rounded-2xl border border-slate-200 p-4"><div class="flex flex-wrap items-center justify-between gap-2"><div><h3 class="font-bold">Sayfa birleştirme planı</h3><p class="mt-1 text-xs text-slate-500">Her kart, baskıdan çıkacak bir sayfayı temsil eder.</p></div><span id="guideGridLabel" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"></span></div><div id="guidePageGrid" class="mt-4 grid gap-2" style="grid-template-columns:repeat(auto-fit,minmax(72px,1fr))"></div></section>
+            <div class="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between"><p class="text-xs leading-5 text-slate-500">İpucu: Önce bir deneme sayfası yazdırarak yazıcı ölçeğini doğrulayın.</p><button type="button" id="downloadGuidePdf" class="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-600/20 hover:bg-indigo-700">PDF olarak indir ↓</button></div>
+          </div></section>`;
+        document.body.appendChild(guideModal);
+        function openAssemblyGuide(){
+          const l=getPrintLayout(),total=l.cols*l.rows;
+          document.getElementById('guideSummary').innerHTML=[
+            ['Poster boyutu',`${(l.totalWidthMm/10).toFixed(1)} × ${(l.totalHeightMm/10).toFixed(1)} cm`],
+            ['Sayfa sayısı',`${total} sayfa`],['Kağıt',`${state.paper} · ${state.orientation==='portrait'?'Dikey':'Yatay'}`],['Bindirme',`${state.overlapMm} mm`]
+          ].map(([k,v])=>`<div class="rounded-xl bg-slate-50 p-3"><div class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">${k}</div><div class="mt-1 text-sm font-extrabold text-slate-800">${v}</div></div>`).join('');
+          const grid=document.getElementById('guidePageGrid');grid.style.gridTemplateColumns=`repeat(${Math.min(l.cols,6)},minmax(0,1fr))`;
+          grid.innerHTML=Array.from({length:l.rows},(_,r)=>Array.from({length:l.cols},(_,c)=>{const code=pageCode(r,c);return `<div class="rounded-xl border border-indigo-100 bg-gradient-to-br from-white to-indigo-50 p-3 text-center"><div class="mx-auto mb-2 flex aspect-[3/4] items-center justify-center rounded-lg border border-dashed border-indigo-200 bg-white text-xl font-black text-indigo-600">${code}</div><div class="text-[10px] font-semibold text-slate-500">Satır ${r+1} · Sütun ${c+1}</div></div>`;}).join('')).join('');
+          document.getElementById('guideGridLabel').textContent=`${l.cols} sütun × ${l.rows} satır`;
+          guideModal.classList.remove('hidden');guideModal.classList.add('flex');document.body.style.overflow='hidden';
+        }
+        function closeAssemblyGuide(){guideModal.classList.add('hidden');guideModal.classList.remove('flex');document.body.style.overflow='';}
+        document.getElementById('btnExportGuide').addEventListener('click',openAssemblyGuide);
+        document.getElementById('closeAssemblyGuide').addEventListener('click',closeAssemblyGuide);
+        guideModal.addEventListener('click',e=>{if(e.target===guideModal)closeAssemblyGuide();});
+        document.getElementById('downloadGuidePdf').addEventListener('click',createAssemblyGuidePdf);
+        document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!guideModal.classList.contains('hidden'))closeAssemblyGuide();});
 
         // Dosya Yükleme İşleyicisi
         function handleImageFile(file) {
