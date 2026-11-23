@@ -13,13 +13,13 @@ export const ENGINES = [
 export const MODELS = [
   // Metin görevlerinde önce Groq'un ücretsiz plandaki üretim modelleri kullanılır;
   // kota/erişim sorunu olursa Gemini, ardından OpenRouter yedek olur.
-  { id: 'ultraGroqOSS', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'groq', model: 'openai/gpt-oss-120b', tier: 'strong', vision: false, pdf: false, web: false },
+  { id: 'ultraGroqOSS', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'groq', model: 'openai/gpt-oss-120b', tier: 'strong', vision: false, pdf: false, web: true },
   // Qwen görsel destekli ancak önizleme modelidir; yalnızca görsel gerektiren isteklerde yedek/öncelikli adaydır.
   { id: 'ultraGroqQwen', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'groq', model: 'qwen/qwen3.8-27b', tier: 'strong', vision: true, pdf: false, web: false },
   { id: 'ultra38', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'gemini', model: 'gemini-3.8-flash', thinking: 'medium', tier: 'strong', vision: true, pdf: true, web: true },
-  { id: 'ultraGroqOSS20', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'groq', model: 'openai/gpt-oss-20b', tier: 'light', vision: false, pdf: false, web: false },
+  { id: 'ultraGroqOSS20', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'groq', model: 'openai/gpt-oss-20b', tier: 'light', vision: false, pdf: false, web: true },
   { id: 'ultraOR', engine: 'ultra', label: 'AI Ultra 3.8', provider: 'openrouter', model: 'openrouter/free', tier: 'strong', vision: false, pdf: false, web: true },
-  { id: 'liteGroq', engine: 'lite', label: 'AI Lite', provider: 'groq', model: 'openai/gpt-oss-20b', tier: 'light', vision: false, pdf: false, web: false },
+  { id: 'liteGroq', engine: 'lite', label: 'AI Lite', provider: 'groq', model: 'openai/gpt-oss-20b', tier: 'light', vision: false, pdf: false, web: true },
   { id: 'lite35', engine: 'lite', label: 'AI Lite', provider: 'gemini', model: 'gemini-3.5-flash-lite', thinking: 'low', tier: 'light', vision: true, pdf: true, web: true },
   { id: 'liteOR', engine: 'lite', label: 'AI Lite', provider: 'openrouter', model: 'openrouter/free', tier: 'light', vision: false, pdf: false, web: true }
 ];
