@@ -53,3 +53,10 @@ alanlarını gerçek bilgilerle değiştirin. KVKK aydınlatma yükümlülükler
 - Sayfa planı, A1/B1 benzeri sayfa etiketleri ve poster/baskı özeti dinamik olarak gösterilir.
 - PDF çıktısı, kılavuz ekranındaki isteğe bağlı indirme düğmesine taşındı.
 - Service worker önbelleği 2.3.4 sürümüne yükseltildi.
+
+
+## Sürüm 2.3.5 — Okunabilir açık tema
+- Açık temadaki soluk metinlerin kontrastı artırıldı.
+- Form alanları, açıklamalar, küçük etiketler ve kart yüzeyleri daha net hâle getirildi.
+- Üst araç çubuğundaki ölçü kapsülü açık temayla uyumlu olacak şekilde düzenlendi.
+- Önceki uygulama içi montaj kılavuzu korunmuştur.
