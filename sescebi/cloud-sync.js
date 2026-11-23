@@ -8,7 +8,7 @@ const FAV_META_KEY = 'sescebi-cloud-fav-meta';
 const LAST_SYNC_KEY = 'sescebi-cloud-last-sync';
 const PUSH_DELAY_MS = 20000;
 
-// ---------- saf yardımcılar (test edilebilir) ----------
+// ---------- saf yardımcılar ----------
 
 export function songKey(song) {
   const name = String(song?.name || '').normalize('NFC').toLocaleLowerCase('tr').trim();
@@ -60,7 +60,6 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
   let busy = false;
   let box = null;
 
-  // --- yerel depolama yardımcıları ---
   function loadSession() {
     try {
       const raw = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
@@ -82,7 +81,6 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     try { localStorage.setItem(FAV_META_KEY, JSON.stringify(meta)); } catch { /* yoksay */ }
   }
 
-  // --- ağ ---
   async function api(path, options = {}) {
     const headers = { 'Content-Type': 'application/json' };
     if (session && path !== '/auth/google') headers.Authorization = `Bearer ${session.token}`;
@@ -96,7 +94,6 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     return response.json();
   }
 
-  // --- anlık görüntü ---
   function localSnapshot() {
     const favorites = {};
     const meta = loadFavMeta();
@@ -123,7 +120,6 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     return { v: 1, favorites, stats };
   }
 
-  // --- birleşmiş veriyi yerel kütüphaneye uygula ---
   async function applyToLibrary(merged) {
     applying = true;
     try {
@@ -166,11 +162,11 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     }
   }
 
-  // --- eşitleme ---
   async function syncNow({ quiet = true } = {}) {
     if (!session) return;
     if (syncing) { rerun = true; return; }
     syncing = true;
+    renderUi();
     try {
       const remote = await api('/sync');
       const remoteData = remote?.data || { favorites: {}, stats: {} };
@@ -181,9 +177,11 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
       state = final;
       if (stable(final) !== stable(remoteData)) await api('/sync', { method: 'PUT', body: JSON.stringify({ data: final }) });
       try { localStorage.setItem(LAST_SYNC_KEY, String(Date.now())); } catch { /* yoksay */ }
-      if (!quiet) toast('Bulutla eşitlendi.');
+      const favCount = Object.values(final.favorites || {}).filter((f) => f && f.fav).length;
+      const statCount = Object.keys(final.stats || {}).length;
+      if (!quiet) toast(`Yedek buluta gönderildi (${favCount} favori, ${statCount} dinleme kaydı).`);
     } catch (error) {
-      if (!quiet) toast(error instanceof Error ? error.message : 'Eşitleme başarısız.', true);
+      if (!quiet) toast(error instanceof Error ? error.message : 'Bulut eşitleme başarısız.', true);
     } finally {
       syncing = false;
       renderUi();
@@ -196,7 +194,6 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     timer = window.setTimeout(() => { timer = 0; void syncNow(); }, PUSH_DELAY_MS);
   }
 
-  // --- Google ile giriş ---
   function loadGoogleScript() {
     if (window.google?.accounts?.id) return Promise.resolve();
     return new Promise((resolve, reject) => {
@@ -228,12 +225,13 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
   }
 
   async function mountGoogleButton(holder) {
+    if (!holder) return;
     try {
       await loadGoogleScript();
       window.google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onCredential, ux_mode: 'popup' });
-      window.google.accounts.id.renderButton(holder, { theme: 'outline', size: 'large', shape: 'pill', text: 'signin_with', locale: 'tr' });
+      window.google.accounts.id.renderButton(holder, { theme: 'outline', size: 'medium', shape: 'pill', text: 'signin_with', locale: 'tr' });
     } catch {
-      holder.textContent = 'Google girişi yüklenemedi. İnternet bağlantını kontrol et.';
+      holder.textContent = 'Google girişi yüklenemedi.';
     }
   }
 
@@ -241,44 +239,104 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     try { window.google?.accounts?.id?.disableAutoSelect(); } catch { /* yoksay */ }
     saveSession(null);
     renderUi();
-    toast('Çıkış yapıldı. Bulut verin silinmedi.');
+    toast('Oturum kapatıldı. Buluttaki yedeğin korundu.');
   }
 
   async function deleteCloudData() {
-    if (!window.confirm('Buluttaki favori ve istatistik yedeğin silinsin mi? Bu cihazdaki veriler silinmez.')) return;
+    // 1. Adım: İlk onay sorusu
+    const firstConfirm = window.confirm(
+      '1. ONAY: Buluttaki tüm favori ve dinleme istatistiği yedeğin silinecek.\n\nDevam etmek istiyor musun?'
+    );
+    if (!firstConfirm) return;
+
+    // 2. Adım: Hatalı kararın önüne geçmek için ikinci kesin onay sorusu
+    const secondConfirm = window.confirm(
+      'SON UYARI (2/2): Bu işlem geri alınamaz ve bulut yedeğin kalıcı olarak kaldırılır (cihazındaki ses dosyaları silinmez).\n\nBulut verini kalıcı olarak silmeyi onaylıyor musun?'
+    );
+    if (!secondConfirm) return;
+
     try {
       await api('/sync', { method: 'DELETE' });
       state = { v: 1, favorites: {}, stats: {} };
-      toast('Bulut verin silindi.');
+      try { localStorage.removeItem(LAST_SYNC_KEY); } catch {}
+      renderUi();
+      toast('Bulut verin kalıcı olarak silindi.');
     } catch (error) {
-      toast(error instanceof Error ? error.message : 'Silinemedi.', true);
+      toast(error instanceof Error ? error.message : 'Bulut verisi silinemedi.', true);
     }
   }
 
-  // --- arayüz ---
   function ensureBox() {
     if (box && document.body.contains(box)) return box;
     const anchor = document.querySelector('.library-subtools');
     if (!anchor) return null;
-    const style = document.createElement('style');
-    style.textContent = '.cloud-box{margin:12px 0 0;padding:12px 14px;border:1px solid var(--border,#e4e8e2);border-radius:12px;font-size:.72rem;line-height:1.5}.cloud-box p{margin:0 0 8px}.cloud-box small{display:block;margin-top:8px;opacity:.7}.cloud-actions{display:flex;flex-wrap:wrap;gap:8px}';
-    document.head.appendChild(style);
     box = document.createElement('div');
     box.className = 'cloud-box';
     anchor.insertAdjacentElement('afterend', box);
     return box;
   }
 
+  function renderBannerAndSidebar() {
+    // Ana ekrandaki belirgin Gmail / Google Hesap kartı
+    const homeBanner = document.getElementById('home-gmail-bar');
+    if (homeBanner) {
+      homeBanner.textContent = '';
+      if (!session) {
+        const left = document.createElement('div');
+        left.className = 'gmail-bar-info';
+        left.innerHTML = `<span class="gmail-badge">G</span><div><strong>Gmail ile yedekle</strong><span>Favorilerini ve dinleme geçmişini hesabına bağla</span></div>`;
+        const holder = document.createElement('div');
+        holder.className = 'gmail-btn-slot';
+        homeBanner.append(left, holder);
+        if (!busy) void mountGoogleButton(holder);
+      } else {
+        const last = Number(localStorage.getItem(LAST_SYNC_KEY)) || 0;
+        const initial = (session.email || 'G').charAt(0).toUpperCase();
+        const left = document.createElement('div');
+        left.className = 'gmail-bar-info is-connected';
+        left.innerHTML = `<span class="gmail-avatar">${initial}</span><div><strong>${session.email}</strong><span>${last ? `Bulut bağlı · son ${new Date(last).toLocaleTimeString('tr', { hour: '2-digit', minute: '2-digit' })}` : 'Google hesabı bağlı'}</span></div>`;
+        const actions = document.createElement('div');
+        actions.className = 'gmail-bar-actions';
+        const pushBtn = document.createElement('button');
+        pushBtn.type = 'button';
+        pushBtn.className = 'mini-cloud-btn';
+        pushBtn.textContent = syncing ? 'Gönderiliyor…' : 'Yedeği buluta gönder';
+        pushBtn.addEventListener('click', () => void syncNow({ quiet: false }));
+        const manageBtn = document.createElement('button');
+        manageBtn.type = 'button';
+        manageBtn.className = 'mini-cloud-btn ghost';
+        manageBtn.textContent = 'Hesap';
+        manageBtn.addEventListener('click', () => document.getElementById('open-profile-sheet')?.click());
+        actions.append(pushBtn, manageBtn);
+        homeBanner.append(left, actions);
+      }
+    }
+
+    // Masaüstü sol menü altındaki profil kartı (ekran görüntüsündeki sol alt kullanıcı alanı gibi)
+    const sideChip = document.getElementById('sidebar-account-chip');
+    if (sideChip) {
+      sideChip.textContent = '';
+      if (!session) {
+        sideChip.innerHTML = `<span class="side-avatar">G</span><div class="side-acc-copy"><strong>Google ile Giriş</strong><small>Bulut yedek kapalı</small></div>`;
+      } else {
+        const initial = (session.email || 'G').charAt(0).toUpperCase();
+        const namePart = session.email.split('@')[0];
+        sideChip.innerHTML = `<span class="side-avatar is-online">${initial}</span><div class="side-acc-copy"><strong>${namePart}</strong><small>${session.email}</small></div>`;
+      }
+    }
+  }
+
   function renderUi() {
+    renderBannerAndSidebar();
     const el = ensureBox();
     if (!el) return;
     el.textContent = '';
     const note = document.createElement('small');
-    note.textContent = 'Buluta yalnızca favori listesi, dinleme istatistikleri ve e-posta adresin gider. Ses dosyaların cihazında kalır.';
+    note.textContent = 'Not: "Yedeği buluta gönder" favori ve dinleme verilerini Google hesabına kaydeder; ses dosyaları ise "Yedeği cihazda sakla" ile ZIP olarak cihazında tutulur.';
 
     if (!session) {
       const p = document.createElement('p');
-      p.textContent = 'Favorilerini ve istatistiklerini Google hesabınla yedekle. Tarayıcı geçmişi silinse bile geri gelir.';
+      p.textContent = 'Gmail hesabınla giriş yaparak favorilerini ve dinleme istatistiklerini buluta yedekleyebilirsin.';
       const holder = document.createElement('div');
       el.append(p, holder, note);
       if (!busy) void mountGoogleButton(holder);
@@ -287,26 +345,25 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
 
     const last = Number(localStorage.getItem(LAST_SYNC_KEY)) || 0;
     const p = document.createElement('p');
-    p.textContent = `Bulut yedek açık: ${session.email}${last ? ` · son eşitleme ${new Date(last).toLocaleTimeString('tr', { hour: '2-digit', minute: '2-digit' })}` : ''}`;
+    p.innerHTML = `<strong>Bağlı hesap:</strong> ${session.email}${last ? ` · son eşitleme ${new Date(last).toLocaleTimeString('tr', { hour: '2-digit', minute: '2-digit' })}` : ''}`;
     const actions = document.createElement('div');
     actions.className = 'cloud-actions';
-    const make = (label, handler) => {
+    const make = (label, cls, handler) => {
       const button = document.createElement('button');
       button.type = 'button';
-      button.className = 'ghost-button';
+      button.className = cls;
       button.textContent = label;
       button.addEventListener('click', handler);
       return button;
     };
     actions.append(
-      make(syncing ? 'Eşitleniyor…' : 'Şimdi eşitle', () => void syncNow({ quiet: false })),
-      make('Çıkış yap', () => void signOut()),
-      make('Bulut verimi sil', () => void deleteCloudData()),
+      make(syncing ? 'Gönderiliyor…' : '☁ Yedeği buluta gönder', 'primary-button cloud-push-btn', () => void syncNow({ quiet: false })),
+      make('Çıkış yap', 'ghost-button', () => void signOut()),
+      make('Bulut verimi sil', 'ghost-button cloud-danger-btn', () => void deleteCloudData()),
     );
     el.append(p, actions, note);
   }
 
-  // --- dış API ---
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden' && session && timer) {
       window.clearTimeout(timer);
