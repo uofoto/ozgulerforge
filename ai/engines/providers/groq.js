@@ -1,18 +1,22 @@
 // Groq OpenAI-uyumlu Chat Completions sağlayıcısı + Tavily Web Arama desteği.
 import { DATA_URL } from '../media.js';
 
-function extractLastUserQuery(hist) {
-  for (let i = (hist || []).length - 1; i >= 0; i--) {
-    const item = hist[i];
-    if (item && item.role === 'user' && typeof item.msgText === 'string' && item.msgText.trim()) {
-      return item.msgText.trim();
-    }
+function extractSearchQuery(hist) {
+  const userMsgs = (hist || [])
+    .filter(item => item && item.role === 'user' && typeof item.msgText === 'string' && item.msgText.trim())
+    .map(item => item.msgText.trim());
+
+  if (!userMsgs.length) return '';
+  const last = userMsgs[userMsgs.length - 1];
+  // Son mesaj çok kısaysa ("2026 yılına ait", "detay ver" gibi) bir önceki kullanıcı sorusuyla birleştir
+  if (last.length < 35 && userMsgs.length > 1) {
+    return `${userMsgs[userMsgs.length - 2]} ${last}`.slice(0, 300);
   }
-  return '';
+  return last.slice(0, 300);
 }
 
 async function fetchTavilyContext(query, proxyUrl) {
-  if (!query || !proxyUrl) return null;
+  if (!query || !proxyUrl) return { error: 'Sorgu veya proxy adresi eksik.' };
   const endpoint = proxyUrl.replace(/\/$/, '');
   const res = await fetch(endpoint, {
     method: 'POST',
@@ -23,10 +27,13 @@ async function fetchTavilyContext(query, proxyUrl) {
       maxResults: 5
     })
   });
-  if (!res.ok) return null;
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    return { error: `HTTP ${res.status} ${errText.slice(0, 120)}` };
+  }
   const data = await res.json();
   const results = Array.isArray(data?.results) ? data.results : [];
-  if (!results.length) return null;
+  if (!results.length) return { error: 'Tavily sonuç döndürmedi.' };
 
   const sources = [];
   const lines = results.map((r, idx) => {
@@ -61,11 +68,15 @@ export const groq = {
     return messages;
   },
   async buildBody({ model, hist, systemText, webOn, proxyUrl }) {
-    const messages = [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)];
+    const todayStr = new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    const messages = [
+      { role: 'system', content: `${systemText}\nBugünün tarihi: ${todayStr}.` },
+      ...this.buildMessages(hist, model)
+    ];
     let tavilySources = [];
 
     if (webOn && proxyUrl) {
-      const query = extractLastUserQuery(hist);
+      const query = extractSearchQuery(hist);
       try {
         const tavilyData = await fetchTavilyContext(query, proxyUrl);
         if (tavilyData && tavilyData.contextText) {
@@ -79,11 +90,19 @@ export const groq = {
             content:
               `${tavilyData.contextText}\n\n` +
               `KAYNAK BAĞLANTILARI:\n${sourceListText}\n\n` +
-              `Yukarıdaki güncel web sonuçlarını kullanarak yanıt ver. Doğrulanan bilgileri kendi yorumundan ayır, kaynakta olmayan tarih veya kesin sayı uydurma. Yanıtın sonunda "Kaynaklar:" başlığı altında yalnızca kullandığın ilgili bağlantıları açıkça listele.`
+              `Yukarıdaki güncel web sonuçlarını kullanarak yanıt ver. Bugünün tarihi ${todayStr}'dir; 2026 yılı geçmişte veya içinde bulunduğumuz yıldır, asla "henüz gerçekleşmedi" deme. Yanıtın sonunda "Kaynaklar:" başlığı altında kullandığın bağlantıları listele.`
+          });
+        } else {
+          messages.push({
+            role: 'system',
+            content: `Bugünün tarihi ${todayStr}'dir. Web araması denendi ancak sonuç alınamadı (${tavilyData?.error || 'bilinmeyen neden'}). Kullanıcıya güncel web verisine şu an ulaşılamadığını dürüstçe söyle; 2026 yılını gelecekte sanma.`
           });
         }
-      } catch {
-        // Arama hatasında normal Groq yanıtına düş
+      } catch (e) {
+        messages.push({
+          role: 'system',
+          content: `Bugünün tarihi ${todayStr}'dir. Web araması sırasında bağlantı hatası oluştu (${e.message}). Bunu kullanıcıya açıkça belirt.`
+        });
       }
     }
 
