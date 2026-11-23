@@ -42,17 +42,27 @@ app.innerHTML = `
     <aside class="main-nav" aria-label="Ana gezinme">
       <a class="sidebar-brand" href="./" aria-label="Ses Cebi ana sayfa">
         <span class="sidebar-brand-mark">${icons.cassette}</span>
-        <span class="sidebar-brand-copy">Ses Cebi<small>OZGULER FORGE</small></span>
+        <span class="sidebar-brand-copy">Ses Cebi<small>KİŞİSEL SES ARŞİVİ</small></span>
       </a>
-      <span class="nav-caption">ÇALIŞMA ALANI</span>
+      <span class="nav-caption">KOLEKSİYON</span>
       <div class="nav-items">
-        <button class="nav-item active" type="button" data-screen="home"><span class="nav-symbol">⌂</span><span>Ana sayfa</span></button>
-        <button class="nav-item" type="button" data-screen="library"><span class="nav-symbol">▤</span><span>Ses arşivi</span><span class="nav-count" id="nav-count">0</span></button>
-        <button class="nav-item" type="button" data-screen="studio"><span class="nav-symbol nav-studio-icon">${icons.studio}</span><span>Ses stüdyosu</span></button>
+        <button class="nav-item active" type="button" data-screen="home">
+          <span class="nav-symbol">⌂</span>
+          <span>Ana sayfa</span>
+        </button>
+        <button class="nav-item" type="button" data-screen="library">
+          <span class="nav-symbol">▤</span>
+          <span>Ses arşivi</span>
+          <span class="nav-count" id="nav-count">0</span>
+        </button>
+        <button class="nav-item" type="button" data-screen="studio">
+          <span class="nav-symbol nav-studio-icon">${icons.studio}</span>
+          <span>Ses stüdyosu</span>
+        </button>
       </div>
       <div class="sidebar-bottom">
         <span class="sidebar-status"><i></i> Yerel &amp; Çevrimdışı</span>
-        <span class="sidebar-version">SES CEBİ · SÜRÜM 30</span>
+        <span class="sidebar-version">SES CEBİ · SÜRÜM 31</span>
       </div>
     </aside>
 
@@ -65,44 +75,57 @@ app.innerHTML = `
         </a>
       </div>
       <div class="header-note">
-        <span class="device-pill"><span class="live-dot"></span><span>Cihazında saklı</span></span>
+        <span class="device-pill"><span class="live-dot"></span><span>Bu cihazda, sana ait</span></span>
         <button class="motion-toggle" id="motion-toggle" type="button" aria-label="Ekolayzer animasyonunu kapat" title="Ekolayzer animasyonu açık">∿</button>
         <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir" title="Tema değiştir">◐</button>
       </div>
     </header>
 
     <main>
+      <!-- ======================== EKRAN 1: ANA SAYFA ======================== -->
       <section class="screen-view active" id="screen-home">
         <div class="page-heading">
           <div>
-            <p class="page-kicker">KİŞİSEL SES ALANIN</p>
-            <h1>Seslerini, <em>özgürce.</em></h1>
-            <p class="page-subtitle">Kaydet, düzenle ve kendi arşivinden dinle. Dosyaların yalnızca bu cihazda kalır.</p>
+            <p class="page-kicker">KİŞİSEL SES ALANI · EDİTORYAL KOLEKSİYON</p>
+            <h1>Seslerini, <em>özgürce</em> sakla.</h1>
+            <p class="page-subtitle">Kaydet, kes, düzenle ve kendi kişisel arşivinden dinle. Tüm kayıtların yalnızca bu cihazda kalır.</p>
           </div>
           <span class="today-chip"><i></i> Çevrimdışı hazır</span>
         </div>
 
         <section class="metric-row" aria-label="Arşiv özeti">
           <article class="metric-card">
+            <span class="metric-index">01</span>
+            <div class="metric-body">
+              <span class="metric-label">ARŞİVİNDE</span>
+              <div class="metric-val"><strong id="stat-count">0</strong><small>kayıt</small></div>
+            </div>
             <span class="metric-icon mint">♫</span>
-            <div class="metric-body"><span class="metric-label">ARŞİVİNDE</span><div class="metric-val"><strong id="stat-count">0</strong><small>kayıt</small></div></div>
           </article>
           <article class="metric-card">
-            <span class="metric-icon lilac">♥</span>
-            <div class="metric-body"><span class="metric-label">FAVORİLER</span><div class="metric-val"><strong id="stat-favorites">0</strong><small>seçili</small></div></div>
+            <span class="metric-index">02</span>
+            <div class="metric-body">
+              <span class="metric-label">FAVORİLER</span>
+              <div class="metric-val"><strong id="stat-favorites">0</strong><small>seçili</small></div>
+            </div>
+            <span class="metric-icon terracotta">♥</span>
           </article>
           <article class="metric-card">
-            <span class="metric-icon amber">◷</span>
-            <div class="metric-body"><span class="metric-label">DEPOLAMA</span><div class="metric-val"><strong id="stat-storage">0 B</strong><small>cihazda</small></div></div>
+            <span class="metric-index">03</span>
+            <div class="metric-body">
+              <span class="metric-label">DEPOLAMA</span>
+              <div class="metric-val"><strong id="stat-storage">0 B</strong><small>cihazda</small></div>
+            </div>
+            <span class="metric-icon brass">◷</span>
           </article>
         </section>
 
         <section class="listening-stats" id="listening-stats-panel" aria-labelledby="listening-stats-title">
           <div class="stats-heading">
             <div>
-              <p class="section-kicker">YEREL İSTATİSTİK</p>
+              <p class="section-kicker">DİNLEME GÜNLÜĞÜ</p>
               <h2 id="listening-stats-title">Dinleme özeti</h2>
-              <p>Seslerini nasıl kullandığını yalnızca sen görebilirsin.</p>
+              <p>Kayıtlarını ne kadar dinlediğini yalnızca sen görebilirsin.</p>
             </div>
             <div class="stats-heading-actions">
               <span class="stats-local-badge"><i></i> YEREL</span>
@@ -110,12 +133,12 @@ app.innerHTML = `
             </div>
           </div>
           <div class="listening-stats-grid" id="listening-stats-content">
-            <article class="listen-stat-card"><span class="listen-stat-icon play-stat">▶</span><div><span class="listen-stat-label">TOPLAM ÇALMA</span><strong id="stat-play-count">0</strong><small>oynatma</small></div></article>
-            <article class="listen-stat-card"><span class="listen-stat-icon time-stat">◷</span><div><span class="listen-stat-label">DİNLEME SÜRESİ</span><strong id="stat-listen-time">0 sn</strong><small>aktif süre</small></div></article>
-            <article class="listen-stat-card"><span class="listen-stat-icon tracks-stat">♫</span><div><span class="listen-stat-label">FARKLI KAYIT</span><strong id="stat-unique-tracks">0</strong><small>dinlenen ses</small></div></article>
-            <article class="listen-stat-card top-track-stat"><span class="listen-stat-icon top-stat">✦</span><div><span class="listen-stat-label">EN ÇOK DİNLENEN</span><button class="top-track-link" id="stat-top-track" type="button" disabled>Henüz yok</button><small id="stat-top-play-count">Bir ses çaldığında burada</small></div></article>
+            <article class="listen-stat-card"><span class="listen-stat-icon">▶</span><div><span class="listen-stat-label">TOPLAM ÇALMA</span><strong id="stat-play-count">0</strong><small>oynatma</small></div></article>
+            <article class="listen-stat-card"><span class="listen-stat-icon">◷</span><div><span class="listen-stat-label">DİNLEME SÜRESİ</span><strong id="stat-listen-time">0 sn</strong><small>aktif süre</small></div></article>
+            <article class="listen-stat-card"><span class="listen-stat-icon">♫</span><div><span class="listen-stat-label">FARKLI KAYIT</span><strong id="stat-unique-tracks">0</strong><small>dinlenen ses</small></div></article>
+            <article class="listen-stat-card top-track-stat"><span class="listen-stat-icon">✦</span><div><span class="listen-stat-label">EN ÇOK DİNLENEN</span><button class="top-track-link" id="stat-top-track" type="button" disabled>Henüz yok</button><small id="stat-top-play-count">Bir ses çaldığında burada</small></div></article>
           </div>
-          <p class="stats-footnote"><span aria-hidden="true">◈</span> İstatistikler bu tarayıcıda saklanır.</p>
+          <p class="stats-footnote">◈ İstatistikler yalnızca bu tarayıcıda tutulur.</p>
         </section>
 
         <div class="home-workspace">
@@ -123,9 +146,9 @@ app.innerHTML = `
             <section class="card add-card" aria-labelledby="add-title">
               <div class="card-heading">
                 <div>
-                  <p class="section-kicker">YENİ KAYIT</p>
-                  <h2 id="add-title">Arşivine ses ekle</h2>
-                  <p>Cihazından dosya seç ya da doğrudan ses bağlantısı ekle.</p>
+                  <p class="section-kicker">YENİ KAYIT EKLE</p>
+                  <h2 id="add-title">Arşivine yeni bir ses al</h2>
+                  <p>Cihazından ses/video dosyası seç ya da izinli doğrudan bağlantı ekle.</p>
                 </div>
                 <span class="stamp"><i></i> CİHAZDA</span>
               </div>
@@ -174,36 +197,14 @@ app.innerHTML = `
               </div>
             </section>
 
-            <div class="player" id="player" aria-live="polite">
-              <div class="player-top">
-                <div class="player-art">${icons.cassette}</div>
-                <div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div>
-              </div>
-              <div class="player-equalizer" id="player-equalizer" aria-label="Ses seviyesi görselleştirmesi" role="img"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-              <div class="player-controls">
-                <button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button>
-                <button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button>
-                <button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button>
-                <input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" />
-                <span class="time" id="time">00:00 / 00:00</span>
-              </div>
-              <div class="player-extra">
-                <button class="chip" id="prev-button" type="button">Önceki</button>
-                <button class="chip" id="next-button" type="button">Sonraki</button>
-                <button class="chip" id="mode-button" type="button">Sırayla çal</button>
-                <label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
-                <button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button>
-              </div>
-            </div>
-
             <section class="install-panel" aria-label="Ses Cebi uygulaması ve güncelleme">
               <div class="install-head">
                 <div class="install-mark" aria-hidden="true">${icons.cassette}</div>
                 <div class="install-copy">
-                  <span class="install-eyebrow">KİŞİSEL ARŞİVİN · HER AN YANINDA</span>
+                  <span class="install-eyebrow">ANA EKRAN UYGULAMASI · PWA</span>
                   <strong>Ses Cebi, hep yanında.</strong>
-                  <span>Uygulamayı ana ekranına ekle; arşivin tek dokunuşla açılsın.</span>
-                  <small id="app-status">Sürüm 30 · Güncel sürüm</small>
+                  <span>Uygulamayı telefonuna veya bilgisayarına yükle; arşivin çevrimdışı açılsın.</span>
+                  <small id="app-status">Sürüm 31 · Güncel sürüm</small>
                 </div>
               </div>
               <div class="app-card-actions">
@@ -217,7 +218,7 @@ app.innerHTML = `
           <aside class="home-aside">
             <section class="card recent-card">
               <div class="aside-heading">
-                <div><p class="section-kicker">KÜTÜPHANENDEN</p><h2>Son eklenenler</h2></div>
+                <div><p class="section-kicker">KOLEKSİYONDAN</p><h2>Son eklenenler</h2></div>
                 <button class="text-link" type="button" data-screen="library">Tümünü gör <span>↗</span></button>
               </div>
               <div id="dashboard-recent" class="recent-list"></div>
@@ -229,25 +230,26 @@ app.innerHTML = `
             </section>
             <section class="privacy-card">
               <span class="privacy-icon">◈</span>
-              <div><strong>Senin seslerin, senin cihazında.</strong><p>Hesap zorunluluğu yok. Arşivini dilediğinde ZIP olarak yedekleyebilirsin.</p></div>
+              <div><strong>Senin seslerin, senin cihazında.</strong><p>Hesap zorunluluğu yok. Arşivini dilediğinde tek tıkla ZIP olarak yedekleyebilirsin.</p></div>
             </section>
           </aside>
         </div>
       </section>
 
+      <!-- ======================== EKRAN 2: SES ARŞİVİ ======================== -->
       <section class="screen-view" id="screen-library">
         <div class="page-heading library-page-heading">
           <div>
-            <p class="page-kicker">SENİN KÜTÜPHANEN</p>
-            <h1>Ses arşivi</h1>
-            <p class="page-subtitle">Bu cihazda saklanan kayıtlarını ara, dinle ve düzenle.</p>
+            <p class="page-kicker">KİŞİSEL KOLEKSİYONUN</p>
+            <h1>Ses <em>arşivi</em></h1>
+            <p class="page-subtitle">Bu cihazda saklanan tüm kayıtlarını ara, analog kartlardan dinle veya stüdyoda kes.</p>
           </div>
-          <button class="primary-button library-add-button" type="button" id="library-add">${icons.plus}<span>Ses ekle</span></button>
+          <button class="primary-button library-add-button" type="button" id="library-add">${icons.plus}<span>Yeni ses ekle</span></button>
         </div>
 
         <section class="card library-card" aria-labelledby="library-title">
           <div class="studio-picker-banner" id="studio-picker-banner" hidden role="status">
-            <div><strong>Stüdyo için bir ses seç</strong><span>Düzenlemek istediğin kaydın düğmesine dokun.</span></div>
+            <div><strong>Stüdyo için bir kayıt seç</strong><span>Düzenlemek istediğin kaydın düğmesine dokun.</span></div>
             <button class="ghost-button" id="studio-picker-cancel" type="button">Vazgeç</button>
           </div>
 
@@ -268,9 +270,9 @@ app.innerHTML = `
           </div>
 
           <div class="library-subtools">
-            <span>Dosyaların cihazında kalır ve çevrimdışı kullanılabilir.</span>
+            <span>Kayıtların yerel olarak korunur.</span>
             <div class="backup-row">
-              <button class="ghost-button" id="backup-button" type="button">${icons.download}<span>Yedek al</span></button>
+              <button class="ghost-button" id="backup-button" type="button">${icons.download}<span>Yedek al (ZIP)</span></button>
               <button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedeği yükle</span></button>
               <input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" />
             </div>
@@ -287,38 +289,63 @@ app.innerHTML = `
         </section>
       </section>
 
+      <!-- ======================== EKRAN 3: SES STÜDYOSU ======================== -->
       <section class="screen-view" id="screen-studio">
         <div class="page-heading">
           <div>
-            <p class="page-kicker">YARATICI ARAÇLAR</p>
-            <h1>Ses stüdyosu</h1>
-            <p class="page-subtitle">Kayıtlarını istediğin gibi kes, yumuşat ve yeni bir parçaya dönüştür.</p>
+            <p class="page-kicker">ANALOG KESİM &amp; TON MASASI</p>
+            <h1>Ses <em>stüdyosu</em></h1>
+            <p class="page-subtitle">Kayıtlarını dalga formu üzerinde hassasça kes, geçişleri yumuşat ve WAV olarak arşivle.</p>
           </div>
         </div>
 
         <section class="studio-workbench">
           <div class="studio-copy">
-            <span class="studio-overline"><i></i> DÜZENLEME ALANI</span>
-            <h2>Bir sesi, <em>kendine göre</em> düzenle.</h2>
-            <p>Arşivinden kayıt seçerek kesme alanını aç. Dalga formunda aralığı belirle, fade geçişleri ve ton ayarları ekle; yeni kesitini WAV olarak kaydet.</p>
+            <span class="studio-overline"><i></i> KESİM VE DÜZENLEME MASASI</span>
+            <h2>Bir kaydı, <em>kendine göre</em> şekillendir.</h2>
+            <p>Arşivinden kayıt seçerek kesme masasını aç. Dalga formunda aralığı belirle, fade geçişleri ve bas/tiz ton ayarları ekle; yeni kesitini kayıpsız WAV olarak kaydet.</p>
             <button class="primary-button" id="studio-open-library" type="button">Arşivimden kayıt seç <span>→</span></button>
-            <div class="studio-capabilities"><span>01 <b>Hassas kesim</b></span><span>02 <b>Fade geçişleri</b></span><span>03 <b>Bas / tiz</b></span></div>
+            <div class="studio-capabilities"><span>01 <b>Hassas kesim</b></span><span>02 <b>Fade geçişleri</b></span><span>03 <b>Bas / tiz EQ</b></span></div>
           </div>
           <div class="workbench-art" aria-hidden="true">
-            <div class="workbench-grid"></div>
             <div class="waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
             <span class="wave-cursor"></span>
-            <span class="workbench-label">WAVEFORM · EDITOR</span>
+            <span class="workbench-label">ANALOG WAVEFORM · 44.1 kHz WAV</span>
           </div>
         </section>
 
         <div class="studio-feature-grid">
-          <article><span class="feature-number">01</span><div><strong>Kes ve yeniden çerçevele</strong><p>Yakınlaştır, dalgayı incele ve başlangıç / bitişi hassasça seç.</p></div><span class="feature-glyph">⌁</span></article>
-          <article><span class="feature-number">02</span><div><strong>Geçişleri yumuşat</strong><p>Fade-in ve fade-out ile doğal başlangıç ve bitişler oluştur.</p></div><span class="feature-glyph">◒</span></article>
-          <article><span class="feature-number">03</span><div><strong>Tonu şekillendir</strong><p>Bas ve tiz kontrolleriyle sesin karakterini ayarla.</p></div><span class="feature-glyph">≋</span></article>
+          <article><span class="feature-number">01</span><div><strong>Kes ve yeniden çerçevele</strong><p>Dalga formunu 8 kata kadar yakınlaştır, başlangıç ve bitişi saniyenin onda biri hassasiyetle seç.</p></div><span class="feature-glyph">⌁</span></article>
+          <article><span class="feature-number">02</span><div><strong>Geçişleri yumuşat</strong><p>Fade-in ve fade-out eğrileriyle ani kesilmeleri önle, pürüzsüz giriş ve çıkışlar oluştur.</p></div><span class="feature-glyph">◒</span></article>
+          <article><span class="feature-number">03</span><div><strong>Tonu şekillendir</strong><p>Bas ve tiz kontrolleriyle sesin sıcaklığını ve berraklığını doğrudan tarayıcıda ayarla.</p></div><span class="feature-glyph">≋</span></article>
         </div>
       </section>
     </main>
+
+    <!-- ======================== SABİT ALT OYNATICI (DOCKED DECK) ======================== -->
+    <div class="player" id="player" aria-live="polite">
+      <div class="player-inner">
+        <div class="player-top">
+          <div class="player-art">${icons.cassette}</div>
+          <div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div>
+          <div class="player-equalizer" id="player-equalizer" aria-label="Ses seviyesi görselleştirmesi" role="img"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="player-controls">
+          <button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button>
+          <button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button>
+          <button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button>
+          <input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" />
+          <span class="time" id="time">00:00 / 00:00</span>
+        </div>
+        <div class="player-extra">
+          <button class="chip" id="prev-button" type="button">Önceki</button>
+          <button class="chip" id="next-button" type="button">Sonraki</button>
+          <button class="chip" id="mode-button" type="button">Sırayla çal</button>
+          <label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
+          <button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button>
+        </div>
+      </div>
+    </div>
 
     <footer class="site-footer" aria-label="Uygulama bilgileri ve yasal bilgiler">
       <div class="footer-showcase">
@@ -1120,17 +1147,49 @@ function renderLibrary() {
     emptyState.hidden = visibleSongs.length > 0;
     if (songs.length > 0 && visibleSongs.length === 0) { emptyState.querySelector('h3').textContent = 'Eşleşen kayıt bulunamadı'; emptyState.querySelector('p').textContent = 'Arama sözcüğünü veya favori filtresini değiştirebilirsin.'; }
     else { emptyState.querySelector('h3').textContent = 'Arşivin yeni başlıyor'; emptyState.querySelector('p').textContent = 'İlk kaydını eklediğinde, burada düzenli ve çevrimdışı erişilebilir şekilde göreceksin.'; }
+    const buildMiniWave = (seedStr, isPlaying) => {
+      let h = 2166136261;
+      for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+      const bars = [];
+      for (let i = 0; i < 28; i++) {
+        h ^= (h << 13); h ^= (h >>> 17); h ^= (h << 5);
+        const pct = 22 + (Math.abs(h) % 74);
+        const activeBar = isPlaying && i < 11 ? ' is-lit' : '';
+        bars.push(`<i class="${activeBar}" style="height:${pct}%"></i>`);
+      }
+      return `<div class="card-waveform" aria-hidden="true">${bars.join('')}</div>`;
+    };
     songList.innerHTML = visibleSongs.map((song, index) => {
       const isPlayingThis = activeSong?.id === song.id && !audio.paused;
+      const trackNo = String(index + 1).padStart(2, '0');
+      const sourceBadge = song.source === 'trim' ? 'KESİT · WAV' : song.source === 'url' ? 'BAĞLANTI' : song.source === 'x-video' ? 'X KAYDI' : 'YEREL KAYIT';
       return `
     <article class="song-row ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
-      <div class="song-cover cover-tone-${index % 5}"><span class="cover-orbit"></span><span class="cover-mark">${icons.cassette}</span><small>${song.source === 'trim' ? 'KESİT' : song.source === 'url' ? 'LİNK' : song.source === 'x-video' ? 'X' : 'SES'}</small></div>
-      <div class="song-main"><p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p><div class="song-meta"><span>${formatTime(song.duration)}</span><span class="meta-dot">·</span><span>${formatSize(song.size)}</span><span class="meta-dot">·</span><span class="status-pill">Cihazda</span></div><span class="song-created">${new Date(song.createdAt).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })}</span></div>
+      <div class="song-card-top">
+        <span class="tape-no">NO. ${trackNo}</span>
+        <span class="tape-badge">${sourceBadge}</span>
+        <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button>
+      </div>
+      <div class="song-card-body">
+        <div class="song-cover cover-tone-${index % 5}">
+          <span class="cover-mark">${icons.cassette}</span>
+        </div>
+        <div class="song-main">
+          <p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p>
+          <div class="song-meta">
+            <span>${formatTime(song.duration)}</span>
+            <span class="meta-dot">·</span>
+            <span>${formatSize(song.size)}</span>
+            <span class="meta-dot">·</span>
+            <span>${new Date(song.createdAt).toLocaleDateString('tr-TR', { day:'numeric', month:'short', year:'numeric' })}</span>
+          </div>
+        </div>
+      </div>
+      ${buildMiniWave(song.id + song.name, isPlayingThis)}
       <div class="song-actions">
         <button class="primary-button studio-select-row" type="button" hidden>${icons.scissors}<span>Stüdyoda aç</span></button>
         <button class="row-pill-btn play-row ${isPlayingThis ? 'is-active' : ''}" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${isPlayingThis ? icons.pause : icons.play}<span>${isPlayingThis ? 'Duraklat' : 'Dinle'}</span></button>
         <button class="row-pill-btn secondary quick-trim-row" type="button" aria-label="Kes veya düzenle: ${escapeHtml(song.name)}">${icons.scissors}<span>Kes / Düzenle</span></button>
-        <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button>
         <button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">···</button>
         <div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div>
       </div>
@@ -1207,6 +1266,7 @@ function loadSong(song) {
     audio.src = activeObjectUrl;
     audio.load();
     player.classList.add('visible');
+    document.body.classList.add('has-player');
     playerTitle.textContent = song.name;
     updateMediaSession();
     playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : song.source === 'x-video' ? 'X videosundan alınan ses' : song.source === 'trim' ? 'Kesit' : 'Dosya'} · cihazda saklanıyor`;
@@ -1776,6 +1836,7 @@ async function removeSong(song) {
             }
             activeSong = null;
             player.classList.remove('visible');
+            document.body.classList.remove('has-player');
         }
         renderLibrary();
         toast('Ses arşivden silindi.');
@@ -2446,7 +2507,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '30';
+const APP_VERSION = '31';
 const sidebarVersion = document.querySelector('.sidebar-version');
 if (sidebarVersion)
     sidebarVersion.textContent = `SES CEBİ · SÜRÜM ${APP_VERSION}`;
