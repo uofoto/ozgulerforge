@@ -66,8 +66,8 @@ app.innerHTML = `
         </button>
       </div>
       <div class="sidebar-bottom">
-        <button class="sidebar-account-chip" id="sidebar-account-chip" type="button" title="Hesap ve Yedekleme Ayarları"></button>
-        <span class="sidebar-version">SES CEBİ · SÜRÜM 34</span>
+        <span class="sidebar-status"><i></i> Yerel &amp; Çevrimdışı</span>
+        <span class="sidebar-version">SES CEBİ · SÜRÜM 32</span>
       </div>
     </aside>
 
@@ -91,9 +91,6 @@ app.innerHTML = `
           <div><strong>Stüdyo için bir kayıt seç</strong><span>Düzenlemek istediğin kayda dokun.</span></div>
           <button class="ghost-button" id="studio-picker-cancel" type="button">Vazgeç</button>
         </div>
-
-        <!-- Belirgin Gmail / Bulut Hesap Çubuğu -->
-        <div class="home-gmail-bar" id="home-gmail-bar" aria-label="Google hesap durumu"></div>
 
         <!-- Sade Arama ve Filtre Şeridi -->
         <div class="clean-filter-bar">
@@ -217,7 +214,6 @@ app.innerHTML = `
           <div class="player-art">${icons.cassette}</div>
           <div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div>
           <div class="player-equalizer" id="player-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-          <button class="player-close-btn" id="close-player-btn" type="button" aria-label="Oynatıcıyı kapat" title="Oynatıcıyı kapat">✕</button>
         </div>
         <div class="player-controls">
           <button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri">${icons.rewind}</button>
@@ -278,8 +274,8 @@ app.innerHTML = `
         <h3>ZIP Yedekleme &amp; Bulut Eşitleme</h3>
         <p class="sheet-sub">Kayıtların yalnızca bu cihazda tutulur. Dilediğinde tek dosya halinde yedek alabilirsin.</p>
         <div class="backup-row">
-          <button class="ghost-button" id="backup-button" type="button">${icons.download}<span>Yedeği cihazda sakla (ZIP)</span></button>
-          <button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedeği geri yükle</span></button>
+          <button class="primary-button" id="backup-button" type="button">${icons.download}<span>ZIP yedek al</span></button>
+          <button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedeği yükle</span></button>
           <input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" />
         </div>
         <div class="library-subtools" aria-label="Bulut yedekleme"></div>
@@ -288,7 +284,7 @@ app.innerHTML = `
       <div class="sheet-block install-sheet-box">
         <div>
           <strong>Ana Ekrana Yükle (PWA)</strong>
-          <small id="app-status">Sürüm 34 · Güncel sürüm</small>
+          <small id="app-status">Sürüm 33 · Güncel sürüm</small>
         </div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
@@ -2042,21 +2038,6 @@ const openLegal = () => { if (legalOverlay) { legalOverlay.hidden = false; docum
 const closeLegal = () => { if (legalOverlay) { legalOverlay.hidden = true; document.body.classList.remove('modal-open'); } };
 
 get('open-profile-sheet')?.addEventListener('click', openProfile);
-get('sidebar-account-chip')?.addEventListener('click', openProfile);
-get('close-player-btn')?.addEventListener('click', () => {
-  flushListeningSession(true);
-  audio.pause();
-  audio.removeAttribute('src');
-  audio.load();
-  if (activeObjectUrl) {
-    URL.revokeObjectURL(activeObjectUrl);
-    activeObjectUrl = '';
-  }
-  activeSong = null;
-  player.classList.remove('visible');
-  document.body.classList.remove('has-player');
-  renderLibrary();
-});
 get('open-profile-footer')?.addEventListener('click', openProfile);
 get('profile-close')?.addEventListener('click', closeProfile);
 profileOverlay?.addEventListener('click', (e) => { if (e.target === profileOverlay) closeProfile(); });
@@ -2515,7 +2496,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '34';
+const APP_VERSION = '33';
 const sidebarVersion = document.querySelector('.sidebar-version');
 if (sidebarVersion)
     sidebarVersion.textContent = `SES CEBİ · SÜRÜM ${APP_VERSION}`;
