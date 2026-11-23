@@ -16,12 +16,13 @@ export const groq = {
     }
     return messages;
   },
-  buildBody({ model, hist, systemText, proxyUrl }) {
+  buildBody({ model, hist, systemText, webOn, proxyUrl }) {
     const payload = {
       model: model.model,
       stream: true,
       temperature: model.temperature,
-      messages: [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)]
+      messages: [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)],
+      ...(webOn ? { tools: [{ type: 'browser_search' }] } : {})
     };
     if (!proxyUrl) return JSON.stringify(payload);
     return JSON.stringify({
