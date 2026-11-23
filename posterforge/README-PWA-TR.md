@@ -1,4 +1,4 @@
-# PosterForge Studio Pro — PWA 2.3.2
+# PosterForge Studio Pro — PWA 2.3.6
 
 ## Kurulum
 1. Bu klasörün içeriğinin tamamını GitHub Pages kök dizinine yükleyin.
