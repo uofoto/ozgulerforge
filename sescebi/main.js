@@ -284,7 +284,7 @@ app.innerHTML = `
       <div class="sheet-block install-sheet-box">
         <div>
           <strong>Ana Ekrana Yükle (PWA)</strong>
-          <small id="app-status">Sürüm 32 · Güncel sürüm</small>
+          <small id="app-status">Sürüm 33 · Güncel sürüm</small>
         </div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
@@ -2496,7 +2496,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '32';
+const APP_VERSION = '33';
 const sidebarVersion = document.querySelector('.sidebar-version');
 if (sidebarVersion)
     sidebarVersion.textContent = `SES CEBİ · SÜRÜM ${APP_VERSION}`;
