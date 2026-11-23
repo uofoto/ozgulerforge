@@ -39,286 +39,171 @@ const icons = {
 };
 app.innerHTML = `
   <div class="app-shell">
+    <!-- Masaüstü Sol Ray / Mobil Yüzen Koyu Yeşil Dock -->
     <aside class="main-nav" aria-label="Ana gezinme">
       <a class="sidebar-brand" href="./" aria-label="Ses Cebi ana sayfa">
         <span class="sidebar-brand-mark">${icons.cassette}</span>
         <span class="sidebar-brand-copy">Ses Cebi<small>KİŞİSEL SES ARŞİVİ</small></span>
       </a>
-      <span class="nav-caption">KOLEKSİYON</span>
+      <span class="nav-caption">MENÜ</span>
       <div class="nav-items">
-        <button class="nav-item active" type="button" data-screen="home">
-          <span class="nav-symbol">⌂</span>
-          <span>Ana sayfa</span>
-        </button>
-        <button class="nav-item" type="button" data-screen="library">
+        <button class="nav-item active" type="button" data-screen="library">
           <span class="nav-symbol">▤</span>
           <span>Ses arşivi</span>
           <span class="nav-count" id="nav-count">0</span>
         </button>
+        <button class="nav-item" type="button" data-screen="home">
+          <span class="nav-symbol">＋</span>
+          <span>Kayıt ekle</span>
+        </button>
         <button class="nav-item" type="button" data-screen="studio">
           <span class="nav-symbol nav-studio-icon">${icons.studio}</span>
-          <span>Ses stüdyosu</span>
+          <span>Stüdyo</span>
+        </button>
+        <button class="nav-item nav-item-drawer" type="button" id="open-profile-sheet">
+          <span class="nav-symbol">◈</span>
+          <span>Yedek &amp; Özet</span>
         </button>
       </div>
       <div class="sidebar-bottom">
         <span class="sidebar-status"><i></i> Yerel &amp; Çevrimdışı</span>
-        <span class="sidebar-version">SES CEBİ · SÜRÜM 31</span>
+        <span class="sidebar-version">SES CEBİ · SÜRÜM 32</span>
       </div>
     </aside>
 
+    <!-- Sade Üst Çubuk (Yalnızca Marka ve Tema/Arama Erişimi) -->
     <header class="topbar">
-      <div class="brand-cluster">
-        <span class="publisher-name">OZGULER FORGE</span>
-        <a class="brand" href="./" aria-label="Ses Cebi ana sayfa">
-          <span class="brand-mark">${icons.cassette}</span>
-          <span class="brand-name">Ses Cebi</span>
-        </a>
-      </div>
-      <div class="header-note">
-        <span class="device-pill"><span class="live-dot"></span><span>Bu cihazda, sana ait</span></span>
-        <button class="motion-toggle" id="motion-toggle" type="button" aria-label="Ekolayzer animasyonunu kapat" title="Ekolayzer animasyonu açık">∿</button>
-        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Renk temasını değiştir" title="Tema değiştir">◐</button>
+      <button class="topbar-circle-btn" type="button" id="topbar-back-or-add" aria-label="Yeni kayıt ekle" title="Yeni kayıt ekle">＋</button>
+      <a class="brand" href="./" aria-label="Ses Cebi ana sayfa">
+        <span class="brand-name" id="topbar-title">Ses arşivi</span>
+      </a>
+      <div class="header-actions">
+        <button class="topbar-circle-btn" type="button" id="topbar-search-focus" aria-label="Kayıtlarda ara" title="Ara">⌕</button>
+        <button class="topbar-circle-btn theme-toggle" id="theme-toggle" type="button" aria-label="Temayı değiştir" title="Açık / Koyu Tema">◐</button>
+        <button class="sr-only motion-toggle" id="motion-toggle" type="button" aria-label="Animasyon">∿</button>
       </div>
     </header>
 
     <main>
-      <!-- ======================== EKRAN 1: ANA SAYFA ======================== -->
-      <section class="screen-view active" id="screen-home">
-        <div class="page-heading">
-          <div>
-            <p class="page-kicker">KİŞİSEL SES ALANI · EDİTORYAL KOLEKSİYON</p>
-            <h1>Seslerini, <em>özgürce</em> sakla.</h1>
-            <p class="page-subtitle">Kaydet, kes, düzenle ve kendi kişisel arşivinden dinle. Tüm kayıtların yalnızca bu cihazda kalır.</p>
-          </div>
-          <span class="today-chip"><i></i> Çevrimdışı hazır</span>
+      <!-- ======================== 1. SES ARŞİVİ (VARSAYILAN ANA EKRAN) ======================== -->
+      <section class="screen-view active" id="screen-library">
+        <div class="studio-picker-banner" id="studio-picker-banner" hidden role="status">
+          <div><strong>Stüdyo için bir kayıt seç</strong><span>Düzenlemek istediğin kayda dokun.</span></div>
+          <button class="ghost-button" id="studio-picker-cancel" type="button">Vazgeç</button>
         </div>
 
-        <section class="metric-row" aria-label="Arşiv özeti">
-          <article class="metric-card">
-            <span class="metric-index">01</span>
-            <div class="metric-body">
-              <span class="metric-label">ARŞİVİNDE</span>
-              <div class="metric-val"><strong id="stat-count">0</strong><small>kayıt</small></div>
-            </div>
-            <span class="metric-icon mint">♫</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-index">02</span>
-            <div class="metric-body">
-              <span class="metric-label">FAVORİLER</span>
-              <div class="metric-val"><strong id="stat-favorites">0</strong><small>seçili</small></div>
-            </div>
-            <span class="metric-icon terracotta">♥</span>
-          </article>
-          <article class="metric-card">
-            <span class="metric-index">03</span>
-            <div class="metric-body">
-              <span class="metric-label">DEPOLAMA</span>
-              <div class="metric-val"><strong id="stat-storage">0 B</strong><small>cihazda</small></div>
-            </div>
-            <span class="metric-icon brass">◷</span>
-          </article>
-        </section>
-
-        <section class="listening-stats" id="listening-stats-panel" aria-labelledby="listening-stats-title">
-          <div class="stats-heading">
-            <div>
-              <p class="section-kicker">DİNLEME GÜNLÜĞÜ</p>
-              <h2 id="listening-stats-title">Dinleme özeti</h2>
-              <p>Kayıtlarını ne kadar dinlediğini yalnızca sen görebilirsin.</p>
-            </div>
-            <div class="stats-heading-actions">
-              <span class="stats-local-badge"><i></i> YEREL</span>
-              <button class="stats-toggle" id="stats-toggle" type="button" aria-expanded="false" aria-controls="listening-stats-content"><span>Göster</span><span class="stats-toggle-icon" aria-hidden="true">⌄</span></button>
-            </div>
-          </div>
-          <div class="listening-stats-grid" id="listening-stats-content">
-            <article class="listen-stat-card"><span class="listen-stat-icon">▶</span><div><span class="listen-stat-label">TOPLAM ÇALMA</span><strong id="stat-play-count">0</strong><small>oynatma</small></div></article>
-            <article class="listen-stat-card"><span class="listen-stat-icon">◷</span><div><span class="listen-stat-label">DİNLEME SÜRESİ</span><strong id="stat-listen-time">0 sn</strong><small>aktif süre</small></div></article>
-            <article class="listen-stat-card"><span class="listen-stat-icon">♫</span><div><span class="listen-stat-label">FARKLI KAYIT</span><strong id="stat-unique-tracks">0</strong><small>dinlenen ses</small></div></article>
-            <article class="listen-stat-card top-track-stat"><span class="listen-stat-icon">✦</span><div><span class="listen-stat-label">EN ÇOK DİNLENEN</span><button class="top-track-link" id="stat-top-track" type="button" disabled>Henüz yok</button><small id="stat-top-play-count">Bir ses çaldığında burada</small></div></article>
-          </div>
-          <p class="stats-footnote">◈ İstatistikler yalnızca bu tarayıcıda tutulur.</p>
-        </section>
-
-        <div class="home-workspace">
-          <div class="home-primary">
-            <section class="card add-card" aria-labelledby="add-title">
-              <div class="card-heading">
-                <div>
-                  <p class="section-kicker">YENİ KAYIT EKLE</p>
-                  <h2 id="add-title">Arşivine yeni bir ses al</h2>
-                  <p>Cihazından ses/video dosyası seç ya da izinli doğrudan bağlantı ekle.</p>
-                </div>
-                <span class="stamp"><i></i> CİHAZDA</span>
-              </div>
-
-              <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi">
-                <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="file">Dosya yükle</button>
-                <button class="tab" type="button" role="tab" aria-selected="false" data-tab="url">Bağlantı</button>
-                <button class="tab" type="button" role="tab" aria-selected="false" data-tab="x-video">X videosu</button>
-              </div>
-
-              <div id="file-panel" role="tabpanel">
-                <label class="file-drop" for="file-input">
-                  <span class="upload-icon">${icons.upload}</span>
-                  <strong>Dosyanı seç veya <u>buraya bırak</u></strong>
-                  <span>MP3, M4A, WAV, OGG veya video · en fazla 100 MB</span>
-                  <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.mp4,.m4v,.mov,.webm,.mkv" />
-                </label>
-                <p class="file-name" id="file-name" aria-live="polite">Henüz dosya seçilmedi</p>
-              </div>
-
-              <div id="url-panel" class="url-panel" role="tabpanel" hidden>
-                <label class="sr-only" for="url-input">Doğrudan ses dosyası bağlantısı</label>
-                <input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" />
-                <p class="url-hint">Herkese açık, doğrudan ses dosyası bağlantıları desteklenir.</p>
-              </div>
-
-              <div id="x-video-panel" class="x-video-panel" role="tabpanel" hidden>
-                <div class="x-video-intro">
-                  <span class="x-video-mark">X</span>
-                  <div><strong>X gönderisinden video al</strong><span>Yalnızca herkese açık ve indirme iznin olan gönderiler desteklenir.</span></div>
-                </div>
-                <div class="x-video-form">
-                  <label class="sr-only" for="x-video-url">X gönderi bağlantısı</label>
-                  <input class="text-input" id="x-video-url" type="url" inputmode="url" placeholder="https://x.com/kullanici/status/123…" autocomplete="off" />
-                  <button class="ghost-button" id="x-video-find" type="button">Videoyu bul</button>
-                </div>
-                <p class="x-video-status" id="x-video-status" role="status" aria-live="polite"></p>
-                <div class="x-video-results" id="x-video-results"></div>
-              </div>
-
-              <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahibim veya izin aldım.</span></label>
-              <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Arşive ekle</span></button>
-              <div class="progress-wrap" id="progress-wrap" aria-live="polite">
-                <div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div>
-                <progress id="progress" max="100" value="0">0%</progress>
-              </div>
-            </section>
-
-            <section class="install-panel" aria-label="Ses Cebi uygulaması ve güncelleme">
-              <div class="install-head">
-                <div class="install-mark" aria-hidden="true">${icons.cassette}</div>
-                <div class="install-copy">
-                  <span class="install-eyebrow">ANA EKRAN UYGULAMASI · PWA</span>
-                  <strong>Ses Cebi, hep yanında.</strong>
-                  <span>Uygulamayı telefonuna veya bilgisayarına yükle; arşivin çevrimdışı açılsın.</span>
-                  <small id="app-status">Sürüm 31 · Güncel sürüm</small>
-                </div>
-              </div>
-              <div class="app-card-actions">
-                <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Uygulamayı yükle</span></button>
-                <button class="ghost-button" id="update-button" type="button"><span>Güncelle</span></button>
-                <button class="ghost-button" id="diag-button" type="button"><span>Durum</span></button>
-              </div>
-            </section>
-          </div>
-
-          <aside class="home-aside">
-            <section class="card recent-card">
-              <div class="aside-heading">
-                <div><p class="section-kicker">KOLEKSİYONDAN</p><h2>Son eklenenler</h2></div>
-                <button class="text-link" type="button" data-screen="library">Tümünü gör <span>↗</span></button>
-              </div>
-              <div id="dashboard-recent" class="recent-list"></div>
-              <div id="dashboard-empty" class="recent-empty">
-                <span class="recent-empty-icon">♫</span>
-                <strong>Henüz kayıt yok</strong>
-                <span>İlk sesini ekleyerek kişisel arşivini oluşturmaya başla.</span>
-              </div>
-            </section>
-            <section class="privacy-card">
-              <span class="privacy-icon">◈</span>
-              <div><strong>Senin seslerin, senin cihazında.</strong><p>Hesap zorunluluğu yok. Arşivini dilediğinde tek tıkla ZIP olarak yedekleyebilirsin.</p></div>
-            </section>
-          </aside>
+        <!-- Sade Arama ve Filtre Şeridi -->
+        <div class="clean-filter-bar">
+          <label class="search-wrap">
+            <span class="search-symbol">⌕</span>
+            <input class="text-input library-search" id="library-search" type="search" placeholder="Kayıtlarında ara…" aria-label="Arşivde ara" />
+          </label>
+          <button class="pill-filter" id="favorites-filter" type="button" aria-pressed="false">♥ Favoriler</button>
+          <select class="pill-select library-sort" id="library-sort" aria-label="Sırala">
+            <option value="newest">Yeni</option>
+            <option value="oldest">Eski</option>
+            <option value="az">A–Z</option>
+            <option value="duration">Süre</option>
+          </select>
         </div>
+
+        <div class="archive-meta-strip">
+          <span class="library-count" id="library-count">0 kayıt</span>
+          <button class="subtle-action-link" type="button" id="library-add">+ Yeni ses ekle</button>
+        </div>
+
+        <!-- Boş Durum -->
+        <div class="empty-state" id="empty-state">
+          <div class="empty-cassette-art" aria-hidden="true">${icons.cassette}</div>
+          <h3>Arşivin henüz boş</h3>
+          <p>İlk ses kaydını ekleyerek kişisel koleksiyonunu oluşturmaya başla.</p>
+          <button type="button" class="primary-button empty-add" data-screen="home">${icons.plus}<span>İlk kaydını ekle</span></button>
+        </div>
+
+        <!-- Koleksiyon Listesi (İlk Kart Öne Çıkan Kaset Kartı + Altında Sade Satırlar) -->
+        <div class="song-list" id="song-list"></div>
       </section>
 
-      <!-- ======================== EKRAN 2: SES ARŞİVİ ======================== -->
-      <section class="screen-view" id="screen-library">
-        <div class="page-heading library-page-heading">
-          <div>
-            <p class="page-kicker">KİŞİSEL KOLEKSİYONUN</p>
-            <h1>Ses <em>arşivi</em></h1>
-            <p class="page-subtitle">Bu cihazda saklanan tüm kayıtlarını ara, analog kartlardan dinle veya stüdyoda kes.</p>
-          </div>
-          <button class="primary-button library-add-button" type="button" id="library-add">${icons.plus}<span>Yeni ses ekle</span></button>
+      <!-- ======================== 2. KAYIT EKLE EKRANI (ODAKLI TEK KART) ======================== -->
+      <section class="screen-view" id="screen-home">
+        <div class="clean-page-head">
+          <span class="clean-kicker">YENİ KAYIT</span>
+          <h1>Arşivine <em>ses</em> ekle</h1>
+          <p>Dosya seç, doğrudan bağlantı yapıştır veya izinli X videosundan sesi al.</p>
         </div>
 
-        <section class="card library-card" aria-labelledby="library-title">
-          <div class="studio-picker-banner" id="studio-picker-banner" hidden role="status">
-            <div><strong>Stüdyo için bir kayıt seç</strong><span>Düzenlemek istediğin kaydın düğmesine dokun.</span></div>
-            <button class="ghost-button" id="studio-picker-cancel" type="button">Vazgeç</button>
+        <section class="card add-card" aria-labelledby="add-title">
+          <h2 class="sr-only" id="add-title">Arşivine yeni bir ses al</h2>
+          <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi">
+            <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="file">Dosya</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="url">Bağlantı</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="x-video">X videosu</button>
           </div>
 
-          <div class="library-header">
-            <div><h2 id="library-title">Tüm kayıtlar</h2><span class="library-count" id="library-count">0 kayıt</span></div>
-            <span class="stamp"><i></i> YALNIZCA SENDE</span>
+          <div id="file-panel" role="tabpanel">
+            <label class="file-drop" for="file-input">
+              <span class="upload-icon">${icons.upload}</span>
+              <strong>Ses veya video dosyanı seç</strong>
+              <span>MP3, M4A, WAV, OGG, MP4 · en fazla 100 MB</span>
+              <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.mp4,.m4v,.mov,.webm,.mkv" />
+            </label>
+            <p class="file-name" id="file-name" aria-live="polite">Henüz dosya seçilmedi</p>
           </div>
 
-          <div class="library-tools">
-            <label class="search-wrap"><span class="search-symbol">⌕</span><input class="text-input library-search" id="library-search" type="search" placeholder="Kayıtlarında ara…" aria-label="Arşivde ara" /></label>
-            <select class="text-input library-sort" id="library-sort" aria-label="Arşivi sırala">
-              <option value="newest">Son eklenen</option>
-              <option value="oldest">İlk eklenen</option>
-              <option value="az">İsim A–Z</option>
-              <option value="duration">En uzun</option>
-            </select>
-            <button class="ghost-button filter-chip" id="favorites-filter" type="button" aria-pressed="false">♥ <span>Favoriler</span></button>
+          <div id="url-panel" class="url-panel" role="tabpanel" hidden>
+            <label class="sr-only" for="url-input">Doğrudan ses dosyası bağlantısı</label>
+            <input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" />
+            <p class="url-hint">Herkese açık, doğrudan ses dosyası bağlantıları desteklenir.</p>
           </div>
 
-          <div class="library-subtools">
-            <span>Kayıtların yerel olarak korunur.</span>
-            <div class="backup-row">
-              <button class="ghost-button" id="backup-button" type="button">${icons.download}<span>Yedek al (ZIP)</span></button>
-              <button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedeği yükle</span></button>
-              <input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" />
+          <div id="x-video-panel" class="x-video-panel" role="tabpanel" hidden>
+            <div class="x-video-form">
+              <label class="sr-only" for="x-video-url">X gönderi bağlantısı</label>
+              <input class="text-input" id="x-video-url" type="url" inputmode="url" placeholder="https://x.com/kullanici/status/123…" autocomplete="off" />
+              <button class="ghost-button" id="x-video-find" type="button">Bul</button>
             </div>
+            <p class="x-video-status" id="x-video-status" role="status" aria-live="polite"></p>
+            <div class="x-video-results" id="x-video-results"></div>
           </div>
 
-          <div class="empty-state" id="empty-state">
-            <div class="empty-icon">${icons.cassette}</div>
-            <h3>Arşivin yeni başlıyor</h3>
-            <p>İlk kaydını eklediğinde burada düzenli ve çevrimdışı erişilebilir şekilde göreceksin.</p>
-            <button type="button" class="text-link empty-add" data-screen="home">İlk sesini ekle <span>→</span></button>
+          <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahibim.</span></label>
+          <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Arşive ekle</span></button>
+          <div class="progress-wrap" id="progress-wrap" aria-live="polite">
+            <div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div>
+            <progress id="progress" max="100" value="0">0%</progress>
           </div>
+        </section>
 
-          <div class="song-list" id="song-list"></div>
+        <!-- Son Eklenenler (Minimal) -->
+        <section class="card recent-card" id="recent-wrapper">
+          <div class="aside-heading">
+            <h2>Son eklenenler</h2>
+            <button class="subtle-action-link" type="button" data-screen="library">Tüm arşiv →</button>
+          </div>
+          <div id="dashboard-recent" class="recent-list"></div>
+          <div id="dashboard-empty" class="recent-empty"><span>Henüz kayıt eklenmedi.</span></div>
         </section>
       </section>
 
-      <!-- ======================== EKRAN 3: SES STÜDYOSU ======================== -->
+      <!-- ======================== 3. SES STÜDYOSU EKRANI ======================== -->
       <section class="screen-view" id="screen-studio">
-        <div class="page-heading">
-          <div>
-            <p class="page-kicker">ANALOG KESİM &amp; TON MASASI</p>
-            <h1>Ses <em>stüdyosu</em></h1>
-            <p class="page-subtitle">Kayıtlarını dalga formu üzerinde hassasça kes, geçişleri yumuşat ve WAV olarak arşivle.</p>
-          </div>
+        <div class="clean-page-head">
+          <span class="clean-kicker">KESİM &amp; TON</span>
+          <h1>Ses <em>stüdyosu</em></h1>
+          <p>Dalga formu üzerinden istediğin bölümü kes, fade ve bas/tiz uygula.</p>
         </div>
 
         <section class="studio-workbench">
           <div class="studio-copy">
-            <span class="studio-overline"><i></i> KESİM VE DÜZENLEME MASASI</span>
-            <h2>Bir kaydı, <em>kendine göre</em> şekillendir.</h2>
-            <p>Arşivinden kayıt seçerek kesme masasını aç. Dalga formunda aralığı belirle, fade geçişleri ve bas/tiz ton ayarları ekle; yeni kesitini kayıpsız WAV olarak kaydet.</p>
-            <button class="primary-button" id="studio-open-library" type="button">Arşivimden kayıt seç <span>→</span></button>
-            <div class="studio-capabilities"><span>01 <b>Hassas kesim</b></span><span>02 <b>Fade geçişleri</b></span><span>03 <b>Bas / tiz EQ</b></span></div>
+            <h2>Bir kaydı seç ve <em>kesmeye</em> başla.</h2>
+            <p>Arşivinden seçeceğin herhangi bir kaydı dalga formu üzerinde yakınlaştırıp saniye hassasiyetiyle kesebilir, kayıpsız WAV olarak saklayabilirsin.</p>
+            <button class="primary-button" id="studio-open-library" type="button">${icons.scissors}<span>Arşivden kayıt seç</span></button>
           </div>
           <div class="workbench-art" aria-hidden="true">
-            <div class="waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
             <span class="wave-cursor"></span>
-            <span class="workbench-label">ANALOG WAVEFORM · 44.1 kHz WAV</span>
           </div>
         </section>
-
-        <div class="studio-feature-grid">
-          <article><span class="feature-number">01</span><div><strong>Kes ve yeniden çerçevele</strong><p>Dalga formunu 8 kata kadar yakınlaştır, başlangıç ve bitişi saniyenin onda biri hassasiyetle seç.</p></div><span class="feature-glyph">⌁</span></article>
-          <article><span class="feature-number">02</span><div><strong>Geçişleri yumuşat</strong><p>Fade-in ve fade-out eğrileriyle ani kesilmeleri önle, pürüzsüz giriş ve çıkışlar oluştur.</p></div><span class="feature-glyph">◒</span></article>
-          <article><span class="feature-number">03</span><div><strong>Tonu şekillendir</strong><p>Bas ve tiz kontrolleriyle sesin sıcaklığını ve berraklığını doğrudan tarayıcıda ayarla.</p></div><span class="feature-glyph">≋</span></article>
-        </div>
       </section>
     </main>
 
@@ -328,63 +213,107 @@ app.innerHTML = `
         <div class="player-top">
           <div class="player-art">${icons.cassette}</div>
           <div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div>
-          <div class="player-equalizer" id="player-equalizer" aria-label="Ses seviyesi görselleştirmesi" role="img"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="player-equalizer" id="player-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div>
         <div class="player-controls">
-          <button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri sar">${icons.rewind}</button>
+          <button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri">${icons.rewind}</button>
           <button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button>
-          <button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri sar">${icons.forward}</button>
+          <button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri">${icons.forward}</button>
           <input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" />
           <span class="time" id="time">00:00 / 00:00</span>
         </div>
         <div class="player-extra">
           <button class="chip" id="prev-button" type="button">Önceki</button>
           <button class="chip" id="next-button" type="button">Sonraki</button>
-          <button class="chip" id="mode-button" type="button">Sırayla çal</button>
+          <button class="chip" id="mode-button" type="button">Sırayla</button>
           <label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
-          <button class="chip" id="sleep-button" type="button">Uyku zamanlayıcısı</button>
+          <button class="chip" id="sleep-button" type="button">Uyku</button>
         </div>
       </div>
     </div>
 
-    <footer class="site-footer" aria-label="Uygulama bilgileri ve yasal bilgiler">
-      <div class="footer-showcase">
-        <div class="footer-brand">
-          <div class="footer-brand-mark" aria-hidden="true">${icons.cassette}</div>
-          <div class="footer-brand-copy">
-            <span class="footer-eyebrow">SES CEBİ · KİŞİSEL SES ALANI</span>
-            <h2>Her ses senin. <em>Arşivin de öyle.</em></h2>
-            <p>Ses dosyaların bu cihazda kalır; sunucuya yüklenmez. Favori ve istatistik yedeği yalnızca Google ile giriş yaparsan buluta gider.</p>
-          </div>
-        </div>
-        <div class="footer-contact">
-          <span class="footer-contact-label">OZGULER FORGE</span>
-          <a href="https://ozgulerforge.com.tr" target="_blank" rel="noreferrer"><span>Web sitesi</span><span>ozgulerforge.com.tr ↗</span></a>
-          <a href="mailto:iletisim@ozgulerforge.com.tr"><span>İletişim</span><span>iletisim@ozgulerforge.com.tr ↗</span></a>
-        </div>
+    <!-- Sade Alt Bilgi Satırı (Yığın Oluşturmayan Tek Satır + Yasal Bilgiler Çekmecesi) -->
+    <footer class="site-footer" aria-label="Uygulama bilgileri">
+      <span>OZGULER FORGE · SES CEBİ</span>
+      <div class="footer-links">
+        <button class="footer-link-btn" type="button" id="open-profile-footer">Yedek &amp; Özet</button>
+        <button class="footer-link-btn" type="button" id="open-legal-sheet">Gizlilik &amp; Koşullar</button>
+        <a href="https://ozgulerforge.com.tr" target="_blank" rel="noreferrer">ozgulerforge.com.tr ↗</a>
       </div>
-
-      <div class="legal-grid">
-        <section><span class="legal-index">01 / İÇERİK</span><h3>Kullanım ve telif</h3><p>Ses Cebi yalnızca sahip olduğunuz veya kullanma ve indirme izniniz bulunan içerikler için kullanılmalıdır. İçerik hakları ilgili sahiplerine aittir; izinsiz çoğaltma, dağıtma veya ticari kullanım kullanıcının sorumluluğundadır.</p></section>
-        <section><span class="legal-index">02 / GİZLİLİK</span><h3>Gizlilik ve depolama</h3><p>Hesap açmak zorunlu değildir. Eklediğiniz sesler tarayıcının yerel depolamasında tutulur ve buluta gönderilmez. İsterseniz Google ile giriş yapıp favori listenizi ve dinleme istatistiklerinizi bulutta yedekleyebilirsiniz; giriş yapmazsanız hiçbir bilgi gönderilmez. Tarayıcı verilerini temizlemek veya uygulamayı kaldırmak yerel ses dosyalarının kaybolmasına neden olabilir, bu yüzden düzenli ZIP yedeği almanız önerilir.</p></section>
-        <section><span class="legal-index">03 / ERİŞİM</span><h3>Platform sınırları</h3><p>Uygulama X'e giriş yapmaz; özel hesaplara, korumalı içeriğe veya platform kısıtlarını aşmaya yönelik erişim sağlamaz. X videosu aracı yalnızca herkese açık ve indirme hakkına sahip olduğunuz gönderiler için kullanılmalıdır.</p></section>
-      </div>
-
-      <div class="legal-note"><details><summary>Bulut yedek ve kişisel veriler (aydınlatma)</summary>
-        <p><strong>Veri sorumlusu:</strong> Ozguler Forge, iletisim@ozgulerforge.com.tr.</p>
-        <p><strong>İşlenen veriler:</strong> Yalnızca Google ile giriş yaparsanız; Google hesabınızın e-posta adresi ve Google'ın verdiği benzersiz kullanıcı kimliği, favori işaretlediğiniz seslerin adı ve süresi, seslerin dinleme sayısı ve toplam dinleme süresi. Ses dosyalarınız, ses içerikleri ve Google şifreniz işlenmez.</p>
-        <p><strong>Amaç:</strong> Favori ve istatistiklerinizi yedeklemek; tarayıcı verileri silindiğinde veya başka bir cihazda geri yüklemek. Reklam veya profilleme amacıyla kullanılmaz.</p>
-        <p><strong>Hizmet sağlayıcılar:</strong> Giriş Google Identity Services ile yapılır; Google'ın gizlilik politikası geçerlidir. Yedek, Cloudflare altyapısında (Workers ve KV) saklanır ve bu altyapı Türkiye dışında olabilir.</p>
-        <p><strong>Saklama ve silme:</strong> Veriler siz silene kadar saklanır. Kütüphane ekranındaki "Bulut verimi sil" düğmesi buluttaki kaydınızı e-posta adresiniz dahil tamamen siler. "Çıkış yap" yalnızca bu cihazdaki oturumu kapatır, bulut verisini silmez.</p>
-        <p><strong>Yerel kayıtlar:</strong> Oturum bilgisi ve eşitleme bilgileri tarayıcınızın yerel depolamasında tutulur. Uygulamanın kendisi çerez kullanmaz; Google girişi kendi çerezlerini kullanabilir.</p>
-        <p><strong>Haklarınız:</strong> 6698 sayılı Kişisel Verilerin Korunması Kanunu'nun 11. maddesi kapsamındaki talepleriniz için iletisim@ozgulerforge.com.tr adresine yazabilirsiniz.</p>
-      </details></div>
-
-      <div class="legal-note"><span class="legal-note-mark" aria-hidden="true">i</span><p>Uygulamayı kullanarak yukarıdaki kullanım, telif ve depolama koşullarını kabul etmiş olursunuz. Yasal haklarınız ve yükümlülükleriniz için ilgili mevzuatı ve içerik sahibinin izin şartlarını ayrıca kontrol edin.</p></div>
-      <div class="footer-bottom"><span>OZGULER FORGE <i>·</i> SES CEBİ</span><span>YEREL <i>·</i> KİŞİSEL <i>·</i> SANA AİT</span></div>
     </footer>
   </div>
 
+  <!-- ======================== ÇEKMECE 1: YEDEK, ÖZET & UYGULAMA ======================== -->
+  <div class="overlay" id="profile-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="profile-sheet-title">
+      <div class="sheet-head">
+        <h2 id="profile-sheet-title">Arşiv Özeti &amp; Yedek</h2>
+        <button class="icon-button" id="profile-close" type="button" aria-label="Kapat">✕</button>
+      </div>
+
+      <section class="metric-row" aria-label="Arşiv özeti">
+        <article class="metric-card"><span class="metric-label">KAYIT</span><strong id="stat-count">0</strong></article>
+        <article class="metric-card"><span class="metric-label">FAVORİ</span><strong id="stat-favorites">0</strong></article>
+        <article class="metric-card"><span class="metric-label">ALAN</span><strong id="stat-storage">0 B</strong></article>
+      </section>
+
+      <section class="listening-stats" id="listening-stats-panel" aria-labelledby="listening-stats-title">
+        <div class="stats-heading">
+          <h3 id="listening-stats-title">Dinleme günlüğü</h3>
+          <button class="stats-toggle" id="stats-toggle" type="button" aria-expanded="false" aria-controls="listening-stats-content"><span>Göster</span><span class="stats-toggle-icon" aria-hidden="true">⌄</span></button>
+        </div>
+        <div class="listening-stats-grid" id="listening-stats-content">
+          <article class="listen-stat-card"><span class="listen-stat-label">ÇALMA</span><strong id="stat-play-count">0</strong></article>
+          <article class="listen-stat-card"><span class="listen-stat-label">SÜRE</span><strong id="stat-listen-time">0 sn</strong></article>
+          <article class="listen-stat-card"><span class="listen-stat-label">FARKLI SES</span><strong id="stat-unique-tracks">0</strong></article>
+          <article class="listen-stat-card"><span class="listen-stat-label">EN ÇOK</span><button class="top-track-link" id="stat-top-track" type="button" disabled>Henüz yok</button><small id="stat-top-play-count"></small></article>
+        </div>
+      </section>
+
+      <div class="sheet-block">
+        <h3>ZIP Yedekleme &amp; Bulut Eşitleme</h3>
+        <p class="sheet-sub">Kayıtların yalnızca bu cihazda tutulur. Dilediğinde tek dosya halinde yedek alabilirsin.</p>
+        <div class="backup-row">
+          <button class="primary-button" id="backup-button" type="button">${icons.download}<span>ZIP yedek al</span></button>
+          <button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedeği yükle</span></button>
+          <input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" />
+        </div>
+        <div class="library-subtools" aria-label="Bulut yedekleme"></div>
+      </div>
+
+      <div class="sheet-block install-sheet-box">
+        <div>
+          <strong>Ana Ekrana Yükle (PWA)</strong>
+          <small id="app-status">Sürüm 32 · Güncel sürüm</small>
+        </div>
+        <div class="app-card-actions">
+          <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
+          <button class="ghost-button" id="update-button" type="button">Güncelle</button>
+          <button class="ghost-button" id="diag-button" type="button">Durum</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== ÇEKMECE 2: YASAL & GİZLİLİK BİLGİLERİ ======================== -->
+  <div class="overlay" id="legal-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="legal-sheet-title">
+      <div class="sheet-head">
+        <h2 id="legal-sheet-title">Gizlilik &amp; Kullanım Koşulları</h2>
+        <button class="icon-button" id="legal-close" type="button" aria-label="Kapat">✕</button>
+      </div>
+      <div class="legal-sheet-body">
+        <h3>Kullanım ve telif</h3>
+        <p>Ses Cebi yalnızca sahip olduğunuz veya kullanma/indirme izniniz bulunan içerikler için kullanılmalıdır. İzinsiz çoğaltma veya dağıtım kullanıcının sorumluluğundadır.</p>
+        <h3>Gizlilik ve yerel depolama</h3>
+        <p>Hesap açmak zorunlu değildir. Ses dosyalarınız yalnızca cihazınızın tarayıcı belleğinde (IndexedDB) saklanır ve sunucuya yüklenmez. Google ile giriş yaparsanız yalnızca favori adları ve dinleme sayıları bulutta yedeklenir.</p>
+        <h3>Veri sorumlusu &amp; KVKK</h3>
+        <p>Ozguler Forge · <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== ÇEKMECE 3: SES KESME STÜDYOSU ======================== -->
   <div class="overlay" id="trim-overlay" hidden>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="trim-title">
       <div class="sheet-head"><h2 id="trim-title">Sesi kes</h2><button class="icon-button" id="trim-close" type="button" aria-label="Kapat">✕</button></div>
@@ -400,14 +329,14 @@ app.innerHTML = `
         <div class="trim-row"><button class="nudge" type="button" data-nudge="end" data-delta="-1">−1 sn</button><input id="trim-end" type="range" min="0" max="100" step="any" value="100" aria-label="Bitiş" /><button class="nudge" type="button" data-nudge="end" data-delta="1">+1 sn</button></div>
       </div>
       <p class="sheet-sub" id="trim-summary"></p>
-      <div class="trim-zoom"><label for="wave-zoom">Dalga yakınlaştırma</label><input id="wave-zoom" type="range" min="1" max="8" step="0.5" value="1" /><output id="wave-zoom-value">1×</output></div>
+      <div class="trim-zoom"><label for="wave-zoom">Yakınlaştırma</label><input id="wave-zoom" type="range" min="1" max="8" step="0.5" value="1" /><output id="wave-zoom-value">1×</output></div>
       <div class="trim-effects"><label>Fade-in <span><input id="fade-in" type="range" min="0" max="5" step="0.1" value="0" /><output id="fade-in-value">0 sn</output></span></label><label>Fade-out <span><input id="fade-out" type="range" min="0" max="5" step="0.1" value="0" /><output id="fade-out-value">0 sn</output></span></label><label>Bas <span><input id="trim-bass" type="range" min="-12" max="12" step="1" value="0" /><output id="trim-bass-value">0 dB</output></span></label><label>Tiz <span><input id="trim-treble" type="range" min="-12" max="12" step="1" value="0" /><output id="trim-treble-value">0 dB</output></span></label></div>
-      <label class="consent sheet-check"><input id="trim-keep" type="checkbox" checked /><span>Orijinal ses de arşivde kalsın</span></label>
+      <label class="consent sheet-check"><input id="trim-keep" type="checkbox" checked /><span>Orijinal ses arşivde kalsın</span></label>
       <div class="sheet-actions"><button class="ghost-button" id="trim-preview" type="button" disabled>Seçimi dinle</button><button class="primary-button" id="trim-save" type="button" disabled>${icons.scissors}<span>Kes ve kaydet</span></button></div>
-      <p class="sheet-sub small">Kesilen bölüm WAV olarak yeni bir kayıt olur; WAV her telefonun müzik çalarında çalar.</p>
     </div>
   </div>
 
+  <!-- ======================== ÇEKMECE 4: KAYIT BİLGİSİ ======================== -->
   <div class="overlay" id="info-overlay" hidden>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="info-title">
       <div class="sheet-head"><h2 id="info-title">Kayıt bilgisi</h2><button class="icon-button" id="info-close" type="button" aria-label="Kapat">✕</button></div>
@@ -416,6 +345,7 @@ app.innerHTML = `
     </div>
   </div>
 
+  <!-- ======================== ÇEKMECE 5: ADI DEĞİŞTİR ======================== -->
   <div class="overlay" id="rename-overlay" hidden>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rename-title">
       <div class="sheet-head"><h2 id="rename-title">Adı değiştir</h2><button class="icon-button" id="rename-close" type="button" aria-label="Kapat">✕</button></div>
@@ -428,22 +358,7 @@ app.innerHTML = `
   <div class="toast" id="toast" role="status"></div>
 `;
 function placeListeningStatsPanel() {
-    const statsPanel = app.querySelector('#listening-stats-panel');
-    const sidebar = app.querySelector('.main-nav');
-    const homeScreen = app.querySelector('#screen-home');
-    const archiveSummary = homeScreen?.querySelector('.metric-row');
-    if (!statsPanel || !sidebar || !homeScreen || !archiveSummary)
-        return;
-    if (window.matchMedia('(min-width: 851px)').matches) {
-        const sidebarFooter = sidebar.querySelector('.sidebar-bottom');
-        if (sidebarFooter && statsPanel.parentElement !== sidebar)
-            sidebar.insertBefore(statsPanel, sidebarFooter);
-        statsPanel.classList.add('is-sidebar');
-        return;
-    }
-    if (statsPanel.parentElement !== homeScreen)
-        archiveSummary.after(statsPanel);
-    statsPanel.classList.remove('is-sidebar');
+    // Keep listening stats neatly inside the Profile & Backup sheet
 }
 window.addEventListener('resize', placeListeningStatsPanel);
 placeListeningStatsPanel();
@@ -1147,53 +1062,93 @@ function renderLibrary() {
     emptyState.hidden = visibleSongs.length > 0;
     if (songs.length > 0 && visibleSongs.length === 0) { emptyState.querySelector('h3').textContent = 'Eşleşen kayıt bulunamadı'; emptyState.querySelector('p').textContent = 'Arama sözcüğünü veya favori filtresini değiştirebilirsin.'; }
     else { emptyState.querySelector('h3').textContent = 'Arşivin yeni başlıyor'; emptyState.querySelector('p').textContent = 'İlk kaydını eklediğinde, burada düzenli ve çevrimdışı erişilebilir şekilde göreceksin.'; }
-    const buildMiniWave = (seedStr, isPlaying) => {
+    const cassetteSvgArt = `
+      <svg viewBox="0 0 140 90" width="112" height="72" aria-hidden="true" class="cassette-illustration">
+        <rect x="3" y="3" width="134" height="84" rx="10" fill="#1F2421" stroke="#3B423E" stroke-width="2"/>
+        <rect x="13" y="12" width="114" height="44" rx="5" fill="#F2EAD9"/>
+        <rect x="13" y="23" width="114" height="19" fill="#B85C38"/>
+        <rect x="34" y="25" width="72" height="15" rx="7.5" fill="#181C1A"/>
+        <circle cx="47" cy="32.5" r="7" fill="#F6F2EA"/>
+        <circle cx="47" cy="32.5" r="3" fill="#181C1A"/>
+        <circle cx="93" cy="32.5" r="7" fill="#F6F2EA"/>
+        <circle cx="93" cy="32.5" r="3" fill="#181C1A"/>
+        <rect x="59" y="28" width="22" height="9" rx="2" fill="#3D312A"/>
+        <polygon points="26,87 34,68 106,68 114,87" fill="#141816" stroke="#2F3632" stroke-width="1.5"/>
+        <circle cx="44" cy="78" r="3" fill="#9A8F7D"/>
+        <circle cx="96" cy="78" r="3" fill="#9A8F7D"/>
+        <circle cx="70" cy="76" r="2.5" fill="#9A8F7D"/>
+      </svg>`;
+
+    const buildFeaturedWave = (seedStr, isPlaying) => {
       let h = 2166136261;
       for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
       const bars = [];
-      for (let i = 0; i < 28; i++) {
+      for (let i = 0; i < 34; i++) {
         h ^= (h << 13); h ^= (h >>> 17); h ^= (h << 5);
-        const pct = 22 + (Math.abs(h) % 74);
-        const activeBar = isPlaying && i < 11 ? ' is-lit' : '';
-        bars.push(`<i class="${activeBar}" style="height:${pct}%"></i>`);
+        const pct = 20 + (Math.abs(h) % 78);
+        const lit = isPlaying && i < 14 ? ' is-lit' : '';
+        bars.push(`<i class="${lit}" style="height:${pct}%"></i>`);
       }
-      return `<div class="card-waveform" aria-hidden="true">${bars.join('')}</div>`;
+      return `<div class="featured-waveform" aria-hidden="true">${bars.join('')}</div>`;
     };
+
+    const featuredId = (activeSong && visibleSongs.some((s) => s.id === activeSong.id))
+      ? activeSong.id
+      : visibleSongs[0]?.id;
+
     songList.innerHTML = visibleSongs.map((song, index) => {
       const isPlayingThis = activeSong?.id === song.id && !audio.paused;
-      const trackNo = String(index + 1).padStart(2, '0');
-      const sourceBadge = song.source === 'trim' ? 'KESİT · WAV' : song.source === 'url' ? 'BAĞLANTI' : song.source === 'x-video' ? 'X KAYDI' : 'YEREL KAYIT';
-      return `
-    <article class="song-row ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
-      <div class="song-card-top">
-        <span class="tape-no">NO. ${trackNo}</span>
-        <span class="tape-badge">${sourceBadge}</span>
-        <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button>
-      </div>
-      <div class="song-card-body">
-        <div class="song-cover cover-tone-${index % 5}">
-          <span class="cover-mark">${icons.cassette}</span>
-        </div>
-        <div class="song-main">
-          <p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p>
-          <div class="song-meta">
-            <span>${formatTime(song.duration)}</span>
-            <span class="meta-dot">·</span>
-            <span>${formatSize(song.size)}</span>
-            <span class="meta-dot">·</span>
-            <span>${new Date(song.createdAt).toLocaleDateString('tr-TR', { day:'numeric', month:'short', year:'numeric' })}</span>
+      const isFeatured = song.id === featuredId;
+      const dateText = new Date(song.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
+      const metaLine = `${dateText}, ${formatTime(song.duration)} · ${formatSize(song.size)}`;
+
+      if (isFeatured) {
+        return `
+        <article class="song-row is-featured-card ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
+          <div class="featured-top-row">
+            <div class="cassette-box">${cassetteSvgArt}</div>
+            <div class="featured-top-actions">
+              <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button>
+              <button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">⋮</button>
+            </div>
           </div>
+
+          <div class="featured-wave-strip">
+            <span class="mini-play-tri" aria-hidden="true">▶</span>
+            <span class="mini-progress-line" aria-hidden="true"><i></i></span>
+            ${buildFeaturedWave(song.id + song.name, isPlayingThis)}
+          </div>
+
+          <div class="song-main featured-copy">
+            <p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p>
+            <div class="song-meta"><span>${metaLine}</span></div>
+          </div>
+
+          <div class="song-actions featured-cta-row">
+            <button class="primary-button studio-select-row" type="button" hidden>${icons.scissors}<span>Stüdyoda aç</span></button>
+            <button class="cta-pill-btn play-row ${isPlayingThis ? 'is-active' : ''}" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Dinle'}: ${escapeHtml(song.name)}">${isPlayingThis ? icons.pause : icons.play}<span>${isPlayingThis ? 'Duraklat' : 'Dinle'}</span></button>
+            <button class="cta-pill-btn terracotta quick-trim-row" type="button" aria-label="Kes veya düzenle: ${escapeHtml(song.name)}">${icons.scissors}<span>Kes / Düzenle</span></button>
+            <div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div>
+          </div>
+        </article>`;
+      }
+
+      return `
+      <article class="song-row is-compact-card ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
+        <button class="compact-thumb cover-tone-${index % 5} play-row" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Dinle'}: ${escapeHtml(song.name)}">
+          <span class="thumb-icon">${isPlayingThis ? icons.pause : icons.cassette}</span>
+        </button>
+        <div class="song-main compact-copy">
+          <p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p>
+          <div class="song-meta"><span>${metaLine}</span></div>
         </div>
-      </div>
-      ${buildMiniWave(song.id + song.name, isPlayingThis)}
-      <div class="song-actions">
-        <button class="primary-button studio-select-row" type="button" hidden>${icons.scissors}<span>Stüdyoda aç</span></button>
-        <button class="row-pill-btn play-row ${isPlayingThis ? 'is-active' : ''}" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Oynat'}: ${escapeHtml(song.name)}">${isPlayingThis ? icons.pause : icons.play}<span>${isPlayingThis ? 'Duraklat' : 'Dinle'}</span></button>
-        <button class="row-pill-btn secondary quick-trim-row" type="button" aria-label="Kes veya düzenle: ${escapeHtml(song.name)}">${icons.scissors}<span>Kes / Düzenle</span></button>
-        <button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">···</button>
-        <div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div>
-      </div>
-    </article>`;
+        <div class="song-actions compact-actions">
+          <button class="primary-button studio-select-row" type="button" hidden>${icons.scissors}<span>Seç</span></button>
+          <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button>
+          <button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">⋮</button>
+          <div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div>
+        </div>
+      </article>`;
     }).join('');
     songList.querySelectorAll('.song-row').forEach((row) => {
         const id = row.dataset.songId;
@@ -2049,13 +2004,47 @@ get('sleep-button').addEventListener('click', () => {
     sleepTimerId = window.setTimeout(() => { audio.pause(); sleepTimerId = 0; toast('Uyku zamanlayıcısı sesi durdurdu.'); }, minutes * 60000);
     toast(`Ses ${minutes} dakika sonra duracak.`);
 });
-document.querySelectorAll('[data-screen]').forEach((button) => button.addEventListener('click', () => {
-  const target = button.dataset.screen;
+const screenTitles = { library: 'Ses arşivi', home: 'Kayıt ekle', studio: 'Ses stüdyosu' };
+function switchScreen(target) {
   if (target !== 'library' && studioSelectionMode) { studioSelectionMode = false; get('studio-picker-banner').hidden = true; renderLibrary(); }
   document.querySelectorAll('.screen-view').forEach((view) => view.classList.toggle('active', view.id === `screen-${target}`));
-  document.querySelectorAll('[data-screen]').forEach((item) => item.classList.toggle('active', item === button));
+  document.querySelectorAll('[data-screen]').forEach((item) => item.classList.toggle('active', item.dataset.screen === target));
+  const titleEl = get('topbar-title');
+  if (titleEl) titleEl.textContent = screenTitles[target] || 'Ses arşivi';
+  const leftBtn = get('topbar-back-or-add');
+  if (leftBtn) {
+    leftBtn.textContent = target === 'library' ? '＋' : '←';
+    leftBtn.setAttribute('aria-label', target === 'library' ? 'Yeni kayıt ekle' : 'Ses arşivine dön');
+    leftBtn.dataset.mode = target === 'library' ? 'add' : 'back';
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
-}));
+}
+document.querySelectorAll('[data-screen]').forEach((button) => button.addEventListener('click', () => switchScreen(button.dataset.screen)));
+
+get('topbar-back-or-add')?.addEventListener('click', (e) => {
+  if (e.currentTarget.dataset.mode === 'back') switchScreen('library');
+  else switchScreen('home');
+});
+get('topbar-search-focus')?.addEventListener('click', () => {
+  switchScreen('library');
+  window.setTimeout(() => get('library-search')?.focus(), 80);
+});
+
+const profileOverlay = get('profile-overlay');
+const legalOverlay = get('legal-overlay');
+const openProfile = () => { if (profileOverlay) { profileOverlay.hidden = false; document.body.classList.add('modal-open'); } };
+const closeProfile = () => { if (profileOverlay) { profileOverlay.hidden = true; document.body.classList.remove('modal-open'); } };
+const openLegal = () => { if (legalOverlay) { legalOverlay.hidden = false; document.body.classList.add('modal-open'); } };
+const closeLegal = () => { if (legalOverlay) { legalOverlay.hidden = true; document.body.classList.remove('modal-open'); } };
+
+get('open-profile-sheet')?.addEventListener('click', openProfile);
+get('open-profile-footer')?.addEventListener('click', openProfile);
+get('profile-close')?.addEventListener('click', closeProfile);
+profileOverlay?.addEventListener('click', (e) => { if (e.target === profileOverlay) closeProfile(); });
+
+get('open-legal-sheet')?.addEventListener('click', openLegal);
+get('legal-close')?.addEventListener('click', closeLegal);
+legalOverlay?.addEventListener('click', (e) => { if (e.target === legalOverlay) closeLegal(); });
 get('studio-open-library').addEventListener('click', () => {
   studioSelectionMode = true;
   get('studio-picker-banner').hidden = false;
@@ -2070,7 +2059,7 @@ get('studio-picker-cancel').addEventListener('click', () => {
   renderLibrary();
   document.querySelector('[data-screen="studio"]').click();
 });
-get('library-add').addEventListener('click', () => document.querySelector('[data-screen="home"]').click());
+get('library-add').addEventListener('click', () => switchScreen('home'));
 
 const themeToggle = get('theme-toggle');
 const motionToggle = get('motion-toggle');
@@ -2507,7 +2496,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '31';
+const APP_VERSION = '32';
 const sidebarVersion = document.querySelector('.sidebar-version');
 if (sidebarVersion)
     sidebarVersion.textContent = `SES CEBİ · SÜRÜM ${APP_VERSION}`;

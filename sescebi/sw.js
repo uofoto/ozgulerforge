@@ -1,12 +1,12 @@
-const CACHE_NAME = 'sescebi-shell-v31';
+const CACHE_NAME = 'sescebi-shell-v32';
 // Hangi alt klasörde yayınlanırsa (ör. /sescebi/) onun kapsamını kullanır.
 const BASE = self.registration.scope;
 const scoped = (path) => new URL(path, BASE).href;
-const APP_SHELL = ['./', 'index.html', 'manifest.webmanifest', 'manus-routes.json', 'lame.min.js', 'cloud-sync.js', 'editorial-v31.css?v=31', 'main.js?v=31', 'icons/icon-192.svg', 'icons/icon-512.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-192.png', 'icons/icon-maskable-512.png'].map(scoped);
+const APP_SHELL = ['./', 'index.html', 'manifest.webmanifest', 'manus-routes.json', 'lame.min.js', 'cloud-sync.js', 'editorial-v32.css?v=32', 'main.js?v=32', 'icons/icon-192.svg', 'icons/icon-512.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-192.png', 'icons/icon-maskable-512.png'].map(scoped);
 
 async function precacheAppShell() {
   const cache = await caches.open(CACHE_NAME);
-  const response = await fetch(scoped('./?sw-shell=31'), { cache: 'no-store' });
+  const response = await fetch(scoped('./?sw-shell=32'), { cache: 'no-store' });
   const html = await response.clone().text();
   const assets = [...html.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css)(?:\?[^"']*)?)["']/g)].map((match) => new URL(match[1], BASE).href);
   const urls = [...new Set([...APP_SHELL, ...assets])];
