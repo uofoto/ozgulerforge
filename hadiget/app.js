@@ -1269,20 +1269,37 @@ let deferredInstall = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstall = e;
-  $('#btn-install').hidden = false;
 });
 window.addEventListener('appinstalled', () => {
   deferredInstall = null;
   $('#btn-install').hidden = true;
+  $('#install-help').hidden = true;
 });
+
 $('#btn-install').onclick = async () => {
-  if (!deferredInstall) return;
-  deferredInstall.prompt();
-  try {
-    await deferredInstall.userChoice;
-  } catch {}
-  deferredInstall = null;
-  $('#btn-install').hidden = true;
+  const help = $('#install-help');
+  if (deferredInstall) {
+    const promptEvent = deferredInstall;
+    deferredInstall = null;
+    promptEvent.prompt();
+    try {
+      const choice = await promptEvent.userChoice;
+      if (choice?.outcome === 'accepted') {
+        $('#btn-install').hidden = true;
+        help.hidden = true;
+        return;
+      }
+    } catch {}
+  }
+
+  // Her tarayıcı kurulum istemini programatik olarak sunmaz.
+  // Bu durumda kullanıcıyı tarayıcının yerleşik kurulum menüsüne yönlendir.
+  const isIOSDevice =
+    /iphone|ipad|ipod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /android/i.test(navigator.userAgent);
+  help.textContent = t(isIOSDevice ? 'install.help.ios' : isAndroid ? 'install.help.android' : 'install.help.desktop');
+  help.hidden = false;
 };
 
 // iOS'ta yükleme istemi yoktur; yolu göster.
@@ -1291,6 +1308,7 @@ const isIOS =
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
 if (isIOS && !isStandalone) $('#ios-hint').hidden = false;
+if (isStandalone) $('#btn-install').hidden = true;
 
 // --- açılış --------------------------------------------------------------
 
