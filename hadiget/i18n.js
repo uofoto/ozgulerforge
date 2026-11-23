@@ -65,6 +65,7 @@ const D = {
     'set.zip': 'Birden çok dosyayı tek zip olarak gönder',
 
     'install': 'İNDİR',
+    'install.installed': 'UYGULAMA YÜKLÜ ✓',
     'install.help.android': 'Kurulum penceresi açılamadı. Chrome veya Edge menüsünü açıp “Uygulamayı yükle” ya da “Ana ekrana ekle” seçeneğini kullan.',
     'install.help.ios': 'iPhone/iPad’de Safari’nin Paylaş düğmesine dokun, ardından “Ana Ekrana Ekle” seçeneğini seç.',
     'install.help.desktop': 'Kurulum penceresi açılamadı. Chrome veya Edge’de adres çubuğundaki yükle simgesini ya da tarayıcı menüsündeki “Uygulamayı yükle” seçeneğini kullan.',
@@ -267,7 +268,8 @@ const D = {
     'set.forget': 'Remove',
     'set.zip': 'Send several files as a single zip',
 
-    'install': 'DOWNLOAD',
+    'install': 'INSTALL',
+    'install.installed': 'APP INSTALLED ✓',
     'install.help.android': 'The install window could not be opened. Open the Chrome or Edge menu and choose “Install app” or “Add to Home screen”.',
     'install.help.ios': 'On iPhone/iPad, tap the Share button in Safari, then choose “Add to Home Screen”.',
     'install.help.desktop': 'The install window could not be opened. In Chrome or Edge, use the install icon in the address bar or choose “Install app” from the browser menu.',

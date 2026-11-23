@@ -252,6 +252,7 @@ dialog.editor::backdrop { background: #000; }
 .ed-hint { margin: 0; padding: 0 12px 4px; text-align: center; color: var(--muted); font-size: 0.9rem; }
 button:disabled { opacity: 0.45; }
 
+
 /* Ana ekrandaki belirgin PWA kurulum düğmesi */
 .install-button { width: 100%; min-height: 48px; margin-top: 4px; letter-spacing: 0.04em; }
 .install-help { padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); }
