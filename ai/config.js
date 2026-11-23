@@ -35,7 +35,7 @@ export const KEYS = {
 export const LEGACY_KEYS = ['forge_ai_provider', 'forge_ai_temperature', 'forge_ai_memory'];
 
 // Sunucu (proxy) adresi. Doluysa API anahtarı gerekmez; istekler bu adrese Google kimlik belgesiyle gider (proxy-worker.js).
-export const PROXY_URL = '';
+export const PROXY_URL = 'https://oforgeai.uozguler.workers.dev';
 
 // Google ile giriş için OAuth Web Client ID (Google Cloud Console > Credentials). Boşsa giriş düğmesi kurulum bilgisi gösterir.
 export const GOOGLE_CLIENT_ID = '278638845406-0u88a69tpajg2cc2vgt827m0j2kpp5qa.apps.googleusercontent.com';
