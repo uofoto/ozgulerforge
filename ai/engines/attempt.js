@@ -25,7 +25,10 @@ export async function runAttempt(model, canFallback, ctx) {
   const timer = setTimeout(() => { if (!gotText) { timedOut = true; ac.abort(); } }, firstTokenMs);   // yedek motor olmasa da sonsuza dek dönmesin
   try {
     hooks.onStage('prepare', { media: hasMedia(hist, model) });
-    const requestBody = provider.buildBody({ model, hist, systemText, webOn, proxyUrl });
+    const built = await provider.buildBody({ model, hist, systemText, webOn, proxyUrl });
+    const requestBody = (built && typeof built === 'object' && 'body' in built) ? built.body : built;
+    const extraSources = (built && typeof built === 'object' && Array.isArray(built.sources)) ? built.sources : [];
+    if (typeof requestBody !== 'string') throw mkErr('other', `[${label}] İstek gövdesi oluşturulamadı.`);
     if (requestBody.length > MAX_BODY_CHARS) throw mkErr('toolarge', 'Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor.');
 
     hooks.onStage('connect');
@@ -59,7 +62,7 @@ export async function runAttempt(model, canFallback, ctx) {
     }
     hooks.onStage('stream');
 
-    const acc = { text: '', sources: [], finishReason: '', blockReason: '', streamError: '' };
+    const acc = { text: '', sources: [...extraSources], finishReason: '', blockReason: '', streamError: '' };
     const emit = (piece) => { gotText = true; acc.text += piece; hooks.onText(piece); };
     await readEventStream(response, (parsed) => {
       if (parsed.error) { acc.streamError = parsed.error.message || 'Akış sırasında hata oluştu.'; return; }
