@@ -25,7 +25,7 @@ export async function runAttempt(model, canFallback, ctx) {
   const timer = setTimeout(() => { if (!gotText) { timedOut = true; ac.abort(); } }, firstTokenMs);   // yedek motor olmasa da sonsuza dek dönmesin
   try {
     hooks.onStage('prepare', { media: hasMedia(hist, model) });
-    const requestBody = provider.buildBody({ model, hist, systemText, webOn });
+    const requestBody = provider.buildBody({ model, hist, systemText, webOn, proxyUrl });
     if (requestBody.length > MAX_BODY_CHARS) throw mkErr('toolarge', 'Gönderilecek belge/fotoğraf boyutu yaklaşık 20 MB sınırını aşıyor.');
 
     hooks.onStage('connect');
