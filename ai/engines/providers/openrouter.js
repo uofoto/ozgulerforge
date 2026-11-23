@@ -27,19 +27,35 @@ export const openrouter = {
     return messages;
   },
 
-  buildBody({ model, hist, systemText, webOn }) {
-    return JSON.stringify({
+  buildBody({ model, hist, systemText, webOn, proxyUrl }) {
+    const payload = {
       model: model.model,
       stream: true,
       temperature: model.temperature,
       messages: [{ role: 'system', content: systemText }, ...this.buildMessages(hist, model)],
       plugins: webOn ? [{ id: 'web' }] : undefined
+    };
+    if (!proxyUrl) return JSON.stringify(payload);
+    return JSON.stringify({
+      provider: 'openrouter',
+      model: model.model,
+      body: payload
     });
   },
 
-  endpoint() { return 'https://openrouter.ai/api/v1/chat/completions'; },
-  checkAuth() {},
-  headers(creds) { return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + creds.orKey }; },
+  endpoint(model, proxyUrl) {
+    if (proxyUrl) return proxyUrl.replace(/\/$/, '');
+    return 'https://openrouter.ai/api/v1/chat/completions';
+  },
+
+  checkAuth(creds, proxyUrl) {
+    if (!proxyUrl && !creds.orKey) throw Object.assign(new Error('OpenRouter API anahtarı eksik.'), { kind: 'auth' });
+  },
+
+  headers(creds, proxyUrl) {
+    if (proxyUrl) return { 'Content-Type': 'application/json' };
+    return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + creds.orKey };
+  },
 
   handleEvent(parsed, acc, emit) {
     const ch = parsed.choices && parsed.choices[0];
