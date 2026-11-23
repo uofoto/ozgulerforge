@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sescebi-shell-v26';
+const CACHE_NAME = 'sescebi-shell-v27';
 // Hangi alt klasörde yayınlanırsa (ör. /sescebi/) onun kapsamını kullanır.
 const BASE = self.registration.scope;
 const scoped = (path) => new URL(path, BASE).href;
@@ -6,7 +6,7 @@ const APP_SHELL = ['./', 'index.html', 'manifest.webmanifest', 'manus-routes.jso
 
 async function precacheAppShell() {
   const cache = await caches.open(CACHE_NAME);
-  const response = await fetch(scoped('./?sw-shell=26'), { cache: 'no-store' });
+  const response = await fetch(scoped('./?sw-shell=27'), { cache: 'no-store' });
   const html = await response.clone().text();
   const assets = [...html.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css)(?:\?[^"']*)?)["']/g)].map((match) => new URL(match[1], BASE).href);
   const urls = [...new Set([...APP_SHELL, ...assets])];
