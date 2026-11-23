@@ -1,5 +1,4 @@
 // Google Gemini: istek gövdesi, adres, başlıklar ve akış olaylarının çözülmesi. DOM'a dokunmaz.
-import { mkErr } from '../errors.js';
 import { DATA_URL } from '../media.js';
 
 export const gemini = {
@@ -22,31 +21,35 @@ export const gemini = {
     return contents;
   },
 
-  buildBody({ model, hist, systemText, webOn }) {
-    return JSON.stringify({
+  buildBody({ model, hist, systemText, webOn, proxyUrl }) {
+    const payload = {
       systemInstruction: { parts: [{ text: systemText }] },
       contents: this.buildContents(hist, model),
       tools: webOn ? [{ googleSearch: {} }] : undefined,
-      // Gemini 3.x varsayılan olarak uzun "düşünür" (yavaş); düzeyi düşürerek ilk yanıt hızlandırılır.
       generationConfig: model.thinking ? { thinkingConfig: { thinkingLevel: model.thinking } } : undefined
+    };
+    if (!proxyUrl) return JSON.stringify(payload);
+    return JSON.stringify({
+      provider: 'gemini',
+      model: model.model,
+      body: payload
     });
   },
 
   endpoint(model, proxyUrl) {
-    const base = proxyUrl ? proxyUrl.replace(/\/$/, '') : 'https://generativelanguage.googleapis.com';
-    return `${base}/v1beta/models/${encodeURIComponent(model.model)}:streamGenerateContent?alt=sse`;
+    if (proxyUrl) return proxyUrl.replace(/\/$/, '');
+    return `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model.model)}:streamGenerateContent?alt=sse`;
   },
 
-  // Proxy kullanılıyorsa Google oturumu geçerli olmalı.
   checkAuth(creds, proxyUrl) {
-    if (proxyUrl && !creds.getIdToken()) throw mkErr('auth', 'Google hesabı oturumu süresi dolmuş. Lütfen yeniden giriş yapın.');
+    if (!proxyUrl && !creds.apiKey) throw new Error('Gemini API anahtarı eksik.');
   },
 
   headers(creds, proxyUrl) {
-    return Object.assign({ 'Content-Type': 'application/json' }, proxyUrl ? { 'Authorization': 'Bearer ' + (creds.getIdToken() || '') } : { 'x-goog-api-key': creds.apiKey });
+    if (proxyUrl) return { 'Content-Type': 'application/json' };
+    return { 'Content-Type': 'application/json', 'x-goog-api-key': creds.apiKey };
   },
 
-  // Tek bir akış olayını işler: yanıt metnini emit(parça) ile bildirir, kaynak/bitiş nedenini acc'ye yazar.
   handleEvent(parsed, acc, emit) {
     if (parsed.promptFeedback && parsed.promptFeedback.blockReason) acc.blockReason = parsed.promptFeedback.blockReason;
     const cand = parsed.candidates && parsed.candidates[0];
