@@ -1,36 +1,52 @@
-# Ses Cebi Premium 0.2.0
+# Ses Cebi 0.3.0 (uygulama sürümü 34)
 
 ozguler forge tarafından geliştirilen, sesleri cihazda saklayan ve çevrimdışı dinlemeye odaklanan PWA.
 
 ## Özellikler
-- Ses dosyalarını arşive ekleme; desteklenen MP4/MOV dosyalarında AAC akışını ayırma, diğer desteklenen videolarda tarayıcı çözücüsüyle WAV oluşturma
-- IndexedDB üzerinde yerel ses arşivi, arama, favoriler ve sıralama
-- Oynatma, önceki/sonraki, tekrar/karıştırma, hız ayarı ve uyku zamanlayıcısı
-- Dalga formu üzerinden yakınlaştırma, sürükleyerek aralık ayarlama, WAV kesit kaydı, bas/tiz filtresi ve fade-in/fade-out
-- ZIP yedekleme ve geri yükleme (favori bilgisi dahil)
-- İsteğe bağlı Google girişiyle favori ve dinleme istatistiklerini Cloudflare (Worker + KV) üzerinde yedekleme; ses dosyaları buluta gönderilmez
-- PWA kurulum ve çevrimdışı uygulama kabuğu
-- Açık/koyu tema
-- X videosu sekmesi: herkese açık gönderilerden video bulma, kalite seçme, videoyu indirme ve videonun sesini arşive ekleme
+- Ses/video dosyası, doğrudan bağlantı veya izinli X videosundan ses ekleme (videodan ses: MP4/MOV içindeki AAC doğrudan ayrılır; diğerleri tarayıcı çözücüsüyle MP3'e, olmazsa WAV'a çevrilir)
+- IndexedDB üzerinde yerel arşiv: arama, favoriler, sıralama
+- Oynatma: önceki/sonraki, tekrar/karıştırma, hız, uyku zamanlayıcısı, kaldığı yerden devam
+- Stüdyo: dalga formunda kesme, yakınlaştırma, fade-in/out, bas/tiz, WAV dışa aktarma
+- ZIP yedekleme/geri yükleme; isteğe bağlı Google girişiyle favori ve dinleme istatistiklerini Cloudflare Worker + KV üzerinde yedekleme (ses dosyaları buluta gitmez)
+- PWA kurulumu, çevrimdışı kabuk, Android paylaş menüsünden dosya alma
+- Sistem temasını izleyen açık/koyu tema; dış font kullanılmaz (sistem yazı tipi)
 
-## Geliştirme ve derleme
-Node.js 20+ önerilir. Projede üçüncü taraf npm bağımlılığı yoktur.
+## Geliştirme
+Node.js 20+ yeterlidir; npm bağımlılığı yoktur.
 
 ```bash
-npm run check
-npm run build
-npm run dev
+npm run check    # sözdizimi + sürüm eşitliği + arayüz id denetimi
+npm run build    # check + dist/ klasörüne statik paket
+npm run dev      # http://localhost:4173 (kök klasör)
+npm run preview  # dist/ klasörünü sunar
 ```
 
-Üretim çıktısı `dist/` klasörüdür. Önizleme için `npm run preview` kullanın. HTTPS üzerinden yayınlayın.
+HTTPS üzerinden yayınlayın (Service Worker için gerekir).
+
+## Dosyalar
+| Dosya | Görev |
+|---|---|
+| `index.html` | Tek giriş sayfası |
+| `main.js` | Uygulama mantığı ve arayüz şablonu |
+| `cloud-sync.js` | İsteğe bağlı Google ile bulut eşitleme (ES modülü) |
+| `app.css` | Tek stil dosyası (renkler `:root` değişkenlerinde) |
+| `sw.js` | Service Worker (çevrimdışı kabuk, paylaşım hedefi) |
+| `lame.min.js` | MP3 kodlayıcı |
+| `manifest.webmanifest`, `icons/` | PWA kimliği |
+| `manus-routes.json` | Manus barındırma yönlendirmesi (başka yerde yayınlıyorsanız silinebilir) |
+
+## Sürüm yayınlama
+1. `main.js` içindeki `APP_VERSION` ve `sw.js` içindeki `VERSION` değerini birlikte artırın (`npm run check` farkı yakalar).
+2. `npm run build` ve `dist/` klasörünü yayınlayın.
+
+Dosya adlarında `?v=` gibi sürüm eki yoktur. Sayfa, betik ve stil dosyaları Service Worker tarafından önce ağdan alınır, bu yüzden güncellemeler ek bir işlem gerektirmeden gelir.
 
 ## Teknik notlar
-- Ses arşivi cihazın tarayıcı depolamasında tutulur; tarayıcı verisi silinirse kaybolabilir. Düzenli ZIP yedeği alın. Favori ve istatistikler, Google ile giriş yapılmışsa buluttan geri yüklenir.
-- Kesit dışa aktarma WAV'dır. MP3/M4A kodlama bu sürümde yoktur; kaynak dosyanın özgün biçimi indirme/paylaşmada korunur.
-- Video ses ayrıştırma tüm konteyner/kodekleri desteklemez. MP4/MOV içindeki standart AAC akışı doğrudan ayrıştırılabilir; diğer biçimler tarayıcının Web Audio çözücüsüne bağlıdır.
+- Arşiv tarayıcı depolamasındadır; tarayıcı verisi silinirse kaybolabilir. Düzenli ZIP yedeği alın.
+- `cloud-sync.js` içindeki `GOOGLE_CLIENT_ID` ve Worker adresi, Cloudflare/Google Cloud tarafındaki kayıtlarla aynı olmalıdır.
+- X video çözümleme `api.fxtwitter.com` ve `*.twimg.com` adreslerine erişir; gizli/kısıtlı gönderiler desteklenmez.
 - Arka plan ve kilit ekranı davranışı işletim sistemi/tarayıcı kısıtlarına bağlıdır.
-- X video çözümleme, herkese açık gönderiler için `api.fxtwitter.com` ve `*.twimg.com` adreslerine ihtiyaç duyar; gizli/kısıtlı içerik desteklenmez.
-- Hukuki metinler genel bilgilendirmedir; KVKK aydınlatma metni ve veri sorumlusu bilgileri işletmeci tarafından hukuk danışmanlığıyla tamamlanmalıdır.
+- Hukuki metinler genel bilgilendirmedir; KVKK metni işletmeci tarafından hukuk danışmanlığıyla tamamlanmalıdır.
 
 ## İletişim
 https://ozgulerforge.com.tr · iletisim@ozgulerforge.com.tr

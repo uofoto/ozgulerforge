@@ -276,58 +276,7 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     return box;
   }
 
-  function renderBannerAndSidebar() {
-    // Ana ekrandaki belirgin Gmail / Google Hesap kartı
-    const homeBanner = document.getElementById('home-gmail-bar');
-    if (homeBanner) {
-      homeBanner.textContent = '';
-      if (!session) {
-        const left = document.createElement('div');
-        left.className = 'gmail-bar-info';
-        left.innerHTML = `<span class="gmail-badge">G</span><div><strong>Gmail ile yedekle</strong><span>Favorilerini ve dinleme geçmişini hesabına bağla</span></div>`;
-        const holder = document.createElement('div');
-        holder.className = 'gmail-btn-slot';
-        homeBanner.append(left, holder);
-        if (!busy) void mountGoogleButton(holder);
-      } else {
-        const last = Number(localStorage.getItem(LAST_SYNC_KEY)) || 0;
-        const initial = (session.email || 'G').charAt(0).toUpperCase();
-        const left = document.createElement('div');
-        left.className = 'gmail-bar-info is-connected';
-        left.innerHTML = `<span class="gmail-avatar">${initial}</span><div><strong>${session.email}</strong><span>${last ? `Bulut bağlı · son ${new Date(last).toLocaleTimeString('tr', { hour: '2-digit', minute: '2-digit' })}` : 'Google hesabı bağlı'}</span></div>`;
-        const actions = document.createElement('div');
-        actions.className = 'gmail-bar-actions';
-        const pushBtn = document.createElement('button');
-        pushBtn.type = 'button';
-        pushBtn.className = 'mini-cloud-btn';
-        pushBtn.textContent = syncing ? 'Gönderiliyor…' : 'Yedeği buluta gönder';
-        pushBtn.addEventListener('click', () => void syncNow({ quiet: false }));
-        const manageBtn = document.createElement('button');
-        manageBtn.type = 'button';
-        manageBtn.className = 'mini-cloud-btn ghost';
-        manageBtn.textContent = 'Hesap';
-        manageBtn.addEventListener('click', () => document.getElementById('open-profile-sheet')?.click());
-        actions.append(pushBtn, manageBtn);
-        homeBanner.append(left, actions);
-      }
-    }
-
-    // Masaüstü sol menü altındaki profil kartı (ekran görüntüsündeki sol alt kullanıcı alanı gibi)
-    const sideChip = document.getElementById('sidebar-account-chip');
-    if (sideChip) {
-      sideChip.textContent = '';
-      if (!session) {
-        sideChip.innerHTML = `<span class="side-avatar">G</span><div class="side-acc-copy"><strong>Google ile Giriş</strong><small>Bulut yedek kapalı</small></div>`;
-      } else {
-        const initial = (session.email || 'G').charAt(0).toUpperCase();
-        const namePart = session.email.split('@')[0];
-        sideChip.innerHTML = `<span class="side-avatar is-online">${initial}</span><div class="side-acc-copy"><strong>${namePart}</strong><small>${session.email}</small></div>`;
-      }
-    }
-  }
-
   function renderUi() {
-    renderBannerAndSidebar();
     const el = ensureBox();
     if (!el) return;
     el.textContent = '';

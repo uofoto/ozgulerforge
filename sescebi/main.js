@@ -36,126 +36,81 @@ const icons = {
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>',
     edit: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>',
     studio: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13.5c2.2 0 2.2-5 4.4-5s2.2 7 4.4 7 2.2-9 4.4-9S19.4 13.5 21 13.5"/><path d="M4 18.5h16"/></svg>',
+    list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+    settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>',
+    heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z"/></svg>',
+    heartFill: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z"/></svg>',
+    more: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
 };
 app.innerHTML = `
   <div class="app-shell">
-    <!-- Masaüstü Sol Ray / Mobil Yüzen Koyu Yeşil Dock -->
-    <aside class="main-nav" aria-label="Ana gezinme">
-      <a class="sidebar-brand" href="./" aria-label="Ses Cebi ana sayfa">
-        <span class="sidebar-brand-mark">${icons.cassette}</span>
-        <span class="sidebar-brand-copy">Ses Cebi<small>KİŞİSEL SES ARŞİVİ</small></span>
-      </a>
-      <span class="nav-caption">MENÜ</span>
-      <div class="nav-items">
-        <button class="nav-item active" type="button" data-screen="library">
-          <span class="nav-symbol">▤</span>
-          <span>Ses arşivi</span>
-          <span class="nav-count" id="nav-count">0</span>
-        </button>
-        <button class="nav-item" type="button" data-screen="home">
-          <span class="nav-symbol">＋</span>
-          <span>Kayıt ekle</span>
-        </button>
-        <button class="nav-item" type="button" data-screen="studio">
-          <span class="nav-symbol nav-studio-icon">${icons.studio}</span>
-          <span>Stüdyo</span>
-        </button>
-        <button class="nav-item nav-item-drawer" type="button" id="open-profile-sheet">
-          <span class="nav-symbol">◈</span>
-          <span>Yedek &amp; Özet</span>
-        </button>
-      </div>
-      <div class="sidebar-bottom">
-        <span class="sidebar-status"><i></i> Yerel &amp; Çevrimdışı</span>
-        <span class="sidebar-version">SES CEBİ · SÜRÜM 32</span>
-      </div>
-    </aside>
+    <nav class="main-nav" aria-label="Ana gezinme">
+      <button class="nav-item active" type="button" data-screen="library">${icons.list}<span>Arşiv</span><span class="nav-count" id="nav-count">0</span></button>
+      <button class="nav-item" type="button" data-screen="home">${icons.plus}<span>Ekle</span></button>
+      <button class="nav-item" type="button" data-screen="studio">${icons.studio}<span>Stüdyo</span></button>
+    </nav>
 
-    <!-- Sade Üst Çubuk (Yalnızca Marka ve Tema/Arama Erişimi) -->
     <header class="topbar">
-      <button class="topbar-circle-btn" type="button" id="topbar-back-or-add" aria-label="Yeni kayıt ekle" title="Yeni kayıt ekle">＋</button>
-      <a class="brand" href="./" aria-label="Ses Cebi ana sayfa">
-        <span class="brand-name" id="topbar-title">Ses arşivi</span>
-      </a>
-      <div class="header-actions">
-        <button class="topbar-circle-btn" type="button" id="topbar-search-focus" aria-label="Kayıtlarda ara" title="Ara">⌕</button>
-        <button class="topbar-circle-btn theme-toggle" id="theme-toggle" type="button" aria-label="Temayı değiştir" title="Açık / Koyu Tema">◐</button>
-        <button class="sr-only motion-toggle" id="motion-toggle" type="button" aria-label="Animasyon">∿</button>
-      </div>
+      <h1 class="brand-name" id="topbar-title">Ses arşivi</h1>
+      <button class="icon-button" type="button" id="open-profile-sheet" aria-label="Ayarlar ve yedek" title="Ayarlar ve yedek">${icons.settings}</button>
     </header>
 
     <main>
-      <!-- ======================== 1. SES ARŞİVİ (VARSAYILAN ANA EKRAN) ======================== -->
       <section class="screen-view active" id="screen-library">
         <div class="studio-picker-banner" id="studio-picker-banner" hidden role="status">
           <div><strong>Stüdyo için bir kayıt seç</strong><span>Düzenlemek istediğin kayda dokun.</span></div>
           <button class="ghost-button" id="studio-picker-cancel" type="button">Vazgeç</button>
         </div>
-
-        <!-- Sade Arama ve Filtre Şeridi -->
-        <div class="clean-filter-bar">
+        <div class="filter-bar">
           <label class="search-wrap">
-            <span class="search-symbol">⌕</span>
-            <input class="text-input library-search" id="library-search" type="search" placeholder="Kayıtlarında ara…" aria-label="Arşivde ara" />
+            ${icons.search}
+            <input class="text-input library-search" id="library-search" type="search" placeholder="Ara" aria-label="Arşivde ara" />
           </label>
-          <button class="pill-filter" id="favorites-filter" type="button" aria-pressed="false">♥ Favoriler</button>
-          <select class="pill-select library-sort" id="library-sort" aria-label="Sırala">
+          <button class="chip" id="favorites-filter" type="button" aria-pressed="false" aria-label="Yalnızca favoriler" title="Yalnızca favoriler">${icons.heart}</button>
+          <select class="library-sort" id="library-sort" aria-label="Sırala">
             <option value="newest">Yeni</option>
             <option value="oldest">Eski</option>
             <option value="az">A–Z</option>
             <option value="duration">Süre</option>
           </select>
         </div>
-
-        <div class="archive-meta-strip">
-          <span class="library-count" id="library-count">0 kayıt</span>
-          <button class="subtle-action-link" type="button" id="library-add">+ Yeni ses ekle</button>
-        </div>
-
-        <!-- Boş Durum -->
+        <p class="library-count" id="library-count">0 kayıt</p>
         <div class="empty-state" id="empty-state">
-          <div class="empty-cassette-art" aria-hidden="true">${icons.cassette}</div>
           <h3>Arşivin henüz boş</h3>
-          <p>İlk ses kaydını ekleyerek kişisel koleksiyonunu oluşturmaya başla.</p>
-          <button type="button" class="primary-button empty-add" data-screen="home">${icons.plus}<span>İlk kaydını ekle</span></button>
+          <p>İlk ses kaydını ekleyerek başla.</p>
+          <button type="button" class="primary-button empty-add" data-screen="home">${icons.plus}<span>Kayıt ekle</span></button>
         </div>
-
-        <!-- Koleksiyon Listesi (İlk Kart Öne Çıkan Kaset Kartı + Altında Sade Satırlar) -->
         <div class="song-list" id="song-list"></div>
       </section>
 
-      <!-- ======================== 2. KAYIT EKLE EKRANI (ODAKLI TEK KART) ======================== -->
       <section class="screen-view" id="screen-home">
         <div class="clean-page-head">
-          <span class="clean-kicker">YENİ KAYIT</span>
-          <h1>Arşivine <em>ses</em> ekle</h1>
-          <p>Dosya seç, doğrudan bağlantı yapıştır veya izinli X videosundan sesi al.</p>
+          <h1>Ses ekle</h1>
+          <p>Dosya seç, bağlantı yapıştır veya izinli bir X videosundan sesi al.</p>
         </div>
-
         <section class="card add-card" aria-labelledby="add-title">
-          <h2 class="sr-only" id="add-title">Arşivine yeni bir ses al</h2>
+          <h2 class="sr-only" id="add-title">Arşive yeni ses ekle</h2>
           <div class="tabs" role="tablist" aria-label="Ses ekleme yöntemi">
             <button class="tab active" type="button" role="tab" aria-selected="true" data-tab="file">Dosya</button>
             <button class="tab" type="button" role="tab" aria-selected="false" data-tab="url">Bağlantı</button>
             <button class="tab" type="button" role="tab" aria-selected="false" data-tab="x-video">X videosu</button>
           </div>
-
           <div id="file-panel" role="tabpanel">
             <label class="file-drop" for="file-input">
               <span class="upload-icon">${icons.upload}</span>
-              <strong>Ses veya video dosyanı seç</strong>
+              <strong>Ses veya video dosyası seç</strong>
               <span>MP3, M4A, WAV, OGG, MP4 · en fazla 100 MB</span>
               <input id="file-input" type="file" accept="audio/*,video/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.mp4,.m4v,.mov,.webm,.mkv" />
             </label>
             <p class="file-name" id="file-name" aria-live="polite">Henüz dosya seçilmedi</p>
           </div>
-
           <div id="url-panel" class="url-panel" role="tabpanel" hidden>
             <label class="sr-only" for="url-input">Doğrudan ses dosyası bağlantısı</label>
             <input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" />
             <p class="url-hint">Herkese açık, doğrudan ses dosyası bağlantıları desteklenir.</p>
           </div>
-
           <div id="x-video-panel" class="x-video-panel" role="tabpanel" hidden>
             <div class="x-video-form">
               <label class="sr-only" for="x-video-url">X gönderi bağlantısı</label>
@@ -165,7 +120,6 @@ app.innerHTML = `
             <p class="x-video-status" id="x-video-status" role="status" aria-live="polite"></p>
             <div class="x-video-results" id="x-video-results"></div>
           </div>
-
           <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahibim.</span></label>
           <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Arşive ekle</span></button>
           <div class="progress-wrap" id="progress-wrap" aria-live="polite">
@@ -173,82 +127,64 @@ app.innerHTML = `
             <progress id="progress" max="100" value="0">0%</progress>
           </div>
         </section>
-
-        <!-- Son Eklenenler (Minimal) -->
         <section class="card recent-card" id="recent-wrapper">
           <div class="aside-heading">
             <h2>Son eklenenler</h2>
-            <button class="subtle-action-link" type="button" data-screen="library">Tüm arşiv →</button>
+            <button class="subtle-action-link" type="button" data-screen="library">Tüm arşiv</button>
           </div>
           <div id="dashboard-recent" class="recent-list"></div>
           <div id="dashboard-empty" class="recent-empty"><span>Henüz kayıt eklenmedi.</span></div>
         </section>
       </section>
 
-      <!-- ======================== 3. SES STÜDYOSU EKRANI ======================== -->
       <section class="screen-view" id="screen-studio">
         <div class="clean-page-head">
-          <span class="clean-kicker">KESİM &amp; TON</span>
-          <h1>Ses <em>stüdyosu</em></h1>
-          <p>Dalga formu üzerinden istediğin bölümü kes, fade ve bas/tiz uygula.</p>
+          <h1>Stüdyo</h1>
+          <p>Bir kaydı seç; dalga formunda kes, fade ve bas/tiz uygula.</p>
         </div>
-
         <section class="studio-workbench">
           <div class="studio-copy">
-            <h2>Bir kaydı seç ve <em>kesmeye</em> başla.</h2>
-            <p>Arşivinden seçeceğin herhangi bir kaydı dalga formu üzerinde yakınlaştırıp saniye hassasiyetiyle kesebilir, kayıpsız WAV olarak saklayabilirsin.</p>
+            <h2>Kesmek için bir kayıt seç</h2>
+            <p>Dalga formunu yakınlaştırıp saniye hassasiyetiyle kes, sonucu WAV olarak arşive kaydet.</p>
             <button class="primary-button" id="studio-open-library" type="button">${icons.scissors}<span>Arşivden kayıt seç</span></button>
-          </div>
-          <div class="workbench-art" aria-hidden="true">
-            <div class="waveform"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            <span class="wave-cursor"></span>
           </div>
         </section>
       </section>
     </main>
 
-    <!-- ======================== SABİT ALT OYNATICI (DOCKED DECK) ======================== -->
     <div class="player" id="player" aria-live="polite">
       <div class="player-inner">
         <div class="player-top">
-          <div class="player-art">${icons.cassette}</div>
           <div class="player-title"><strong id="player-title">—</strong><span id="player-subtitle">Çalmaya hazır</span></div>
-          <div class="player-equalizer" id="player-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <div class="player-equalizer" id="player-equalizer" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
         </div>
         <div class="player-controls">
           <button class="player-button small" id="back-button" type="button" aria-label="10 saniye geri">${icons.rewind}</button>
           <button class="player-button" id="play-button" type="button" aria-label="Oynat">${icons.play}</button>
           <button class="player-button small" id="forward-button" type="button" aria-label="10 saniye ileri">${icons.forward}</button>
-          <input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" />
           <span class="time" id="time">00:00 / 00:00</span>
+          <input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" />
         </div>
-        <div class="player-extra">
-          <button class="chip" id="prev-button" type="button">Önceki</button>
-          <button class="chip" id="next-button" type="button">Sonraki</button>
-          <button class="chip" id="mode-button" type="button">Sırayla</button>
-          <label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
-          <button class="chip" id="sleep-button" type="button">Uyku</button>
-        </div>
+        <details class="player-more">
+          <summary>Seçenekler</summary>
+          <div class="player-extra">
+            <button class="chip" id="prev-button" type="button">Önceki</button>
+            <button class="chip" id="next-button" type="button">Sonraki</button>
+            <button class="chip" id="mode-button" type="button">Sırayla</button>
+            <label class="speed-control">Hız <select id="playback-speed" aria-label="Oynatma hızı"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option><option value="2">2×</option></select></label>
+            <button class="chip" id="sleep-button" type="button">Uyku</button>
+          </div>
+        </details>
       </div>
     </div>
-
-    <!-- Sade Alt Bilgi Satırı (Yığın Oluşturmayan Tek Satır + Yasal Bilgiler Çekmecesi) -->
-    <footer class="site-footer" aria-label="Uygulama bilgileri">
-      <span>OZGULER FORGE · SES CEBİ</span>
-      <div class="footer-links">
-        <button class="footer-link-btn" type="button" id="open-profile-footer">Yedek &amp; Özet</button>
-        <button class="footer-link-btn" type="button" id="open-legal-sheet">Gizlilik &amp; Koşullar</button>
-        <a href="https://ozgulerforge.com.tr" target="_blank" rel="noreferrer">ozgulerforge.com.tr ↗</a>
-      </div>
-    </footer>
   </div>
 
   <!-- ======================== ÇEKMECE 1: YEDEK, ÖZET & UYGULAMA ======================== -->
   <div class="overlay" id="profile-overlay" hidden>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="profile-sheet-title">
       <div class="sheet-head">
-        <h2 id="profile-sheet-title">Arşiv Özeti &amp; Yedek</h2>
-        <button class="icon-button" id="profile-close" type="button" aria-label="Kapat">✕</button>
+        <h2 id="profile-sheet-title">Ayarlar ve yedek</h2>
+        <button class="icon-button" id="profile-close" type="button" aria-label="Kapat">${icons.close}</button>
       </div>
 
       <section class="metric-row" aria-label="Arşiv özeti">
@@ -284,12 +220,21 @@ app.innerHTML = `
       <div class="sheet-block install-sheet-box">
         <div>
           <strong>Ana Ekrana Yükle (PWA)</strong>
-          <small id="app-status">Sürüm 33 · Güncel sürüm</small>
+          <small id="app-status"></small>
         </div>
         <div class="app-card-actions">
           <button class="primary-button install-button" id="install-button" type="button">${icons.download}<span>Yükle</span></button>
           <button class="ghost-button" id="update-button" type="button">Güncelle</button>
           <button class="ghost-button" id="diag-button" type="button">Durum</button>
+        </div>
+        <pre class="diag-output" id="diag-output" hidden></pre>
+      </div>
+
+      <div class="sheet-block">
+        <h3>Görünüm ve bilgi</h3>
+        <div class="app-card-actions">
+          <button class="ghost-button" id="theme-toggle" type="button">Açık / koyu temayı değiştir</button>
+          <button class="ghost-button" id="open-legal-sheet" type="button">Gizlilik &amp; Koşullar</button>
         </div>
       </div>
     </div>
@@ -300,7 +245,7 @@ app.innerHTML = `
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="legal-sheet-title">
       <div class="sheet-head">
         <h2 id="legal-sheet-title">Gizlilik &amp; Kullanım Koşulları</h2>
-        <button class="icon-button" id="legal-close" type="button" aria-label="Kapat">✕</button>
+        <button class="icon-button" id="legal-close" type="button" aria-label="Kapat">${icons.close}</button>
       </div>
       <div class="legal-sheet-body">
         <h3>Kullanım ve telif</h3>
@@ -316,7 +261,7 @@ app.innerHTML = `
   <!-- ======================== ÇEKMECE 3: SES KESME STÜDYOSU ======================== -->
   <div class="overlay" id="trim-overlay" hidden>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="trim-title">
-      <div class="sheet-head"><h2 id="trim-title">Sesi kes</h2><button class="icon-button" id="trim-close" type="button" aria-label="Kapat">✕</button></div>
+      <div class="sheet-head"><h2 id="trim-title">Sesi kes</h2><button class="icon-button" id="trim-close" type="button" aria-label="Kapat">${icons.close}</button></div>
       <p class="sheet-sub" id="trim-name"></p>
       <p class="sheet-status" id="trim-status" aria-live="polite"></p>
       <canvas class="wave" id="wave" height="96" aria-label="Ses dalga biçimi"></canvas>
@@ -339,7 +284,7 @@ app.innerHTML = `
   <!-- ======================== ÇEKMECE 4: KAYIT BİLGİSİ ======================== -->
   <div class="overlay" id="info-overlay" hidden>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="info-title">
-      <div class="sheet-head"><h2 id="info-title">Kayıt bilgisi</h2><button class="icon-button" id="info-close" type="button" aria-label="Kapat">✕</button></div>
+      <div class="sheet-head"><h2 id="info-title">Kayıt bilgisi</h2><button class="icon-button" id="info-close" type="button" aria-label="Kapat">${icons.close}</button></div>
       <div id="info-body"></div>
       <div class="sheet-actions"><button class="ghost-button" id="info-share" type="button" hidden>${icons.share}<span>Paylaş</span></button><button class="primary-button" id="info-ok" type="button">Tamam</button></div>
     </div>
@@ -348,7 +293,7 @@ app.innerHTML = `
   <!-- ======================== ÇEKMECE 5: ADI DEĞİŞTİR ======================== -->
   <div class="overlay" id="rename-overlay" hidden>
     <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="rename-title">
-      <div class="sheet-head"><h2 id="rename-title">Adı değiştir</h2><button class="icon-button" id="rename-close" type="button" aria-label="Kapat">✕</button></div>
+      <div class="sheet-head"><h2 id="rename-title">Adı değiştir</h2><button class="icon-button" id="rename-close" type="button" aria-label="Kapat">${icons.close}</button></div>
       <label class="sr-only" for="rename-input">Yeni ad</label>
       <input class="text-input" id="rename-input" type="text" maxlength="80" autocomplete="off" />
       <div class="sheet-actions rename-actions"><button class="primary-button" id="rename-save" type="button">Kaydet</button></div>
@@ -791,7 +736,7 @@ async function downloadXVideo(index) {
         const anchor = document.createElement('a');
         anchor.href = url; anchor.download = `ses-cebi-x-${Date.now()}.mp4`;
         document.body.append(anchor); anchor.click(); anchor.remove();
-        window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+        window.setTimeout(() => URL.revokeObjectURL(url), 60000);
         setXVideoStatus('Video indirildi.');
         toast('X videosu cihazına indirildi.');
     }
@@ -1044,7 +989,7 @@ function renderLibrary() {
     const search = searchQuery.trim().toLocaleLowerCase('tr');
     let visibleSongs = songs.filter((song) => (!favoritesOnly || song.favorite) && (!search || song.name.toLocaleLowerCase('tr').includes(search)));
     visibleSongs = [...visibleSongs].sort((a, b) => sortMode === 'oldest' ? a.createdAt - b.createdAt : sortMode === 'az' ? a.name.localeCompare(b.name, 'tr') : sortMode === 'duration' ? (b.duration || 0) - (a.duration || 0) : b.createdAt - a.createdAt);
-    libraryCount.textContent = `${songs.length} kayıt · ${visibleSongs.length} gösteriliyor`;
+    libraryCount.textContent = visibleSongs.length === songs.length ? `${songs.length} kayıt` : `${songs.length} kayıt · ${visibleSongs.length} gösteriliyor`;
     get('nav-count').textContent = String(songs.length);
     get('stat-count').textContent = String(songs.length);
     get('stat-favorites').textContent = String(songs.filter((song) => song.favorite).length);
@@ -1052,7 +997,7 @@ function renderLibrary() {
     renderListeningStats();
     const recent = get('dashboard-recent');
     const recentSongs = [...songs].sort((a, b) => b.createdAt - a.createdAt).slice(0, 4);
-    recent.innerHTML = recentSongs.map((song, index) => `<button class="recent-row" type="button" data-play-recent="${song.id}"><span class="recent-cover tone-${index % 4}">${icons.cassette}</span><span class="recent-track"><strong>${escapeHtml(song.name)}</strong><small>${formatTime(song.duration)} <i>·</i> ${formatSize(song.size)}</small></span><span class="recent-play">${icons.play}</span></button>`).join('');
+    recent.innerHTML = recentSongs.map((song, index) => `<button class="recent-row" type="button" data-play-recent="${song.id}"><span class="recent-cover">${icons.cassette}</span><span class="recent-track"><strong>${escapeHtml(song.name)}</strong><small>${formatTime(song.duration)} <i>·</i> ${formatSize(song.size)}</small></span><span class="recent-play">${icons.play}</span></button>`).join('');
     get('dashboard-empty').hidden = songs.length > 0;
     recent.hidden = songs.length === 0;
     recent.querySelectorAll('[data-play-recent]').forEach((button) => button.addEventListener('click', () => {
@@ -1062,90 +1007,23 @@ function renderLibrary() {
     emptyState.hidden = visibleSongs.length > 0;
     if (songs.length > 0 && visibleSongs.length === 0) { emptyState.querySelector('h3').textContent = 'Eşleşen kayıt bulunamadı'; emptyState.querySelector('p').textContent = 'Arama sözcüğünü veya favori filtresini değiştirebilirsin.'; }
     else { emptyState.querySelector('h3').textContent = 'Arşivin yeni başlıyor'; emptyState.querySelector('p').textContent = 'İlk kaydını eklediğinde, burada düzenli ve çevrimdışı erişilebilir şekilde göreceksin.'; }
-    const cassetteSvgArt = `
-      <svg viewBox="0 0 140 90" width="112" height="72" aria-hidden="true" class="cassette-illustration">
-        <rect x="3" y="3" width="134" height="84" rx="10" fill="#1F2421" stroke="#3B423E" stroke-width="2"/>
-        <rect x="13" y="12" width="114" height="44" rx="5" fill="#F2EAD9"/>
-        <rect x="13" y="23" width="114" height="19" fill="#B85C38"/>
-        <rect x="34" y="25" width="72" height="15" rx="7.5" fill="#181C1A"/>
-        <circle cx="47" cy="32.5" r="7" fill="#F6F2EA"/>
-        <circle cx="47" cy="32.5" r="3" fill="#181C1A"/>
-        <circle cx="93" cy="32.5" r="7" fill="#F6F2EA"/>
-        <circle cx="93" cy="32.5" r="3" fill="#181C1A"/>
-        <rect x="59" y="28" width="22" height="9" rx="2" fill="#3D312A"/>
-        <polygon points="26,87 34,68 106,68 114,87" fill="#141816" stroke="#2F3632" stroke-width="1.5"/>
-        <circle cx="44" cy="78" r="3" fill="#9A8F7D"/>
-        <circle cx="96" cy="78" r="3" fill="#9A8F7D"/>
-        <circle cx="70" cy="76" r="2.5" fill="#9A8F7D"/>
-      </svg>`;
-
-    const buildFeaturedWave = (seedStr, isPlaying) => {
-      let h = 2166136261;
-      for (let i = 0; i < seedStr.length; i++) { h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
-      const bars = [];
-      for (let i = 0; i < 34; i++) {
-        h ^= (h << 13); h ^= (h >>> 17); h ^= (h << 5);
-        const pct = 20 + (Math.abs(h) % 78);
-        const lit = isPlaying && i < 14 ? ' is-lit' : '';
-        bars.push(`<i class="${lit}" style="height:${pct}%"></i>`);
-      }
-      return `<div class="featured-waveform" aria-hidden="true">${bars.join('')}</div>`;
-    };
-
-    const featuredId = (activeSong && visibleSongs.some((s) => s.id === activeSong.id))
-      ? activeSong.id
-      : visibleSongs[0]?.id;
-
-    songList.innerHTML = visibleSongs.map((song, index) => {
+    songList.innerHTML = visibleSongs.map((song) => {
       const isPlayingThis = activeSong?.id === song.id && !audio.paused;
-      const isFeatured = song.id === featuredId;
       const dateText = new Date(song.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
-      const metaLine = `${dateText}, ${formatTime(song.duration)} · ${formatSize(song.size)}`;
-
-      if (isFeatured) {
-        return `
-        <article class="song-row is-featured-card ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
-          <div class="featured-top-row">
-            <div class="cassette-box">${cassetteSvgArt}</div>
-            <div class="featured-top-actions">
-              <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button>
-              <button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">⋮</button>
-            </div>
-          </div>
-
-          <div class="featured-wave-strip">
-            <span class="mini-play-tri" aria-hidden="true">▶</span>
-            <span class="mini-progress-line" aria-hidden="true"><i></i></span>
-            ${buildFeaturedWave(song.id + song.name, isPlayingThis)}
-          </div>
-
-          <div class="song-main featured-copy">
-            <p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p>
-            <div class="song-meta"><span>${metaLine}</span></div>
-          </div>
-
-          <div class="song-actions featured-cta-row">
-            <button class="primary-button studio-select-row" type="button" hidden>${icons.scissors}<span>Stüdyoda aç</span></button>
-            <button class="cta-pill-btn play-row ${isPlayingThis ? 'is-active' : ''}" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Dinle'}: ${escapeHtml(song.name)}">${isPlayingThis ? icons.pause : icons.play}<span>${isPlayingThis ? 'Duraklat' : 'Dinle'}</span></button>
-            <button class="cta-pill-btn terracotta quick-trim-row" type="button" aria-label="Kes veya düzenle: ${escapeHtml(song.name)}">${icons.scissors}<span>Kes / Düzenle</span></button>
-            <div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div>
-          </div>
-        </article>`;
-      }
-
+      const metaLine = `${dateText} · ${formatTime(song.duration)} · ${formatSize(song.size)}`;
       return `
-      <article class="song-row is-compact-card ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
-        <button class="compact-thumb cover-tone-${index % 5} play-row" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Dinle'}: ${escapeHtml(song.name)}">
-          <span class="thumb-icon">${isPlayingThis ? icons.pause : icons.cassette}</span>
+      <article class="song-row ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
+        <button class="compact-thumb play-row" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Dinle'}: ${escapeHtml(song.name)}">
+          ${isPlayingThis ? icons.pause : icons.play}
         </button>
-        <div class="song-main compact-copy">
+        <div class="song-main">
           <p class="song-name" title="${escapeHtml(song.name)}">${escapeHtml(song.name)}</p>
           <div class="song-meta"><span>${metaLine}</span></div>
         </div>
-        <div class="song-actions compact-actions">
+        <div class="song-actions">
           <button class="primary-button studio-select-row" type="button" hidden>${icons.scissors}<span>Seç</span></button>
-          <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? '♥' : '♡'}</button>
-          <button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">⋮</button>
+          <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? icons.heartFill : icons.heart}</button>
+          <button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">${icons.more}</button>
           <div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div>
         </div>
       </article>`;
@@ -1410,7 +1288,7 @@ async function saveFile(file, isAudio) {
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 4000);
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
     showSaveInfo(file, undefined, isAudio);
 }
 function canShareFile(file) {
@@ -2004,31 +1882,16 @@ get('sleep-button').addEventListener('click', () => {
     sleepTimerId = window.setTimeout(() => { audio.pause(); sleepTimerId = 0; toast('Uyku zamanlayıcısı sesi durdurdu.'); }, minutes * 60000);
     toast(`Ses ${minutes} dakika sonra duracak.`);
 });
-const screenTitles = { library: 'Ses arşivi', home: 'Kayıt ekle', studio: 'Ses stüdyosu' };
+const screenTitles = { library: 'Ses arşivi', home: 'Ses ekle', studio: 'Stüdyo' };
 function switchScreen(target) {
   if (target !== 'library' && studioSelectionMode) { studioSelectionMode = false; get('studio-picker-banner').hidden = true; renderLibrary(); }
   document.querySelectorAll('.screen-view').forEach((view) => view.classList.toggle('active', view.id === `screen-${target}`));
   document.querySelectorAll('[data-screen]').forEach((item) => item.classList.toggle('active', item.dataset.screen === target));
   const titleEl = get('topbar-title');
   if (titleEl) titleEl.textContent = screenTitles[target] || 'Ses arşivi';
-  const leftBtn = get('topbar-back-or-add');
-  if (leftBtn) {
-    leftBtn.textContent = target === 'library' ? '＋' : '←';
-    leftBtn.setAttribute('aria-label', target === 'library' ? 'Yeni kayıt ekle' : 'Ses arşivine dön');
-    leftBtn.dataset.mode = target === 'library' ? 'add' : 'back';
-  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 document.querySelectorAll('[data-screen]').forEach((button) => button.addEventListener('click', () => switchScreen(button.dataset.screen)));
-
-get('topbar-back-or-add')?.addEventListener('click', (e) => {
-  if (e.currentTarget.dataset.mode === 'back') switchScreen('library');
-  else switchScreen('home');
-});
-get('topbar-search-focus')?.addEventListener('click', () => {
-  switchScreen('library');
-  window.setTimeout(() => get('library-search')?.focus(), 80);
-});
 
 const profileOverlay = get('profile-overlay');
 const legalOverlay = get('legal-overlay');
@@ -2038,7 +1901,6 @@ const openLegal = () => { if (legalOverlay) { legalOverlay.hidden = false; docum
 const closeLegal = () => { if (legalOverlay) { legalOverlay.hidden = true; document.body.classList.remove('modal-open'); } };
 
 get('open-profile-sheet')?.addEventListener('click', openProfile);
-get('open-profile-footer')?.addEventListener('click', openProfile);
 get('profile-close')?.addEventListener('click', closeProfile);
 profileOverlay?.addEventListener('click', (e) => { if (e.target === profileOverlay) closeProfile(); });
 
@@ -2052,30 +1914,22 @@ get('studio-open-library').addEventListener('click', () => {
   document.querySelector('[data-screen="library"]').click();
 });
 window.addEventListener('pagehide', () => flushListeningSession(true));
-window.setInterval(() => flushListeningSession(false), 5000);
+window.setInterval(() => { if (!audio.paused) flushListeningSession(false); }, 5000);
 get('studio-picker-cancel').addEventListener('click', () => {
   studioSelectionMode = false;
   get('studio-picker-banner').hidden = true;
   renderLibrary();
   document.querySelector('[data-screen="studio"]').click();
 });
-get('library-add').addEventListener('click', () => switchScreen('home'));
 
 const themeToggle = get('theme-toggle');
-const motionToggle = get('motion-toggle');
-try { if (localStorage.getItem('sescebi-theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch {}
-function setMotionEnabled(enabled) {
-    document.documentElement.classList.toggle('motion-off', !enabled);
-    motionToggle.setAttribute('aria-label', enabled ? 'Ekolayzer animasyonunu kapat' : 'Ekolayzer animasyonunu aç');
-    motionToggle.title = enabled ? 'Ekolayzer animasyonu açık' : 'Ekolayzer animasyonu kapalı · pil tasarrufu';
-    motionToggle.classList.toggle('is-off', !enabled);
-    try { localStorage.setItem('sescebi-motion', enabled ? 'on' : 'off'); } catch {}
-}
-let motionEnabled = true;
-try { motionEnabled = localStorage.getItem('sescebi-motion') !== 'off'; } catch {}
-setMotionEnabled(motionEnabled);
-motionToggle.addEventListener('click', () => setMotionEnabled(document.documentElement.classList.contains('motion-off')));
-themeToggle.addEventListener('click', () => { const dark = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dark ? 'dark' : 'light'; try { localStorage.setItem('sescebi-theme', dark ? 'dark' : 'light'); } catch {} });
+try { const saved = localStorage.getItem('sescebi-theme'); if (saved === 'dark' || saved === 'light') document.documentElement.dataset.theme = saved; } catch {}
+themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.dataset.theme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.dataset.theme = next;
+    try { localStorage.setItem('sescebi-theme', next); } catch {}
+});
 function updateMediaSession() {
     if (!('mediaSession' in navigator) || !activeSong)
         return;
@@ -2496,10 +2350,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '33';
-const sidebarVersion = document.querySelector('.sidebar-version');
-if (sidebarVersion)
-    sidebarVersion.textContent = `SES CEBİ · SÜRÜM ${APP_VERSION}`;
+const APP_VERSION = '34';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -2637,7 +2488,9 @@ async function diagnose() {
     }
     ok(!!deferredInstallPrompt, 'Tarayıcı kurulum penceresine hazır');
     ok(!isStandalone(), 'Şu an tarayıcıda açık (uygulama olarak değil)');
-    window.alert(out.join('\n'));
+    const diagBox = get('diag-output');
+    diagBox.textContent = out.join('\n');
+    diagBox.hidden = false;
 }
 get('diag-button').addEventListener('click', () => void diagnose());
 refreshAppCard();
@@ -2687,6 +2540,6 @@ async function init() {
     catch { /* bulut eşitleme başlatılamazsa uygulama yerel çalışmaya devam eder */ }
     await loadSharedFile();
     if ('serviceWorker' in navigator)
-        navigator.serviceWorker.register('./sw.js?v=26', { scope: './' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
+        navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' }).then((registration) => { swRegistration = registration; }).catch(() => undefined);
 }
 void init();

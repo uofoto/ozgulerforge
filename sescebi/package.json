@@ -1,12 +1,12 @@
 {
   "name": "sescebi",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "node scripts/server.mjs",
-    "check": "node --check main.js",
-    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "build": "npm run check && node scripts/build.mjs",
     "preview": "node scripts/server.mjs --dist"
   }
 }

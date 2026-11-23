@@ -1,17 +1,19 @@
-const CACHE_NAME = 'sescebi-shell-v33';
-// Hangi alt klasörde yayınlanırsa (ör. /sescebi/) onun kapsamını kullanır.
-const BASE = self.registration.scope;
+// Ses Cebi Service Worker. Sürüm numarası main.js içindeki APP_VERSION ile aynı olmalıdır (npm run check denetler).
+const VERSION = '34';
+const CACHE_NAME = `sescebi-shell-v${VERSION}`;
+const SHARE_CACHE = 'sescebi-share';
+const BASE = self.registration.scope; // alt klasörde (ör. /sescebi/) yayınlansa da doğru çalışır
 const scoped = (path) => new URL(path, BASE).href;
-const APP_SHELL = ['./', 'index.html', 'manifest.webmanifest', 'manus-routes.json', 'lame.min.js', 'cloud-sync.js', 'editorial-v33.css?v=33', 'main.js?v=33', 'icons/icon-192.svg', 'icons/icon-512.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-192.png', 'icons/icon-maskable-512.png'].map(scoped);
 
-async function precacheAppShell() {
+// Bunlardan biri indirilemezse kurulum başarısız olur ve tarayıcı daha sonra yeniden dener.
+const CORE = ['./', 'index.html', 'app.css', 'main.js', 'cloud-sync.js', 'manifest.webmanifest'].map(scoped);
+// Bunlar eksik olursa uygulama yine de çalışır.
+const OPTIONAL = ['lame.min.js', 'icons/icon-192.svg', 'icons/icon-512.svg', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-maskable-192.png', 'icons/icon-maskable-512.png'].map(scoped);
+
+async function precache() {
   const cache = await caches.open(CACHE_NAME);
-  const response = await fetch(scoped('./?sw-shell=33'), { cache: 'no-store' });
-  const html = await response.clone().text();
-  const assets = [...html.matchAll(/(?:src|href)=["']([^"']+\.(?:js|css)(?:\?[^"']*)?)["']/g)].map((match) => new URL(match[1], BASE).href);
-  const urls = [...new Set([...APP_SHELL, ...assets])];
-  // Tek bir dosya hata verirse tüm kurulum bozulmasın.
-  await Promise.allSettled(urls.map((url) => cache.add(new Request(url, { cache: 'reload' }))));
+  await cache.addAll(CORE.map((url) => new Request(url, { cache: 'reload' })));
+  await Promise.allSettled(OPTIONAL.map((url) => cache.add(new Request(url, { cache: 'reload' }))));
 }
 
 async function networkFirst(request) {
@@ -23,7 +25,8 @@ async function networkFirst(request) {
     }
     return response;
   } catch {
-    return caches.match(request).then((cached) => cached || caches.match(scoped('./')));
+    const cached = await caches.match(request, { ignoreSearch: true });
+    return cached || (await caches.match(scoped('./'))) || Response.error();
   }
 }
 
@@ -47,7 +50,7 @@ async function handleShare(request) {
     const form = await request.formData();
     const file = form.getAll('media').find((item) => typeof item !== 'string');
     if (file) {
-      const cache = await caches.open('sescebi-share');
+      const cache = await caches.open(SHARE_CACHE);
       await cache.put(scoped('shared-file'), new Response(file, { headers: { 'Content-Type': file.type || 'application/octet-stream', 'x-file-name': encodeURIComponent(file.name || 'paylasilan-dosya') } }));
     }
   } catch {
@@ -57,7 +60,7 @@ async function handleShare(request) {
 }
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(precacheAppShell().then(() => self.skipWaiting()));
+  event.waitUntil(precache().then(() => self.skipWaiting()));
 });
 
 self.addEventListener('message', (event) => {
@@ -66,20 +69,21 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith('sescebi-shell-') && key !== CACHE_NAME).map((key) => caches.delete(key))))
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith('sescebi-shell-') && key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  const requestUrl = new URL(event.request.url);
-  if (event.request.method === 'POST' && requestUrl.href === scoped('share-target')) {
-    event.respondWith(handleShare(event.request));
+  const request = event.request;
+  const url = new URL(request.url);
+  if (request.method === 'POST' && url.href === scoped('share-target')) {
+    event.respondWith(handleShare(request));
     return;
   }
-  if (event.request.method !== 'GET') return;
-  if (requestUrl.origin !== self.location.origin) return;
-
-  const isDocument = event.request.mode === 'navigate' || requestUrl.href === scoped('./') || requestUrl.href === scoped('index.html') || requestUrl.href === scoped('sw.js');
-  event.respondWith(isDocument ? networkFirst(event.request) : cacheFirst(event.request));
+  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
+  // Sayfa, betik ve stil dosyaları her zaman önce ağdan gelir; çevrimdışıyken önbellek kullanılır.
+  const fresh = request.mode === 'navigate' || /\.(?:js|css|html|webmanifest)$/.test(url.pathname) || url.pathname.endsWith('/');
+  event.respondWith(fresh ? networkFirst(request) : cacheFirst(request));
 });
