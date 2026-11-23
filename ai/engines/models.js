@@ -44,9 +44,10 @@ export function engineName(m) { return (PROVIDER_NAMES[m.provider] || m.provider
 
 // creds: { apiKey, groqKey, orKey }
 export function hasKeyFor(m, creds = {}) {
+  if (PROXY_URL) return true;
   if (m.provider === 'openrouter') return Boolean(creds.orKey && creds.orKey.trim());
   if (m.provider === 'groq') return Boolean(creds.groqKey && creds.groqKey.trim());
-  return Boolean(PROXY_URL || (creds.apiKey && creds.apiKey.trim().length >= 20));
+  return Boolean(creds.apiKey && creds.apiKey.trim().length >= 20);
 }
 export function keyOk(creds) { return poolFor(curModel()).some(x => hasKeyFor(x, creds)); }
 
