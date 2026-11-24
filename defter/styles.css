@@ -48,3 +48,6 @@ dialog::backdrop{background:rgba(10,15,20,.5)}
 .f{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
 textarea.f{min-height:120px;resize:vertical;font:17px/1.45 var(--serif)}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:12px;font-size:14px;z-index:20}
+.ft{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:30px}
+.dl{width:32px;height:32px;display:grid;place-items:center;color:var(--mute);border-radius:10px;margin:-4px -6px -4px 0}
+.dl:hover,.dl:focus-visible{color:#C0392B;background:var(--bg)}
