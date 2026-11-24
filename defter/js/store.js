@@ -13,13 +13,13 @@ const KEY='defter-v1',P={
 const ic=n=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('class','i');s.setAttribute('aria-hidden','true');const p=document.createElementNS(s.namespaceURI,'path');p.setAttribute('d',P[n]);s.append(p);return s};
 const $=s=>document.querySelector(s);
 function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
-let D={notes:[],set:{theme:'auto',size:1},lastBackup:0};
+let D={notes:[],set:{theme:'auto',size:1},cf:{url:'',key:'',pass:'',lastCloud:0},lastBackup:0};
 const META='defter-meta';
-try{const m=JSON.parse(localStorage.getItem(META)||'null');if(m)D=Object.assign(D,m)}catch(e){}
+try{const m=JSON.parse(localStorage.getItem(META)||'null');if(m){D=Object.assign(D,m);D.cf=Object.assign({url:'',key:'',pass:'',lastCloud:0},m.cf||{})}}catch(e){}
 let db=null;
 const idb=(m,f,st='n')=>new Promise((ok,no)=>{const t=db.transaction(st,m),r=f(t.objectStore(st));t.oncomplete=()=>ok(r&&r.result);t.onerror=()=>no(t.error)});
 const openDB=()=>new Promise((ok,no)=>{const r=indexedDB.open('defter',2);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('n'))d.createObjectStore('n',{keyPath:'id'});if(!d.objectStoreNames.contains('s'))d.createObjectStore('s',{keyPath:'k'})};r.onsuccess=()=>{db=r.result;db.onversionchange=()=>db.close();ok()};r.onerror=()=>no(r.error)});
-function save(n){if(n&&db)idb('readwrite',s=>s.put(n)).then(()=>bc&&bc.postMessage(1)).catch(()=>toast('Kayıt yapılamadı'));if(n&&!db)D.mem=true;try{localStorage.setItem(META,JSON.stringify({set:D.set,lastBackup:D.lastBackup,snapT:D.snapT,autoT:D.autoT}))}catch(e){}}
+function save(n){if(n&&db)idb('readwrite',s=>s.put(n)).then(()=>bc&&bc.postMessage(1)).catch(()=>toast('Kayıt yapılamadı'));if(n&&!db)D.mem=true;try{localStorage.setItem(META,JSON.stringify({set:D.set,cf:D.cf,lastBackup:D.lastBackup,snapT:D.snapT,autoT:D.autoT}))}catch(e){}}
 const remove=n=>db&&idb('readwrite',s=>s.delete(n.id));
 const putAll=a=>db&&idb('readwrite',s=>{a.forEach(x=>s.put(x))});
 async function loadNotes(){
@@ -32,7 +32,7 @@ async function loadNotes(){
     if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
   }catch(e){D.notes=[];D.mem=true}
 }
-let LIM=30,view='home',tag='Tümü',kflt='all',q='',sub='fav',cur=null,kind='soz',hi=0;
+let LIM=30,view='home',tag='Tümü',kflt='all',q='',sub='fav',cur=null,kind='soz',hi=0,cfBusy=false;
 function toast(m,lb,fn){const d=el('div','toast',m);if(lb){const b=el('button','',lb);b.style.cssText='margin-left:12px;font-weight:600;text-decoration:underline';b.onclick=()=>{d.remove();fn()};d.append(b)}document.body.append(d);setTimeout(()=>d.remove(),lb?5000:1800)}
 function applySet(){const r=document.documentElement,t=D.set.theme;if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);r.style.setProperty('--fs',D.set.size)}
 const live=()=>D.notes.filter(n=>!n.d&&!n.x);

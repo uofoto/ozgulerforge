@@ -42,8 +42,8 @@ function hero(){
 function home(a){
   if(D.mem){const b=el('div','bn'),x=el('button','btn','Yedeği indir');x.type='button';b.append(el('span','','Bu tarayıcı kayıt saklamaya izin vermiyor. Çıkmadan önce yedeği indir.'));x.onclick=exp;b.append(x);a.append(b)}
   a.append(hero());
-  const days=(Date.now()-D.lastBackup)/864e5;
-  if(live().length&&days>7){const b=el('div','bn');b.append(el('span','',D.lastBackup?Math.floor(days)+' gündür yedek almadın.':'Henüz yedek almadın.'));const x=el('button','btn','Yedeğe git');x.type='button';x.onclick=()=>go('bak');b.append(x);a.append(b)}
+  const days=(Date.now()-Math.max(D.lastBackup||0,D.cf.lastCloud||0))/864e5;
+  if(live().length&&days>7){const b=el('div','bn');b.append(el('span','',(D.lastBackup||D.cf.lastCloud)?Math.floor(days)+' gündür yedek almadın.':'Henüz yedek almadın.'));const x=el('button','btn','Yedeğe git');x.type='button';x.onclick=()=>go('bak');b.append(x);a.append(b)}
   const s=el('label','search');s.append(ic('search'));const i=el('input');i.type='search';i.placeholder='Söz, yazar, başlık veya makale ara';i.value=q;i.setAttribute('aria-label','Ara');
   const out=el('div');i.oninput=()=>{q=i.value;LIM=30;out.replaceChildren(list())};s.append(i);a.append(s);
   const kf=el('div','filters');
@@ -73,8 +73,20 @@ function arc(a){
 function bak(a){
   const h=el('div','top');h.append(el('h1','','Yedek'));a.append(h);
   const p=el('div','panel');p.append(el('h2','','Bu cihaza yedekle'));
-  p.append(el('p','',D.lastBackup?'Son yedek: '+new Date(D.lastBackup).toLocaleString('tr-TR'):'Henüz yedek almadın.'));
-  const r=el('div','row'),b1=el('button','btn','Yedeği indir'),b2=el('button','btn g','Yedekten geri yükle');b1.type='button';b2.type='button';b1.onclick=exp;b2.onclick=()=>$('#file').click();r.append(b2,b1);if(D.snapT){const u=el('button','btn g','Son geri yüklemeyi geri al');u.type='button';u.onclick=()=>undoRestore();r.prepend(u)}if(D.autoT){const u2=el('button','btn g','Otomatik kopyaya dön ('+new Date(D.autoT).toLocaleDateString('tr-TR')+')');u2.type='button';u2.onclick=()=>undoRestore('auto');r.prepend(u2)}p.append(r);a.append(p)}
+  p.append(el('p','',D.lastBackup?'Son yerel yedek: '+new Date(D.lastBackup).toLocaleString('tr-TR'):'Henüz yerel yedek almadın.'));
+  const r=el('div','row'),b1=el('button','btn','Yedeği indir'),b2=el('button','btn g','Yedekten geri yükle');b1.type='button';b2.type='button';b1.onclick=exp;b2.onclick=()=>$('#file').click();r.append(b2,b1);if(D.snapT){const u=el('button','btn g','Son geri yüklemeyi geri al');u.type='button';u.onclick=()=>undoRestore();r.prepend(u)}if(D.autoT){const u2=el('button','btn g','Otomatik kopyaya dön ('+new Date(D.autoT).toLocaleDateString('tr-TR')+')');u2.type='button';u2.onclick=()=>undoRestore('auto');r.prepend(u2)}p.append(r);a.append(p);
+
+  const c=el('div','panel');c.append(el('h2','','Cloudflare bulut yedeği'));
+  c.append(el('p','',D.cf.lastCloud?'Son bulut yedeği: '+new Date(D.cf.lastCloud).toLocaleString('tr-TR')+' · Veriler cihazında AES-GCM ile şifrelenerek gönderilir.':'Verilerin tarayıcıda AES-GCM ile şifrelenir; Cloudflare Worker yalnızca şifreli paketi saklar.'));
+  const fld=el('div','fld');
+  const lu=el('label','', 'Worker adresi');const iu=el('input','f');iu.type='url';iu.placeholder='https://defter-yedek.kullanici.workers.dev';iu.value=D.cf.url||'';iu.oninput=()=>{D.cf.url=iu.value.trim();save()};lu.append(iu);
+  const lk=el('label','', 'Erişim anahtarı (Bearer Token)');const ik=el('input','f');ik.type='password';ik.placeholder='Worker gizli anahtarı';ik.value=D.cf.key||'';ik.oninput=()=>{D.cf.key=ik.value.trim();save()};lk.append(ik);
+  const lp=el('label','', 'Şifreleme parolası (uçtan uca)');const ip=el('input','f');ip.type='password';ip.placeholder='En az 6 karakter';ip.value=D.cf.pass||'';ip.oninput=()=>{D.cf.pass=ip.value;save()};lp.append(ip);
+  fld.append(lu,lk,lp);c.append(fld);
+  const cr=el('div','row');
+  const cb2=el('button','btn g',cfBusy?'İşleniyor…':'Buluttan geri yükle');cb2.type='button';cb2.disabled=cfBusy;cb2.onclick=()=>cfPull();
+  const cb1=el('button','btn',cfBusy?'İşleniyor…':'Buluta yedekle');cb1.type='button';cb1.disabled=cfBusy;cb1.onclick=()=>cfPush();
+  cr.append(cb2,cb1);c.append(cr);a.append(c)}
 function sett(a){
   const h=el('div','top');h.append(el('h1','','Ayarlar'));a.append(h);
   const p=el('div','panel');p.append(el('h2','','Görünüm'));
