@@ -30,12 +30,12 @@ function arc(a){
   const h=el('div','top');h.append(el('h1','','Arşiv'));a.append(h);
   segs(a,[['fav','Favoriler'],['trash','Çöp kutusu']],sub,v=>{sub=v;LIM=30;render()});
   if(sub==='fav')a.append(grid(live().filter(n=>n.f).sort((a,b)=>b.m-a.m),'Henüz favorin yok. Kartın köşesindeki yıldıza dokun.'));
-  else a.append(grid(D.notes.filter(n=>n.d).sort((a,b)=>b.d-a.d),'Çöp kutusu boş.'))}
+  else a.append(grid(D.notes.filter(n=>n.d&&!n.x).sort((a,b)=>b.d-a.d),'Çöp kutusu boş.'))}
 function bak(a){
   const h=el('div','top');h.append(el('h1','','Yedek'));a.append(h);
   const p=el('div','panel');p.append(el('h2','','Bu cihaza yedekle'));
   p.append(el('p','',D.lastBackup?'Son yedek: '+new Date(D.lastBackup).toLocaleString('tr-TR'):'Henüz yedek almadın.'));
-  const r=el('div','row'),b1=el('button','btn','Yedeği indir'),b2=el('button','btn g','Yedekten geri yükle');b1.onclick=exp;b2.onclick=()=>$('#file').click();r.append(b2,b1);p.append(r);a.append(p);
+  const r=el('div','row'),b1=el('button','btn','Yedeği indir'),b2=el('button','btn g','Yedekten geri yükle');b1.onclick=exp;b2.onclick=()=>$('#file').click();r.append(b2,b1);if(D.snapT){const u=el('button','btn g','Son geri yüklemeyi geri al');u.onclick=undoRestore;r.prepend(u)}p.append(r);a.append(p);
   const c=el('div','panel');c.append(el('h2','','Cloudflare yedeği'));c.append(el('p','','Yedeğini şifreli olarak buluta gönderip oradan geri alacaksın. Bu özellik bir sonraki adımda eklenecek.'));a.append(c)}
 function sett(a){
   const h=el('div','top');h.append(el('h1','','Ayarlar'));a.append(h);
