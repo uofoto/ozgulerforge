@@ -17,14 +17,17 @@
 <nav id="nav"></nav>
 <dialog id="ed"><div class="sheet">
   <h2 id="edt">Yeni not</h2>
-  <div class="seg" id="kseg"><button data-k="soz" aria-pressed="true">Özlü söz</button><button data-k="makale" aria-pressed="false">Makale</button></div>
+  <div class="seg" id="kseg"><button type="button" data-k="soz" aria-pressed="true">Özlü söz</button><button type="button" data-k="makale" aria-pressed="false">Makale</button></div>
   <input class="f" id="title" placeholder="Başlık" aria-label="Başlık">
   <textarea class="f" id="body" maxlength="50000" placeholder="Sözü yaz" aria-label="Metin"></textarea>
   <input class="f" id="who" placeholder="Kime ait? (yazar, kaynak)" aria-label="Yazar">
-  <input class="f" id="url" placeholder="Bağlantı (https://…)" aria-label="Bağlantı" hidden>
+  <input class="f" id="url" type="url" placeholder="Bağlantı (https://…)" aria-label="Bağlantı" hidden>
   <input class="f" id="tag" list="tags" placeholder="Etiket" aria-label="Etiket"><datalist id="tags"></datalist>
-  <label id="rdl" hidden style="font-size:14px"><input type="checkbox" id="rd"> Okudum</label>
-  <div class="row"><button class="btn d" id="del" hidden>Çöpe taşı</button><button class="btn g" id="cancel">Vazgeç</button><button class="btn" id="save">Kaydet</button></div>
+  <div id="rdrow" class="rdrow" hidden>
+    <label style="font-size:14px;display:inline-flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="rd"> Okudum</label>
+    <small id="rddate" style="color:var(--mute);font-size:12.5px"></small>
+  </div>
+  <div class="row"><button type="button" class="btn d" id="del" hidden>Çöpe taşı</button><button type="button" class="btn g" id="cancel">Vazgeç</button><button type="button" class="btn" id="save">Kaydet</button></div>
 </div></dialog>
 <input type="file" id="file" accept="application/json,.json" hidden>
 <script src="js/store.js"></script>
