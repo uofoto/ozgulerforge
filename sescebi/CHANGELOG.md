@@ -6,6 +6,10 @@
 - Yasal metinler tamamlandı (Gizlilik & Koşullar): Kullanım Koşulları, Gizlilik Politikası, KVKK Aydınlatma Metni, Sorumluluk Reddi ve Telif Bildirimi. Google girişi artık yurt dışı aktarım için açık rıza kutusu işaretlenmeden yüklenmez; ses ekleme onayına sorumluluk beyanı eklendi.
 - Düzeltme: listeden bir sese basınca ses artık her zaman baştan başlar (eski “kaldığı yerden devam” kaydı yüzünden yarıdan başlıyordu; özellik kaldırıldı, eski kayıtlar temizlenir).
 - Ayarlar → “Kullanım kılavuzu”: ses ekleme, dinleme, stüdyo, indirme, yedekleme, seslerin ne zaman silineceği ve sık sorulanlar.
+- “Yedeği yükle” artık bulut yedeği JSON dosyasını da kabul eder (favoriler ve dinleme verisi mevcut verilerle birleştirilir).
+- Düzeltme: ⋯ menüsü bir işlem seçilince, dışarıya dokunulunca, kaydırılınca veya bir pencere açılınca kapanır (indirme penceresinin üstünde açık kalıyordu).
+- Paylaş: Android'de M4A gibi dosyalar için Chrome'un kabul ettiği dosya türü seçilir; böylece Mail, WhatsApp, Drive vb. paylaşım listesi açılır, olmazsa indirmeye düşer.
+- Klasörler artık uygulama içinden yönetilir: “＋ Klasör” ile yeni klasör ekle, adını değiştir, sil (içindeki sesler silinmez). Liste cihazda saklanır, ZIP yedeğe girer ve yedekten yüklemede geri gelir.
 - Alt gezinmede “Arşiv” sekmesi “Sesler” oldu.
 - `manus-routes.json` artık isteğe bağlı: yoksa build yine çalışır.
 

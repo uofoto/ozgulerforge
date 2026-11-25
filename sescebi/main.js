@@ -19,11 +19,34 @@ let listeningSession = null;
 let cloudSync = null;
 let sleepTimerId = 0;
 // Klasörler (etiketler): şiir / müzik / hayata dair. Kayıtta song.category olarak saklanır; yoksa klasörsüzdür.
+const FOLDERS_KEY = 'sescebi-folders';
 const CATEGORIES = [
     { id: 'siir', label: 'Şiir', dir: 'siir' },
     { id: 'muzik', label: 'Müzik', dir: 'muzik' },
     { id: 'hayat', label: 'Hayata dair', dir: 'hayata-dair' },
 ];
+// v36: klasörler uygulama içinden eklenip düzenlenebilir; liste bu cihazda saklanır.
+function cleanFolder(item) {
+    if (!item || typeof item.id !== 'string' || typeof item.label !== 'string')
+        return null;
+    const label = item.label.trim().slice(0, 24);
+    const id = item.id.slice(0, 40);
+    if (!label || !id || id === 'all' || id === 'none')
+        return null;
+    return { id, label, dir: typeof item.dir === 'string' && item.dir ? item.dir.slice(0, 40) : id };
+}
+try {
+    const stored = JSON.parse(localStorage.getItem(FOLDERS_KEY) || 'null');
+    if (Array.isArray(stored))
+        CATEGORIES.splice(0, CATEGORIES.length, ...stored.map(cleanFolder).filter(Boolean));
+}
+catch { /* kayıtlı klasör yoksa varsayılanlar */ }
+function saveFolders() {
+    try {
+        localStorage.setItem(FOLDERS_KEY, JSON.stringify(CATEGORIES));
+    }
+    catch { /* depolama kapalıysa bu oturumda geçerli */ }
+}
 let categoryFilter = 'all'; // 'all' | 'none' | kategori id
 let addCategory = '';       // yeni eklenen seslerin gideceği klasör ('' = klasörsüz)
 let lastVisibleSongs = [];  // arşivde şu an listelenenler (arama/favori/klasör/sıralama sonrası)
@@ -288,7 +311,7 @@ app.innerHTML = `
           <h3>X videosu</h3>
           <p><strong>Ekle → X videosu</strong>: gönderi bağlantısını yapıştırıp <em>Bul</em>'a bas. Kaliteyi seçip videoyu indirebilir ya da yalnızca sesini arşive ekleyebilirsin. Gizli veya silinmiş gönderiler desteklenmez.</p>
           <h3>Klasör ve onay</h3>
-          <p>İstersen sesi <strong>Şiir, Müzik</strong> veya <strong>Hayata dair</strong> klasörüne koy. Eklemeden önce, sesi kullanma hakkına sahip olduğunu belirten kutuyu işaretlemen gerekir. Yalnızca sahibi olduğun ya da kullanma izni bulunan içerikleri ekle.</p>
+          <p>İstersen sesi bir klasöre koy (başlangıçta <strong>Şiir, Müzik, Hayata dair</strong> var). Kendi klasörünü eklemek, adını değiştirmek veya silmek için <strong>＋ Klasör</strong> düğmesine dokun; klasör silinince sesler silinmez, klasörsüz kalır. Eklemeden önce, sesi kullanma hakkına sahip olduğunu belirten kutuyu işaretlemen gerekir. Yalnızca sahibi olduğun ya da kullanma izni bulunan içerikleri ekle.</p>
         </details>
 
         <details class="legal-section">
@@ -490,6 +513,16 @@ app.innerHTML = `
     </div>
   </div>
 
+  <!-- ======================== ÇEKMECE 7: KLASÖRLERİ DÜZENLE ======================== -->
+  <div class="overlay" id="folders-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="folders-title">
+      <div class="sheet-head"><h2 id="folders-title">Klasörler</h2><button class="icon-button" id="folders-close" type="button" aria-label="Kapat">${icons.close}</button></div>
+      <p class="sheet-sub">Kendi klasörlerini ekle, adını değiştir ya da sil. Klasör silinince içindeki sesler silinmez, klasörsüz kalır.</p>
+      <div class="folder-add-row"><input class="text-input" id="folder-name-input" type="text" maxlength="24" placeholder="Yeni klasör adı" autocomplete="off" /><button class="primary-button" id="folder-add-button" type="button">Ekle</button></div>
+      <div class="folder-manage-list" id="folders-list"></div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status"></div>
 `;
 function placeListeningStatsPanel() {
@@ -539,6 +572,9 @@ const folderBar = get('folder-bar');
 const listenAllButton = get('listen-all');
 const addFolder = get('add-folder');
 const categoryOptions = get('category-options');
+const foldersOverlay = get('folders-overlay');
+const foldersList = get('folders-list');
+const folderNameInput = get('folder-name-input');
 const urlClear = get('url-clear');
 const xVideoClear = get('x-video-clear');
 const infoBody = get('info-body');
@@ -1186,6 +1222,21 @@ function resetSource() {
     consent.checked = false;
     updateAddButton();
 }
+// Açık ⋯ menüsünü kapatır ve satırına geri koyar.
+function closeSongMenus() {
+    document.querySelectorAll('.song-more-actions.menu-portal').forEach((menu) => {
+        menu.hidden = true;
+        menu.classList.remove('menu-portal');
+        menu._home?.appendChild(menu);
+    });
+    document.querySelectorAll('.song-row.menu-open').forEach((row) => {
+        row.classList.remove('menu-open');
+        row.querySelector('.more-row')?.setAttribute('aria-expanded', 'false');
+    });
+}
+document.addEventListener('pointerdown', (event) => { if (!event.target.closest?.('.song-more-actions, .more-row')) closeSongMenus(); });
+window.addEventListener('scroll', closeSongMenus, { capture: true, passive: true });
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeSongMenus(); });
 function renderLibrary() {
     cloudSync?.libraryRendered();
     document.querySelectorAll('.song-more-actions.menu-portal').forEach((menu) => menu.remove());
@@ -1221,7 +1272,7 @@ function renderLibrary() {
       const isPlayingThis = activeSong?.id === song.id && !audio.paused;
       const dateText = new Date(song.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
       const folderLabel = categoryLabel(song.category);
-      const metaLine = `${dateText} · ${formatTime(song.duration)} · ${formatSize(song.size)}${folderLabel ? ` · ${folderLabel}` : ''}`;
+      const metaLine = `${dateText} · ${formatTime(song.duration)} · ${formatSize(song.size)}${folderLabel ? ` · ${escapeHtml(folderLabel)}` : ''}`;
       return `
       <article class="song-row ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
         <button class="compact-thumb play-row" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Dinle'}: ${escapeHtml(song.name)}">
@@ -1256,12 +1307,9 @@ function renderLibrary() {
             const button = event.currentTarget;
             const menu = actionMenu;
             const open = menu.hidden;
-            document.querySelectorAll('.song-more-actions.menu-portal').forEach((openMenu) => openMenu.remove());
-            document.querySelectorAll('.song-row.menu-open').forEach((openRow) => {
-                openRow.classList.remove('menu-open');
-                openRow.querySelector('.more-row')?.setAttribute('aria-expanded', 'false');
-            });
+            closeSongMenus();
             if (open) {
+                menu._home = rowActions;
                 const rect = button.getBoundingClientRect();
                 document.body.appendChild(menu);
                 menu.classList.add('menu-portal');
@@ -1278,6 +1326,7 @@ function renderLibrary() {
             }
             button.setAttribute('aria-expanded', String(open));
         });
+        actionMenu.addEventListener('click', (event) => { if (event.target.closest('button')) closeSongMenus(); });
         row.querySelector('.rename-row')?.addEventListener('click', () => openRename(song));
         row.querySelector('.folder-row')?.addEventListener('click', () => openCategory(song));
         row.querySelector('.trim-row')?.addEventListener('click', () => void openTrim(song));
@@ -1438,12 +1487,13 @@ function saveLocationInfo() {
     };
 }
 function openOverlay(node) {
+    closeSongMenus();
     node.hidden = false;
     document.body.classList.add('modal-open');
 }
 function closeOverlay(node) {
     node.hidden = true;
-    if (trimOverlay.hidden && infoOverlay.hidden && renameOverlay.hidden && categoryOverlay.hidden)
+    if (trimOverlay.hidden && infoOverlay.hidden && renameOverlay.hidden && categoryOverlay.hidden && foldersOverlay.hidden)
         document.body.classList.remove('modal-open');
 }
 let infoFile = null;
@@ -1504,8 +1554,29 @@ async function saveFile(file, isAudio) {
     window.setTimeout(() => URL.revokeObjectURL(url), 60000);
     showSaveInfo(file, undefined, isAudio);
 }
+// Chrome, paylaşılabilen dosya türlerini kısıtlar (ör. M4A için audio/mp4 reddedilir, audio/x-m4a kabul edilir).
+const SHARE_MIME_ALTERNATES = { m4a: ['audio/x-m4a', 'audio/m4a', 'audio/mp4'], aac: ['audio/aac', 'audio/x-aac', 'audio/mp4'], wav: ['audio/wav', 'audio/x-wav'], mp3: ['audio/mpeg', 'audio/mp3'], ogg: ['audio/ogg'], flac: ['audio/flac', 'audio/x-flac'], webm: ['audio/webm'] };
+function shareableFile(file) {
+    if (typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function')
+        return file;
+    const ext = file.name.split('.').pop().toLowerCase();
+    for (const mime of [file.type, ...(SHARE_MIME_ALTERNATES[ext] || [])]) {
+        const candidate = mime === file.type ? file : new File([file], file.name, { type: mime });
+        try {
+            if (navigator.canShare({ files: [candidate] }))
+                return candidate;
+        }
+        catch { /* sonraki türü dene */ }
+    }
+    return file;
+}
 function canShareFile(file) {
-    return typeof navigator.share === 'function' && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] });
+    if (typeof navigator.share !== 'function')
+        return false;
+    if (typeof navigator.canShare !== 'function')
+        return true;
+    // canShare bazı cihazlarda ses için yanlışlıkla false döner; Android'de yine de paylaşmayı deneriz.
+    return navigator.canShare({ files: [shareableFile(file)] }) || /android/i.test(navigator.userAgent);
 }
 async function shareFile(file, title) {
     if (!canShareFile(file)) {
@@ -1516,7 +1587,7 @@ async function shareFile(file, title) {
     if (file.size > 25 * 1024 * 1024)
         toast(`Dosya ${formatSize(file.size)}. Mail eki sınırı genelde 25 MB; büyük dosyada Drive’ı seç.`);
     try {
-        await navigator.share({ files: [file], title });
+        await navigator.share({ files: [shareableFile(file)], title });
     }
     catch (error) {
         if (error && error.name === 'AbortError')
@@ -2015,13 +2086,17 @@ function renderFolderBar() {
     const items = [{ id: 'all', label: 'Tümü' }, ...CATEGORIES];
     if ((counts.none > 0 && counts.none < songs.length) || categoryFilter === 'none')
         items.push({ id: 'none', label: 'Klasörsüz' });
-    folderBar.innerHTML = items.map((item) => `<button class="chip" type="button" data-folder="${item.id}" aria-pressed="${categoryFilter === item.id}">${item.label}<small>${counts[item.id]}</small></button>`).join('');
+    folderBar.innerHTML = items.map((item) => `<button class="chip" type="button" data-folder="${escapeHtml(item.id)}" aria-pressed="${categoryFilter === item.id}">${escapeHtml(item.label)}<small>${counts[item.id]}</small></button>`).join('') + `<button class="chip" type="button" data-manage-folders aria-label="Klasörleri düzenle">＋ Klasör</button>`;
 }
 function renderAddFolder() {
     const items = [{ id: '', label: 'Klasörsüz' }, ...CATEGORIES];
-    addFolder.innerHTML = items.map((item) => `<button class="chip" type="button" data-add-folder="${item.id}" aria-pressed="${addCategory === item.id}">${item.label}</button>`).join('');
+    addFolder.innerHTML = items.map((item) => `<button class="chip" type="button" data-add-folder="${escapeHtml(item.id)}" aria-pressed="${addCategory === item.id}">${escapeHtml(item.label)}</button>`).join('') + `<button class="chip" type="button" data-manage-folders aria-label="Klasörleri düzenle">＋ Klasör</button>`;
 }
 folderBar.addEventListener('click', (event) => {
+    if (event.target.closest('[data-manage-folders]')) {
+        openFolders();
+        return;
+    }
     const button = event.target.closest('[data-folder]');
     if (!button)
         return;
@@ -2032,6 +2107,10 @@ folderBar.addEventListener('click', (event) => {
     renderLibrary();
 });
 addFolder.addEventListener('click', (event) => {
+    if (event.target.closest('[data-manage-folders]')) {
+        openFolders();
+        return;
+    }
     const button = event.target.closest('[data-add-folder]');
     if (!button)
         return;
@@ -2040,12 +2119,119 @@ addFolder.addEventListener('click', (event) => {
 });
 renderAddFolder();
 
+function folderDirFor(label, exceptId) {
+    const base = label.toLocaleLowerCase('tr').replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i').replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'klasor';
+    let dir = base;
+    let n = 2;
+    while (CATEGORIES.some((item) => item.dir === dir && item.id !== exceptId))
+        dir = `${base}-${n++}`;
+    return dir;
+}
+function folderNameTaken(label, exceptId) {
+    return CATEGORIES.some((item) => item.id !== exceptId && item.label.toLocaleLowerCase('tr') === label.toLocaleLowerCase('tr'));
+}
+function refreshFolderViews() {
+    saveFolders();
+    renderAddFolder();
+    renderFoldersList();
+    renderLibrary();
+}
+function renderFoldersList() {
+    foldersList.innerHTML = CATEGORIES.length
+        ? CATEGORIES.map((item) => `<div class="folder-manage-row" data-id="${escapeHtml(item.id)}"><span>${icons.folder}<strong>${escapeHtml(item.label)}</strong></span><button class="ghost-button" type="button" data-folder-rename>Adı değiştir</button><button class="ghost-button cloud-danger-btn" type="button" data-folder-delete>Sil</button></div>`).join('')
+        : '<p class="sheet-sub">Henüz klasör yok. Yukarıdan ekleyebilirsin.</p>';
+}
+function openFolders() {
+    renderFoldersList();
+    folderNameInput.value = '';
+    openOverlay(foldersOverlay);
+}
+function closeFolders() {
+    closeOverlay(foldersOverlay);
+}
+function addFolderFromInput() {
+    const label = folderNameInput.value.trim().replace(/\s+/g, ' ').slice(0, 24);
+    if (!label) {
+        toast('Klasör adı yaz.', true);
+        return;
+    }
+    if (folderNameTaken(label)) {
+        toast('Bu adda bir klasör zaten var.', true);
+        return;
+    }
+    if (CATEGORIES.length >= 20) {
+        toast('En fazla 20 klasör ekleyebilirsin.', true);
+        return;
+    }
+    CATEGORIES.push({ id: `k${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`, label, dir: folderDirFor(label) });
+    folderNameInput.value = '';
+    refreshFolderViews();
+    toast(`“${label}” klasörü eklendi.`);
+}
+async function renameFolder(id) {
+    const folder = CATEGORIES.find((item) => item.id === id);
+    if (!folder)
+        return;
+    const label = (window.prompt('Klasörün yeni adı:', folder.label) || '').trim().replace(/\s+/g, ' ').slice(0, 24);
+    if (!label || label === folder.label)
+        return;
+    if (folderNameTaken(label, id)) {
+        toast('Bu adda bir klasör zaten var.', true);
+        return;
+    }
+    folder.label = label;
+    folder.dir = folderDirFor(label, id);
+    refreshFolderViews();
+    toast('Klasörün adı değişti.');
+}
+async function deleteFolder(id) {
+    const folder = CATEGORIES.find((item) => item.id === id);
+    if (!folder)
+        return;
+    const inside = songs.filter((song) => song.category === id);
+    if (!window.confirm(`“${folder.label}” klasörü silinsin mi?${inside.length ? `\n\nİçindeki ${inside.length} ses silinmez, klasörsüz kalır.` : ''}`))
+        return;
+    try {
+        for (const song of inside) {
+            delete song.category;
+            await dbPut(song);
+        }
+    }
+    catch {
+        toast('Klasör silinirken bir sorun oluştu; cihaz depolamasını kontrol et.', true);
+        return;
+    }
+    CATEGORIES.splice(CATEGORIES.findIndex((item) => item.id === id), 1);
+    if (categoryFilter === id)
+        categoryFilter = 'all';
+    if (addCategory === id)
+        addCategory = '';
+    refreshFolderViews();
+    toast('Klasör silindi.');
+}
+get('folder-add-button').addEventListener('click', addFolderFromInput);
+folderNameInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') {
+    event.preventDefault();
+    addFolderFromInput();
+} });
+foldersList.addEventListener('click', (event) => {
+    const row = event.target.closest('.folder-manage-row');
+    if (!row)
+        return;
+    if (event.target.closest('[data-folder-rename]'))
+        void renameFolder(row.dataset.id);
+    else if (event.target.closest('[data-folder-delete]'))
+        void deleteFolder(row.dataset.id);
+});
+get('folders-close').addEventListener('click', closeFolders);
+foldersOverlay.addEventListener('click', (event) => { if (event.target === foldersOverlay)
+    closeFolders(); });
 function openCategory(song) {
     renderLibrary(); // açık ⋯ menüsünü kapatır; pencerenin üstünde kalmasın
     categoryTarget = song;
     get('category-song').textContent = song.name;
     const current = CATEGORIES.some((item) => item.id === song.category) ? song.category : '';
-    categoryOptions.innerHTML = [...CATEGORIES, { id: '', label: 'Klasörsüz (klasörden çıkar)' }].map((item) => `<button class="category-option${item.id === current ? ' is-current' : ''}" type="button" data-set-category="${item.id}" aria-pressed="${item.id === current}">${icons.folder}<span>${item.label}</span></button>`).join('');
+    categoryOptions.innerHTML = [...CATEGORIES, { id: '', label: 'Klasörsüz (klasörden çıkar)' }].map((item) => `<button class="category-option${item.id === current ? ' is-current' : ''}" type="button" data-set-category="${escapeHtml(item.id)}" aria-pressed="${item.id === current}">${icons.folder}<span>${escapeHtml(item.label)}</span></button>`).join('') + `<button class="category-option" type="button" data-manage-folders>${icons.plus}<span>Klasörleri düzenle / yeni klasör</span></button>`;
     openOverlay(categoryOverlay);
 }
 function closeCategory() {
@@ -2081,6 +2267,11 @@ async function applyCategory(id) {
     toast(id ? `“${song.name}” ${categoryLabel(id)} klasörüne taşındı.` : `“${song.name}” klasörden çıkarıldı.`);
 }
 categoryOptions.addEventListener('click', (event) => {
+    if (event.target.closest('[data-manage-folders]')) {
+        closeCategory();
+        openFolders();
+        return;
+    }
     const button = event.target.closest('[data-set-category]');
     if (button)
         void applyCategory(button.dataset.setCategory);
@@ -2500,7 +2691,7 @@ async function createBackup() {
     setBackupBusy(true, 'backup', 'Hazırlanıyor…');
     try {
         const entries = [];
-        const manifest = { app: 'sescebi', version: 1, created: new Date().toISOString(), songs: [] };
+        const manifest = { app: 'sescebi', version: 1, created: new Date().toISOString(), folders: CATEGORIES.map(({ id, label, dir }) => ({ id, label, dir })), songs: [] };
         for (let i = 0; i < songs.length; i++) {
             const song = songs[i];
             const format = await detectFormat(song.blob, song.type);
@@ -2532,6 +2723,24 @@ async function restoreBackup(file) {
         const manifest = JSON.parse(await (await zipEntryBlob(file, manifestEntry)).text());
         if (!manifest || manifest.app !== 'sescebi' || !Array.isArray(manifest.songs))
             throw new Error('Bu dosya bir Ses Cebi yedeği değil.');
+        // Yedekteki klasörler cihazda yoksa eklenir (aynı adlı klasör varsa onun kimliği kullanılır).
+        const folderMap = new Map();
+        if (Array.isArray(manifest.folders)) {
+            for (const raw of manifest.folders.slice(0, 40)) {
+                const folder = cleanFolder(raw);
+                if (!folder)
+                    continue;
+                const same = CATEGORIES.find((item) => item.id === folder.id) || CATEGORIES.find((item) => item.label.toLocaleLowerCase('tr') === folder.label.toLocaleLowerCase('tr'));
+                if (same)
+                    folderMap.set(folder.id, same.id);
+                else if (CATEGORIES.length < 20) {
+                    CATEGORIES.push({ ...folder, dir: folderDirFor(folder.label) });
+                    folderMap.set(folder.id, folder.id);
+                }
+            }
+            saveFolders();
+            renderAddFolder();
+        }
         const known = new Set(songs.map((song) => song.id));
         let added = 0;
         let skipped = 0;
@@ -2556,8 +2765,9 @@ async function restoreBackup(file) {
                 source: ['file', 'url', 'trim'].includes(item.source) ? item.source : 'file',
                 favorite: item.favorite === true,
             };
-            if (CATEGORIES.some((entryCategory) => entryCategory.id === item.category))
-                song.category = item.category;
+            const mappedCategory = folderMap.get(item.category) || item.category;
+            if (CATEGORIES.some((entryCategory) => entryCategory.id === mappedCategory))
+                song.category = mappedCategory;
             await dbPut(song);
             songs.push(song);
             known.add(id);

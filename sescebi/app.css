@@ -263,3 +263,10 @@ body.has-player .toast{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px
 .category-option svg{width:20px;height:20px;flex:none}
 
 .legal-sheet-body ul{margin:6px 0 6px 20px;color:var(--muted);font-size:14px}.legal-sheet-body li{margin:4px 0}
+
+.folder-add-row{display:flex;gap:8px;margin:8px 0 14px}.folder-add-row .text-input{flex:1;min-width:0}
+.folder-manage-list{display:grid;gap:8px}
+.folder-manage-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.folder-manage-row>span{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+.folder-manage-row strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.folder-manage-row .ghost-button{min-height:36px;padding:0 10px;font-size:13px;flex:none}

@@ -365,7 +365,24 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
   renderUi();
   if (session) void syncNow();
 
+  async function importCloudFile(file) {
+    try {
+      const parsed = JSON.parse(await file.text());
+      const data = parsed?.app === 'sescebi-bulut-yedek' ? parsed.data : null;
+      if (!data || typeof data !== 'object') throw new Error('Bu dosya bir Ses Cebi bulut yedeği değil.');
+      const merged = mergeData(data, localSnapshot());
+      state = merged;
+      await applyToLibrary(merged);
+      if (session) schedulePush();
+      const favCount = Object.values(merged.favorites || {}).filter((f) => f && f.fav).length;
+      toast(`Bulut yedeği yüklendi (${favCount} favori, ${Object.keys(merged.stats || {}).length} dinleme kaydı). Yalnızca arşivdeki seslerle eşleşenler uygulanır.`);
+    } catch (error) {
+      toast(error instanceof SyntaxError ? 'Dosya okunamadı; geçerli bir JSON yedeği seç.' : (error instanceof Error ? error.message : 'Bulut yedeği yüklenemedi.'), true);
+    }
+  }
+
   return {
+    importCloudFile,
     notifyChange() { schedulePush(); },
     favoriteChanged(song) {
       const meta = loadFavMeta();
