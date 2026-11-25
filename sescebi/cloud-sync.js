@@ -349,7 +349,9 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
       make('Çıkış yap', 'ghost-button', () => void signOut()),
       make('Bulut verimi sil', 'ghost-button cloud-danger-btn', () => void deleteCloudData()),
     );
-    el.append(p, actions, note);
+    const hint = document.createElement('small');
+    hint.textContent = '“Yedeği buluta gönder” verini Cloudflare’e yazar. “Bulut yedeğini indir” ise buluttaki veriyi JSON dosyası olarak cihazına kaydeder; bilgisayarda açılan pencere, dosyayı nereye kaydedeceğini sorar.';
+    el.append(p, actions, hint, note);
   }
 
   document.addEventListener('visibilitychange', () => {

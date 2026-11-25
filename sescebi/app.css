@@ -261,3 +261,5 @@ body.has-player .toast{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px
 .category-option:hover{background:var(--surface-2)}
 .category-option.is-current{border-color:var(--accent);color:var(--accent)}
 .category-option svg{width:20px;height:20px;flex:none}
+
+.legal-sheet-body ul{margin:6px 0 6px 20px;color:var(--muted);font-size:14px}.legal-sheet-body li{margin:4px 0}

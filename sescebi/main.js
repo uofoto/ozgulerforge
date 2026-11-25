@@ -256,8 +256,98 @@ app.innerHTML = `
         <h3>Görünüm ve bilgi</h3>
         <div class="app-card-actions">
           <button class="ghost-button" id="theme-toggle" type="button">Açık / koyu temayı değiştir</button>
+          <button class="ghost-button" id="open-guide-sheet" type="button">Kullanım kılavuzu</button>
           <button class="ghost-button" id="open-legal-sheet" type="button">Gizlilik &amp; Koşullar</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================== ÇEKMECE: KULLANIM KILAVUZU ======================== -->
+  <div class="overlay" id="guide-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="guide-sheet-title">
+      <div class="sheet-head">
+        <h2 id="guide-sheet-title">Kullanım Kılavuzu</h2>
+        <button class="icon-button" id="guide-close" type="button" aria-label="Kapat">${icons.close}</button>
+      </div>
+      <div class="legal-sheet-body">
+        <p class="legal-date">Ses Cebi, izinli seslerini telefonunda saklayıp çevrimdışı dinlemen için yapıldı. Aşağıdaki başlıklara dokunarak aç.</p>
+
+        <details class="legal-section" open>
+          <summary>1. Başlarken</summary>
+          <p>Altta üç sekme var: <strong>Sesler</strong> (kayıtların), <strong>Ekle</strong> (yeni ses) ve <strong>Stüdyo</strong> (kesme). Sağ üstteki dişli simgesi Ayarlar ve yedek bölümünü açar.</p>
+          <p>Hesap açman gerekmez. Sesler yalnızca bu telefonda, tarayıcının içinde saklanır; internet olmadan da dinleyebilirsin.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>2. Ses ekleme</summary>
+          <h3>Dosya</h3>
+          <p><strong>Ekle → Dosya</strong>: ses ya da video dosyası seç (MP3, M4A, WAV, OGG, MP4… en fazla 100 MB). Videoysa sesi ayrılıp eklenir.</p>
+          <h3>Bağlantı</h3>
+          <p><strong>Ekle → Bağlantı</strong>: herkese açık, doğrudan ses dosyası adresini yapıştır. Sayfa bağlantıları (ör. Instagram) çalışmaz. Alandaki × düğmesi eski bağlantıyı tek dokunuşla siler.</p>
+          <h3>X videosu</h3>
+          <p><strong>Ekle → X videosu</strong>: gönderi bağlantısını yapıştırıp <em>Bul</em>'a bas. Kaliteyi seçip videoyu indirebilir ya da yalnızca sesini arşive ekleyebilirsin. Gizli veya silinmiş gönderiler desteklenmez.</p>
+          <h3>Klasör ve onay</h3>
+          <p>İstersen sesi <strong>Şiir, Müzik</strong> veya <strong>Hayata dair</strong> klasörüne koy. Eklemeden önce, sesi kullanma hakkına sahip olduğunu belirten kutuyu işaretlemen gerekir. Yalnızca sahibi olduğun ya da kullanma izni bulunan içerikleri ekle.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>3. Dinleme</summary>
+          <p>Listede bir sese dokunursan <strong>baştan</strong> çalar. Alttaki oynatıcıda 10 sn geri/ileri ve ilerleme çubuğu var. <strong>Seçenekler</strong> altında şunlar bulunur: önceki / sonraki, çalma düzeni (tek seferlik, sırayla, tekrar, karıştır), hız ve uyku zamanlayıcısı.</p>
+          <p><strong>Tümünü dinle</strong> ekrandaki listeyi (klasör, arama, favori ve sıralamaya göre) baştan sona çalar. Telefon kilitliyken de kilit ekranından önceki/sonraki yapabilirsin; bu, telefon ve tarayıcıya bağlı çalışır.</p>
+          <p>Kalp simgesi favoriye ekler; ⋯ menüsünden <strong>yeniden adlandırabilir, klasöre taşıyabilir, kesebilir, paylaşabilir, indirebilir veya silebilirsin</strong>. Üstteki arama ve sıralama ile listeyi daraltabilirsin.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>4. Stüdyo: sesi kesme</summary>
+          <p>⋯ → <strong>Sesi kes</strong> (ya da Stüdyo sekmesinden bir kayıt seç). Dalga biçiminde başlangıç ve bitişi kaydır, yakınlaştırmayla saniye altı hassasiyetle ayarla, istersen fade giriş/çıkış ve bas/tiz uygula. <em>Seçimi dinle</em> ile dene, sonra kaydet. Sonuç WAV olarak arşive girer. “Orijinal ses arşivde kalsın” kutusu, aslının silinip silinmeyeceğini belirler.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>5. Telefona indirme ve paylaşma</summary>
+          <p>⋯ → <strong>İndir</strong> sesi telefonun indirilenler klasörüne kaydeder; kayıt yeri uygulamada gösterilir. Android'de ses müzik çalarında görünmeyebilir, bu durumda dosya yöneticisinden aç. iPhone'da dosya <strong>Dosyalar → İndirilenler</strong> içindedir. <strong>Paylaş</strong> ile e-posta, Drive gibi uygulamalara gönderebilirsin.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>6. Yedekleme (önemli)</summary>
+          <p>Sesler tarayıcı depolamasında durduğu için silinebilir (bkz. 7). Bu yüzden arada bir <strong>Ayarlar → ZIP yedek al</strong> yap ve ZIP dosyasını Drive'a veya bilgisayara kopyala. Klasörlerin ve favorilerin de yedeğe girer. Silinirse <strong>Yedeği yükle</strong> ile geri getirirsin; eski yedekler de açılır.</p>
+          <h3>Bulut yedeği (isteğe bağlı)</h3>
+          <p>Google ile giriş yaparsan favorilerin ve dinleme istatistiklerin buluta eşitlenir. <strong>Ses dosyaları buluta gitmez.</strong> Ayarlar'daki “Bulut yedeğini indir” bu veriyi dosya olarak indirir, “Bulut verimi sil” kalıcı olarak siler.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>7. Seslerim ne zaman silinir?</summary>
+          <p>Aşağıdakilerden biri, Ses Cebi'ndeki tüm sesleri silebilir:</p>
+          <ul>
+            <li>Tarayıcıda <strong>çerezleri ve site verilerini</strong> silmek (Chrome: Geçmişi sil → Çerezler ve site verileri).</li>
+            <li>Tarayıcının site ayarlarında bu sitenin <strong>depolamasını temizlemek</strong>.</li>
+            <li>Android'de Ayarlar → Uygulamalar → tarayıcın → Depolama → <strong>Verileri temizle</strong>.</li>
+            <li>Ana ekrana yüklenmiş uygulamayı kaldırırken “verileri de sil”i seçmek. iPhone'da ana ekran simgesini silmek verileri de siler.</li>
+            <li>Telefon temizleyici veya hızlandırıcı uygulamalarının tarayıcı verisi temizliği.</li>
+            <li>Tarayıcıyı kaldırmak, sıfırlamak veya telefonu fabrika ayarlarına döndürmek.</li>
+            <li><strong>Gizli sekme</strong> kullanmak (pencere kapanınca kayıtlar gider).</li>
+            <li>iPhone Safari'de uygulamayı ana ekrana yüklemeden yaklaşık bir hafta hiç açmamak.</li>
+            <li>Telefon depolaması çok dolarsa tarayıcının site verisini kendiliğinden silmesi.</li>
+          </ul>
+          <p><strong>Silmez:</strong> “Önbelleği temizle” (genelde), İndirilenler klasöründeki kopyaların silinmesi ve uygulama güncellemesi. Yine de bazı temizleyiciler önbellekle birlikte site verisini de siler; emin değilsen önce ZIP yedek al.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>8. Ana ekrana yükleme ve güncelleme</summary>
+          <p><strong>Ayarlar → Yükle</strong> (veya tarayıcı menüsünden “Ana ekrana ekle”) ile Ses Cebi uygulama gibi açılır ve çevrimdışı çalışır. Güncellemeler kendiliğinden gelir; gelmediyse <strong>Güncelle</strong>'ye bas, sorun olursa <strong>Durum</strong> ekranındaki bilgiyi bize gönder.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>9. Sık sorulanlar</summary>
+          <h3>Ses çalmıyor veya “oynatılamadı” diyor.</h3>
+          <p>Dosya bozuk ya da tarayıcının desteklemediği bir biçimde olabilir. Aynı sesi MP3 veya M4A olarak yeniden ekle.</p>
+          <h3>X videosu bulunamadı.</h3>
+          <p>Gönderi silinmiş, gizli ya da videosuz olabilir. Bağlantının x.com veya twitter.com gönderisi olduğundan emin ol.</p>
+          <h3>“Depolama dolu” uyarısı alıyorum.</h3>
+          <p>Telefonda yer aç ya da yedek aldıktan sonra kullanmadığın sesleri sil.</p>
+          <h3>Sorunum çözülmedi.</h3>
+          <p><a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> adresine yazabilirsin. Hukuki konular için “Gizlilik &amp; Koşullar” bölümüne bak.</p>
+        </details>
       </div>
     </div>
   </div>
@@ -2201,6 +2291,11 @@ get('open-profile-sheet')?.addEventListener('click', openProfile);
 get('profile-close')?.addEventListener('click', closeProfile);
 profileOverlay?.addEventListener('click', (e) => { if (e.target === profileOverlay) closeProfile(); });
 
+const guideOverlay = get('guide-overlay');
+const closeGuide = () => { if (guideOverlay) { guideOverlay.hidden = true; document.body.classList.remove('modal-open'); } };
+get('open-guide-sheet')?.addEventListener('click', () => { if (guideOverlay) { guideOverlay.hidden = false; document.body.classList.add('modal-open'); } });
+get('guide-close')?.addEventListener('click', closeGuide);
+guideOverlay?.addEventListener('click', (e) => { if (e.target === guideOverlay) closeGuide(); });
 get('open-legal-sheet')?.addEventListener('click', openLegal);
 get('legal-close')?.addEventListener('click', closeLegal);
 legalOverlay?.addEventListener('click', (e) => { if (e.target === legalOverlay) closeLegal(); });

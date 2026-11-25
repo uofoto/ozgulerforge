@@ -5,6 +5,7 @@
 - Ayarlar → Bulut: “⬇ Bulut yedeğini indir” buluttaki favori/dinleme yedeğini JSON dosyası olarak indirir.
 - Yasal metinler tamamlandı (Gizlilik & Koşullar): Kullanım Koşulları, Gizlilik Politikası, KVKK Aydınlatma Metni, Sorumluluk Reddi ve Telif Bildirimi. Google girişi artık yurt dışı aktarım için açık rıza kutusu işaretlenmeden yüklenmez; ses ekleme onayına sorumluluk beyanı eklendi.
 - Düzeltme: listeden bir sese basınca ses artık her zaman baştan başlar (eski “kaldığı yerden devam” kaydı yüzünden yarıdan başlıyordu; özellik kaldırıldı, eski kayıtlar temizlenir).
+- Ayarlar → “Kullanım kılavuzu”: ses ekleme, dinleme, stüdyo, indirme, yedekleme, seslerin ne zaman silineceği ve sık sorulanlar.
 - Alt gezinmede “Arşiv” sekmesi “Sesler” oldu.
 - `manus-routes.json` artık isteğe bağlı: yoksa build yine çalışır.
 
