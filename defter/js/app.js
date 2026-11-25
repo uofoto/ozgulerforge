@@ -1,13 +1,8 @@
-function setKind(k){kind=k;document.querySelectorAll('#kseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));$('#url').hidden=$('#rdrow').hidden=k!=='makale';$('#body').placeholder=k==='soz'?'Sözü yaz':'Makale notunu ya da özetini yaz'}
+function setKind(k){kind=k;document.querySelectorAll('#kseg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));$('#url').hidden=$('#rdl').hidden=k!=='makale';$('#body').placeholder=k==='soz'?'Sözü yaz':'Makale notunu ya da özetini yaz'}
 document.querySelectorAll('#kseg button').forEach(b=>b.onclick=()=>setKind(b.dataset.k));
 function openEd(n){cur=n||null;$('#edt').textContent=n?(n.d?'Çöp kutusundaki not':'Notu düzenle'):'Yeni not';
-  $('#title').value=n?n.t:'';$('#body').value=n?n.b:'';$('#who').value=n?n.w:'';$('#url').value=n&&n.u||'';
-  const rdv=!!(n&&n.r);$('#rd').checked=rdv;
-  $('#rddate').textContent=(n&&n.r)?('Okundu: '+new Date(n.r).toLocaleDateString('tr-TR')):'';
-  $('#tag').value=n?n.g:(tag!=='Tümü'?tag:'');
+  $('#title').value=n?n.t:'';$('#body').value=n?n.b:'';$('#who').value=n?n.w:'';$('#url').value=n&&n.u||'';$('#rd').checked=!!(n&&n.r);$('#tag').value=n?n.g:(tag!=='Tümü'?tag:'');
   setKind(n?n.k:'soz');const d=$('#del');d.hidden=!n;d.textContent=n&&n.d?'Kalıcı sil':'Çöpe taşı';$('#save').textContent=n&&n.d?'Geri al':'Kaydet';$('#ed').showModal()}
-$('#ed').addEventListener('close',()=>{cur=null});
-$('#rd').onchange=()=>{if($('#rd').checked)$('#rddate').textContent=(cur&&cur.r)?('Okundu: '+new Date(cur.r).toLocaleDateString('tr-TR')):'Bugün okundu olarak işaretlenecek';else $('#rddate').textContent=''};
 $('#add').onclick=()=>openEd();$('#add').append(ic('plus'));
 $('#cancel').onclick=()=>$('#ed').close();
 $('#save').onclick=()=>{

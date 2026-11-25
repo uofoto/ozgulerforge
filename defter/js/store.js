@@ -1,25 +1,14 @@
-const KEY='defter-v1',P={
-  home:'M3 11l9-8 9 8M5 10v10h14V10',
-  arc:'M3 4h18v4H3zM5 8v12h14V8M10 12h4',
-  cloud:'M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.5 1.5A3.5 3.5 0 0 1 17.5 18z',
-  set:'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0',
-  plus:'M12 5v14M5 12h14',
-  star:'M12 3l2.8 5.8 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.3l1-6.2L3 9.7l6.2-.9z',
-  search:'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5',
-  trash:'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3',
-  link:'M10 14a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07L11 5.93M14 10a5 5 0 0 0-7.07 0L4.1 12.83a5 5 0 0 0 7.07 7.07L13 18.07',
-  check:'M5 13l4 4L19 7'
-};
+const KEY='defter-v1',P={home:'M3 11l9-8 9 8M5 10v10h14V10',arc:'M3 4h18v4H3zM5 8v12h14V8M10 12h4',cloud:'M7 18a4 4 0 0 1-.5-8 6 6 0 0 1 11.5 1.5A3.5 3.5 0 0 1 17.5 18z',set:'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0',plus:'M12 5v14M5 12h14',star:'M12 3l2.8 5.8 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.3l1-6.2L3 9.7l6.2-.9z',search:'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM21 21l-5-5',trash:'M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3'};
 const ic=n=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('class','i');s.setAttribute('aria-hidden','true');const p=document.createElementNS(s.namespaceURI,'path');p.setAttribute('d',P[n]);s.append(p);return s};
 const $=s=>document.querySelector(s);
 function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
-let D={notes:[],set:{theme:'auto',size:1},cf:{url:'',key:'',pass:'',lastCloud:0},lastBackup:0};
+let D={notes:[],set:{theme:'auto',size:1,time:'09:00'},lastBackup:0};
 const META='defter-meta';
-try{const m=JSON.parse(localStorage.getItem(META)||'null');if(m){D=Object.assign(D,m);D.cf=Object.assign({url:'',key:'',pass:'',lastCloud:0},m.cf||{})}}catch(e){}
+try{const m=JSON.parse(localStorage.getItem(META)||'null');if(m)D=Object.assign(D,m)}catch(e){}
 let db=null;
 const idb=(m,f,st='n')=>new Promise((ok,no)=>{const t=db.transaction(st,m),r=f(t.objectStore(st));t.oncomplete=()=>ok(r&&r.result);t.onerror=()=>no(t.error)});
 const openDB=()=>new Promise((ok,no)=>{const r=indexedDB.open('defter',2);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('n'))d.createObjectStore('n',{keyPath:'id'});if(!d.objectStoreNames.contains('s'))d.createObjectStore('s',{keyPath:'k'})};r.onsuccess=()=>{db=r.result;db.onversionchange=()=>db.close();ok()};r.onerror=()=>no(r.error)});
-function save(n){if(n&&db)idb('readwrite',s=>s.put(n)).then(()=>bc&&bc.postMessage(1)).catch(()=>toast('Kayıt yapılamadı'));if(n&&!db)D.mem=true;try{localStorage.setItem(META,JSON.stringify({set:D.set,cf:D.cf,lastBackup:D.lastBackup,snapT:D.snapT,autoT:D.autoT}))}catch(e){}}
+function save(n){if(n&&db)idb('readwrite',s=>s.put(n)).then(()=>bc&&bc.postMessage(1)).catch(()=>toast('Kayıt yapılamadı'));if(n&&!db)D.mem=true;try{localStorage.setItem(META,JSON.stringify({set:D.set,lastBackup:D.lastBackup,snapT:D.snapT,autoT:D.autoT}))}catch(e){}}
 const remove=n=>db&&idb('readwrite',s=>s.delete(n.id));
 const putAll=a=>db&&idb('readwrite',s=>{a.forEach(x=>s.put(x))});
 async function loadNotes(){
@@ -28,22 +17,21 @@ async function loadNotes(){
     const ch=D.notes.filter(norm);if(ch.length)await putAll(ch);
     if(D.notes.length&&Date.now()-(D.autoT||0)>864e5){await idb('readwrite',s=>s.put({k:'auto',notes:D.notes}),'s');D.autoT=Date.now();save()}
     const old=JSON.parse(localStorage.getItem('defter-v1')||'null');
-    if(old&&Array.isArray(old.notes)){const ids=new Set(D.notes.map(n=>n.id)),add=old.notes.filter(n=>!ids.has(n.id));add.forEach(norm);await putAll(add);D.notes=D.notes.concat(add);if(old.set)D.set=Object.assign(D.set,old.set);if(old.lastBackup)D.lastBackup=old.lastBackup;save();localStorage.removeItem('defter-v1')}
+    if(old&&Array.isArray(old.notes)){const ids=new Set(D.notes.map(n=>n.id)),add=old.notes.filter(n=>!ids.has(n.id));add.forEach(norm);await putAll(add);D.notes=D.notes.concat(add);if(old.set)D.set=old.set;if(old.lastBackup)D.lastBackup=old.lastBackup;save();localStorage.removeItem('defter-v1')}
     if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
   }catch(e){D.notes=[];D.mem=true}
 }
-let LIM=30,view='home',tag='Tümü',kflt='all',q='',sub='fav',cur=null,kind='soz',hi=0,cfBusy=false;
+let LIM=30,view='home',tag='Tümü',q='',sub='fav',cur=null,kind='soz',hi=0;
 function toast(m,lb,fn){const d=el('div','toast',m);if(lb){const b=el('button','',lb);b.style.cssText='margin-left:12px;font-weight:600;text-decoration:underline';b.onclick=()=>{d.remove();fn()};d.append(b)}document.body.append(d);setTimeout(()=>d.remove(),lb?5000:1800)}
 function applySet(){const r=document.documentElement,t=D.set.theme;if(t==='auto')r.removeAttribute('data-theme');else r.setAttribute('data-theme',t);r.style.setProperty('--fs',D.set.size)}
 const live=()=>D.notes.filter(n=>!n.d&&!n.x);
 const tags=()=>[...new Set(live().map(n=>n.g).filter(Boolean))];
 const tint=g=>'var(--t'+(Math.max(0,tags().indexOf(g))%4)+')';
-const localDay=()=>{const d=new Date();return Math.floor(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/864e5)};
 
 const V=2;
 const uid=()=>(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2,10));
 function norm(n){if(n.v===V)return false;
-  if(!n.x){n.k=n.k==='makale'?'makale':'soz';['t','b','w','g','u'].forEach(f=>n[f]=n[f]==null?'':String(n[f]));n.f=!!n.f;n.r=+n.r||0;n.c=n.c||(typeof n.id==='number'?n.id:Date.now())}
+  if(!n.x){n.k=n.k==='makale'?'makale':'soz';['t','b','w','g'].forEach(f=>n[f]=n[f]==null?'':String(n[f]));n.f=!!n.f;n.c=n.c||(typeof n.id==='number'?n.id:Date.now())}
   n.m=+n.m||+n.c||Date.now();n.v=V;return true}
 function merge(list){const m=new Map(D.notes.map(n=>[n.id,n])),ch=[];
   list.forEach(n=>{if(!n||typeof n!=='object'||n.id==null||!/^(string|number)$/.test(typeof n.id))return;n.v=0;norm(n);const o=m.get(n.id);if(!o||n.m>o.m){m.set(n.id,n);ch.push(n)}});
