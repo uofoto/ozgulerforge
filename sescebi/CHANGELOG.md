@@ -1,5 +1,13 @@
 # Değişiklikler
 
+## 0.4.1 (sürüm 36)
+- Bağlantı alanları: alana dokununca eski bağlantı tümüyle seçilir (yapıştırmak eskisini değiştirir); X bağlantısı yapıştırılınca eski sonuçlar kalkar; × düğmesi bağlantıyı, durumu ve sonuçları siler; sesi arşive ekledikten sonra X alanı kendiliğinden boşalır.
+- Ayarlar → Bulut: “⬇ Bulut yedeğini indir” buluttaki favori/dinleme yedeğini JSON dosyası olarak indirir.
+- Yasal metinler tamamlandı (Gizlilik & Koşullar): Kullanım Koşulları, Gizlilik Politikası, KVKK Aydınlatma Metni, Sorumluluk Reddi ve Telif Bildirimi. Google girişi artık yurt dışı aktarım için açık rıza kutusu işaretlenmeden yüklenmez; ses ekleme onayına sorumluluk beyanı eklendi.
+- Düzeltme: listeden bir sese basınca ses artık her zaman baştan başlar (eski “kaldığı yerden devam” kaydı yüzünden yarıdan başlıyordu; özellik kaldırıldı, eski kayıtlar temizlenir).
+- Alt gezinmede “Arşiv” sekmesi “Sesler” oldu.
+- `manus-routes.json` artık isteğe bağlı: yoksa build yine çalışır.
+
 ## 0.4.0 (sürüm 35)
 **Yeni**
 - Klasörler: Şiir, Müzik, Hayata dair. Ses eklerken “Klasör” seçilir (dosya, bağlantı ve X videosu sesi için geçerli); mevcut sesler satırdaki ⋯ → “Klasöre taşı” ile etiketlenir. Arşivde klasör çubuğu ve sayaçlar var; seçili klasöre yeniden dokunmak “Tümü”ne döner. Kesilen kayıt (kesit) orijinalin klasörünü miras alır.

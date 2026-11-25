@@ -61,7 +61,7 @@ const icons = {
 app.innerHTML = `
   <div class="app-shell">
     <nav class="main-nav" aria-label="Ana gezinme">
-      <button class="nav-item active" type="button" data-screen="library">${icons.list}<span>Arşiv</span><span class="nav-count" id="nav-count">0</span></button>
+      <button class="nav-item active" type="button" data-screen="library">${icons.list}<span>Sesler</span><span class="nav-count" id="nav-count">0</span></button>
       <button class="nav-item" type="button" data-screen="home">${icons.plus}<span>Ekle</span></button>
       <button class="nav-item" type="button" data-screen="studio">${icons.studio}<span>Stüdyo</span></button>
     </nav>
@@ -80,7 +80,7 @@ app.innerHTML = `
         <div class="filter-bar">
           <label class="search-wrap">
             ${icons.search}
-            <input class="text-input library-search" id="library-search" type="search" placeholder="Ara" aria-label="Arşivde ara" />
+            <input class="text-input library-search" id="library-search" type="search" placeholder="Ara" aria-label="Seslerde ara" />
           </label>
           <button class="chip" id="favorites-filter" type="button" aria-pressed="false" aria-label="Yalnızca favoriler" title="Yalnızca favoriler">${icons.heart}</button>
           <select class="library-sort" id="library-sort" aria-label="Sırala">
@@ -142,7 +142,7 @@ app.innerHTML = `
             <span class="folder-pick-label" id="folder-pick-label">Klasör</span>
             <div class="folder-chips" id="add-folder"></div>
           </div>
-          <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahibim.</span></label>
+          <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahibim; sorumluluğun bana ait olduğunu kabul ediyorum.</span></label>
           <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Arşive ekle</span></button>
           <div class="progress-wrap" id="progress-wrap" aria-live="polite">
             <div class="progress-line"><span id="progress-label">Hazırlanıyor…</span><strong id="progress-value">0%</strong></div>
@@ -270,12 +270,81 @@ app.innerHTML = `
         <button class="icon-button" id="legal-close" type="button" aria-label="Kapat">${icons.close}</button>
       </div>
       <div class="legal-sheet-body">
-        <h3>Kullanım ve telif</h3>
-        <p>Ses Cebi yalnızca sahip olduğunuz veya kullanma/indirme izniniz bulunan içerikler için kullanılmalıdır. İzinsiz çoğaltma veya dağıtım kullanıcının sorumluluğundadır.</p>
-        <h3>Gizlilik ve yerel depolama</h3>
-        <p>Hesap açmak zorunlu değildir. Ses dosyalarınız yalnızca cihazınızın tarayıcı belleğinde (IndexedDB) saklanır ve sunucuya yüklenmez. Google ile giriş yaparsanız yalnızca favori adları ve dinleme sayıları bulutta yedeklenir.</p>
-        <h3>Veri sorumlusu &amp; KVKK</h3>
-        <p>Ozguler Forge · <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
+        <p class="legal-date">Son güncelleme: 25 Kasım 2026 · Ses Cebi, ozguler forge (ozgulerforge.com.tr) tarafından ücretsiz sunulur.</p>
+
+        <details class="legal-section" open>
+          <summary>Kullanım Koşulları</summary>
+          <h3>1. Kapsam ve kabul</h3>
+          <p>Bu koşullar, ozguler forge (“İşletmeci”) tarafından sunulan Ses Cebi uygulamasının (“Uygulama”) kullanımını düzenler. Uygulamayı kullanan herkes bu koşulları, Gizlilik Politikası’nı ve KVKK Aydınlatma Metni’ni okuduğunu ve kabul ettiğini beyan eder. Kabul etmiyorsanız Uygulamayı kullanmayınız.</p>
+          <h3>2. Hizmetin niteliği</h3>
+          <p>Uygulama; kullanıcının kendi cihazında ses dosyalarını saklamasını, dinlemesini, kesmesini ve yedeklemesini sağlayan, ücretsiz ve kişisel kullanıma yönelik bir araçtır. İşletmeci hiçbir ses veya video içeriği sağlamaz, barındırmaz, yayınlamaz ve içerikleri denetlemez. Eklenen içerikler yalnızca kullanıcının cihazında bulunur.</p>
+          <h3>3. Kullanıcının yükümlülükleri</h3>
+          <p>Kullanıcı; (a) yalnızca sahibi olduğu veya kullanma, çoğaltma ve indirme izni bulunan içerikleri eklemeyi, (b) 5846 sayılı Fikir ve Sanat Eserleri Kanunu başta olmak üzere tüm mevzuata ve üçüncü taraf platformların (ör. X) kullanım şartlarına uymayı, (c) teknik koruma önlemlerini aşmamayı, (d) içerikleri izinsiz yayımlamamayı, paylaşmamayı veya ticari amaçla kullanmamayı, (e) hukuka aykırı, hakaret, nefret veya başkalarının kişilik ve fikrî haklarını ihlal eden içerikleri kullanmamayı kabul eder. Ekleme sırasında işaretlenen “kullanma ve indirme hakkına sahibim” kutusu bu yönde verilmiş bir beyandır.</p>
+          <h3>4. Fikrî mülkiyet</h3>
+          <p>Uygulamanın yazılımı, tasarımı, adı ve logosu İşletmeci’ye aittir. Kullanıcının eklediği içeriklerin hakları kullanıcıya veya ilgili hak sahibine aittir; İşletmeci bu içerikler üzerinde hiçbir hak talep etmez.</p>
+          <h3>5. Hizmette değişiklik</h3>
+          <p>İşletmeci, Uygulamayı veya özelliklerini önceden bildirmeksizin değiştirebilir, kısıtlayabilir ya da sonlandırabilir. Hizmet ücretsiz sunulduğundan kesintisiz veya hatasız çalışacağı taahhüt edilmez.</p>
+          <h3>6. Sorumluluk</h3>
+          <p>İşletmeci’nin sorumluluğuna ilişkin hükümler “Sorumluluk Reddi” bölümünde düzenlenmiştir ve bu koşulların ayrılmaz parçasıdır.</p>
+          <h3>7. Uygulanacak hukuk ve uyuşmazlık</h3>
+          <p>Bu koşullara Türkiye Cumhuriyeti hukuku uygulanır. Tüketici işlemlerinde 6502 sayılı Tüketicinin Korunması Hakkında Kanun’daki yetkili tüketici hakem heyetleri ve mahkemeler saklıdır; diğer uyuşmazlıklarda İşletmeci’nin yerleşim yeri mahkemeleri ve icra daireleri yetkilidir.</p>
+          <h3>8. Değişiklikler ve yürürlük</h3>
+          <p>İşletmeci bu metinleri güncelleyebilir. Güncel metin Uygulama içinde yayımlandığı tarihten itibaren geçerlidir; Uygulamayı kullanmaya devam eden kullanıcı güncel metni kabul etmiş sayılır.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>Gizlilik Politikası</summary>
+          <h3>Kısaca</h3>
+          <p>Hesap açmak zorunlu değildir. Ses dosyalarınız sunucuya gönderilmez; yalnızca cihazınızın tarayıcı belleğinde saklanır. İşletmeci reklam, izleme veya analitik aracı kullanmaz.</p>
+          <h3>Cihazınızda saklananlar</h3>
+          <p>Ses dosyaları ve bilgileri (ad, süre, klasör, favori) IndexedDB’de; tercihler, dinleme istatistikleri ve oturum bilgisi localStorage’da; çevrimdışı çalışma dosyaları Service Worker önbelleğinde tutulur. Bu veriler İşletmeci’ye ulaşmaz ve İşletmeci tarafından işlenmez. Tarayıcı verilerini silerseniz kaybolurlar; bu nedenle düzenli “ZIP yedek al” yapmanız önerilir.</p>
+          <h3>Buluta gidenler (isteğe bağlı)</h3>
+          <p>Yalnızca “Google ile giriş” yapıp eşitleme kullanırsanız şu veriler Cloudflare Workers/KV altyapısında saklanır: Google hesabınızın e-posta adresi, favori işaretlediğiniz seslerin adları, dinleme sayıları ve süreleri. Ses dosyaları buluta gönderilmez. Verilerinizi “Bulut yedeğini indir” ile alabilir, “Bulut verimi sil” ile kalıcı olarak silebilirsiniz.</p>
+          <h3>Üçüncü taraf hizmetler</h3>
+          <p>Google giriş betiği (accounts.google.com) yüklendiğinde IP adresiniz ve tarayıcı bilgileriniz Google’a ulaşır, Google kendi çerezlerini kullanabilir; Google’ın gizlilik politikası geçerlidir. “X videosundan ses” özelliğinde yapıştırdığınız gönderinin kimliği api.fxtwitter.com’a, video dosyası ise twimg.com sunucularına istek olarak gider. “Bağlantıdan ekle”de girdiğiniz adrese tarayıcınız doğrudan bağlanır. Bu hizmetler İşletmeci’den bağımsızdır; içeriklerinden ve veri uygulamalarından İşletmeci sorumlu değildir.</p>
+          <h3>Çerez ve izleme</h3>
+          <p>Uygulama kendisi çerez bırakmaz ve sizi izlemez. Google giriş betiği, yalnızca siz bulut eşitleme için onay verdiğinizde yüklenir.</p>
+          <h3>Saklama süresi</h3>
+          <p>Cihazdaki veriler siz silene veya tarayıcı verisini temizleyene kadar; bulut verileri siz silene kadar saklanır.</p>
+          <h3>Çocuklar</h3>
+          <p>18 yaşından küçük kullanıcılar Uygulamayı ancak ebeveyn veya vasilerinin gözetimi ve onayıyla kullanmalıdır; bulut eşitleme küçükler için önerilmez.</p>
+          <h3>Güvenlik</h3>
+          <p>Bağlantılar HTTPS ile korunur. Buna rağmen hiçbir sistemin mutlak güvenliği garanti edilemez.</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>KVKK Aydınlatma Metni</summary>
+          <!-- Hukuk kontrolü: veri sorumlusunun ticaret unvanı/adı, adresi ve varsa MERSİS/VERBİS bilgisi buraya eklenmelidir. -->
+          <p>6698 sayılı Kişisel Verilerin Korunması Kanunu’nun (“KVKK”) 10. maddesi uyarınca bilgilendirilirsiniz.</p>
+          <h3>Veri sorumlusu</h3>
+          <p>ozguler forge (ozgulerforge.com.tr) · <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
+          <h3>İşlenen kişisel veriler</h3>
+          <p>Yalnızca Google ile giriş yapıp bulut eşitleme kullanırsanız: e-posta adresiniz (kimlik/iletişim) ile favori ses adları, dinleme sayıları ve süreleri (kullanım verisi). Hiç giriş yapmazsanız İşletmeci sizin hakkınızda kişisel veri işlemez; cihazınızdaki ses ve ayarlara erişemez.</p>
+          <h3>İşleme amaçları</h3>
+          <p>Bulut eşitleme hizmetini sunmak, oturumu doğrulamak ve güvenliğini sağlamak, hataları gidermek, hukuki yükümlülükleri yerine getirmek.</p>
+          <h3>Hukuki sebepler</h3>
+          <p>KVKK m.5/2-c (hizmet sözleşmesinin kurulması ve ifası), m.5/2-ç (hukuki yükümlülük), m.5/2-f (meşru menfaat) ve yurt dışına aktarım bakımından m.9 uyarınca açık rızanız.</p>
+          <h3>Aktarım</h3>
+          <p>Veriler, hizmet altyapısını sağlayan Google LLC (giriş doğrulama) ve Cloudflare, Inc. (barındırma ve KV depolama) gibi yurt dışındaki hizmet sağlayıcılara aktarılır. Bu aktarım, bulut eşitleme öncesinde verdiğiniz açık rızaya dayanır. Rızanızı dilediğiniz zaman “Çıkış yap” ve “Bulut verimi sil” ile geri alabilirsiniz. Ayrıca mevzuat gereği yetkili kurumların talebi halinde paylaşım yapılabilir. Veriler pazarlama amacıyla kullanılmaz ve satılmaz.</p>
+          <h3>Toplama yöntemi</h3>
+          <p>Veriler, Uygulama üzerinden otomatik ve elektronik yolla, Google girişiniz ve kullanımınız sırasında toplanır.</p>
+          <h3>Haklarınız (KVKK m.11)</h3>
+          <p>Kişisel verinizin işlenip işlenmediğini öğrenme; işlenmişse bilgi talep etme; amacını ve amacına uygun kullanılıp kullanılmadığını öğrenme; aktarıldığı üçüncü kişileri bilme; eksik veya yanlış işlenmişse düzeltilmesini isteme; KVKK m.7 çerçevesinde silinmesini veya yok edilmesini isteme ve bunların aktarıldığı üçüncü kişilere bildirilmesini isteme; otomatik analiz sonucu aleyhinize bir sonuca itiraz etme; kanuna aykırı işleme nedeniyle zarara uğramanız halinde zararın giderilmesini talep etme haklarına sahipsiniz.</p>
+          <h3>Başvuru</h3>
+          <p>Taleplerinizi, Google hesabınızla aynı e-posta adresinden iletisim@ozgulerforge.com.tr adresine yazılı olarak iletebilirsiniz. Başvurular, niteliğine göre en geç otuz gün içinde ücretsiz sonuçlandırılır; işlemin ayrıca maliyet gerektirmesi halinde Kişisel Verileri Koruma Kurulu’nca belirlenen tarife uygulanabilir. Cevabı yetersiz bulursanız Kurul’a şikâyet hakkınız saklıdır (KVKK m.14, kvkk.gov.tr).</p>
+        </details>
+
+        <details class="legal-section">
+          <summary>Sorumluluk Reddi ve Telif Bildirimi</summary>
+          <h3>Sorumluluk reddi</h3>
+          <p>Uygulama “olduğu gibi” ve “mevcut haliyle” sunulur; belirli bir amaca uygunluk, kesintisizlik veya hatasızlık garanti edilmez.</p>
+          <p>Yürürlükteki mevzuatın izin verdiği azami ölçüde; ozguler forge, ozgulerforge.com.tr alan adı, iletisim@ozgulerforge.com.tr e-posta adresi ve Uygulamayı geliştiren ve işleten kişiler (hepsi birlikte “İşletmeci”): (a) kullanıcıların eklediği, indirdiği, kestiği, dönüştürdüğü veya yedeklediği içeriklerin hukuka ve telif haklarına uygunluğundan ve bu içeriklerin kullanımından doğan sonuçlardan; (b) X, fxtwitter, Google, Cloudflare, tarayıcı, işletim sistemi ve diğer üçüncü taraf hizmetlerin işleyişinden, içeriğinden ve kesintilerinden; (c) tarayıcı verisinin silinmesi, depolama alanının dolması, cihaz arızası, yedek alınmaması veya yedeğin bozulması gibi nedenlerle oluşan veri kaybından; (d) hata, kesinti, uyumsuzluk ve güncellemelerden; (e) dolaylı zararlardan, kâr ve fırsat kaybından; (f) kullanıcının kusurlu veya hukuka aykırı kullanımı nedeniyle üçüncü kişilerce ya da idari, hukuki veya cezai mercilerce ileri sürülen talep ve yaptırımlardan hiçbir şekilde sorumlu değildir.</p>
+          <p>Kullanıcı, kendi kullanımı nedeniyle İşletmeci’ye yöneltilecek üçüncü kişi taleplerinde İşletmeci’yi sorumluluktan ari tutmayı ve bu nedenle doğabilecek zararı tazmin etmeyi kabul eder.</p>
+          <p>ozgulerforge.com.tr sitesi ve iletisim@ozgulerforge.com.tr adresi yalnızca iletişim kanalıdır; bu kanallara iletilen talepler, İşletmeci adına herhangi bir sorumluluk veya taahhüt doğurmaz.</p>
+          <p>Bu bölüm; kast ve ağır kusur hallerinde sorumluluğu, tüketicinin emredici kanuni haklarını ve KVKK kapsamındaki haklarınızı ortadan kaldırmaz. Bir hüküm kısmen geçersiz sayılırsa kalan hükümler geçerliliğini korur.</p>
+          <h3>Telif hakkı bildirimi</h3>
+          <p>Uygulama içerik barındırmaz; içerikler yalnızca kullanıcının cihazında bulunur. Haklarınızın ihlal edildiğini düşünen hak sahipleri, ihlal eden içeriğin kaynağını ve hak sahipliğini gösteren bilgilerle iletisim@ozgulerforge.com.tr adresine başvurabilir. Hak sahipleri, ihlali doğrudan ilgili kullanıcıya ve içeriği yayımlayan platforma da bildirmelidir.</p>
+        </details>
       </div>
     </div>
   </div>
@@ -797,6 +866,7 @@ async function archiveXVideoAudio(index) {
         songs = [song, ...songs];
         renderLibrary();
         setXVideoStatus('Videonun sesi arşive eklendi.');
+        clearXField(false);
         toast(addCategory ? `X videosunun sesi “${categoryLabel(addCategory)}” klasörüne eklendi.` : 'X videosunun sesi arşive eklendi.');
     }
     catch (error) { setXVideoStatus(error instanceof Error ? error.message : 'Videonun sesi arşive eklenemedi.', true); }
@@ -1156,19 +1226,12 @@ function loadSong(song) {
     updateMediaSession();
     playerSubtitle.textContent = `${song.source === 'url' ? 'İzinli bağlantı' : song.source === 'x-video' ? 'X videosundan alınan ses' : song.source === 'trim' ? 'Kesit' : 'Dosya'} · cihazda saklanıyor`;
     seek.value = '0';
-    const saved = readPosition(song.id);
-    if (saved > 2)
-        audio.addEventListener('loadedmetadata', () => { audio.currentTime = Math.max(0, Math.min(saved, (audio.duration || saved + 1) - 1)); }, { once: true });
+    // Seçilen ses her zaman baştan başlar (eski sürümlerdeki kayıtlı konumdan devam kaldırıldı).
     updatePlayerUI();
 }
 const POSITION_KEY = 'sescebi-pos:';
-let lastPositionSave = 0;
-function readPosition(id) {
-    try { return Number(localStorage.getItem(POSITION_KEY + id)) || 0; } catch { return 0; }
-}
-function writePosition(id, seconds) {
-    try { localStorage.setItem(POSITION_KEY + id, String(Math.floor(seconds))); } catch { /* konum kaydedilemezse devam edilir */ }
-}
+// v36: eski sürümlerden kalan kayıtlı konumları temizle.
+try { Object.keys(localStorage).filter((key) => key.startsWith(POSITION_KEY)).forEach((key) => localStorage.removeItem(key)); } catch { /* yok say */ }
 function clearPosition(id) {
     try { localStorage.removeItem(POSITION_KEY + id); } catch { /* yok say */ }
 }
@@ -1783,9 +1846,6 @@ get('back-button').addEventListener('click', () => { audio.currentTime = Math.ma
 get('forward-button').addEventListener('click', () => { audio.currentTime = Math.min(audio.duration || Infinity, audio.currentTime + 10); });
 seek.addEventListener('input', () => { audio.currentTime = Number(seek.value); updatePlayerUI(); });
 audio.addEventListener('timeupdate', updatePlayerUI);
-audio.addEventListener('timeupdate', () => {
-    if (activeSong && !audio.paused && Date.now() - lastPositionSave > 3000) { lastPositionSave = Date.now(); writePosition(activeSong.id, audio.currentTime); }
-});
 audio.addEventListener('loadedmetadata', updatePlayerUI);
 audio.addEventListener('play', () => { startListeningSession(); updatePlayerUI(); renderLibrary(); });
 audio.addEventListener('pause', () => { flushListeningSession(true); updatePlayerUI(); renderLibrary(); });
@@ -1974,10 +2034,24 @@ function clearField(input, after) {
         after();
     input.focus();
 }
+function clearXField(focus = true) {
+    xVideoUrl.value = '';
+    xVideoResults.replaceChildren();
+    xVideoVariants = [];
+    setXVideoStatus('');
+    syncClearButtons();
+    if (focus)
+        xVideoUrl.focus();
+}
 urlInput.addEventListener('input', syncClearButtons);
 xVideoUrl.addEventListener('input', syncClearButtons);
 urlClear.addEventListener('click', () => clearField(urlInput));
-xVideoClear.addEventListener('click', () => clearField(xVideoUrl, () => { xVideoResults.replaceChildren(); xVideoVariants = []; setXVideoStatus(''); }));
+xVideoClear.addEventListener('click', () => clearXField());
+// Alana dokununca eski bağlantı tümüyle seçilir: yeni bağlantıyı yapıştırmak eskisini tek hamlede değiştirir.
+for (const input of [urlInput, xVideoUrl])
+    input.addEventListener('focus', () => window.setTimeout(() => input.select(), 0));
+// Yeni bağlantı yapıştırıldığında önceki aramanın sonuçları da kalkar.
+xVideoUrl.addEventListener('paste', () => { xVideoResults.replaceChildren(); xVideoVariants = []; setXVideoStatus(''); });
 syncClearButtons();
 
 // ---- v15: sıradaki ses, tekrar, kilit ekranı kontrolleri ----
@@ -2577,7 +2651,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '35';
+const APP_VERSION = '36';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;
@@ -2762,6 +2836,7 @@ async function init() {
             persistStats: () => persistListeningStats(),
             refresh: () => renderLibrary(),
             toast: (message, error) => toast(message, error),
+            saveFile: (file) => saveFile(file, false),
         });
     }
     catch { /* bulut eşitleme başlatılamazsa uygulama yerel çalışmaya devam eder */ }

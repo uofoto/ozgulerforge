@@ -1,4 +1,4 @@
-# Ses Cebi 0.4.0 (uygulama sürümü 35)
+# Ses Cebi 0.4.1 (uygulama sürümü 36)
 
 ozguler forge tarafından geliştirilen, sesleri cihazda saklayan ve çevrimdışı dinlemeye odaklanan PWA.
 
@@ -8,7 +8,7 @@ ozguler forge tarafından geliştirilen, sesleri cihazda saklayan ve çevrimdı�
 - Klasörler: Şiir, Müzik, Hayata dair. Sesler eklenirken ya da sonradan (⋯ → Klasöre taşı) etiketlenir; arşivde klasör çubuğundan süzülür, ZIP yedekte klasör klasör saklanır
 - Tümünü dinle: görünen liste (klasör, arama, favori, sıralama) baştan sona sırayla çalınır
 - X ve bağlantı alanlarında tek dokunuşla temizleme (×)
-- Oynatma: önceki/sonraki, tekrar/karıştırma, hız, uyku zamanlayıcısı, kaldığı yerden devam
+- Oynatma: önceki/sonraki, tekrar/karıştırma, hız, uyku zamanlayıcısı
 - Stüdyo: dalga formunda kesme, yakınlaştırma, fade-in/out, bas/tiz, WAV dışa aktarma
 - ZIP yedekleme/geri yükleme; isteğe bağlı Google girişiyle favori ve dinleme istatistiklerini Cloudflare Worker + KV üzerinde yedekleme (ses dosyaları buluta gitmez)
 - PWA kurulumu, çevrimdışı kabuk, Android paylaş menüsünden dosya alma
@@ -49,7 +49,7 @@ Dosya adlarında `?v=` gibi sürüm eki yoktur. Sayfa, betik ve stil dosyaları 
 - `cloud-sync.js` içindeki `GOOGLE_CLIENT_ID` ve Worker adresi, Cloudflare/Google Cloud tarafındaki kayıtlarla aynı olmalıdır.
 - X video çözümleme `api.fxtwitter.com` ve `*.twimg.com` adreslerine erişir; gizli/kısıtlı gönderiler desteklenmez.
 - Arka plan ve kilit ekranı davranışı işletim sistemi/tarayıcı kısıtlarına bağlıdır.
-- Hukuki metinler genel bilgilendirmedir; KVKK metni işletmeci tarafından hukuk danışmanlığıyla tamamlanmalıdır.
+- Hukuki metinler (Kullanım Koşulları, Gizlilik, KVKK Aydınlatma, Sorumluluk Reddi) `main.js` içinde “legal-overlay” bölümündedir. Genel bilgilendirmedir; veri sorumlusunun unvan/adres bilgisi eklenmeli ve yayından önce bir avukata gösterilmelidir.
 
 ## İletişim
 https://ozgulerforge.com.tr · iletisim@ozgulerforge.com.tr

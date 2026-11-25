@@ -49,7 +49,7 @@ function stable(data) {
 
 // ---------- ana modül ----------
 
-export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refresh, toast }) {
+export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refresh, toast, saveFile }) {
   let state = { v: 1, favorites: {}, stats: {} };
   let session = loadSession();
   let applying = false;
@@ -59,6 +59,7 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
   let lastCount = getSongs().length;
   let busy = false;
   let box = null;
+  let consentGiven = false;
 
   function loadSession() {
     try {
@@ -238,6 +239,7 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
   async function signOut() {
     try { window.google?.accounts?.id?.disableAutoSelect(); } catch { /* yoksay */ }
     saveSession(null);
+    consentGiven = false;
     renderUi();
     toast('Oturum kapatıldı. Buluttaki yedeğin korundu.');
   }
@@ -266,6 +268,29 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     }
   }
 
+  async function downloadCloudBackup() {
+    if (!session) return;
+    try {
+      const remote = await api('/sync');
+      const data = remote?.data || { v: 1, favorites: {}, stats: {} };
+      const payload = { app: 'sescebi-bulut-yedek', created: new Date().toISOString(), email: session.email, data };
+      const day = new Date().toISOString().slice(0, 10);
+      const file = new File([JSON.stringify(payload, null, 1)], `ses-cebi-bulut-yedek-${day}.json`, { type: 'application/json' });
+      if (typeof saveFile === 'function') await saveFile(file);
+      else {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement('a');
+        a.href = url; a.download = file.name;
+        document.body.append(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      }
+      const favCount = Object.values(data.favorites || {}).filter((f) => f && f.fav).length;
+      toast(`Bulut yedeği indirildi (${favCount} favori, ${Object.keys(data.stats || {}).length} dinleme kaydı).`);
+    } catch (error) {
+      toast(error instanceof Error ? error.message : 'Bulut yedeği indirilemedi.', true);
+    }
+  }
+
   function ensureBox() {
     if (box && document.body.contains(box)) return box;
     const anchor = document.querySelector('.library-subtools');
@@ -281,14 +306,27 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     if (!el) return;
     el.textContent = '';
     const note = document.createElement('small');
-    note.textContent = 'Not: "Yedeği buluta gönder" favori ve dinleme verilerini Google hesabına kaydeder; ses dosyaları ise "Yedeği cihazda sakla" ile ZIP olarak cihazında tutulur.';
+    note.textContent = 'Not: "Yedeği buluta gönder" favori ve dinleme verilerini Google hesabına kaydeder; ses dosyaları ise "ZIP yedek al" ile cihazında tutulur. "Bulut yedeğini indir" buluttaki kaydı JSON dosyası olarak indirir.';
 
     if (!session) {
       const p = document.createElement('p');
       p.textContent = 'Gmail hesabınla giriş yaparak favorilerini ve dinleme istatistiklerini buluta yedekleyebilirsin.';
-      const holder = document.createElement('div');
-      el.append(p, holder, note);
-      if (!busy) void mountGoogleButton(holder);
+      const label = document.createElement('label');
+      label.className = 'consent';
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.checked = consentGiven;
+      check.addEventListener('change', () => { consentGiven = check.checked; renderUi(); });
+      const text = document.createElement('span');
+      text.textContent = 'Ayarlar → Gizlilik & Koşullar içindeki Gizlilik Politikası ve KVKK Aydınlatma Metni’ni okudum; e-posta adresimin ve favori/dinleme verilerimin Google ve Cloudflare altyapılarında (yurt dışı) işlenmesine açık rıza veriyorum.';
+      label.append(check, text);
+      el.append(p, label);
+      if (consentGiven) {
+        const holder = document.createElement('div');
+        el.append(holder);
+        if (!busy) void mountGoogleButton(holder);
+      }
+      el.append(note);
       return;
     }
 
@@ -307,6 +345,7 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
     };
     actions.append(
       make(syncing ? 'Gönderiliyor…' : '☁ Yedeği buluta gönder', 'primary-button cloud-push-btn', () => void syncNow({ quiet: false })),
+      make('⬇ Bulut yedeğini indir', 'ghost-button', () => void downloadCloudBackup()),
       make('Çıkış yap', 'ghost-button', () => void signOut()),
       make('Bulut verimi sil', 'ghost-button cloud-danger-btn', () => void deleteCloudData()),
     );
