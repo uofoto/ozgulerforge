@@ -8,7 +8,7 @@ function card(n){
   if(!n.d){const s=el('button','star'+(n.f?' on':''));s.setAttribute('aria-label','Favori');s.append(ic('star'));s.onclick=e=>{e.stopPropagation();n.f=!n.f;n.m=Date.now();save(n);render()};c.append(s)}
   c.onclick=()=>openEd(n);c.onkeydown=e=>{if(e.key==='Enter'&&e.target===c)openEd(n)};return c}
 function trashNote(n){
-  if(n.d){if(!confirm('Bu not kalıcı olarak silinsin mi?'))return;const t={id:n.id,x:Date.now(),m:Date.now(),v:V};D.notes[D.notes.indexOf(n)]=t;save(t);render();toast('Kalıcı olarak silindi')}
+  if(n.d){if(!confirm('Bu not kalıcı olarak silinsin mi?'))return;const t={id:n.id,x:Date.now(),m:Date.now(),v:V};repl(t);save(t);render();toast('Kalıcı olarak silindi')}
   else{n.d=n.m=Date.now();save(n);render();toast('Çöpe taşındı','Geri al',()=>{delete n.d;n.m=Date.now();save(n);render()})}}
 function grid(list,msg){const g=el('div','grid'),w=el('div');list.slice(0,LIM).forEach(n=>{try{g.append(card(n))}catch(e){}});w.append(g);if(!list.length)w.append(el('div','empty',msg));if(list.length>LIM){const b=el('button','btn g','Daha fazla göster ('+(list.length-LIM)+')');b.style.cssText='display:block;margin:6px auto 12px';b.onclick=()=>{LIM+=30;render()};w.append(b)}return w}
 function hero(){
@@ -41,7 +41,7 @@ function bak(a){
   const p=el('div','panel');p.append(el('h2','','Bu cihaza yedekle'));
   p.append(el('p','',D.lastBackup?'Son yedek: '+new Date(D.lastBackup).toLocaleString('tr-TR'):'Henüz yedek almadın.'));
   const r=el('div','row'),b1=el('button','btn','Yedeği indir'),b2=el('button','btn g','Yedekten geri yükle');b1.onclick=exp;b2.onclick=()=>$('#file').click();r.append(b2,b1);if(D.snapT){const u=el('button','btn g','Son geri yüklemeyi geri al');u.onclick=()=>undoRestore();r.prepend(u)}if(D.autoT){const u2=el('button','btn g','Otomatik kopyaya dön ('+new Date(D.autoT).toLocaleDateString('tr-TR')+')');u2.onclick=()=>undoRestore('auto');r.prepend(u2)}p.append(r);a.append(p);
-  keepPanel(a);const c=el('div','panel');c.append(el('h2','','Cloudflare yedeği'));c.append(el('p','','Yedeğini şifreli olarak buluta gönderip oradan geri alacaksın. Bu özellik bir sonraki adımda eklenecek.'));a.append(c)}
+  keepPanel(a);cloudPanel(a)}
 function sett(a){
   const h=el('div','top');h.append(el('h1','','Ayarlar'));a.append(h);
   const p=el('div','panel');p.append(el('h2','','Görünüm'));

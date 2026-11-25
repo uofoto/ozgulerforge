@@ -8,9 +8,10 @@ try{const m=JSON.parse(localStorage.getItem(META)||'null');if(m)D=Object.assign(
 let db=null;
 const idb=(m,f,st='n')=>new Promise((ok,no)=>{const t=db.transaction(st,m),r=f(t.objectStore(st));t.oncomplete=()=>ok(r&&r.result);t.onerror=()=>no(t.error)});
 const openDB=()=>new Promise((ok,no)=>{const r=indexedDB.open('defter',2);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains('n'))d.createObjectStore('n',{keyPath:'id'});if(!d.objectStoreNames.contains('s'))d.createObjectStore('s',{keyPath:'k'})};r.onsuccess=()=>{db=r.result;db.onversionchange=()=>db.close();ok()};r.onerror=()=>no(r.error)});
-function save(n){if(n&&db)idb('readwrite',s=>s.put(n)).then(()=>bc&&bc.postMessage(1)).catch(()=>toast('Kayıt yapılamadı'));if(n&&!db)D.mem=true;try{localStorage.setItem(META,JSON.stringify({set:D.set,lastBackup:D.lastBackup,snapT:D.snapT,autoT:D.autoT}))}catch(e){}}
+function save(n){if(n&&db)idb('readwrite',s=>s.put(n)).then(()=>{bc&&bc.postMessage(1);typeof cloudSoon==='function'&&cloudSoon()}).catch(()=>toast('Kayıt yapılamadı'));if(n&&!db)D.mem=true;try{localStorage.setItem(META,JSON.stringify({set:D.set,lastBackup:D.lastBackup,snapT:D.snapT,autoT:D.autoT,cloud:D.cloud}))}catch(e){}}
 const remove=n=>db&&idb('readwrite',s=>s.delete(n.id));
-const putAll=a=>db&&idb('readwrite',s=>{a.forEach(x=>s.put(x))});
+const putAll=a=>db&&idb('readwrite',s=>{a.forEach(x=>s.put(x))}).then(r=>{typeof cloudSoon==='function'&&cloudSoon();return r});
+function repl(t){const i=D.notes.findIndex(x=>x.id===t.id);if(i>=0)D.notes[i]=t;else D.notes.push(t)}
 async function loadNotes(){
   try{await openDB();D.notes=await idb('readonly',s=>s.getAll());
     const dead=D.notes.filter(n=>n.x&&Date.now()-n.x>7776e6);if(dead.length){D.notes=D.notes.filter(n=>!dead.includes(n));await idb('readwrite',s=>{dead.forEach(n=>s.delete(n.id))})}

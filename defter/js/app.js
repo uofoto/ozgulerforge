@@ -9,8 +9,8 @@ $('#save').onclick=()=>{
   if(cur&&cur.d){delete cur.d;cur.m=Date.now();save(cur);$('#ed').close();render();toast('Geri alındı');return}
   const b=$('#body').value.trim();if(!b){toast('Metin boş olamaz');return}
   const u=$('#url').value.trim(),o={k:kind,t:$('#title').value.trim(),b,w:$('#who').value.trim(),g:$('#tag').value.trim(),u:kind==='makale'?u:'',r:kind==='makale'&&$('#rd').checked?(cur&&cur.r||Date.now()):0,m:Date.now()};
-  let nn=cur;if(cur)Object.assign(cur,o);else{nn={id:uid(),c:Date.now(),f:false,v:V,...o};D.notes.push(nn)}
+  let nn=cur;if(cur)Object.assign(cur,o);else{nn={id:uid(),c:Date.now(),f:false,v:V,...o};D.notes.push(nn)}if(cur){const ix=D.notes.findIndex(x=>x.id===cur.id);if(ix>=0)D.notes[ix]=cur}
   save(nn);$('#ed').close();render();toast('Kaydedildi')};
-$('#del').onclick=()=>{const perm=!!cur.d;if(perm){const t={id:cur.id,x:Date.now(),m:Date.now(),v:V};D.notes[D.notes.indexOf(cur)]=t;save(t)}else{cur.d=cur.m=Date.now();save(cur)}$('#ed').close();render();toast(perm?'Kalıcı olarak silindi':'Çöpe taşındı')};
+$('#del').onclick=()=>{const perm=!!cur.d;if(perm){const t={id:cur.id,x:Date.now(),m:Date.now(),v:V};repl(t);save(t)}else{cur.d=cur.m=Date.now();save(cur)}$('#ed').close();render();toast(perm?'Kalıcı olarak silindi':'Çöpe taşındı')};
 if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost'))navigator.serviceWorker.register('sw.js').catch(()=>{});
-applySet();loadNotes().then(render);
+applySet();loadNotes().then(async()=>{await cloudInit();render();cloudSoon(1500)});
