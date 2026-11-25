@@ -1,5 +1,15 @@
 # Değişiklikler
 
+## 0.4.0 (sürüm 35)
+**Yeni**
+- Klasörler: Şiir, Müzik, Hayata dair. Ses eklerken “Klasör” seçilir (dosya, bağlantı ve X videosu sesi için geçerli); mevcut sesler satırdaki ⋯ → “Klasöre taşı” ile etiketlenir. Arşivde klasör çubuğu ve sayaçlar var; seçili klasöre yeniden dokunmak “Tümü”ne döner. Kesilen kayıt (kesit) orijinalin klasörünü miras alır.
+- ZIP yedekte klasörlü sesler `sesler/siir/`, `sesler/muzik/`, `sesler/hayata-dair/` altında durur; `sescebi.json` içinde `category` alanı vardır ve yedekten yüklemede korunur. Klasörsüz sesler eskisi gibi `sesler/` altındadır; eski yedekler sorunsuz yüklenir.
+- Tümünü dinle: arşivde görünen liste sırayla çalınır. Çalma düzeni “Tek seferlik / Bunu tekrarla” iken bile bu oturumda sıra ilerler (kayıtlı düzen değişmez). Klasör açıkken bir kayda dokunmak sırayı o klasör yapar; önceki/sonraki düğmeleri ve kilit ekranı kontrolleri klasör içinde kalır. Oynatıcı alt başlığında “Müzik 2/5” gibi konum görünür. “Tümü” görünümünde eski davranış (tüm arşiv sırası) aynen sürer.
+- Bağlantı ve X gönderi bağlantısı alanlarında × düğmesi: eski bağlantıyı, durum mesajını ve bulunan videoları tek dokunuşla siler.
+
+**Değişmeyenler**
+- Veritabanı şeması, çalma düzeni, tema, yedek/geri yükleme, bulut eşitleme ve istatistik davranışı aynıdır; yeni alan (`category`) yalnızca etiketlenen kayıtlarda bulunur.
+
 ## 0.3.0 (sürüm 34)
 **Düzeltmeler**
 - Service Worker kaydı `sw.js?v=26` idi, önbellek v33'tü. Artık sürüm `sw.js` ve `main.js` içinde tek değerdir; `npm run check` uyuşmazlığı yakalar.

@@ -1,10 +1,13 @@
-# Ses Cebi 0.3.0 (uygulama sürümü 34)
+# Ses Cebi 0.4.0 (uygulama sürümü 35)
 
 ozguler forge tarafından geliştirilen, sesleri cihazda saklayan ve çevrimdışı dinlemeye odaklanan PWA.
 
 ## Özellikler
 - Ses/video dosyası, doğrudan bağlantı veya izinli X videosundan ses ekleme (videodan ses: MP4/MOV içindeki AAC doğrudan ayrılır; diğerleri tarayıcı çözücüsüyle MP3'e, olmazsa WAV'a çevrilir)
 - IndexedDB üzerinde yerel arşiv: arama, favoriler, sıralama
+- Klasörler: Şiir, Müzik, Hayata dair. Sesler eklenirken ya da sonradan (⋯ → Klasöre taşı) etiketlenir; arşivde klasör çubuğundan süzülür, ZIP yedekte klasör klasör saklanır
+- Tümünü dinle: görünen liste (klasör, arama, favori, sıralama) baştan sona sırayla çalınır
+- X ve bağlantı alanlarında tek dokunuşla temizleme (×)
 - Oynatma: önceki/sonraki, tekrar/karıştırma, hız, uyku zamanlayıcısı, kaldığı yerden devam
 - Stüdyo: dalga formunda kesme, yakınlaştırma, fade-in/out, bas/tiz, WAV dışa aktarma
 - ZIP yedekleme/geri yükleme; isteğe bağlı Google girişiyle favori ve dinleme istatistiklerini Cloudflare Worker + KV üzerinde yedekleme (ses dosyaları buluta gitmez)
