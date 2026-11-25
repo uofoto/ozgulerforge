@@ -230,11 +230,11 @@ app.innerHTML = `
 
       <div class="sheet-block">
         <h3>ZIP Yedekleme &amp; Bulut Eşitleme</h3>
-        <p class="sheet-sub">Kayıtların yalnızca bu cihazda tutulur. Dilediğinde tek dosya halinde yedek alabilirsin.</p>
+        <p class="sheet-sub">Kayıtların yalnızca bu cihazda tutulur. Dilediğinde tek dosya halinde yedek alabilirsin. “Yedeği yükle” hem ZIP yedeğini (sesler) hem de bulut yedeği JSON dosyasını (favoriler ve dinleme verisi) kabul eder.</p>
         <div class="backup-row">
           <button class="primary-button" id="backup-button" type="button">${icons.download}<span>ZIP yedek al</span></button>
           <button class="ghost-button" id="restore-button" type="button">${icons.upload}<span>Yedeği yükle</span></button>
-          <input id="restore-input" type="file" accept=".zip,application/zip" aria-label="Yedek dosyası seç" />
+          <input id="restore-input" type="file" accept=".zip,.json,application/zip,application/json" aria-label="Yedek dosyası seç" />
         </div>
         <div class="library-subtools" aria-label="Bulut yedekleme"></div>
       </div>
@@ -312,7 +312,7 @@ app.innerHTML = `
           <summary>6. Yedekleme (önemli)</summary>
           <p>Sesler tarayıcı depolamasında durduğu için silinebilir (bkz. 7). Bu yüzden arada bir <strong>Ayarlar → ZIP yedek al</strong> yap ve ZIP dosyasını Drive'a veya bilgisayara kopyala. Klasörlerin ve favorilerin de yedeğe girer. Silinirse <strong>Yedeği yükle</strong> ile geri getirirsin; eski yedekler de açılır.</p>
           <h3>Bulut yedeği (isteğe bağlı)</h3>
-          <p>Google ile giriş yaparsan favorilerin ve dinleme istatistiklerin buluta eşitlenir. <strong>Ses dosyaları buluta gitmez.</strong> Ayarlar'daki “Bulut yedeğini indir” bu veriyi dosya olarak indirir, “Bulut verimi sil” kalıcı olarak siler.</p>
+          <p>Google ile giriş yaparsan favorilerin ve dinleme istatistiklerin buluta eşitlenir. <strong>Ses dosyaları buluta gitmez.</strong> Ayarlar'daki “Bulut yedeğini indir” bu veriyi dosya olarak indirir, “Bulut verimi sil” kalıcı olarak siler. İndirdiğin JSON dosyasını geri yüklemek için <strong>Yedeği yükle</strong>'ye bas ve o dosyayı seç. Önce ZIP yedeğini yükleyip sesleri geri getir, çünkü favoriler yalnızca arşivdeki seslerle eşleşir.</p>
         </details>
 
         <details class="legal-section">
@@ -2579,7 +2579,14 @@ restoreButton.addEventListener('click', () => restoreInput.click());
 restoreInput.addEventListener('change', () => {
     const file = restoreInput.files?.[0];
     restoreInput.value = '';
-    if (file)
+    if (!file)
+        return;
+    // Bulut yedeği (.json) favori ve dinleme verisini geri yükler; ZIP ise sesleri.
+    if (/\.json$/i.test(file.name) || file.type === 'application/json') {
+        if (cloudSync) void cloudSync.importCloudFile(file);
+        else toast('Bulut yedeği şu an yüklenemiyor.', true);
+    }
+    else
         void restoreBackup(file);
 });
 
