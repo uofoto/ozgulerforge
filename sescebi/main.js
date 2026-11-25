@@ -210,6 +210,11 @@ app.innerHTML = `
           <span class="time" id="time">00:00 / 00:00</span>
           <input class="seek" id="seek" type="range" min="0" max="100" value="0" aria-label="Ses ilerlemesi" />
         </div>
+        <div class="player-volume" id="player-volume">
+          <button class="player-button small" id="mute-button" type="button" aria-label="Sesi kapat / aç"><svg id="mute-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5v5h3.5L12 19V5L7.5 9.5H4z"/><path id="vol-wave" d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg></button>
+          <input class="volume-slider" id="volume-slider" type="range" min="0" max="100" step="1" value="100" aria-label="Ses seviyesi" />
+          <output id="volume-value">100%</output>
+        </div>
         <details class="player-more">
           <summary>Seçenekler</summary>
           <div class="player-extra">
@@ -2448,6 +2453,52 @@ get('stat-top-track').addEventListener('click', jumpToTopTrack);
 get('library-search').addEventListener('input', (event) => { searchQuery = event.target.value; renderLibrary(); });
 get('library-sort').addEventListener('change', (event) => { sortMode = event.target.value; renderLibrary(); });
 get('favorites-filter').addEventListener('click', (event) => { favoritesOnly = !favoritesOnly; event.currentTarget.setAttribute('aria-pressed', String(favoritesOnly)); event.currentTarget.classList.toggle('active', favoritesOnly); renderLibrary(); });
+// Ses seviyesi: kartın üstünde kaydırıcı ve sessize alma. iPhone/iPad tarayıcıları ses seviyesini yalnızca fiziksel tuşlardan değiştirir, orada gizlenir.
+const volumeSlider = get('volume-slider');
+const muteButton = get('mute-button');
+const VOLUME_KEY = 'sescebi-volume';
+let lastVolume = 1;
+function paintVolume() {
+    const level = audio.muted ? 0 : audio.volume;
+    volumeSlider.value = String(Math.round(level * 100));
+    get('volume-value').textContent = `${Math.round(level * 100)}%`;
+    get('vol-wave').style.display = level === 0 ? 'none' : '';
+    muteButton.setAttribute('aria-pressed', String(level === 0));
+}
+if (/iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+    get('player-volume').hidden = true;
+try {
+    const saved = Number(localStorage.getItem(VOLUME_KEY));
+    if (localStorage.getItem(VOLUME_KEY) !== null && saved >= 0 && saved <= 1)
+        audio.volume = saved;
+}
+catch { /* kayıtlı seviye yoksa tam ses */ }
+if (audio.volume > 0)
+    lastVolume = audio.volume;
+volumeSlider.addEventListener('input', () => {
+    const level = Math.max(0, Math.min(1, Number(volumeSlider.value) / 100));
+    audio.muted = false;
+    audio.volume = level;
+    if (level > 0)
+        lastVolume = level;
+    try {
+        localStorage.setItem(VOLUME_KEY, String(level));
+    }
+    catch { /* kaydedilemese de bu oturumda geçerli */ }
+    paintVolume();
+});
+muteButton.addEventListener('click', () => {
+    if (audio.muted || audio.volume === 0) {
+        audio.muted = false;
+        audio.volume = lastVolume || 1;
+    }
+    else {
+        lastVolume = audio.volume;
+        audio.muted = true;
+    }
+    paintVolume();
+});
+paintVolume();
 get('playback-speed').addEventListener('change', (event) => { audio.playbackRate = Number(event.target.value) || 1; updatePositionState(); });
 get('sleep-button').addEventListener('click', () => {
     const answer = window.prompt('Uyku zamanlayıcısı kaç dakika olsun? (0 = iptal)', '30');

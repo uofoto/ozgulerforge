@@ -270,3 +270,8 @@ body.has-player .toast{bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px
 .folder-manage-row>span{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
 .folder-manage-row strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .folder-manage-row .ghost-button{min-height:36px;padding:0 10px;font-size:13px;flex:none}
+
+.player-volume{display:flex;align-items:center;gap:8px;margin-top:4px}
+.player-volume .volume-slider{flex:1;min-width:0;max-width:260px}
+.player-volume output{min-width:40px;text-align:right;font-size:13px;color:var(--muted)}
+.player-volume .player-button svg{width:20px;height:20px}
