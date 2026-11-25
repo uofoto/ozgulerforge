@@ -6,6 +6,7 @@ const GOOGLE_CLIENT_ID = '737017356172-b9m6rbst8qk8iphlc257aj5jqbge6lg0.apps.goo
 const SESSION_KEY = 'sescebi-cloud-session';
 const FAV_META_KEY = 'sescebi-cloud-fav-meta';
 const LAST_SYNC_KEY = 'sescebi-cloud-last-sync';
+const PENDING_KEY = 'sescebi-cloud-pending';
 const PUSH_DELAY_MS = 20000;
 
 // ---------- saf yardımcılar ----------
@@ -50,7 +51,19 @@ function stable(data) {
 // ---------- ana modül ----------
 
 export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refresh, toast, saveFile }) {
-  let state = { v: 1, favorites: {}, stats: {} };
+  // Arşivde henüz karşılığı olmayan favori/dinleme kayıtları da cihazda saklanır; ses sonradan gelince otomatik eşleşir.
+  function loadPending() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(PENDING_KEY) || 'null');
+      if (raw && typeof raw === 'object') return { v: 1, favorites: raw.favorites || {}, stats: raw.stats || {} };
+    } catch { /* bozuk kayıt */ }
+    return { v: 1, favorites: {}, stats: {} };
+  }
+  function setState(value) {
+    state = value;
+    try { localStorage.setItem(PENDING_KEY, JSON.stringify(value)); } catch { /* depolama dolu olabilir */ }
+  }
+  let state = loadPending();
   let session = loadSession();
   let applying = false;
   let syncing = false;
@@ -172,10 +185,10 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
       const remote = await api('/sync');
       const remoteData = remote?.data || { favorites: {}, stats: {} };
       const merged = mergeData(remoteData, localSnapshot());
-      state = merged;
+      setState(merged);
       await applyToLibrary(merged);
       const final = mergeData(merged, localSnapshot());
-      state = final;
+      setState(final);
       if (stable(final) !== stable(remoteData)) await api('/sync', { method: 'PUT', body: JSON.stringify({ data: final }) });
       try { localStorage.setItem(LAST_SYNC_KEY, String(Date.now())); } catch { /* yoksay */ }
       const favCount = Object.values(final.favorites || {}).filter((f) => f && f.fav).length;
@@ -259,7 +272,7 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
 
     try {
       await api('/sync', { method: 'DELETE' });
-      state = { v: 1, favorites: {}, stats: {} };
+      setState({ v: 1, favorites: {}, stats: {} });
       try { localStorage.removeItem(LAST_SYNC_KEY); } catch {}
       renderUi();
       toast('Bulut verin kalıcı olarak silindi.');
@@ -371,11 +384,13 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
       const data = parsed?.app === 'sescebi-bulut-yedek' ? parsed.data : null;
       if (!data || typeof data !== 'object') throw new Error('Bu dosya bir Ses Cebi bulut yedeği değil.');
       const merged = mergeData(data, localSnapshot());
-      state = merged;
+      setState(merged);
       await applyToLibrary(merged);
       if (session) schedulePush();
       const favCount = Object.values(merged.favorites || {}).filter((f) => f && f.fav).length;
-      toast(`Bulut yedeği yüklendi (${favCount} favori, ${Object.keys(merged.stats || {}).length} dinleme kaydı). Yalnızca arşivdeki seslerle eşleşenler uygulanır.`);
+      const present = new Set(getSongs().map((song) => songKey(song)));
+      const waiting = new Set([...Object.keys(merged.favorites || {}), ...Object.keys(merged.stats || {})].filter((key) => !present.has(key))).size;
+      toast(`Bulut yedeği yüklendi (${favCount} favori, ${Object.keys(merged.stats || {}).length} dinleme kaydı).${waiting ? ` ${waiting} kaydın sesi arşivde yok; bu cihazda bekletiliyor, ses eklenince otomatik eşleşir.` : ''}`);
     } catch (error) {
       toast(error instanceof SyntaxError ? 'Dosya okunamadı; geçerli bir JSON yedeği seç.' : (error instanceof Error ? error.message : 'Bulut yedeği yüklenemedi.'), true);
     }
@@ -394,7 +409,7 @@ export function initCloudSync({ getSongs, getStats, saveSong, persistStats, refr
       const count = getSongs().length;
       if (count === lastCount) return;
       lastCount = count;
-      if (session && !applying) void applyToLibrary(state).then(() => schedulePush());
+      if (!applying) void applyToLibrary(state).then(() => schedulePush());
     },
   };
 }
