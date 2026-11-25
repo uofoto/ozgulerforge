@@ -1,0 +1,13 @@
+# Sadece komut satırıyla (wrangler) kurmak istersen. Panelden kuruyorsan gerekmez.
+name = "defter-sync"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "defter"
+database_id = "BURAYA-D1-KIMLIGINI-YAZ"
+
+[vars]
+ALLOWED_ORIGIN = "https://ozgulerforge.com.tr"
+# SYNC_TOKEN gizli değerdir: npx wrangler secret put SYNC_TOKEN
