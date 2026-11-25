@@ -18,6 +18,19 @@ let listeningStats = readListeningStats();
 let listeningSession = null;
 let cloudSync = null;
 let sleepTimerId = 0;
+// Klasörler (etiketler): şiir / müzik / hayata dair. Kayıtta song.category olarak saklanır; yoksa klasörsüzdür.
+const CATEGORIES = [
+    { id: 'siir', label: 'Şiir', dir: 'siir' },
+    { id: 'muzik', label: 'Müzik', dir: 'muzik' },
+    { id: 'hayat', label: 'Hayata dair', dir: 'hayata-dair' },
+];
+let categoryFilter = 'all'; // 'all' | 'none' | kategori id
+let addCategory = '';       // yeni eklenen seslerin gideceği klasör ('' = klasörsüz)
+let lastVisibleSongs = [];  // arşivde şu an listelenenler (arama/favori/klasör/sıralama sonrası)
+let queueIds = null;        // null: tüm arşiv (eski davranış); dizi: klasör/liste sırası
+let queueName = '';
+let listenAll = false;      // "Tümünü dinle" oturumu
+let categoryTarget = null;
 const app = document.querySelector('#app');
 if (!app)
     throw new Error('Uygulama kökü bulunamadı.');
@@ -43,6 +56,7 @@ const icons = {
     heartFill: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-9-9a5 5 0 0 1 9-3 5 5 0 0 1 9 3c-2 4.6-9 9-9 9z"/></svg>',
     more: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg>',
 };
 app.innerHTML = `
   <div class="app-shell">
@@ -76,7 +90,11 @@ app.innerHTML = `
             <option value="duration">Süre</option>
           </select>
         </div>
-        <p class="library-count" id="library-count">0 kayıt</p>
+        <div class="folder-bar" id="folder-bar" role="group" aria-label="Klasörler" hidden></div>
+        <div class="library-head">
+          <p class="library-count" id="library-count">0 kayıt</p>
+          <button class="ghost-button listen-all" id="listen-all" type="button" hidden>${icons.play}<span>Tümünü dinle</span></button>
+        </div>
         <div class="empty-state" id="empty-state">
           <h3>Arşivin henüz boş</h3>
           <p>İlk ses kaydını ekleyerek başla.</p>
@@ -108,17 +126,21 @@ app.innerHTML = `
           </div>
           <div id="url-panel" class="url-panel" role="tabpanel" hidden>
             <label class="sr-only" for="url-input">Doğrudan ses dosyası bağlantısı</label>
-            <input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" />
+            <div class="input-clear-wrap"><input class="text-input" id="url-input" type="url" inputmode="url" placeholder="https://site.com/ses.mp3" autocomplete="off" /><button class="input-clear" id="url-clear" type="button" aria-label="Bağlantıyı temizle" title="Bağlantıyı temizle" hidden>${icons.close}</button></div>
             <p class="url-hint">Herkese açık, doğrudan ses dosyası bağlantıları desteklenir.</p>
           </div>
           <div id="x-video-panel" class="x-video-panel" role="tabpanel" hidden>
             <div class="x-video-form">
               <label class="sr-only" for="x-video-url">X gönderi bağlantısı</label>
-              <input class="text-input" id="x-video-url" type="url" inputmode="url" placeholder="https://x.com/kullanici/status/123…" autocomplete="off" />
+              <div class="input-clear-wrap"><input class="text-input" id="x-video-url" type="url" inputmode="url" placeholder="https://x.com/kullanici/status/123…" autocomplete="off" /><button class="input-clear" id="x-video-clear" type="button" aria-label="Bağlantıyı temizle" title="Bağlantıyı temizle" hidden>${icons.close}</button></div>
               <button class="ghost-button" id="x-video-find" type="button">Bul</button>
             </div>
             <p class="x-video-status" id="x-video-status" role="status" aria-live="polite"></p>
             <div class="x-video-results" id="x-video-results"></div>
+          </div>
+          <div class="folder-pick" role="group" aria-labelledby="folder-pick-label">
+            <span class="folder-pick-label" id="folder-pick-label">Klasör</span>
+            <div class="folder-chips" id="add-folder"></div>
           </div>
           <label class="consent"><input id="consent" type="checkbox" /><span>Bu sesi kullanma ve indirme hakkına sahibim.</span></label>
           <button class="primary-button" id="add-button" type="button" disabled>${icons.plus}<span>Arşive ekle</span></button>
@@ -300,6 +322,15 @@ app.innerHTML = `
     </div>
   </div>
 
+  <!-- ======================== ÇEKMECE 6: KLASÖRE TAŞI ======================== -->
+  <div class="overlay" id="category-overlay" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="category-title">
+      <div class="sheet-head"><h2 id="category-title">Klasöre taşı</h2><button class="icon-button" id="category-close" type="button" aria-label="Kapat">${icons.close}</button></div>
+      <p class="sheet-sub" id="category-song"></p>
+      <div class="category-options" id="category-options"></div>
+    </div>
+  </div>
+
   <div class="toast" id="toast" role="status"></div>
 `;
 function placeListeningStatsPanel() {
@@ -344,6 +375,13 @@ const trimKeep = get('trim-keep');
 const trimPreviewButton = get('trim-preview');
 const trimSaveButton = get('trim-save');
 const infoOverlay = get('info-overlay');
+const categoryOverlay = get('category-overlay');
+const folderBar = get('folder-bar');
+const listenAllButton = get('listen-all');
+const addFolder = get('add-folder');
+const categoryOptions = get('category-options');
+const urlClear = get('url-clear');
+const xVideoClear = get('x-video-clear');
 const infoBody = get('info-body');
 const infoShareButton = get('info-share');
 const statsPanel = get('listening-stats-panel');
@@ -753,11 +791,13 @@ async function archiveXVideoAudio(index) {
         const file = new File([blob], `x-video-${Date.now()}.mp4`, { type: 'video/mp4' });
         const audioBlob = await extractVideoAudio(file);
         const song = await createSong(audioBlob, `X video sesi ${new Date().toLocaleDateString('tr-TR')}.wav`, 'x-video');
+        if (addCategory)
+            song.category = addCategory;
         await dbPut(song);
         songs = [song, ...songs];
         renderLibrary();
         setXVideoStatus('Videonun sesi arşive eklendi.');
-        toast('X videosunun sesi arşive eklendi.');
+        toast(addCategory ? `X videosunun sesi “${categoryLabel(addCategory)}” klasörüne eklendi.` : 'X videosunun sesi arşive eklendi.');
     }
     catch (error) { setXVideoStatus(error instanceof Error ? error.message : 'Videonun sesi arşive eklenemedi.', true); }
 }
@@ -957,12 +997,14 @@ async function addSelectedAudio() {
             blob = result.blob;
         }
         const song = await createSong(blob, name, source);
+        if (addCategory)
+            song.category = addCategory;
         await dbPut(song);
         songs = [song, ...songs];
         renderLibrary();
         resetSource();
         setProgress('Kaydedildi', 100);
-        toast('Ses cihazdaki arşivine eklendi.');
+        toast(addCategory ? `Ses “${categoryLabel(addCategory)}” klasörüne eklendi.` : 'Ses cihazdaki arşivine eklendi.');
         window.setTimeout(() => setProgress('', 0, false), 850);
     }
     catch (error) {
@@ -980,6 +1022,7 @@ function resetSource() {
     setSelectedFile(null);
     fileInput.value = '';
     urlInput.value = '';
+    syncClearButtons();
     consent.checked = false;
     updateAddButton();
 }
@@ -987,8 +1030,12 @@ function renderLibrary() {
     cloudSync?.libraryRendered();
     document.querySelectorAll('.song-more-actions.menu-portal').forEach((menu) => menu.remove());
     const search = searchQuery.trim().toLocaleLowerCase('tr');
-    let visibleSongs = songs.filter((song) => (!favoritesOnly || song.favorite) && (!search || song.name.toLocaleLowerCase('tr').includes(search)));
+    let visibleSongs = songs.filter((song) => (!favoritesOnly || song.favorite) && inFolder(song) && (!search || song.name.toLocaleLowerCase('tr').includes(search)));
     visibleSongs = [...visibleSongs].sort((a, b) => sortMode === 'oldest' ? a.createdAt - b.createdAt : sortMode === 'az' ? a.name.localeCompare(b.name, 'tr') : sortMode === 'duration' ? (b.duration || 0) - (a.duration || 0) : b.createdAt - a.createdAt);
+    lastVisibleSongs = visibleSongs;
+    renderFolderBar();
+    listenAllButton.hidden = visibleSongs.length === 0 || studioSelectionMode;
+    listenAllButton.setAttribute('aria-label', `Görünen ${visibleSongs.length} kaydı sırayla dinle`);
     libraryCount.textContent = visibleSongs.length === songs.length ? `${songs.length} kayıt` : `${songs.length} kayıt · ${visibleSongs.length} gösteriliyor`;
     get('nav-count').textContent = String(songs.length);
     get('stat-count').textContent = String(songs.length);
@@ -1002,15 +1049,19 @@ function renderLibrary() {
     recent.hidden = songs.length === 0;
     recent.querySelectorAll('[data-play-recent]').forEach((button) => button.addEventListener('click', () => {
         const song = songs.find((item) => item.id === button.dataset.playRecent);
-        if (song) void toggleSong(song);
+        if (song) {
+            if (activeSong?.id !== song.id) { queueIds = null; listenAll = false; }
+            void toggleSong(song);
+        }
     }));
     emptyState.hidden = visibleSongs.length > 0;
-    if (songs.length > 0 && visibleSongs.length === 0) { emptyState.querySelector('h3').textContent = 'Eşleşen kayıt bulunamadı'; emptyState.querySelector('p').textContent = 'Arama sözcüğünü veya favori filtresini değiştirebilirsin.'; }
+    if (songs.length > 0 && visibleSongs.length === 0) { emptyState.querySelector('h3').textContent = 'Eşleşen kayıt bulunamadı'; emptyState.querySelector('p').textContent = (categoryFilter !== 'all' && !search && !favoritesOnly) ? 'Bu klasör boş. Bir kaydın ⋯ menüsünden “Klasöre taşı”yı seç.' : 'Arama sözcüğünü, favori filtresini veya klasörü değiştirebilirsin.'; }
     else { emptyState.querySelector('h3').textContent = 'Arşivin yeni başlıyor'; emptyState.querySelector('p').textContent = 'İlk kaydını eklediğinde, burada düzenli ve çevrimdışı erişilebilir şekilde göreceksin.'; }
     songList.innerHTML = visibleSongs.map((song) => {
       const isPlayingThis = activeSong?.id === song.id && !audio.paused;
       const dateText = new Date(song.createdAt).toLocaleDateString('tr-TR', { day: 'numeric', month: 'short', year: 'numeric' });
-      const metaLine = `${dateText} · ${formatTime(song.duration)} · ${formatSize(song.size)}`;
+      const folderLabel = categoryLabel(song.category);
+      const metaLine = `${dateText} · ${formatTime(song.duration)} · ${formatSize(song.size)}${folderLabel ? ` · ${folderLabel}` : ''}`;
       return `
       <article class="song-row ${isPlayingThis ? 'is-playing-row' : ''}" data-song-id="${song.id}">
         <button class="compact-thumb play-row" type="button" aria-label="${isPlayingThis ? 'Duraklat' : 'Dinle'}: ${escapeHtml(song.name)}">
@@ -1024,7 +1075,7 @@ function renderLibrary() {
           <button class="primary-button studio-select-row" type="button" hidden>${icons.scissors}<span>Seç</span></button>
           <button class="icon-button favorite-row ${song.favorite ? 'is-favorite' : ''}" type="button" aria-label="${song.favorite ? 'Favorilerden çıkar' : 'Favorilere ekle'}">${song.favorite ? icons.heartFill : icons.heart}</button>
           <button class="icon-button more-row" type="button" aria-label="Daha fazla işlem" aria-expanded="false">${icons.more}</button>
-          <div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div>
+          <div class="song-more-actions" hidden><button class="rename-row" type="button">${icons.edit}<span>Yeniden adlandır</span></button><button class="folder-row" type="button">${icons.folder}<span>Klasöre taşı</span></button><button class="trim-row" type="button">${icons.scissors}<span>Sesi kes</span></button><button class="share-row" type="button">${icons.share}<span>Paylaş</span></button><button class="download-row" type="button">${icons.download}<span>İndir</span></button><button class="delete-row" type="button">${icons.trash}<span>Sil</span></button></div>
         </div>
       </article>`;
     }).join('');
@@ -1040,7 +1091,7 @@ function renderLibrary() {
         if (studioButton) studioButton.hidden = !studioSelectionMode;
         studioButton?.addEventListener('click', () => void chooseStudioSong(song));
         row.querySelector('.favorite-row')?.addEventListener('click', () => void toggleFavorite(song));
-        row.querySelector('.play-row')?.addEventListener('click', () => toggleSong(song));
+        row.querySelector('.play-row')?.addEventListener('click', () => { prepareQueueFromView(song); void toggleSong(song); });
         row.querySelector('.more-row')?.addEventListener('click', (event) => {
             const button = event.currentTarget;
             const menu = actionMenu;
@@ -1068,6 +1119,7 @@ function renderLibrary() {
             button.setAttribute('aria-expanded', String(open));
         });
         row.querySelector('.rename-row')?.addEventListener('click', () => openRename(song));
+        row.querySelector('.folder-row')?.addEventListener('click', () => openCategory(song));
         row.querySelector('.trim-row')?.addEventListener('click', () => void openTrim(song));
         row.querySelector('.quick-trim-row')?.addEventListener('click', () => void openTrim(song));
         row.querySelector('.share-row')?.addEventListener('click', () => void shareSong(song));
@@ -1148,7 +1200,15 @@ function updatePlayerUI() {
     seek.value = String(current);
     timeLabel.textContent = `${formatTime(current)} / ${formatTime(duration)}`;
     updatePositionState();
-    playerSubtitle.textContent = audio.paused ? 'Duraklatıldı · cihazda saklı' : 'Şimdi çalıyor · cihazda saklı';
+    playerSubtitle.textContent = (audio.paused ? 'Duraklatıldı · cihazda saklı' : 'Şimdi çalıyor · cihazda saklı') + queueSuffix();
+}
+// Klasör ya da "Tümünü dinle" sırası açıkken alt başlığa konum eklenir: · Müzik 2/5
+function queueSuffix() {
+    if (!queueIds || !activeSong)
+        return '';
+    const queued = queueSongs();
+    const position = queued.findIndex((item) => item.id === activeSong.id);
+    return queued.length > 1 && position >= 0 ? ` · ${queueName || 'Liste'} ${position + 1}/${queued.length}` : '';
 }
 // ---- dışa aktarma: gerçek biçimi bayttan tanı, doğru ad/uzantı/MIME ile indir veya paylaş ----
 // Telefondaki müzik çalarlar dosyayı uzantısından ve MIME türünden tanır; yanlış uzantı çalmayı engeller.
@@ -1230,7 +1290,7 @@ function openOverlay(node) {
 }
 function closeOverlay(node) {
     node.hidden = true;
-    if (trimOverlay.hidden && infoOverlay.hidden && renameOverlay.hidden)
+    if (trimOverlay.hidden && infoOverlay.hidden && renameOverlay.hidden && categoryOverlay.hidden)
         document.body.classList.remove('modal-open');
 }
 let infoFile = null;
@@ -1568,6 +1628,8 @@ async function saveTrim() {
         }
         const clip = await createSong(encodeWav(processed, processedFrom, processedTo, { fadeIn: Math.min(fadeIn, length / rate / 2), fadeOut: Math.min(fadeOut, length / rate / 2) }), 'kesit', 'trim');
         clip.name = `${s.song.name} (kesit)`;
+        if (s.song.category)
+            clip.category = s.song.category;
         await dbPut(clip);
         songs = [clip, ...songs];
         const keep = trimKeep.checked;
@@ -1668,6 +1730,7 @@ async function removeSong(song) {
                 activeObjectUrl = '';
             }
             activeSong = null;
+            listenAll = false;
             player.classList.remove('visible');
             document.body.classList.remove('has-player');
         }
@@ -1776,6 +1839,147 @@ renameInput.addEventListener('keydown', (event) => { if (event.key === 'Enter')
 renameOverlay.addEventListener('click', (event) => { if (event.target === renameOverlay)
     closeRename(); });
 
+// ---- v35: klasörler (şiir / müzik / hayata dair), Tümünü dinle, bağlantı temizleme ----
+function categoryLabel(id) {
+    return CATEGORIES.find((item) => item.id === id)?.label || '';
+}
+function folderName(id) {
+    return id === 'all' ? 'Liste' : id === 'none' ? 'Klasörsüz' : categoryLabel(id) || 'Liste';
+}
+function inFolder(song) {
+    if (categoryFilter === 'all')
+        return true;
+    const own = CATEGORIES.some((item) => item.id === song.category) ? song.category : '';
+    return categoryFilter === 'none' ? !own : own === categoryFilter;
+}
+function renderFolderBar() {
+    folderBar.hidden = songs.length === 0;
+    if (!songs.length)
+        return;
+    const counts = { all: songs.length, none: 0 };
+    CATEGORIES.forEach((item) => { counts[item.id] = 0; });
+    songs.forEach((song) => { if (counts[song.category] !== undefined && song.category !== 'all' && song.category !== 'none')
+        counts[song.category]++;
+    else
+        counts.none++; });
+    const items = [{ id: 'all', label: 'Tümü' }, ...CATEGORIES];
+    if ((counts.none > 0 && counts.none < songs.length) || categoryFilter === 'none')
+        items.push({ id: 'none', label: 'Klasörsüz' });
+    folderBar.innerHTML = items.map((item) => `<button class="chip" type="button" data-folder="${item.id}" aria-pressed="${categoryFilter === item.id}">${item.label}<small>${counts[item.id]}</small></button>`).join('');
+}
+function renderAddFolder() {
+    const items = [{ id: '', label: 'Klasörsüz' }, ...CATEGORIES];
+    addFolder.innerHTML = items.map((item) => `<button class="chip" type="button" data-add-folder="${item.id}" aria-pressed="${addCategory === item.id}">${item.label}</button>`).join('');
+}
+folderBar.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-folder]');
+    if (!button)
+        return;
+    const id = button.dataset.folder;
+    categoryFilter = categoryFilter === id ? 'all' : id;
+    addCategory = CATEGORIES.some((item) => item.id === categoryFilter) ? categoryFilter : '';
+    renderAddFolder();
+    renderLibrary();
+});
+addFolder.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-add-folder]');
+    if (!button)
+        return;
+    addCategory = button.dataset.addFolder;
+    renderAddFolder();
+});
+renderAddFolder();
+
+function openCategory(song) {
+    renderLibrary(); // açık ⋯ menüsünü kapatır; pencerenin üstünde kalmasın
+    categoryTarget = song;
+    get('category-song').textContent = song.name;
+    const current = CATEGORIES.some((item) => item.id === song.category) ? song.category : '';
+    categoryOptions.innerHTML = [...CATEGORIES, { id: '', label: 'Klasörsüz (klasörden çıkar)' }].map((item) => `<button class="category-option${item.id === current ? ' is-current' : ''}" type="button" data-set-category="${item.id}" aria-pressed="${item.id === current}">${icons.folder}<span>${item.label}</span></button>`).join('');
+    openOverlay(categoryOverlay);
+}
+function closeCategory() {
+    categoryTarget = null;
+    closeOverlay(categoryOverlay);
+}
+async function applyCategory(id) {
+    const song = categoryTarget;
+    if (!song)
+        return;
+    const previous = song.category;
+    if ((previous || '') === id) {
+        closeCategory();
+        return;
+    }
+    try {
+        if (id)
+            song.category = id;
+        else
+            delete song.category;
+        await dbPut(song);
+    }
+    catch {
+        if (previous)
+            song.category = previous;
+        else
+            delete song.category;
+        toast('Klasör kaydedilemedi; cihaz depolamasını kontrol et.', true);
+        return;
+    }
+    closeCategory();
+    renderLibrary();
+    toast(id ? `“${song.name}” ${categoryLabel(id)} klasörüne taşındı.` : `“${song.name}” klasörden çıkarıldı.`);
+}
+categoryOptions.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-set-category]');
+    if (button)
+        void applyCategory(button.dataset.setCategory);
+});
+get('category-close').addEventListener('click', closeCategory);
+categoryOverlay.addEventListener('click', (event) => { if (event.target === categoryOverlay)
+    closeCategory(); });
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !categoryOverlay.hidden)
+    closeCategory(); });
+
+// Klasörden bir kayda dokunulunca sıra o klasör olur; "Tümü" görünümünde eski davranış (tüm arşiv) sürer.
+function prepareQueueFromView(song) {
+    if (activeSong?.id === song.id)
+        return; // aynı kaydı duraklat/devam ettir: sıra değişmez
+    queueIds = categoryFilter === 'all' ? null : lastVisibleSongs.map((item) => item.id);
+    queueName = folderName(categoryFilter);
+    listenAll = false;
+}
+async function listenAllVisible() {
+    const list = lastVisibleSongs;
+    if (!list.length)
+        return;
+    queueIds = list.map((item) => item.id);
+    queueName = folderName(categoryFilter);
+    listenAll = true;
+    const first = playMode === 'shuffle' ? list[Math.floor(Math.random() * list.length)] : list[0];
+    toast(`${list.length} kayıt sırayla çalınacak.`);
+    await playSong(first);
+}
+listenAllButton.addEventListener('click', () => void listenAllVisible());
+
+// Bağlantı alanlarında tek dokunuşla temizleme
+function syncClearButtons() {
+    urlClear.hidden = !urlInput.value;
+    xVideoClear.hidden = !xVideoUrl.value;
+}
+function clearField(input, after) {
+    input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    if (after)
+        after();
+    input.focus();
+}
+urlInput.addEventListener('input', syncClearButtons);
+xVideoUrl.addEventListener('input', syncClearButtons);
+urlClear.addEventListener('click', () => clearField(urlInput));
+xVideoClear.addEventListener('click', () => clearField(xVideoUrl, () => { xVideoResults.replaceChildren(); xVideoVariants = []; setXVideoStatus(''); }));
+syncClearButtons();
+
 // ---- v15: sıradaki ses, tekrar, kilit ekranı kontrolleri ----
 const prevButton = get('prev-button');
 const nextButton = get('next-button');
@@ -1800,16 +2004,31 @@ function refreshModeButton() {
     modeButton.setAttribute('aria-label', `Çalma düzeni: ${mode.label}. Değiştirmek için dokun.`);
 }
 function neighborSong(step, wrap) {
-    const index = songs.findIndex((song) => song.id === activeSong?.id);
+    const list = queueSongs();
+    const index = list.findIndex((song) => song.id === activeSong?.id);
     if (index < 0)
         return null;
     let target = index + step;
-    if (target < 0 || target >= songs.length) {
+    if (target < 0 || target >= list.length) {
         if (!wrap)
             return null;
-        target = (target + songs.length) % songs.length;
+        target = (target + list.length) % list.length;
     }
-    return songs[target] || null;
+    return list[target] || null;
+}
+// Çalma sırası: klasör/“Tümünü dinle” başlatıldıysa o liste, değilse tüm arşiv (eski davranış).
+function queueSongs() {
+    if (queueIds) {
+        const byId = new Map(songs.map((song) => [song.id, song]));
+        const list = queueIds.map((id) => byId.get(id)).filter(Boolean);
+        if (list.length && (!activeSong || list.some((song) => song.id === activeSong.id)))
+            return list;
+    }
+    return songs;
+}
+function randomOther(list) {
+    const others = list.filter((song) => song.id !== activeSong?.id);
+    return others[Math.floor(Math.random() * others.length)] || null;
 }
 async function playSong(song) {
     loadSong(song);
@@ -1823,16 +2042,20 @@ async function playSong(song) {
     updatePlayerUI();
 }
 async function handleEnded() {
-    if (playMode === 'once')
+    // "Tümünü dinle" sırasında tek seferlik / tek tekrar düzenleri sırayı durdurmasın (kayıtlı çalma düzeni değişmez).
+    const mode = listenAll && (playMode === 'once' || playMode === 'one') ? 'seq' : playMode;
+    if (mode === 'once')
         return;
-    if (playMode === 'one') {
+    if (mode === 'one') {
         audio.currentTime = 0;
         await audio.play().catch(() => undefined);
         return;
     }
-    const next = playMode === 'shuffle' ? songs.filter((song) => song.id !== activeSong?.id)[Math.floor(Math.random() * Math.max(1, songs.length - 1))] : neighborSong(1, playMode === 'loop');
+    const next = mode === 'shuffle' ? randomOther(queueSongs()) : neighborSong(1, mode === 'loop');
     if (next)
         await playSong(next);
+    else
+        listenAll = false;
 }
 modeButton.addEventListener('click', () => {
     const index = PLAY_MODES.findIndex((mode) => mode.id === playMode);
@@ -1848,7 +2071,7 @@ nextButton.addEventListener('click', () => {
         toast('Önce bir ses çal.', true);
         return;
     }
-    const next = playMode === 'shuffle' ? songs.filter((song) => song.id !== activeSong?.id)[Math.floor(Math.random() * Math.max(1, songs.length - 1))] : neighborSong(1, playMode === 'loop');
+    const next = playMode === 'shuffle' ? randomOther(queueSongs()) : neighborSong(1, playMode === 'loop');
     if (next)
         void playSong(next);
     else
@@ -2112,9 +2335,11 @@ async function createBackup() {
         for (let i = 0; i < songs.length; i++) {
             const song = songs[i];
             const format = await detectFormat(song.blob, song.type);
-            const file = `sesler/${String(i + 1).padStart(3, '0')}-${safeFileName(song.name)}.${format.ext}`;
+            // Klasörlü sesler ZIP içinde de kendi klasöründe durur: sesler/siir/001-ad.mp3
+            const folderDir = CATEGORIES.find((item) => item.id === song.category)?.dir;
+            const file = `sesler/${folderDir ? `${folderDir}/` : ''}${String(i + 1).padStart(3, '0')}-${safeFileName(song.name)}.${format.ext}`;
             entries.push({ name: file, blob: song.blob });
-            manifest.songs.push({ id: song.id, name: song.name, duration: song.duration, source: song.source, createdAt: song.createdAt, favorite: !!song.favorite, type: format.mime, file });
+            manifest.songs.push({ id: song.id, name: song.name, duration: song.duration, source: song.source, createdAt: song.createdAt, favorite: !!song.favorite, category: folderDir ? song.category : '', type: format.mime, file });
         }
         entries.push({ name: 'sescebi.json', blob: new Blob([JSON.stringify(manifest, null, 1)], { type: 'application/json' }) });
         const zip = await buildZip(entries);
@@ -2162,6 +2387,8 @@ async function restoreBackup(file) {
                 source: ['file', 'url', 'trim'].includes(item.source) ? item.source : 'file',
                 favorite: item.favorite === true,
             };
+            if (CATEGORIES.some((entryCategory) => entryCategory.id === item.category))
+                song.category = item.category;
             await dbPut(song);
             songs.push(song);
             known.add(id);
@@ -2350,7 +2577,7 @@ async function extractVideoAudio(file) {
     return extractAudioFromVideo(file);
 }
 
-const APP_VERSION = '34';
+const APP_VERSION = '35';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let hadController = 'serviceWorker' in navigator && !!navigator.serviceWorker.controller;

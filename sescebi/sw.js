@@ -1,5 +1,5 @@
 // Ses Cebi Service Worker. Sürüm numarası main.js içindeki APP_VERSION ile aynı olmalıdır (npm run check denetler).
-const VERSION = '34';
+const VERSION = '35';
 const CACHE_NAME = `sescebi-shell-v${VERSION}`;
 const SHARE_CACHE = 'sescebi-share';
 const BASE = self.registration.scope; // alt klasörde (ör. /sescebi/) yayınlansa da doğru çalışır
