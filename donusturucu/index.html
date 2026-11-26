@@ -144,6 +144,171 @@
     </div>
   </details>
 
+
+  <!-- FOTOĞRAF BOYUTLANDIRMA & HEDEF BOYUT ARACI -->
+  <details class="panel fold" id="resizePanel" data-auto>
+    <summary class="fold-sum">
+      <span class="fold-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span>
+      <span class="fold-t"><strong>Fotoğraf Boyutlandır ve Sıkıştır</strong><small>Hedef dosya boyutuna (50 KB – 1 MB) göre akıllı çözünürlük ve kalite ayarı</small></span>
+      <svg class="fold-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="fold-body">
+      <div class="pt-badges">
+        <span>✓ Dosyalarınız yüklenmez</span>
+        <span>✓ Toplu işlem</span>
+        <span>✓ Metadata (EXIF) silinir</span>
+      </div>
+
+      <div id="rsDrop" class="pt-drop" tabindex="0">
+        <p><strong>Fotoğrafları buraya sürükleyin</strong></p>
+        <p class="meta">ya da tıklayıp seçin · JPEG, PNG, WebP</p>
+        <label class="btn primary small">
+          <span>Fotoğraf Seç</span>
+          <input id="rsFile" type="file" multiple accept="image/*">
+        </label>
+      </div>
+
+      <div class="pt-card">
+        <div class="pt-row">
+          <span class="pt-lbl">HEDEF</span>
+          <div class="pt-pills" role="group" aria-label="Hedef dosya boyutu">
+            <button type="button" class="pt-pill" data-rs-target="51200">50 KB</button>
+            <button type="button" class="pt-pill active" data-rs-target="102400">100 KB</button>
+            <button type="button" class="pt-pill" data-rs-target="204800">200 KB</button>
+            <button type="button" class="pt-pill" data-rs-target="512000">500 KB</button>
+            <button type="button" class="pt-pill" data-rs-target="1048576">1 MB</button>
+            <button type="button" class="pt-pill" data-rs-target="custom">Özel<small>kendi değerin</small></button>
+            <button type="button" class="pt-pill" data-rs-target="keep">Kaliteyi koru<small>hedef yok</small></button>
+          </div>
+        </div>
+
+        <div class="pt-row" id="rsCustomRow" hidden>
+          <span class="pt-lbl">ÖZEL</span>
+          <div class="pt-inline">
+            <label>Hedef boyut <input id="rsCustomVal" type="number" min="5" max="50000" value="250" class="pt-input"></label>
+            <label>Birim
+              <select id="rsCustomUnit" class="pt-select">
+                <option value="KB" selected>KB</option>
+                <option value="MB">MB</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-row">
+          <span class="pt-lbl">ÇIKTI</span>
+          <div class="pt-inline">
+            <label>Format
+              <select id="rsFormat" class="pt-select">
+                <option value="image/jpeg" selected>JPEG — her yerde açılır</option>
+                <option value="image/webp">WebP — daha küçük dosya</option>
+                <option value="image/png">PNG — kayıpsız</option>
+              </select>
+            </label>
+            <label>Üst sınır
+              <select id="rsMaxEdge" class="pt-select">
+                <option value="0" selected>Çözünürlüğü araç seçsin</option>
+                <option value="2560">En fazla 2560 px</option>
+                <option value="1920">En fazla 1920 px (Full HD)</option>
+                <option value="1600">En fazla 1600 px</option>
+                <option value="1280">En fazla 1280 px</option>
+                <option value="1024">En fazla 1024 px</option>
+                <option value="800">En fazla 800 px</option>
+              </select>
+            </label>
+            <label class="check"><input id="rsSimplify" type="checkbox"> Dosya adını sadeleştir</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-actions">
+        <button type="button" id="rsZipBtn" class="btn primary small" disabled>ZIP indir</button>
+        <button type="button" id="rsSingleBtn" class="btn small" disabled>Tek tek indir</button>
+        <button type="button" id="rsClearBtn" class="btn ghost small" disabled>Temizle</button>
+      </div>
+
+      <ul id="rsList" class="rs-list"></ul>
+
+      <p class="note"><strong>Nasıl çalışıyor:</strong> Araç yalnızca sıkıştırmayı artırmıyor. Hedefi tutturan ve kalitesi %78'in altına düşmeyen en büyük çözünürlüğü arıyor — yani fotoğrafı bozmak yerine gerektiği kadar küçültüyor. Sonuçta ulaşılan kalite ve çözünürlük her dosyanın yanında yazıyor.</p>
+    </div>
+  </details>
+
+  <!-- YÜZ VE PLAKA GİZLEME ARACI -->
+  <details class="panel fold" id="redactPanel" data-auto>
+    <summary class="fold-sum">
+      <span class="fold-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+      <span class="fold-t"><strong>Yüz ve Plaka Gizleme</strong><small>Bulanıklaştır, pikselleştir veya geri getirilemez düz blok ile sansürle</small></span>
+      <svg class="fold-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="fold-body">
+      <div class="rd-layout">
+        <div class="rd-canvas-col">
+          <div id="rdEmptyState" class="pt-drop" tabindex="0">
+            <p><strong>Gizleme yapılacak fotoğrafı seçin veya sürükleyin</strong></p>
+            <p class="meta">Yüklendikten sonra fotoğraf üzerinde fare veya parmağınızla sürükleyerek yüz ve plakaları işaretleyin.</p>
+            <label class="btn primary small">
+              <span>Fotoğraf Seç</span>
+              <input id="rdFile" type="file" accept="image/*">
+            </label>
+          </div>
+          <div id="rdStageWrap" class="rd-stage-wrap" hidden>
+            <canvas id="rdCanvas" class="rd-canvas"></canvas>
+          </div>
+        </div>
+
+        <aside class="rd-side">
+          <div class="rd-group">
+            <span class="pt-lbl">YÖNTEM</span>
+            <button type="button" class="rd-method-btn" data-rd-method="blur">
+              <strong>Bulanıklaştır</strong>
+              <small>doğal görünür</small>
+            </button>
+            <button type="button" class="rd-method-btn active" data-rd-method="pixelate">
+              <strong>Pikselleştir</strong>
+              <small>mozaik etkisi</small>
+            </button>
+            <button type="button" class="rd-method-btn" data-rd-method="solid">
+              <strong>Düz blok</strong>
+              <small>geri getirilemez</small>
+            </button>
+          </div>
+
+          <div class="rd-group">
+            <span class="pt-lbl">ŞİDDET</span>
+            <label class="rd-range-lbl">Güç <strong id="rdStrengthVal">70</strong></label>
+            <input id="rdStrength" type="range" min="15" max="100" value="70" class="rd-range">
+          </div>
+
+          <div class="rd-group">
+            <span class="pt-lbl">ALANLAR</span>
+            <div class="rd-btn-pair">
+              <button type="button" id="rdUndoBtn" class="btn small" disabled>Geri al</button>
+              <button type="button" id="rdClearBtn" class="btn small" disabled>Hepsini sil</button>
+            </div>
+            <span id="rdCount" class="meta">0 alan seçildi.</span>
+          </div>
+        </aside>
+      </div>
+
+      <div class="rd-footer-bar">
+        <div class="pt-inline">
+          <button type="button" id="rdDownloadBtn" class="btn primary small" disabled>İndir</button>
+          <label>Format
+            <select id="rdFormat" class="pt-select">
+              <option value="image/jpeg" selected>JPG</option>
+              <option value="image/png">PNG</option>
+              <option value="image/webp">WebP</option>
+            </select>
+          </label>
+          <button type="button" id="rdResetBtn" class="btn small" disabled>Sıfırla</button>
+        </div>
+        <span id="rdFileMeta" class="meta"></span>
+      </div>
+
+      <p class="note"><strong>Kalıcı gizleme için düz blok kullanın.</strong> Bulanıklaştırma ve pikselleştirme görüntüyü yok etmez, bilgiyi dağıtır — plaka ve yazı gibi içeriği tahmin edilebilen alanlarda kısmen geri çevrilebilir. Düz blokta altındaki pikseller tamamen silinir, geri getirilemez.</p>
+    </div>
+  </details>
+
   <details class="guide fold" data-auto>
     <summary class="fold-sum">
       <span class="fold-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
