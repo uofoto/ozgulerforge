@@ -477,3 +477,77 @@ main:not(:has(.card)) .actions { display: none; }
 .batch-bar { margin-top: 18px; }
 .actions { margin: 16px 0 22px; }
 .list:has(.card) { margin-bottom: 4px; }
+
+
+/* ===== v2.6.0 · AÇILIR BÖLÜMLER (fold) ===== */
+details.fold { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; }
+details.panel.fold { margin-top: 18px; padding: 0; }
+details.guide.fold { margin-top: 14px; padding: 0; }
+details.fine.fold { margin-top: 14px; padding: 0; color: var(--mute); }
+.fold-sum {
+  display: flex; align-items: center; gap: 14px; padding: 14px 18px; cursor: pointer; list-style: none;
+  -webkit-tap-highlight-color: transparent; user-select: none; min-height: 64px;
+}
+.fold-sum::-webkit-details-marker { display: none; }
+.fold-sum::marker { content: ""; }
+.fold-ico {
+  flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px;
+  background: var(--accent-soft); color: var(--accent-strong);
+}
+.fold-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.fold-t strong { font-size: 0.98rem; font-weight: 700; letter-spacing: -0.015em; color: var(--ink); }
+.fold-t small { font-size: 0.8rem; color: var(--mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fold-chev { flex: none; color: var(--mute); transition: transform 0.22s ease; }
+details.fold[open] > .fold-sum .fold-chev { transform: rotate(180deg); }
+details.fold[open] > .fold-sum { border-bottom: 1px solid var(--line-soft); }
+.fold-sum:hover .fold-ico { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.fold-sum:focus-visible { outline: 2.5px solid var(--accent); outline-offset: -3px; border-radius: var(--r-lg); }
+.fold-body { padding: 18px 20px 20px; animation: fold-in 0.22s ease; }
+details.fine .fold-body { margin: 0; padding: 14px 20px 18px 38px; }
+@keyframes fold-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+details.panel .panel-top { margin-bottom: 14px; }
+details.guide .guide-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+details.guide .guide-step { box-shadow: none; background: var(--card-2); border-radius: 18px; }
+
+/* Büyük görsel uyarısı */
+.run-hint { margin: 10px 0 0; font-size: 0.82rem; color: var(--mute); }
+
+/* ===== Alt sistem çubuğu: sayfa zemini her zaman uygulama renginde ===== */
+html { background: var(--paper); min-height: 100%; }
+body { min-height: 100dvh; }
+body::after {
+  content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom, 0px);
+  background: var(--paper); pointer-events: none; z-index: 60;
+}
+
+/* ===== Telefon: kompakt ana ekran ===== */
+@media (max-width: 680px) {
+  details.guide .guide-grid { grid-template-columns: 1fr; gap: 10px; }
+  details.guide .guide-step { display: grid; grid-template-columns: 30px 1fr; column-gap: 12px; padding: 14px; }
+  details.guide .step-num { grid-row: 1 / span 2; margin: 2px 0 0; }
+  details.guide .guide-step h3 { margin: 0; }
+}
+@media (max-width: 580px) {
+  main { padding: 14px 14px 36px; }
+  .intro { padding: 20px 18px 18px; gap: 8px; margin-bottom: 16px; border-radius: 22px; }
+  .intro h1 { font-size: 1.6rem; margin-bottom: 8px; }
+  .intro p { font-size: 0.9rem; }
+  .eyebrow { margin-bottom: 10px; font-size: 0.68rem; padding: 5px 10px; }
+  .hero-badges { display: none; }
+  .donut { width: min(64%, 230px); }
+  .donut-hint { font-size: 0.78rem; }
+  .drop { padding: 26px 16px 22px; }
+  .drop-ico { width: 50px; height: 50px; margin-bottom: 10px; }
+  .drop .sub-hint { display: none; }
+  .drop .kbd-hint { display: none; }
+  .fold-sum { padding: 12px 14px; gap: 12px; }
+  .fold-body { padding: 14px 14px 16px; }
+  details.fine .fold-body { padding: 12px 14px 16px 30px; }
+  .site-footer { margin-top: 28px; }
+}
+@media (min-width: 700px) {
+  details.fold > .fold-sum { cursor: pointer; }
+}
+
+.fine .fold-sum { font-weight: inherit; }
+.fine .fold-t small { font-weight: 400; }

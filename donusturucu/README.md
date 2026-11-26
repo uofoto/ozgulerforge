@@ -2,10 +2,15 @@
 
 Geliştirici: **Ozguler Forge** (`https://ozgulerforge.com.tr`)
 İletişim: `iletisim@ozgulerforge.com.tr`
-Sürüm: `v2.5.3`
+Sürüm: `v2.6.0`
 
 Tamamen tarayıcıda çalışır (`ffmpeg.wasm 0.12` / `FFmpeg 5.1.4`). Dosyalar cihazdan çıkmaz, ilk açılıştan sonra çevrimdışı çalışır.
 Her dönüşümden sonra kaynak ve çıktının her karesi yeniden çözülüp özetleri (MD5) karşılaştırılır; ses de aynı şekilde doğrulanır.
+
+## v2.6.0 — Telefon düzeni, alt çubuk, hızlı WebP
+- **Açılır bölümler:** “Hedef biçim ve profil”, “Nasıl kullanılır?” ve teknik bilgiler tek dokunuşla açılıp kapanan kartlar oldu. Telefonda kapalı, geniş ekranda açık başlar; kapalıyken seçili biçim/çaba özeti görünür. Telefonda hero daha kompakt (rozet ve ipucu satırları gizlendi).
+- **Alt çubuk:** sayfa zemini `html` düzeyine alındı, alt güvenli alan uygulama rengiyle doldurulur, `color-scheme` bildirildi. Turuncu çubuk sayfadan değil sistemden geliyorsa uygulamayı silip yeniden yükle.
+- **WebP donma düzeltmesi:** libwebp kayıpsız 6/100 ayarı wasm'da 9 MP fotoğrafta dakikalar sürüyordu. Çabalar düşürüldü; >2,5 MP görselde en fazla “Dengeli”, >6 MP görselde “Hızlı” kullanılır. Resimlerde ilerleme çubuğu artık donmuş görünmez, büyük görselde uyarı çıkar, 2 dakikayı aşarsa işlem durdurulup tarayıcı kodlayıcısına geçilir.
 
 ## v2.5.3 — Sistem çubuğu rengi
 - Manifest `theme_color` ve `background_color` sayfa zeminiyle (#f5f4ff) eşlendi; telefonda alttaki turuncu çubuk kalkar. Yüklü uygulama manifesti kendi yeniler (bir gün kadar sürebilir) ya da uygulamayı silip yeniden yükle.
