@@ -2,6 +2,7 @@ import { Engine } from './engine.js';
 import { TARGETS, GROUPS, byId, kindOf, targetAllowed, missingEncoders, plan } from './formats.js';
 import { makeZip } from './zip.js';
 import { initPhotoTools } from './photo-tools.js';
+import { initPdfTools } from './pdf-tools.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, attrs = {}, ...kids) => {
@@ -237,6 +238,7 @@ function renderTargets() {
     }
     row.append(chips); box.append(row);
   }
+  const pdfGroup = $('#pdfGroup'); if (pdfGroup) box.append(pdfGroup); // PDF grubu: Resim/Video gibi grupların altında
   const advBtn = el('button', {
     class: 'adv-toggle', type: 'button', 'aria-expanded': String(showAdv),
     onclick: () => {
@@ -815,4 +817,5 @@ $('#update').addEventListener('click', () => location.reload());
 
 document.querySelector(`.preset[data-preset="${state.activePreset}"]`)?.classList.add('active');
 initPhotoTools();
+initPdfTools();
 renderTargets(); renderItems(); updateAction(); pwa(); boot();
