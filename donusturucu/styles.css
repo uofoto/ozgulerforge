@@ -551,3 +551,45 @@ body::after {
 
 .fine .fold-sum { font-weight: inherit; }
 .fine .fold-t small { font-weight: 400; }
+
+
+/* ===== v2.6.1 · AÇILIŞ ANİMASYONU (geri geldi) ===== */
+/* SIGNATURE SPLASH */
+.splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--paper);
+  display: grid; place-items: center;
+  transition: opacity 480ms ease, visibility 480ms ease;
+}
+.splash.is-leaving { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-inner { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.splash-mark {
+  filter: blur(8px); opacity: 0; transform: scale(0.88);
+  animation: markFocus 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.splash-mark .sq { transform-box: fill-box; transform-origin: center; }
+.splash-mark .sq-1 { animation: sqPulse 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 180ms both; }
+.splash-mark .sq-2 { animation: sqPulse 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 270ms both; }
+.splash-mark .sq-3 { animation: sqPulse 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 360ms both; }
+.splash-mark .sq-4 { animation: sqPulse 560ms cubic-bezier(0.34, 1.56, 0.64, 1) 450ms both; }
+.splash-mark .sheen { animation: sheenSweep 640ms cubic-bezier(0.22, 1, 0.36, 1) 520ms both; }
+.splash-text {
+  text-align: center; opacity: 0; transform: translateY(8px);
+  animation: textReveal 420ms ease 360ms forwards;
+}
+.splash.is-leaving .splash-text { opacity: 0; }
+.splash-text strong { display: block; font-size: 1.3rem; letter-spacing: -0.025em; font-weight: 800; }
+.splash-text span { font-size: 0.85rem; color: var(--mute); }
+
+@keyframes markFocus { to { filter: blur(0); opacity: 1; transform: scale(1); } }
+@keyframes sqPulse {
+  0% { transform: scale(1); }
+  42% { transform: scale(0.74); }
+  78% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes sheenSweep { 0% { transform: translateX(0); } 100% { transform: translateX(52px); } }
+@keyframes textReveal { to { opacity: 1; transform: translateY(0); } }
+
+
+@media (prefers-reduced-motion: reduce) { .splash { display: none !important; } }

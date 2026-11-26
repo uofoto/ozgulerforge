@@ -9,12 +9,39 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f5f4ff" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0e0d1b" media="(prefers-color-scheme: dark)">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="manifest.webmanifest?v=2.6.1">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+<!-- SIGNATURE SPLASH -->
+<div id="splash" class="splash" aria-hidden="true">
+  <div class="splash-inner">
+    <div id="splashMark" class="splash-mark">
+      <svg viewBox="0 0 32 32" width="76" height="76" aria-hidden="true">
+        <rect class="sq sq-1" x="2" y="2" width="12" height="12" rx="2.5" fill="var(--ink)"/>
+        <rect class="sq sq-2" x="18" y="2" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+        <rect class="sq sq-4" x="2" y="18" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+        <rect class="sq sq-3" x="18" y="18" width="12" height="12" rx="2.5" fill="var(--ink)"/>
+        <rect class="sheen" x="-16" y="0" width="12" height="32" fill="url(#sheenGrad)"/>
+        <defs>
+          <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="splash-text">
+      <strong>Kontak Studio</strong>
+      <span>Ozguler Forge · Zero-Loss Media Engine</span>
+    </div>
+  </div>
+</div>
+
 
 <header class="top">
   <div class="brand">
@@ -164,7 +191,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <strong>Kontak Studio</strong>
-      <span>Sürüm <code id="appVersion">v2.6.0</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
+      <span>Sürüm <code id="appVersion">v2.6.1</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
       <p>Geliştirici: <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Ozguler Forge</a> · İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
     </div>
     <nav class="footer-links" aria-label="Yasal metinler">
@@ -192,6 +219,30 @@
 </dialog>
 
 <script>
+(function initSignatureSplash() {
+  const splash = document.getElementById('splash');
+  const mark = document.getElementById('splashMark');
+  const targetLogo = document.getElementById('headerLogo');
+  if (!splash || !mark || !targetLogo) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) { splash.remove(); return; }
+
+  setTimeout(() => {
+    const startRect = mark.getBoundingClientRect();
+    const endRect = targetLogo.getBoundingClientRect();
+    if (endRect.width > 0 && startRect.width > 0) {
+      const dx = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+      const dy = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+      const scale = endRect.width / startRect.width;
+      mark.style.transition = 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease';
+      mark.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    }
+    splash.classList.add('is-leaving');
+    setTimeout(() => splash.remove(), 560);
+  }, 1050);
+})();
+
 (function initLegalModals() {
   const modal = document.getElementById('legalModal');
   const title = document.getElementById('modalTitle');
@@ -235,7 +286,7 @@
     licenses: {
       title: 'Açık Kaynak Lisansları ve Sürüm Bilgisi',
       html: `
-        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.6.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
+        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.6.1 · <strong>Geliştirici:</strong> Ozguler Forge</p>
         <ul>
           <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği.</li>
           <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak.</li>
