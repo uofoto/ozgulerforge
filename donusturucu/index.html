@@ -6,40 +6,14 @@
 <title>Kontak Studio · Kayıpsız Resim ve Video Dönüştürücü | Ozguler Forge</title>
 <meta name="description" content="Ozguler Forge tarafından geliştirilen Kontak Studio; resim ve videoları cihazınızdan çıkarmadan kayıpsız dönüştürür ve sonucu bit-bit doğrular.">
 <meta name="author" content="Ozguler Forge">
-<meta name="theme-color" content="#eef2f6" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#090c10" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f5f4ff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0d1b" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<!-- SIGNATURE SPLASH -->
-<div id="splash" class="splash" aria-hidden="true">
-  <div class="splash-inner">
-    <div id="splashMark" class="splash-mark">
-      <svg viewBox="0 0 32 32" width="76" height="76" aria-hidden="true">
-        <rect class="sq sq-1" x="2" y="2" width="12" height="12" rx="2.5" fill="var(--ink)"/>
-        <rect class="sq sq-2" x="18" y="2" width="12" height="12" rx="2.5" fill="var(--accent)"/>
-        <rect class="sq sq-4" x="2" y="18" width="12" height="12" rx="2.5" fill="var(--accent)"/>
-        <rect class="sq sq-3" x="18" y="18" width="12" height="12" rx="2.5" fill="var(--ink)"/>
-        <rect class="sheen" x="-16" y="0" width="12" height="32" fill="url(#sheenGrad)"/>
-        <defs>
-          <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
-            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.45"/>
-            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-      </svg>
-    </div>
-    <div class="splash-text">
-      <strong>Kontak Studio</strong>
-      <span>Ozguler Forge · Zero-Loss Media Engine</span>
-    </div>
-  </div>
-</div>
 
 <header class="top">
   <div class="brand">
@@ -60,28 +34,32 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       <span>Uygulamayı İndir</span>
     </button>
-    <button id="checkUpdate" type="button" class="btn small">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-      <span>Güncelle</span>
-    </button>
     <button id="update" type="button" class="btn small primary" hidden>Yeni Sürüm · Yükle</button>
   </div>
 </header>
 
 <main>
-  <section class="intro">
-    <div>
+  <section class="intro hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Kayıpsız · Yerel · Güvenli</span>
       <h1>Piksel kaybı olmadan <span class="hl">stüdyo dönüşümü.</span></h1>
       <p>Dosyalar cihazından çıkmaz, hiçbir sunucuya yüklenmez. Dönüştürme bittiğinde kaynak ile çıktının her karesi yeniden çözülüp bit-bit doğrulanır.</p>
+      <div class="hero-badges">
+        <span class="hbadge">100% yerel · dosyalar cihazından çıkmaz</span>
+      </div>
     </div>
-    <div class="hero-badges">
-      <span class="hbadge">100% Yerel WASM</span>
-      <span class="hbadge">Bit-Bit MD5 Doğrulama</span>
-      <span class="hbadge">Toplu ZIP</span>
+    <div class="hero-art" aria-hidden="false">
+      <svg class="donut" viewBox="0 0 320 320" role="img" aria-label="Biçim halkası: PNG, WebP, TIFF, JPEG, BMP, GIF, MKV, MP4">
+        <g class="seg" style="--i:0"><path d="M163.3 14.0A146 146 0 0 1 260.9 54.4L208.4 109.4A70 70 0 0 0 161.6 90.0Z"/><text x="201.3" y="60.2">PNG</text></g><g class="seg" style="--i:1"><path d="M265.6 59.1A146 146 0 0 1 306.0 156.7L230.0 158.4A70 70 0 0 0 210.6 111.6Z"/><text x="259.8" y="118.7">WebP</text></g><g class="seg" style="--i:2"><path d="M306.0 163.3A146 146 0 0 1 265.6 260.9L210.6 208.4A70 70 0 0 0 230.0 161.6Z"/><text x="259.8" y="201.3">TIFF</text></g><g class="seg" style="--i:3"><path d="M260.9 265.6A146 146 0 0 1 163.3 306.0L161.6 230.0A70 70 0 0 0 208.4 210.6Z"/><text x="201.3" y="259.8">JPEG</text></g><g class="seg" style="--i:4"><path d="M156.7 306.0A146 146 0 0 1 59.1 265.6L111.6 210.6A70 70 0 0 0 158.4 230.0Z"/><text x="118.7" y="259.8">BMP</text></g><g class="seg" style="--i:5"><path d="M54.4 260.9A146 146 0 0 1 14.0 163.3L90.0 161.6A70 70 0 0 0 109.4 208.4Z"/><text x="60.2" y="201.3">GIF</text></g><g class="seg" style="--i:6"><path d="M14.0 156.7A146 146 0 0 1 54.4 59.1L109.4 111.6A70 70 0 0 0 90.0 158.4Z"/><text x="60.2" y="118.7">MKV</text></g><g class="seg" style="--i:7"><path d="M59.1 54.4A146 146 0 0 1 156.7 14.0L158.4 90.0A70 70 0 0 0 111.6 109.4Z"/><text x="118.7" y="60.2">MP4</text></g>
+        <circle class="donut-core" cx="160" cy="160" r="58"/>
+        <text class="donut-title" x="160" y="152">Dönüştür</text>
+        <text class="donut-sub" x="160" y="174">her kare doğrulanır</text>
+      </svg>
     </div>
   </section>
 
   <section id="drop" class="drop" tabindex="0" aria-label="Dosya ekle">
+    <span class="drop-ico" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></span>
     <p><strong>Dosyaları buraya bırak</strong>, panodan yapıştır (<kbd>Ctrl+V</kbd>) ya da seç</p>
     <label class="btn primary">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -165,8 +143,8 @@
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
-      <strong>Kontak Studio — Kayıpsız Medya Dönüştürücü</strong>
-      <span>Sürüm <code id="appVersion">v2.1.0</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
+      <strong>Kontak Studio</strong>
+      <span>Sürüm <code id="appVersion">v2.3.0</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
       <p>Geliştirici: <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Ozguler Forge</a> · İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
     </div>
     <nav class="footer-links" aria-label="Yasal metinler">
@@ -194,30 +172,6 @@
 </dialog>
 
 <script>
-(function initSignatureSplash() {
-  const splash = document.getElementById('splash');
-  const mark = document.getElementById('splashMark');
-  const targetLogo = document.getElementById('headerLogo');
-  if (!splash || !mark || !targetLogo) return;
-
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduceMotion) { splash.remove(); return; }
-
-  setTimeout(() => {
-    const startRect = mark.getBoundingClientRect();
-    const endRect = targetLogo.getBoundingClientRect();
-    if (endRect.width > 0 && startRect.width > 0) {
-      const dx = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
-      const dy = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
-      const scale = endRect.width / startRect.width;
-      mark.style.transition = 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease';
-      mark.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-    }
-    splash.classList.add('is-leaving');
-    setTimeout(() => splash.remove(), 560);
-  }, 1050);
-})();
-
 (function initLegalModals() {
   const modal = document.getElementById('legalModal');
   const title = document.getElementById('modalTitle');
@@ -261,7 +215,7 @@
     licenses: {
       title: 'Açık Kaynak Lisansları ve Sürüm Bilgisi',
       html: `
-        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.1.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
+        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.3.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
         <ul>
           <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği.</li>
           <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak.</li>
@@ -289,7 +243,6 @@
 
 (function initPwaControls() {
   const installBtn = document.getElementById('install');
-  const checkBtn = document.getElementById('checkUpdate');
   const modal = document.getElementById('legalModal');
   const modalTitle = document.getElementById('modalTitle');
   const modalBody = document.getElementById('modalBody');
@@ -331,29 +284,6 @@
         </ul>
       `;
       modal.showModal();
-    }
-  });
-
-  checkBtn?.addEventListener('click', async () => {
-    const label = checkBtn.querySelector('span');
-    const origText = label ? label.textContent : 'Güncelle';
-    checkBtn.disabled = true;
-    if (label) label.textContent = 'Kontrol ediliyor…';
-    try {
-      if (!('serviceWorker' in navigator)) throw new Error('No SW');
-      const reg = await navigator.serviceWorker.getRegistration();
-      if (!reg) { location.reload(); return; }
-      await reg.update();
-      if (reg.waiting || reg.installing) {
-        if (label) label.textContent = 'Güncelleme bulundu…';
-        setTimeout(() => location.reload(), 650);
-      } else {
-        if (label) label.textContent = 'Güncel (v2.1.0)';
-        setTimeout(() => { if (label) label.textContent = origText; checkBtn.disabled = false; }, 2200);
-      }
-    } catch {
-      if (label) label.textContent = 'Aktif';
-      setTimeout(() => { if (label) label.textContent = origText; checkBtn.disabled = false; }, 1800);
     }
   });
 })();
