@@ -707,7 +707,104 @@ body::after {
   display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
   gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-soft);
 }
+/* ===== RESİM KATEGORİSİ İÇİ ARAÇLAR (Boyutlandır + Yüz/Plaka Gizle) ===== */
+.tgroup-body { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.img-tools { display: flex; flex-direction: column; gap: 8px; }
+.img-tools.is-disabled { opacity: 0.45; }
+.img-tools-bar { display: flex; flex-wrap: wrap; gap: 8px; }
 
+.tool-pill {
+  font: 600 0.82rem/1 var(--sans);
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--line));
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.14s ease;
+}
+.tool-pill:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+.tool-pill.on {
+  border-style: solid;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.tool-pill:disabled { cursor: not-allowed; }
+.pill-badge {
+  font: 600 10.5px/1 var(--mono);
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.tool-subpanel {
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tool-row { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; font-size: 0.85rem; }
+.tool-lbl { font-size: 0.8rem; color: var(--mute); }
+.tool-sep, .tool-unit { color: var(--mute); font-size: 0.82rem; }
+.tool-subpanel select,
+.tool-subpanel input[type="number"] {
+  font: 500 0.84rem/1 var(--sans);
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+}
+.tool-subpanel input[type="number"] { width: 92px; }
+.tool-range { display: inline-flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--mute); }
+.tool-range input[type="range"] { width: 110px; accent-color: var(--accent); }
+.tool-hint { margin: 0; font-size: 0.78rem; color: var(--mute); }
+
+/* Elle Yüz / Plaka Seçim Alanı */
+.redact-stage {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #141922;
+  touch-action: none;
+  user-select: none;
+}
+.redact-stage img { display: block; max-width: 100%; max-height: 58vh; width: auto; height: auto; pointer-events: none; }
+.redact-overlay { position: absolute; inset: 0; cursor: crosshair; }
+.redact-box {
+  position: absolute;
+  border: 2px solid var(--accent);
+  background: rgba(91, 91, 240, 0.25);
+  backdrop-filter: blur(6px);
+  border-radius: 4px;
+}
+.redact-box.draft { border-style: dashed; pointer-events: none; }
+.redact-del {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--bad);
+  color: #fff;
+  font: 700 13px/1 var(--sans);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
 @media (max-width: 740px) {
   .rd-layout { grid-template-columns: 1fr; }
   .pt-row { grid-template-columns: 1fr; }
