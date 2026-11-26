@@ -2,10 +2,14 @@
 
 Geliştirici: **Ozguler Forge** (`https://ozgulerforge.com.tr`)
 İletişim: `iletisim@ozgulerforge.com.tr`
-Sürüm: `v2.6.0`
+Sürüm: `v2.6.1`
 
 Tamamen tarayıcıda çalışır (`ffmpeg.wasm 0.12` / `FFmpeg 5.1.4`). Dosyalar cihazdan çıkmaz, ilk açılıştan sonra çevrimdışı çalışır.
 Her dönüşümden sonra kaynak ve çıktının her karesi yeniden çözülüp özetleri (MD5) karşılaştırılır; ses de aynı şekilde doğrulanır.
+
+## v2.6.1 — Açılış animasyonu geri geldi
+- Logo animasyonlu açılış (netleşme, kare kare yaylanma, ışık süpürmesi, üst menü logosuna kenetlenme) lavanta temaya uyarlanarak geri eklendi.
+- Alt çubuktaki turuncu renk eski manifestteki `theme_color: #f59e0b` değerinden gelir; telefon bunu önbellekte tutar. Manifest bağlantısına sürüm eklendi. Kalıcı çözüm: yüklü uygulamayı silip yeniden yükle.
 
 ## v2.6.0 — Telefon düzeni, alt çubuk, hızlı WebP
 - **Açılır bölümler:** “Hedef biçim ve profil”, “Nasıl kullanılır?” ve teknik bilgiler tek dokunuşla açılıp kapanan kartlar oldu. Telefonda kapalı, geniş ekranda açık başlar; kapalıyken seçili biçim/çaba özeti görünür. Telefonda hero daha kompakt (rozet ve ipucu satırları gizlendi).
