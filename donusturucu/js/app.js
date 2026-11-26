@@ -34,6 +34,17 @@ const PRESETS = {
 // Nadir kullanılan biçimler varsayılan olarak “Gelişmiş biçimler” altında gizlenir.
 const ADVANCED = new Set(['jp2', 'qoi', 'pam', 'tga', 'avi-ffv1', 'mov-h264', 'mkv-h264', 'frames-tiff']);
 
+// Biçim kartlarındaki kısa açıklamalar (ayrıntılı açıklama seçilince alttaki notta görünür).
+const CARD_DESC = {
+  png: 'Saydamlık ve 16 bit destekli', webp: 'Küçük boyutlu web görseli', tiff: '16 bit arşiv görseli',
+  bmp: 'Sıkıştırmasız ham görsel', jpg: 'Her yerde açılan fotoğraf', gif: '256 renkli basit görsel',
+  jp2: 'Tersinir dalgacık sıkıştırma', qoi: 'Çok hızlı sıkıştırma', pam: 'Sade ham biçim', tga: '8 bit doku ve grafik',
+  'mkv-ffv1': 'Arşiv için standart video', 'mp4-h264': 'VLC ve mpv ile oynat', 'webm-vp9': 'Şu an kullanılamıyor',
+  'avi-ffv1': 'FFV1 görüntü, PCM ses', 'mov-h264': 'QuickTime kapsayıcısı', 'mkv-h264': 'FFV1’den küçük dosya',
+  apng: 'Kayıpsız hareketli PNG', 'webp-anim': 'Hafif hareketli görsel', 'gif-anim': '256 renkli animasyon',
+  'frames-png': 'Her kareyi ayrı PNG yap', 'frames-tiff': 'Her kareyi ayrı TIFF yap',
+};
+
 const state = {
   showAdvanced: false, autoRun: false,
   engine: new Engine(), ready: false, engineStatus: 'Motor hazırlanıyor…', engineError: null, items: [], nextId: 1, targetId: 'png',
@@ -227,20 +238,21 @@ function renderTargets() {
   for (const g of Object.keys(GROUPS)) {
     const row = el('div', { class: 'tgroup', role: 'radiogroup', 'aria-label': GROUPS[g] });
     row.append(el('h3', {}, GROUPS[g]));
-    const chips = el('div', { class: 'chips' });
+    const cards = el('div', { class: 'pdf-cards' }); // PDF grubuyla aynı kart düzeni
     for (const t of TARGETS.filter(t => t.group === g && (showAdv || !ADVANCED.has(t.id)))) {
       const missing = state.ready ? missingEncoders(t, state.engine.caps) : [];
       const usable = kinds.size === 0 || [...kinds].some(k => targetAllowed(k, t));
       const dis = missing.length > 0 || !usable || !!t.unstable;
       const b = el('button', {
-        class: 'chip' + (state.targetId === t.id ? ' on' : '') + (t.lossless ? '' : ' lossy'),
+        class: 'pdf-card' + (state.targetId === t.id ? ' on' : '') + (t.lossless ? '' : ' lossy'),
         type: 'button', role: 'radio', 'aria-checked': String(state.targetId === t.id), disabled: dis,
         title: t.unstable ? t.unstable : missing.length ? `Bu ffmpeg derlemesinde yok: ${missing.join(', ')}` : t.hint,
         onclick: () => { state.targetId = t.id; state.activePreset = null; document.querySelectorAll('.preset').forEach(x => x.classList.remove('active')); renderTargets(); renderItems(); updateAction(); },
-      }, t.label, t.lossless ? null : el('span', { class: 'tag' }, 'kayıplı'));
-      chips.append(b);
+      }, el('strong', {}, t.label, t.lossless ? null : el('em', { class: 'tag' }, 'kayıplı')),
+        el('span', {}, CARD_DESC[t.id] || t.hint));
+      cards.append(b);
     }
-    row.append(chips); box.append(row);
+    row.append(cards); box.append(row);
   }
   if (pdfGroupNode) box.append(pdfGroupNode); // PDF grubu: Resim/Video gibi grupların altında
   const advBtn = el('button', {
