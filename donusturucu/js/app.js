@@ -305,6 +305,34 @@ function itemPct(it) {
   return Math.round((it.phase === 'Doğrulanıyor' ? 0.8 + 0.2 * p : p * (state.verify ? 0.8 : 1)) * 100);
 }
 
+
+// ffmpeg.wasm belleği yetmediğinde kullanılan tarayıcı kodlayıcısı (yalnızca JPEG / PNG / WebP resim hedefleri).
+const BROWSER_ENCODERS = {
+  jpg: { mime: 'image/jpeg', quality: 0.95, exact: false, label: 'JPEG (kalite %95)' },
+  png: { mime: 'image/png', quality: undefined, exact: true, label: 'PNG (8 bit)' },
+  webp: { mime: 'image/webp', quality: 1, exact: false, label: 'WebP (kalite %100)' },
+};
+async function browserEncode(it, t, used, t0) {
+  const enc = BROWSER_ENCODERS[t.id];
+  const bmp = await createImageBitmap(it.file, { colorSpaceConversion: 'none' });
+  const c = new OffscreenCanvas(bmp.width, bmp.height);
+  const ctx = c.getContext('2d');
+  if (t.id === 'jpg') { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, c.width, c.height); }
+  ctx.drawImage(bmp, 0, 0);
+  bmp.close();
+  const blob = await c.convertToBlob({ type: enc.mime, quality: enc.quality });
+  if (!blob || blob.type !== enc.mime) throw new Error('Tarayıcı bu biçimi yazamıyor.');
+  const warnings = ['Cihaz belleği ffmpeg için yetmediği için tarayıcının kendi kodlayıcısı kullanıldı.'];
+  if (t.id === 'jpg') warnings.push('Saydam alanlar beyaza çevrildi.');
+  if (t.id === 'webp') warnings.push('Tarayıcı kodlayıcısı WebP’yi tam kayıpsız yazamaz; kayıplı sayılır.');
+  return {
+    blob, name: outName(it, t, used), size: blob.size, srcSize: it.origSize || it.file.size,
+    durationMs: performance.now() - t0, targetId: t.id, url: null,
+    plan: { exact: enc.exact, warnings, notes: [], summary: `tarayıcı kodlayıcısı · ${enc.label}`, args: [] },
+    verify: enc.exact ? { skipped: 'Tarayıcı kodlayıcısı kullanıldı; bit-bit doğrulama bu yolda yapılamaz.' } : null,
+  };
+}
+
 async function convertOne(it, t, used) {
   const eng = state.engine;
   const t0 = performance.now();
@@ -371,6 +399,17 @@ async function convertOne(it, t, used) {
     const crashed = state.cancelled || e.fault || /RuntimeError|out of bounds|unreachable|terminated|abort/i.test(it.error);
     if (crashed) { try { await eng.reset(); } catch {} }
     else { await eng.rm(outFile); await eng.rmDir(frameDir); }
+    // Bellek yetmedi (özellikle telefonlarda büyük fotoğraflar): resim hedeflerinde tarayıcının kendi kodlayıcısı denenir.
+    if (crashed && !state.cancelled && it.kind === 'image' && BROWSER_ENCODERS[t.id]) {
+      try {
+        const resObj = await browserEncode(it, t, used, t0);
+        it.result = resObj;
+        it.results = [...(it.results || []).filter(r => r.targetId !== t.id), resObj];
+        it.status = 'done'; it.error = null;
+      } catch (e2) {
+        it.error += ' Tarayıcı kodlayıcısı da çalışmadı: ' + (e2.message || e2);
+      }
+    }
   } finally {
     eng.onProgress = null;
     try { await eng.unmountInput(it.id); } catch {}
