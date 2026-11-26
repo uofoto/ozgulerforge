@@ -250,6 +250,14 @@ function renderTargets() {
   $('#targetNote').textContent = t ? t.hint + (t.lossless ? ' · Kayıpsız hedef' : ' · Bu hedef bit-bit aynı sonuç vermez.') : '';
   if (t && !t.lossless) $('#targetNote').dataset.lossy = '1'; else delete $('#targetNote').dataset.lossy;
   renderDonut();
+  updatePanelSummary();
+}
+
+const EFFORT_TR = { fast: 'Hızlı', balanced: 'Dengeli', small: 'En küçük' };
+function updatePanelSummary() {
+  const n = $('#panelSummary'); if (!n) return;
+  const t = byId[state.targetId];
+  n.textContent = [t ? t.label : null, EFFORT_TR[state.effort], state.verify ? 'doğrulamalı' : 'doğrulamasız'].filter(Boolean).join(' · ');
 }
 
 const passArgs = () => (state.engine.caps.ver >= 5.1 ? ['-fps_mode', 'passthrough'] : ['-vsync', '0']);
@@ -322,7 +330,7 @@ async function browserEncode(it, t, used, t0) {
   bmp.close();
   const blob = await c.convertToBlob({ type: enc.mime, quality: enc.quality });
   if (!blob || blob.type !== enc.mime) throw new Error('Tarayıcı bu biçimi yazamıyor.');
-  const warnings = ['Cihaz belleği ffmpeg için yetmediği için tarayıcının kendi kodlayıcısı kullanıldı.'];
+  const warnings = ['ffmpeg bu dosyada belleğe/süreye yetmediği için tarayıcının kendi kodlayıcısı kullanıldı.'];
   if (t.id === 'jpg') warnings.push('Saydam alanlar beyaza çevrildi.');
   if (t.id === 'webp') warnings.push('Tarayıcı kodlayıcısı WebP’yi tam kayıpsız yazamaz; kayıplı sayılır.');
   return {
@@ -344,7 +352,8 @@ async function convertOne(it, t, used) {
   it.status = 'running'; state.current = it; renderItems();
   const outFile = `/out/o_${it.id}.${t.ext === 'zip' ? 'bin' : t.ext}`;
   const frameDir = `/out/f${it.id}`;
-  let inPath;
+  let inPath, ticker = null, watchdog = null;
+  it.timedOut = false;
   try {
     inPath = await eng.mountInput(it.id, it.file);
     const isFrames = t.group === 'frames';
@@ -352,7 +361,15 @@ async function convertOne(it, t, used) {
     const outPath = isFrames ? `${frameDir}/f_%06d.${t.id === 'frames-tiff' ? 'tiff' : 'png'}` : outFile;
     const p = plan(it.info, it.kind, t, { inPath, outPath, caps: eng.caps, effort: state.effort });
     if (p.error) throw new Error(p.error);
-    eng.onProgress = v => { it.progress = v; paintProgress(it); };
+    eng.onProgress = v => { if (v > it.progress) { it.progress = v; paintProgress(it); } };
+    // Tek karelik resimlerde ffmpeg ilerleme bildirmez; çubuk donmuş görünmesin diye yumuşak sahte ilerleme.
+    if (it.kind === 'image') {
+      ticker = setInterval(() => { it.progress = Math.min(0.92, it.progress + (0.92 - it.progress) * 0.04); paintProgress(it); }, 600);
+    }
+    // Aşırı uzun süren resim dönüşümü durdurulur; tarayıcı kodlayıcısı yedeğine geçilir.
+    if (it.kind === 'image' && BROWSER_ENCODERS[t.id]) {
+      watchdog = setTimeout(() => { it.timedOut = true; eng.reset().catch(() => {}); }, 120000);
+    }
     it.phase = 'Dönüştürülüyor'; renderItems();
     let r = await eng.run(p.args);
     if (r.code !== 0 && p.fallbackArgs && !state.cancelled) {
@@ -395,8 +412,8 @@ async function convertOne(it, t, used) {
   } catch (e) {
     it.elapsedMs = performance.now() - t0;
     it.status = it.results?.length ? 'done' : 'error-run';
-    it.error = state.cancelled ? 'İptal edildi.' : e.fault ? 'ffmpeg çöktü (' + (e.message || 'bilinmeyen hata') + '). Motor yeniden başlatıldı.' : (e.message || String(e));
-    const crashed = state.cancelled || e.fault || /RuntimeError|out of bounds|unreachable|terminated|abort/i.test(it.error);
+    it.error = state.cancelled ? 'İptal edildi.' : it.timedOut ? 'ffmpeg çok uzun sürdü ve durduruldu.' : e.fault ? 'ffmpeg çöktü (' + (e.message || 'bilinmeyen hata') + '). Motor yeniden başlatıldı.' : (e.message || String(e));
+    const crashed = state.cancelled || e.fault || it.timedOut || /RuntimeError|out of bounds|unreachable|terminated|abort/i.test(it.error);
     if (crashed) { try { await eng.reset(); } catch {} }
     else { await eng.rm(outFile); await eng.rmDir(frameDir); }
     // Bellek yetmedi (özellikle telefonlarda büyük fotoğraflar): resim hedeflerinde tarayıcının kendi kodlayıcısı denenir.
@@ -411,6 +428,8 @@ async function convertOne(it, t, used) {
       }
     }
   } finally {
+    if (ticker) clearInterval(ticker);
+    if (watchdog) clearTimeout(watchdog);
     eng.onProgress = null;
     try { await eng.unmountInput(it.id); } catch {}
     renderItems();
@@ -590,6 +609,8 @@ function renderItems() {
           },
         }, '×')),
       it.status === 'running' ? el('div', { class: 'bar' }, el('i', { style: `width:${(it.progress * 100).toFixed(1)}%` })) : null,
+      it.status === 'running' && it.kind === 'image' && (vStream?.width * vStream?.height) > 3e6
+        ? el('p', { class: 'run-hint' }, `Büyük görsel (${((vStream.width * vStream.height) / 1e6).toFixed(1)} MP): telefonda biraz sürebilir, sayfayı kapatma.`) : null,
       it.error ? el('p', { class: 'err' }, it.error) : null);
 
     for (const r of it.results || []) {
@@ -764,8 +785,18 @@ $('#clear').addEventListener('click', () => {
   state.items = [];
   renderItems(); renderTargets(); updateAction();
 });
-$('#effort').addEventListener('change', e => { state.effort = e.target.value; });
-$('#verify').addEventListener('change', e => { state.verify = e.target.checked; });
+$('#effort').addEventListener('change', e => { state.effort = e.target.value; updatePanelSummary(); });
+$('#verify').addEventListener('change', e => { state.verify = e.target.checked; updatePanelSummary(); });
+
+// Açılır bölümler: geniş ekranda açık, telefonda kapalı başlar; kullanıcı dokunduysa tercihine saygı duyulur.
+(function initFolds() {
+  const mq = window.matchMedia('(min-width: 700px)');
+  const folds = [...document.querySelectorAll('details.fold[data-auto]')];
+  const sync = () => folds.forEach(d => { if (!d.dataset.touched) d.open = mq.matches; });
+  folds.forEach(d => d.querySelector('summary')?.addEventListener('click', () => { d.dataset.touched = '1'; }));
+  mq.addEventListener?.('change', sync);
+  sync();
+})();
 
 async function pwa() {
   if (!('serviceWorker' in navigator)) return;

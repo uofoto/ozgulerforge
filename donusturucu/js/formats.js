@@ -193,7 +193,8 @@ function vp9Pix(f, d, caps) {
 /* ---------- Çabalar ---------- */
 const EFFORT = {
   png: { fast: 1, balanced: 6, small: 9 },
-  webp: { fast: ['0', '40'], balanced: ['4', '75'], small: ['6', '100'] },
+  // libwebp kayıpsız kipi wasm'da tek iş parçacığıyla çalışır; 6/100 ayarı 9 MP fotoğrafta dakikalar sürer.
+  webp: { fast: ['1', '25'], balanced: ['3', '50'], small: ['5', '80'] },
   x264: { fast: 'ultrafast', balanced: 'veryfast', small: 'slow' },
   vp9: { fast: '8', balanced: '6', small: '5' }, // wasm derlemesinde 'good' kipi ve kareler arası tahmin çöküyor; yalnız realtime + her kare anahtar kare çalışır
 };
@@ -217,13 +218,21 @@ export function plan(info, kind, t, ctx) {
   return planAnim(info, v, d, t, ctx, effort, pass, res);
 }
 
-function imageEncArgs(t, effort) {
+// Büyük görsellerde WebP çabası otomatik düşürülür: >6 MP hızlı, >2,5 MP en fazla dengeli.
+function webpLevels(effort, px) {
+  const order = ['fast', 'balanced', 'small'];
+  let i = Math.max(0, order.indexOf(effort));
+  if (px > 6e6) i = 0; else if (px > 2.5e6) i = Math.min(i, 1);
+  return { lv: EFFORT.webp[order[i]], capped: order[i] !== effort };
+}
+
+function imageEncArgs(t, effort, px = 0) {
   switch (t.id) {
     case 'png': case 'apng': case 'frames-png':
       return ['-c:v', t.id === 'apng' ? 'apng' : 'png', '-compression_level', String(EFFORT.png[effort]), ...(effort === 'small' ? ['-pred', 'mixed'] : [])];
     case 'tiff': case 'frames-tiff': return ['-c:v', 'tiff', '-compression_algo', effort === 'fast' ? 'lzw' : 'deflate'];
-    case 'webp': { const [cl, q] = EFFORT.webp[effort]; return ['-c:v', 'libwebp', '-lossless', '1', '-compression_level', cl, '-quality', q]; }
-    case 'webp-anim': { const [cl, q] = EFFORT.webp[effort]; return ['-c:v', 'libwebp_anim', '-lossless', '1', '-compression_level', cl, '-quality', q, '-loop', '0']; }
+    case 'webp': { const [cl, q] = webpLevels(effort, px).lv; return ['-c:v', 'libwebp', '-lossless', '1', '-compression_level', cl, '-quality', q]; }
+    case 'webp-anim': { const [cl, q] = webpLevels(effort, px).lv; return ['-c:v', 'libwebp_anim', '-lossless', '1', '-compression_level', cl, '-quality', q, '-loop', '0']; }
     case 'jp2': return ['-c:v', 'jpeg2000', '-pred', '1'];
     case 'bmp': return ['-c:v', 'bmp'];
     case 'qoi': return ['-c:v', 'qoi'];
@@ -255,7 +264,9 @@ function planImage(info, v, d, t, ctx, effort, res) {
     }
     if (t.id === 'webp' && (v.width > 16383 || v.height > 16383)) return { error: 'WebP en fazla 16383 piksel destekler.' };
     if (d.yuv) res.notes.push('Kaynak YUV; çözülmüş RGB görüntü birebir saklanır (kaynağın kendi sıkıştırma kaybı geri gelmez).');
-    args.push(...imageEncArgs(t, effort), '-pix_fmt', pix);
+    const px = (v.width || 0) * (v.height || 0);
+    if (t.id === 'webp' && webpLevels(effort, px).capped) res.notes.push('Büyük görsel: süre makul kalsın diye WebP sıkıştırma çabası düşürüldü (sonuç yine kayıpsız, dosya biraz büyük olabilir).');
+    args.push(...imageEncArgs(t, effort, px), '-pix_fmt', pix);
   }
   args.push(...(t.id === 'webp' ? ['-f', 'webp'] : ['-f', 'image2', '-update', '1']), ctx.outPath);
   res.args = args;
@@ -281,7 +292,7 @@ function planAnim(info, v, d, t, ctx, effort, pass, res) {
     if (!r.exact) { res.exact = false; res.warnings.push(r.narrowed ? `${t.label} ${d.depth} bit desteklemez; 8 bite indirildi (kayıplı).` : 'Kayan nokta kaynak tamsayıya çevrildi (kayıplı).'); }
     if (t.id === 'webp-anim' && (v.width > 16383 || v.height > 16383)) return { error: 'WebP en fazla 16383 piksel destekler.' };
     if (d.yuv) res.notes.push('Kaynak YUV; çözülmüş RGB kareler birebir saklanır.');
-    args.push(...imageEncArgs(t, effort), '-pix_fmt', pix);
+    args.push(...imageEncArgs(t, effort, (v.width || 0) * (v.height || 0)), '-pix_fmt', pix);
     if (t.id === 'apng') args.push('-plays', '0', '-f', 'apng');
     if (t.id === 'webp-anim') args.push('-f', 'webp');
   }
