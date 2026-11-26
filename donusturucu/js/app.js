@@ -809,7 +809,13 @@ async function downloadAll() {
 }
 
 const drop = $('#drop'), input = $('#file');
-input.addEventListener('change', () => { addFiles([...input.files]); input.value = ''; });
+// Bazı mobil tarayıcılar FileList'i iterable kabul etmez; Array.from iOS dosya seçicisi dönüşünü güvenli işler.
+input.addEventListener('change', e => {
+  const files = Array.from(e.currentTarget.files || []);
+  if (files.length) addFiles(files);
+  // Aynı fotoğrafın yeniden seçilmesinde change olayının tekrar gelmesini sağla.
+  e.currentTarget.value = '';
+});
 ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
 ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
 drop.addEventListener('drop', e => addFiles([...e.dataTransfer.files]));
