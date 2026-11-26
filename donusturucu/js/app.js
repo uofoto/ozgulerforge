@@ -31,9 +31,6 @@ const PRESETS = {
   anim: { target: 'apng', effort: 'balanced', verify: true },
 };
 
-// Nadir kullanılan biçimler varsayılan olarak “Gelişmiş biçimler” altında gizlenir.
-const ADVANCED = new Set(['jp2', 'qoi', 'pam', 'tga', 'avi-ffv1', 'mov-h264', 'mkv-h264', 'frames-tiff']);
-
 // Biçim kartlarındaki kısa açıklamalar (ayrıntılı açıklama seçilince alttaki notta görünür).
 const CARD_DESC = {
   png: 'Saydamlık ve 16 bit destekli', webp: 'Küçük boyutlu web görseli', tiff: '16 bit arşiv görseli',
@@ -46,7 +43,7 @@ const CARD_DESC = {
 };
 
 const state = {
-  showAdvanced: false, autoRun: false,
+  autoRun: false,
   engine: new Engine(), ready: false, engineStatus: 'Motor hazırlanıyor…', engineError: null, items: [], nextId: 1, targetId: 'png',
   activePreset: 'archive', effort: 'small', verify: true, running: false, cancelled: false,
   chain: Promise.resolve(), current: null,
@@ -234,12 +231,11 @@ function renderTargets() {
     const first = TARGETS.find(isUsable);
     if (first) state.targetId = first.id;
   }
-  const showAdv = state.showAdvanced || ADVANCED.has(state.targetId);
   for (const g of Object.keys(GROUPS)) {
     const row = el('div', { class: 'tgroup', role: 'radiogroup', 'aria-label': GROUPS[g] });
     row.append(el('h3', {}, GROUPS[g]));
     const cards = el('div', { class: 'pdf-cards' }); // PDF grubuyla aynı kart düzeni
-    for (const t of TARGETS.filter(t => t.group === g && (showAdv || !ADVANCED.has(t.id)))) {
+    for (const t of TARGETS.filter(t => t.group === g)) {
       const missing = state.ready ? missingEncoders(t, state.engine.caps) : [];
       const usable = kinds.size === 0 || [...kinds].some(k => targetAllowed(k, t));
       const dis = missing.length > 0 || !usable || !!t.unstable;
@@ -255,16 +251,6 @@ function renderTargets() {
     row.append(cards); box.append(row);
   }
   if (pdfGroupNode) box.append(pdfGroupNode); // PDF grubu: Resim/Video gibi grupların altında
-  const advBtn = el('button', {
-    class: 'adv-toggle', type: 'button', 'aria-expanded': String(showAdv),
-    onclick: () => {
-      state.showAdvanced = !showAdv;
-      if (!state.showAdvanced && ADVANCED.has(state.targetId)) state.targetId = 'png';
-      renderTargets(); renderItems(); updateAction();
-    },
-  }, showAdv ? 'Gelişmiş biçimleri gizle' : `Gelişmiş biçimler (${ADVANCED.size})`);
-  advBtn.insertAdjacentHTML('beforeend', '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>');
-  box.append(advBtn);
   const t = byId[state.targetId];
   $('#targetNote').textContent = t ? t.hint + (t.lossless ? ' · Kayıpsız hedef' : ' · Bu hedef bit-bit aynı sonuç vermez.') : '';
   if (t && !t.lossless) $('#targetNote').dataset.lossy = '1'; else delete $('#targetNote').dataset.lossy;
