@@ -2,10 +2,13 @@
 
 Geliştirici: **Ozguler Forge** (`https://ozgulerforge.com.tr`)
 İletişim: `iletisim@ozgulerforge.com.tr`
-Sürüm: `v2.5.1`
+Sürüm: `v2.5.2`
 
 Tamamen tarayıcıda çalışır (`ffmpeg.wasm 0.12` / `FFmpeg 5.1.4`). Dosyalar cihazdan çıkmaz, ilk açılıştan sonra çevrimdışı çalışır.
 Her dönüşümden sonra kaynak ve çıktının her karesi yeniden çözülüp özetleri (MD5) karşılaştırılır; ses de aynı şekilde doğrulanır.
+
+## v2.5.2 — Telefonda bellek hatası düzeltmesi
+- Büyük fotoğraflarda (ör. 9 MP HEIC) ffmpeg belleği yetmeyip çökerse JPEG/PNG/WebP hedeflerinde tarayıcının kendi kodlayıcısı otomatik denenir.
 
 ## v2.5.1 — İlerleme yüzdesi ve yeni sıra
 - Sayfa sırası: halka (hedef) → dönüştürülecek dosyalar ve işlem kartları → düğmeler → dosya bırakma alanı → biçim/profil paneli. Dosya yokken kuyruk alanı gizlenir.
