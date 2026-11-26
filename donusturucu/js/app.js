@@ -1,6 +1,7 @@
 import { Engine } from './engine.js';
 import { TARGETS, GROUPS, byId, kindOf, targetAllowed, missingEncoders, plan } from './formats.js';
 import { makeZip } from './zip.js';
+import { initPhotoTools } from './photo-tools.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const el = (tag, attrs = {}, ...kids) => {
@@ -813,4 +814,5 @@ async function pwa() {
 $('#update').addEventListener('click', () => location.reload());
 
 document.querySelector(`.preset[data-preset="${state.activePreset}"]`)?.classList.add('active');
+initPhotoTools();
 renderTargets(); renderItems(); updateAction(); pwa(); boot();
