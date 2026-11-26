@@ -33,7 +33,7 @@ const PRESETS = {
 const ADVANCED = new Set(['jp2', 'qoi', 'pam', 'tga', 'avi-ffv1', 'mov-h264', 'mkv-h264', 'frames-tiff']);
 
 const state = {
-  showAdvanced: false,
+  showAdvanced: false, autoRun: false,
   engine: new Engine(), ready: false, engineStatus: 'Motor hazırlanıyor…', engineError: null, items: [], nextId: 1, targetId: 'png',
   activePreset: 'archive', effort: 'small', verify: true, running: false, cancelled: false,
   chain: Promise.resolve(), current: null,
@@ -249,6 +249,7 @@ function renderTargets() {
   const t = byId[state.targetId];
   $('#targetNote').textContent = t ? t.hint + (t.lossless ? ' · Kayıpsız hedef' : ' · Bu hedef bit-bit aynı sonuç vermez.') : '';
   if (t && !t.lossless) $('#targetNote').dataset.lossy = '1'; else delete $('#targetNote').dataset.lossy;
+  renderDonut();
 }
 
 const passArgs = () => (state.engine.caps.ver >= 5.1 ? ['-fps_mode', 'passthrough'] : ['-vsync', '0']);
@@ -546,6 +547,62 @@ function renderItems() {
   }
 }
 
+
+// ---- Hedef biçim halkası: biçime dokun, dosyayı bırak, ortadan dönüştür ----
+function setTarget(id) {
+  state.targetId = id; state.activePreset = null;
+  document.querySelectorAll('.preset').forEach(x => x.classList.remove('active'));
+  renderTargets(); renderItems(); updateAction();
+}
+function renderDonut() {
+  const kinds = new Set(state.items.filter(i => i.kind && i.status !== 'error').map(i => i.kind));
+  document.querySelectorAll('.donut .seg').forEach(g => {
+    const t = byId[g.dataset.target];
+    const missing = t && state.ready ? missingEncoders(t, state.engine.caps).length > 0 : false;
+    const allowed = !t || kinds.size === 0 || [...kinds].some(k => targetAllowed(k, t));
+    const dis = !t || missing || !allowed || !!t.unstable;
+    g.classList.toggle('dis', dis);
+    g.classList.toggle('on', state.targetId === g.dataset.target);
+    g.setAttribute('aria-checked', String(state.targetId === g.dataset.target));
+    g.setAttribute('aria-disabled', String(dis));
+    if (t) g.setAttribute('aria-label', t.label + (t.lossless ? '' : ' (kayıplı)'));
+  });
+  const t = byId[state.targetId];
+  const hint = $('#donutHint');
+  if (hint) hint.textContent = t ? `${t.label}${t.lossless ? ' · kayıpsız' : ' · kayıplı'} — ${t.hint}` : '';
+  updateDonutCenter();
+}
+function updateDonutCenter() {
+  const go = $('#donutGo'), sub = $('#donutSub');
+  if (!go || !sub) return;
+  const t = byId[state.targetId];
+  const ready = state.items.filter(i => ['ready', 'done', 'error-run'].includes(i.status) && i.info).length;
+  const off = !state.ready || state.running || ready === 0;
+  go.classList.toggle('dis', off);
+  go.classList.toggle('ready', !off);
+  go.setAttribute('aria-disabled', String(off));
+  sub.textContent = state.running ? 'dönüştürülüyor…' : !state.ready ? 'motor hazırlanıyor…' : ready === 0 ? 'önce dosya ekle' : `${t ? t.label : ''} · ${ready} dosya`;
+}
+const donutSegs = document.querySelectorAll('.donut .seg');
+donutSegs.forEach(g => {
+  const pick = () => { if (!g.classList.contains('dis')) setTarget(g.dataset.target); };
+  g.addEventListener('click', pick);
+  g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+  // Dosyayı doğrudan biçimin üstüne bırakınca o biçime çevrilir.
+  g.addEventListener('dragover', e => { e.preventDefault(); if (!g.classList.contains('dis')) g.classList.add('over'); });
+  g.addEventListener('dragleave', () => g.classList.remove('over'));
+  g.addEventListener('drop', () => {
+    g.classList.remove('over');
+    if (g.classList.contains('dis')) return;
+    state.targetId = g.dataset.target; state.activePreset = null; state.autoRun = true;
+    document.querySelectorAll('.preset').forEach(x => x.classList.remove('active'));
+    // dosyaları pencere düzeyindeki bırakma işleyicisi ekler; sonra renderTargets/updateAction çalışır.
+    setTimeout(() => { renderTargets(); renderItems(); updateAction(); }, 0);
+  });
+});
+$('#donutGo')?.addEventListener('click', () => { if (!$('#go').disabled) convertAll(); });
+$('#donutGo')?.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && !$('#go').disabled) { e.preventDefault(); convertAll(); } });
+
 function updateAction() {
   const t = byId[state.targetId];
   const ready = state.items.filter(i => ['ready', 'done', 'error-run'].includes(i.status) && i.info);
@@ -561,6 +618,12 @@ function updateAction() {
   $('#zipAll').hidden = done.length === 0;
   $('#zipAll').textContent = done.length > 1 ? `Hepsini ZIP indir (${done.length})` : 'ZIP olarak indir';
   $('#clear').hidden = state.items.length === 0 || state.running;
+  updateDonutCenter();
+  // Halkadaki bir biçimin üstüne bırakılan dosyalar çözümlenince kendiliğinden dönüştürülür.
+  if (state.autoRun && state.ready && !state.running && state.items.length && !state.items.some(i => i.status === 'probing' || i.status === 'queued')) {
+    state.autoRun = false;
+    if (ready.length) convertAll();
+  }
 }
 
 async function downloadAll() {
