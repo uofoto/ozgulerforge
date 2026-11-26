@@ -36,7 +36,7 @@ Her dönüşümden sonra kaynak ve çıktının her karesi yeniden çözülüp �
 
 ## v2.3.0 — Yeni arayüz (sadeleştirilmiş)
 - Açılış animasyonu, fazla rozetler ve “Güncelle” düğmesi kaldırıldı (güncelleme arka planda alınır, hazır olunca “Yeni Sürüm · Yükle” görünür).
-- Nadir biçimler (JPEG 2000, QOI, PAM, TGA, AVI/MOV · FFV1/H.264, MKV · H.264, TIFF kareler) “Gelişmiş biçimler” altında toplandı.
+- Nadir biçimler (JPEG 2000, QOI, PAM, TGA, AVI/MOV · FFV1/H.264, MKV · H.264, TIFF kareler) dahil tüm biçimler kendi gruplarında her zaman görünür.
 - `js/app.js` de değişti.
 
 - Lavanta/indigo renk dili, yuvarlak köşeli kartlar, gradyan düğmeler ve seçili etiketler; açık ve koyu tema.
