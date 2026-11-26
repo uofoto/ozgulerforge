@@ -715,11 +715,11 @@ body::after {
 
 
 /* ===== PDF GRUBU (Resim / Video gibi) ===== */
-.pdf-group { align-items: start; }
-.pdf-group > h3 { padding-top: 14px; }
+.tgroup { align-items: start; }
+.tgroup > h3 { padding-top: 14px; }
 .pdf-group [hidden] { display: none !important; }
 .pdf-body { min-width: 0; display: grid; gap: 14px; }
-.pdf-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.pdf-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); grid-auto-rows: 1fr; gap: 10px; }
 .pdf-card {
   display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
   padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line);
@@ -769,6 +769,16 @@ body::after {
 .pdf-result-head strong { color: var(--ok); font-size: 0.92rem; }
 
 @media (max-width: 700px) {
-  .pdf-group > h3 { padding-top: 0; }
+  .tgroup > h3 { padding-top: 0; }
 }
 .pdf-card.on span { color: var(--ink); }
+
+/* Biçim kartları (Resim, Video, Hareketli resim, Kare dizisi) PDF kartlarıyla ortak stili kullanır */
+.pdf-card strong { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.pdf-card strong .tag { margin: 0; font-style: normal; letter-spacing: 0; }
+.pdf-card:disabled { opacity: 0.45; cursor: not-allowed; border-style: dashed; }
+.pdf-card:disabled:hover { border-color: var(--line); background: var(--card); transform: none; }
+@media (max-width: 480px) {
+  .pdf-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pdf-card { padding: 12px; overflow-wrap: anywhere; }
+}
