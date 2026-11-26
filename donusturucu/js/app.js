@@ -25,10 +25,10 @@ const KIND_TR = { image: 'Resim', video: 'Video', animated: 'Hareketli resim', a
 const isHeicFile = f => /\.(heic|heif)$/i.test(f?.name || '') || /^image\/(heic|heif)/i.test(f?.type || '');
 
 const PRESETS = {
-  archive: { target: 'png', fallbackVideo: 'mkv-ffv1', effort: 'small', verify: true },
-  'web-lossless': { target: 'webp', fallbackVideo: 'mp4-h264', effort: 'balanced', verify: true },
-  frames: { target: 'frames-png', effort: 'balanced', verify: true },
-  anim: { target: 'apng', effort: 'balanced', verify: true },
+  archive: { target: 'png', fallbackVideo: 'mkv-ffv1', effort: 'small' },
+  'web-lossless': { target: 'webp', fallbackVideo: 'mp4-h264', effort: 'balanced' },
+  frames: { target: 'frames-png', effort: 'balanced' },
+  anim: { target: 'apng', effort: 'balanced' },
 };
 
 // Biçim kartlarındaki kısa açıklamalar (ayrıntılı açıklama seçilince alttaki notta görünür).
@@ -45,11 +45,9 @@ const CARD_DESC = {
 const state = {
   autoRun: false,
   engine: new Engine(), ready: false, engineStatus: 'Motor hazırlanıyor…', engineError: null, items: [], nextId: 1, targetId: 'png',
-  activePreset: 'archive', effort: 'small', verify: true, running: false, cancelled: false,
+  activePreset: 'archive', verify: true, running: false, cancelled: false,
   chain: Promise.resolve(), current: null,
 };
-$('#effort').value = state.effort;
-$('#verify').checked = state.verify;
 window.__app = state;
 
 function setEngine(text, cls) {
@@ -202,10 +200,6 @@ function applyPreset(key) {
   const pr = PRESETS[key];
   if (!pr) return;
   state.activePreset = key;
-  state.effort = pr.effort;
-  state.verify = pr.verify;
-  $('#effort').value = pr.effort;
-  $('#verify').checked = pr.verify;
   const kinds = new Set(state.items.filter(i => i.kind && i.status !== 'error').map(i => i.kind));
   const hasVid = kinds.has('video') || kinds.has('animated');
   let chosen = pr.target;
@@ -251,18 +245,13 @@ function renderTargets() {
     row.append(cards); box.append(row);
   }
   if (pdfGroupNode) box.append(pdfGroupNode); // PDF grubu: Resim/Video gibi grupların altında
-  const t = byId[state.targetId];
-  $('#targetNote').textContent = t ? t.hint + (t.lossless ? ' · Kayıpsız hedef' : ' · Bu hedef bit-bit aynı sonuç vermez.') : '';
-  if (t && !t.lossless) $('#targetNote').dataset.lossy = '1'; else delete $('#targetNote').dataset.lossy;
   renderDonut();
   updatePanelSummary();
 }
 
-const EFFORT_TR = { fast: 'Hızlı', balanced: 'Dengeli', small: 'En küçük' };
 function updatePanelSummary() {
   const n = $('#panelSummary'); if (!n) return;
-  const t = byId[state.targetId];
-  n.textContent = [t ? t.label : null, EFFORT_TR[state.effort], state.verify ? 'doğrulamalı' : 'doğrulamasız'].filter(Boolean).join(' · ');
+  n.textContent = byId[state.targetId]?.label || '';
 }
 
 const passArgs = () => (state.engine.caps.ver >= 5.1 ? ['-fps_mode', 'passthrough'] : ['-vsync', '0']);
@@ -364,7 +353,7 @@ async function convertOne(it, t, used) {
     const isFrames = t.group === 'frames';
     if (isFrames) await eng.ff.createDir(frameDir);
     const outPath = isFrames ? `${frameDir}/f_%06d.${t.id === 'frames-tiff' ? 'tiff' : 'png'}` : outFile;
-    const p = plan(it.info, it.kind, t, { inPath, outPath, caps: eng.caps, effort: state.effort });
+    const p = plan(it.info, it.kind, t, { inPath, outPath, caps: eng.caps, effort: PRESETS[state.activePreset]?.effort || 'small' });
     if (p.error) throw new Error(p.error);
     eng.onProgress = v => { if (v > it.progress) { it.progress = v; paintProgress(it); } };
     // Tek karelik resimlerde ffmpeg ilerleme bildirmez; çubuk donmuş görünmesin diye yumuşak sahte ilerleme.
@@ -790,8 +779,6 @@ $('#clear').addEventListener('click', () => {
   state.items = [];
   renderItems(); renderTargets(); updateAction();
 });
-$('#effort').addEventListener('change', e => { state.effort = e.target.value; updatePanelSummary(); });
-$('#verify').addEventListener('change', e => { state.verify = e.target.checked; updatePanelSummary(); });
 
 // Açılır bölümler: geniş ekranda açık, telefonda kapalı başlar; kullanıcı dokunduysa tercihine saygı duyulur.
 (function initFolds() {
