@@ -625,7 +625,7 @@ function updateDonutCenter() {
   if (prog) prog.style.strokeDashoffset = '389.6';
   if (state.justDone) { title.textContent = 'Bitti ✓'; sub.textContent = 'sonuçlar aşağıda'; return; }
   title.textContent = 'Dönüştür';
-  sub.textContent = !state.ready ? 'motor hazırlanıyor…' : ready === 0 ? 'önce dosya ekle' : `${t ? t.label : ''} · ${ready} dosya`;
+  sub.textContent = state.engineError ? 'motor yüklenemedi' : !state.ready ? 'motor hazırlanıyor…' : ready === 0 ? 'önce dosya ekle' : `${t ? t.label : ''} · ${ready} dosya`;
 }
 const donutSegs = document.querySelectorAll('.donut .seg');
 donutSegs.forEach(g => {
