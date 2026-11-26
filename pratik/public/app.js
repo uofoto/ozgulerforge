@@ -39,7 +39,7 @@ const state = {
   result: null,
   history: Array.isArray(saved.history) ? saved.history : [],
   operationCount: Number.isFinite(Number(saved.operationCount)) ? Number(saved.operationCount) : 0,
-  theme: saved.theme || 'light'
+  theme: ['light', 'dark'].includes(saved.theme) ? saved.theme : 'light'
 };
 let deferredInstallPrompt = null;
 
@@ -59,6 +59,8 @@ const currentHash = () => location.hash.replace(/^#/, '') || 'home';
 
 function saveTheme() {
   document.documentElement.dataset.theme = state.theme;
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeMeta) themeMeta.content = state.theme === 'dark' ? '#0b1019' : '#f1f2f5';
   persist();
 }
 
@@ -76,7 +78,7 @@ function renderHome() {
     <div class="eyebrow">Kişisel dosya atölyen</div>
     <div class="home-hero">
       <div class="hero-copy"><div class="eyebrow">Pratik ile tanış</div><h1 class="page-title">Dosyanın kontrolü<br><span class="accent-text">sende kalsın.</span></h1><p class="page-lede">Desteklenen fotoğraf ve QR işlemlerini; ayrıca videodan kare yakalamayı cihazında yap. Diğer video ve PDF araçları hazırlanıyor.</p><div class="trust-row"><span class="trust-pill"><b>✓</b> Dosya yüklenmez</span><span class="trust-pill"><b>◷</b> Çevrimdışı</span><span class="trust-pill"><b>₺</b> Ücretsiz</span></div></div>
-      <div class="hero-scan"><div class="scan-top"><span>GİZLİLİK DURUMU</span><strong>AKTİF</strong></div><div class="scan-lock">⌁</div><div class="scan-copy"><b>Dosyan burada kalır.</b><small>İşlemler cihazının tarayıcısında gerçekleşir. Biz dosyanı görmeyiz.</small></div></div>
+      <div class="hero-scan"><div class="scan-top"><span>DESTEKLENEN ÇIKTILAR</span><strong>CIHAZINDA</strong></div><div class="format-wheel" aria-hidden="true"><span class="wheel-label wheel-avif">AVIF</span><span class="wheel-label wheel-png">PNG</span><span class="wheel-label wheel-webp">WEBP</span><span class="wheel-label wheel-pdf">PDF</span><span class="wheel-label wheel-jpg">JPG</span><span class="wheel-label wheel-ico">ICO</span><span class="wheel-label wheel-bmp">BMP</span><span class="wheel-label wheel-tiff">TIFF</span><span class="wheel-center">1 JPG<small>ÇIKTI HAZIR</small></span></div><div class="scan-copy"><b>Dosyan burada kalır.</b><small>İşlemler cihazının tarayıcısında gerçekleşir. Dosyan sunucuya gönderilmez.</small></div></div>
     </div>
     <div class="quick-bar"><label class="search-box"><span>⌕</span><input id="homeSearch" type="search" value="${esc(state.query)}" placeholder="Bir araç ara…" autocomplete="off"></label><button class="quick-action" data-tool="metadata"><span class="quick-icon">⌁</span><span><b>Metadata temizle</b><small>En çok kullanılan</small></span></button><button class="quick-action" data-tool="compress"><span class="quick-icon">↘</span><span><b>Boyut küçült</b><small>Paylaşmaya hazırla</small></span></button><button class="quick-action" data-tool="qr"><span class="quick-icon">▦</span><span><b>QR oluştur</b><small>Hızlı paylaş</small></span></button></div>
     ${state.query ? `<div class="category-block"><div class="section-head"><div><h2>Arama sonuçları</h2><p>“${esc(state.query)}” için ${filteredTools().length} araç bulundu.</p></div></div><div class="tool-grid">${filteredTools().map(toolCard).join('') || '<div class="empty-state">Aradığın araç bulunamadı.</div>'}</div></div>` : ''}
@@ -135,7 +137,7 @@ function optionsFor(tool) {
   if (tool.kind === 'pdf') {
     if (tool.id === 'pdf-split') return `<div class="field"><label>Sayfa aralığı</label><input id="pageRange" type="text" placeholder="1-3, 5, 8-10" value="1-3"></div><div class="toggle-row"><span>Boş sayfaları kaldır</span><button class="switch is-on" data-action="toggle-switch" aria-label="Boş sayfaları kaldır"></button></div>`;
     if (tool.id === 'pdf-sign') return `<div class="field"><label>İmza adı</label><input id="signName" type="text" placeholder="Ad Soyad"></div><div class="toggle-row"><span>İmzayı belgenin sonuna ekle</span><button class="switch is-on" data-action="toggle-switch" aria-label="İmzayı ekle"></button></div>`;
-    return `<div class="field"><label>Çıktı adı <span>opsiyonel</span></label><input id="pdfName" type="text" placeholder="pikselce-belge"></div><div class="privacy-note"><span class="status-dot"></span><span><strong>Dosya sırası cihazında</strong>Birden fazla dosyayı sürükleyerek sırayı değiştirebilirsin.</span></div>`;
+    return `<div class="field"><label>Çıktı adı <span>opsiyonel</span></label><input id="pdfName" type="text" placeholder="pratik-belge"></div><div class="privacy-note"><span class="status-dot"></span><span><strong>Dosya sırası cihazında</strong>Birden fazla dosyayı sürükleyerek sırayı değiştirebilirsin.</span></div>`;
   }
   if (tool.id === 'resize') return `<div class="field"><label>Genişlik (px)</label><input id="resizeWidth" type="number" min="1" value="1200"></div><div class="field"><label>Yükseklik (px) <span>oran korunur</span></label><input id="resizeHeight" type="number" min="1" placeholder="otomatik"></div><div class="toggle-row"><span>Oranı koru</span><button class="switch is-on" data-action="toggle-switch" aria-label="Oranı koru"></button></div><div class="field"><label>Format</label><select id="imageFormat"><option value="image/jpeg">JPG</option><option value="image/webp">WebP</option><option value="image/png">PNG</option></select></div>`;
   if (tool.id === 'compress') return `<div class="field"><label>Hedef boyut</label><select id="compressTarget"><option value="balanced">Dengeli kalite</option><option value="102400">100 KB altında hedefle</option><option value="51200">50 KB altında hedefle</option><option value="quality">Yüksek kalite</option></select></div><div class="field"><label>Kalite <span id="qualityValue">82%</span></label><input id="qualityRange" type="range" min="30" max="100" value="82"></div>`;
@@ -171,6 +173,9 @@ function render() {
 }
 
 function navigate(view, filter) {
+  if (state.result?.url) URL.revokeObjectURL(state.result.url);
+  state.files = [];
+  state.result = null;
   state.activeTool = null;
   state.legalPage = null;
   state.view = view;
@@ -184,6 +189,7 @@ function navigate(view, filter) {
 
 function openTool(id) {
   if (!getTool(id)) return;
+  if (state.result?.url) URL.revokeObjectURL(state.result.url);
   state.activeTool = id;
   state.legalPage = null;
   state.view = 'tools';
@@ -196,6 +202,9 @@ function openTool(id) {
 }
 
 function openLegal(page) {
+  if (state.result?.url) URL.revokeObjectURL(state.result.url);
+  state.files = [];
+  state.result = null;
   state.activeTool = null;
   state.legalPage = ['about', 'privacy', 'terms', 'contact'].includes(page) ? page : 'privacy';
   state.view = 'legal';
@@ -221,8 +230,10 @@ function addFiles(fileList) {
   const isVideo = (file) => file.type.startsWith('video/') || /\.(mp4|m4v|mov|webm|avi|mkv)$/i.test(file.name);
   const isPdf = (file) => file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
   const incoming = Array.from(fileList || []).filter((file) => tool.kind === 'image' ? isImage(file) : tool.kind === 'video' ? isVideo(file) : tool.id === 'jpg-pdf' ? isImage(file) : tool.kind === 'pdf' ? isPdf(file) : true);
+  if (incoming.some((file) => file.size > 150 * 1024 * 1024)) { toast('Tek dosya en fazla 150 MB olabilir.', 'Dosya çok büyük'); return; }
   if (!incoming.length) { toast('Bu araç için uygun bir dosya seç.', 'Dosya türü'); return; }
-  state.files = tool.id === 'pdf-merge' || tool.id === 'jpg-pdf' ? [...state.files, ...incoming] : [incoming[0]];
+  state.files = tool.id === 'pdf-merge' || tool.id === 'jpg-pdf' ? [...state.files, ...incoming].slice(0, 30) : [incoming[0]];
+  if (tool.id === 'pdf-merge' || tool.id === 'jpg-pdf') { const total = state.files.reduce((sum, file) => sum + file.size, 0); if (total > 300 * 1024 * 1024) { state.files = []; toast('Toplam dosya boyutu 300 MB sınırını aşıyor.', 'Dosya sınırı'); } }
   state.result = null;
   render();
 }
@@ -301,7 +312,7 @@ async function processImage(tool) {
     attempts += 1;
     if (quality > .36) quality = Math.max(.35, quality - .08);
     else if (width > 240 && height > 240) {
-      width = Math.max(240, Math.round(width * .9)); height = Math.max(240, Math.round(height * .9));
+      width = Math.max(1, Math.round(width * .9)); height = Math.max(1, Math.round(height * .9));
       canvas.width = width; canvas.height = height; ctx = canvas.getContext('2d', { willReadFrequently: true }); ctx.drawImage(image, 0, 0, width, height);
     } else break;
     blob = await canvasBlob(canvas, type, quality);
@@ -394,8 +405,8 @@ async function jpgToPdf(files) {
   push(`trailer\n<< /Size ${objectCount + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);
   const output = new Uint8Array(length); let cursor = 0; chunks.forEach((chunk) => { output.set(chunk, cursor); cursor += chunk.length; });
   const requestedName = document.getElementById('pdfName')?.value.trim();
-  const safeName = requestedName ? requestedName.replace(/[/\\?%*:|"<>]/g, '-').replace(/\.pdf$/i, '') : `${baseName(files[0].name)}${files.length > 1 ? '-ve-digerleri' : ''}-pikselce`;
-  return { blob: new Blob([output], { type: 'application/pdf' }), name: `${safeName || 'pikselce-belge'}.pdf`, description: `${formatBytes(output.length)} · ${pages.length} sayfa · cihazında oluşturuldu` };
+  const safeName = requestedName ? requestedName.replace(/[/\\?%*:|"<>]/g, '-').replace(/\.pdf$/i, '') : `${baseName(files[0].name)}${files.length > 1 ? '-ve-digerleri' : ''}-pratik`;
+  return { blob: new Blob([output], { type: 'application/pdf' }), name: `${safeName || 'pratik-belge'}.pdf`, description: `${formatBytes(output.length)} · ${pages.length} sayfa · cihazında oluşturuldu` };
 }
 
 async function processCurrentTool() {
@@ -420,6 +431,12 @@ async function processCurrentTool() {
 
 function parseHash() {
   const hash = currentHash();
+  const isToolRoute = hash.startsWith('tool/');
+  if (!isToolRoute && (state.activeTool || state.result || state.files.length)) {
+    if (state.result?.url) URL.revokeObjectURL(state.result.url);
+    state.files = [];
+    state.result = null;
+  }
   if (hash.startsWith('tool/')) {
     const nextTool = hash.split('/')[1];
     if (!getTool(nextTool)) { state.activeTool = null; state.legalPage = null; state.view = 'tools'; return; }
@@ -468,6 +485,6 @@ document.getElementById('promptClose').addEventListener('click', () => { documen
 window.addEventListener('hashchange', () => { parseHash(); render(); });
 window.addEventListener('beforeinstallprompt', (event) => { event.preventDefault(); deferredInstallPrompt = event; document.getElementById('installBtn').hidden = false; document.getElementById('installPrompt').hidden = false; });
 window.addEventListener('appinstalled', () => { document.getElementById('installPrompt').hidden = true; document.getElementById('installBtn').hidden = true; toast('Pratik ana ekranında.', 'Kuruldu'); });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => {}));
 
 state.theme = saved.theme || 'light'; parseHash(); render();
