@@ -2,10 +2,13 @@
 
 Geliştirici: **Ozguler Forge** (`https://ozgulerforge.com.tr`)
 İletişim: `iletisim@ozgulerforge.com.tr`
-Sürüm: `v2.5.2`
+Sürüm: `v2.5.3`
 
 Tamamen tarayıcıda çalışır (`ffmpeg.wasm 0.12` / `FFmpeg 5.1.4`). Dosyalar cihazdan çıkmaz, ilk açılıştan sonra çevrimdışı çalışır.
 Her dönüşümden sonra kaynak ve çıktının her karesi yeniden çözülüp özetleri (MD5) karşılaştırılır; ses de aynı şekilde doğrulanır.
+
+## v2.5.3 — Sistem çubuğu rengi
+- Manifest `theme_color` ve `background_color` sayfa zeminiyle (#f5f4ff) eşlendi; telefonda alttaki turuncu çubuk kalkar. Yüklü uygulama manifesti kendi yeniler (bir gün kadar sürebilir) ya da uygulamayı silip yeniden yükle.
 
 ## v2.5.2 — Telefonda bellek hatası düzeltmesi
 - Büyük fotoğraflarda (ör. 9 MP HEIC) ffmpeg belleği yetmeyip çökerse JPEG/PNG/WebP hedeflerinde tarayıcının kendi kodlayıcısı otomatik denenir.
