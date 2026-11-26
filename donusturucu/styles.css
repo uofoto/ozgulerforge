@@ -210,8 +210,9 @@ main { max-width: 980px; margin: 0 auto; padding: 28px 18px 56px; }
   outline: 2.5px solid var(--accent); outline-offset: 2px;
 }
 
-label.btn { position: relative; }
-label.btn input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+label.btn { position: relative; overflow: hidden; touch-action: manipulation; }
+/* input'u tüm butonun üzerine yay: iOS Safari ve bazı Android WebView'ları görünmez 1px input'u label ile tetiklemiyor. */
+label.btn input { position: absolute; inset: 0; z-index: 2; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 label.btn:focus-within { outline: 2.5px solid var(--accent); outline-offset: 2px; }
 
 /* TARGET & PRESET PANEL */
