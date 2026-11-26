@@ -254,15 +254,6 @@ label.btn:focus-within { outline: 2.5px solid var(--accent); outline-offset: 2px
 }
 .note[data-lossy] { color: var(--warn); border-left-color: var(--warn); background: var(--warn-soft); }
 
-.opts {
-  display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center;
-  font-size: 0.9rem; padding-top: 12px; border-top: 1px solid var(--line-soft);
-}
-.opts label { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 500; }
-.opts select {
-  font: 500 0.88rem/1 var(--sans); padding: 8px 12px; border-radius: 999px;
-  border: 1px solid var(--line); background: var(--card-2); color: var(--ink);
-}
 .check { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
 .check input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
 
