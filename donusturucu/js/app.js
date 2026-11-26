@@ -209,7 +209,11 @@ function applyPreset(key) {
   renderTargets(); renderItems(); updateAction();
 }
 
+// PDF grubu #targets içine taşındığı için liste temizlenince sayfadan sökülür; referansı saklanır.
+let pdfGroupNode = null;
+
 function renderTargets() {
+  pdfGroupNode ||= $('#pdfGroup'); // replaceChildren()'dan önce alınmalı
   const box = $('#targets'); box.replaceChildren();
   const kinds = new Set(state.items.filter(i => i.kind && i.status !== 'error').map(i => i.kind));
   const isUsable = t => !(state.ready && missingEncoders(t, state.engine.caps).length)
@@ -238,7 +242,7 @@ function renderTargets() {
     }
     row.append(chips); box.append(row);
   }
-  const pdfGroup = $('#pdfGroup'); if (pdfGroup) box.append(pdfGroup); // PDF grubu: Resim/Video gibi grupların altında
+  if (pdfGroupNode) box.append(pdfGroupNode); // PDF grubu: Resim/Video gibi grupların altında
   const advBtn = el('button', {
     class: 'adv-toggle', type: 'button', 'aria-expanded': String(showAdv),
     onclick: () => {
