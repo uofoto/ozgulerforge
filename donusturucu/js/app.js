@@ -270,13 +270,39 @@ async function convertAll() {
   const t = byId[state.targetId];
   state.running = true; state.cancelled = false; updateAction();
   const used = new Set(state.items.flatMap(i => (i.results || []).map(r => r.name.toLowerCase())));
-  for (const it of state.items) {
+  const todo = state.items.filter(it => ['ready', 'error-run', 'done', 'skipped'].includes(it.status) && it.info && !it.results?.some(r => r.targetId === t.id));
+  state.runTotal = todo.length; state.runDone = 0; state.runPct = 0;
+  updateAction();
+  for (const it of todo) {
     if (state.cancelled) break;
     if (!['ready', 'error-run', 'done', 'skipped'].includes(it.status) || !it.info) continue;
-    if (it.results?.some(r => r.targetId === t.id)) continue;
     await convertOne(it, t, used);
+    state.runDone++;
   }
-  state.running = false; state.current = null; updateAction(); renderItems();
+  const finished = !state.cancelled && state.runTotal > 0;
+  state.running = false; state.current = null; state.runPct = 0; updateAction(); renderItems();
+  if (finished) {
+    state.justDone = true; updateDonutCenter();
+    setTimeout(() => { state.justDone = false; updateDonutCenter(); }, 3000);
+  }
+}
+
+// Toplu dönüşümün genel yüzdesi (dönüştürme %80, doğrulama %20 ağırlıklı); geri gitmez.
+function overallPct() {
+  if (!state.running || !state.runTotal) return 0;
+  const cur = state.current;
+  let w = 0;
+  if (cur && cur.status === 'running') {
+    const p = Math.max(0, Math.min(1, cur.progress || 0));
+    w = cur.phase === 'Doğrulanıyor' ? 0.8 + 0.2 * p : p * (state.verify ? 0.8 : 1);
+  }
+  const pct = Math.min(99, Math.floor(((state.runDone + w) / state.runTotal) * 100));
+  state.runPct = Math.max(state.runPct || 0, pct);
+  return state.runPct;
+}
+function itemPct(it) {
+  const p = Math.max(0, Math.min(1, it.progress || 0));
+  return Math.round((it.phase === 'Doğrulanıyor' ? 0.8 + 0.2 * p : p * (state.verify ? 0.8 : 1)) * 100);
 }
 
 async function convertOne(it, t, used) {
@@ -427,6 +453,11 @@ function openCompareModal(it, r) {
 function paintProgress(it) {
   const n = document.querySelector(`[data-id="${it.id}"] .bar > i`);
   if (n) n.style.width = (it.progress * 100).toFixed(1) + '%';
+  const s = document.querySelector(`[data-id="${it.id}"] .status`);
+  if (s && it.status === 'running') s.textContent = `${it.phase} · %${itemPct(it)}`;
+  updateDonutCenter();
+  const go = $('#go');
+  if (go && state.running) go.textContent = `Dönüştürülüyor… %${overallPct()}`;
 }
 
 function strip(hashes, other) {
@@ -494,7 +525,7 @@ function renderItems() {
     const resMeta = vStream && vStream.width && vStream.height ? `${vStream.width}×${vStream.height}${vStream.pixFmt ? ' · ' + vStream.pixFmt : ''}` : null;
     const meta = [it.kind ? KIND_TR[it.kind] : null, resMeta, fmtSize(displaySize)].filter(Boolean).join(' · ');
     const statusText = {
-      queued: 'Sırada', probing: 'İnceleniyor…', ready: 'Hazır', running: it.phase,
+      queued: 'Sırada', probing: 'İnceleniyor…', ready: 'Hazır', running: `${it.phase} · %${itemPct(it)}`,
       done: 'Bitti', error: 'Açılamadı', 'error-run': 'Hata', skipped: 'Atlandı',
     }[it.status];
 
@@ -573,15 +604,28 @@ function renderDonut() {
   updateDonutCenter();
 }
 function updateDonutCenter() {
-  const go = $('#donutGo'), sub = $('#donutSub');
-  if (!go || !sub) return;
+  const go = $('#donutGo'), sub = $('#donutSub'), title = $('#donutTitle'), svg = document.querySelector('.donut'), prog = $('#donutProg');
+  if (!go || !sub || !title) return;
   const t = byId[state.targetId];
   const ready = state.items.filter(i => ['ready', 'done', 'error-run'].includes(i.status) && i.info).length;
   const off = !state.ready || state.running || ready === 0;
   go.classList.toggle('dis', off);
   go.classList.toggle('ready', !off);
   go.setAttribute('aria-disabled', String(off));
-  sub.textContent = state.running ? 'dönüştürülüyor…' : !state.ready ? 'motor hazırlanıyor…' : ready === 0 ? 'önce dosya ekle' : `${t ? t.label : ''} · ${ready} dosya`;
+  svg?.classList.toggle('is-running', !!state.running);
+  if (state.running) {
+    const pct = overallPct();
+    title.textContent = `%${pct}`; title.classList.add('pct'); title.setAttribute('y', '158');
+    sub.textContent = state.runTotal > 1 ? `${Math.min(state.runDone + 1, state.runTotal)} / ${state.runTotal} dosya` : 'dönüştürülüyor…';
+    sub.setAttribute('y', '180');
+    if (prog) prog.style.strokeDashoffset = String(389.6 * (1 - pct / 100));
+    return;
+  }
+  title.classList.remove('pct'); title.setAttribute('y', '152'); sub.setAttribute('y', '174');
+  if (prog) prog.style.strokeDashoffset = '389.6';
+  if (state.justDone) { title.textContent = 'Bitti ✓'; sub.textContent = 'sonuçlar aşağıda'; return; }
+  title.textContent = 'Dönüştür';
+  sub.textContent = !state.ready ? 'motor hazırlanıyor…' : ready === 0 ? 'önce dosya ekle' : `${t ? t.label : ''} · ${ready} dosya`;
 }
 const donutSegs = document.querySelectorAll('.donut .seg');
 donutSegs.forEach(g => {
@@ -611,7 +655,7 @@ function updateAction() {
   if (!state.ready) {
     btn.textContent = state.engineError ? state.engineError : 'Motor hazırlanıyor…';
   } else {
-    btn.textContent = state.running ? 'Dönüştürülüyor…' : `${t ? t.label : ''} olarak dönüştür (${ready.length || 0})`;
+    btn.textContent = state.running ? `Dönüştürülüyor… %${overallPct()}` : `${t ? t.label : ''} olarak dönüştür (${ready.length || 0})`;
   }
   $('#cancel').hidden = !state.running;
   const done = state.items.flatMap(i => i.results || []);
