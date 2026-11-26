@@ -45,16 +45,19 @@
       <h1>Piksel kaybı olmadan <span class="hl">stüdyo dönüşümü.</span></h1>
       <p>Dosyalar cihazından çıkmaz, hiçbir sunucuya yüklenmez. Dönüştürme bittiğinde kaynak ile çıktının her karesi yeniden çözülüp bit-bit doğrulanır.</p>
       <div class="hero-badges">
-        <span class="hbadge">100% yerel · dosyalar cihazından çıkmaz</span>
+        <span class="hbadge">Biçime dokun · dosyayı bırak · ortadan dönüştür</span>
       </div>
     </div>
-    <div class="hero-art" aria-hidden="false">
-      <svg class="donut" viewBox="0 0 320 320" role="img" aria-label="Biçim halkası: PNG, WebP, TIFF, JPEG, BMP, GIF, MKV, MP4">
-        <g class="seg" style="--i:0"><path d="M163.3 14.0A146 146 0 0 1 260.9 54.4L208.4 109.4A70 70 0 0 0 161.6 90.0Z"/><text x="201.3" y="60.2">PNG</text></g><g class="seg" style="--i:1"><path d="M265.6 59.1A146 146 0 0 1 306.0 156.7L230.0 158.4A70 70 0 0 0 210.6 111.6Z"/><text x="259.8" y="118.7">WebP</text></g><g class="seg" style="--i:2"><path d="M306.0 163.3A146 146 0 0 1 265.6 260.9L210.6 208.4A70 70 0 0 0 230.0 161.6Z"/><text x="259.8" y="201.3">TIFF</text></g><g class="seg" style="--i:3"><path d="M260.9 265.6A146 146 0 0 1 163.3 306.0L161.6 230.0A70 70 0 0 0 208.4 210.6Z"/><text x="201.3" y="259.8">JPEG</text></g><g class="seg" style="--i:4"><path d="M156.7 306.0A146 146 0 0 1 59.1 265.6L111.6 210.6A70 70 0 0 0 158.4 230.0Z"/><text x="118.7" y="259.8">BMP</text></g><g class="seg" style="--i:5"><path d="M54.4 260.9A146 146 0 0 1 14.0 163.3L90.0 161.6A70 70 0 0 0 109.4 208.4Z"/><text x="60.2" y="201.3">GIF</text></g><g class="seg" style="--i:6"><path d="M14.0 156.7A146 146 0 0 1 54.4 59.1L109.4 111.6A70 70 0 0 0 90.0 158.4Z"/><text x="60.2" y="118.7">MKV</text></g><g class="seg" style="--i:7"><path d="M59.1 54.4A146 146 0 0 1 156.7 14.0L158.4 90.0A70 70 0 0 0 111.6 109.4Z"/><text x="118.7" y="60.2">MP4</text></g>
-        <circle class="donut-core" cx="160" cy="160" r="58"/>
-        <text class="donut-title" x="160" y="152">Dönüştür</text>
-        <text class="donut-sub" x="160" y="174">her kare doğrulanır</text>
+    <div class="hero-art">
+      <svg class="donut" viewBox="0 0 320 320" role="radiogroup" aria-label="Hedef biçim">
+        <g class="seg" style="--i:0" data-target="png" role="radio" aria-checked="false" tabindex="0"><path d="M163.3 14.0A146 146 0 0 1 260.9 54.4L208.4 109.4A70 70 0 0 0 161.6 90.0Z"/><text x="201.3" y="60.2">PNG</text></g><g class="seg" style="--i:1" data-target="webp" role="radio" aria-checked="false" tabindex="0"><path d="M265.6 59.1A146 146 0 0 1 306.0 156.7L230.0 158.4A70 70 0 0 0 210.6 111.6Z"/><text x="259.8" y="118.7">WebP</text></g><g class="seg" style="--i:2" data-target="tiff" role="radio" aria-checked="false" tabindex="0"><path d="M306.0 163.3A146 146 0 0 1 265.6 260.9L210.6 208.4A70 70 0 0 0 230.0 161.6Z"/><text x="259.8" y="201.3">TIFF</text></g><g class="seg" style="--i:3" data-target="jpg" role="radio" aria-checked="false" tabindex="0"><path d="M260.9 265.6A146 146 0 0 1 163.3 306.0L161.6 230.0A70 70 0 0 0 208.4 210.6Z"/><text x="201.3" y="259.8">JPEG</text></g><g class="seg" style="--i:4" data-target="bmp" role="radio" aria-checked="false" tabindex="0"><path d="M156.7 306.0A146 146 0 0 1 59.1 265.6L111.6 210.6A70 70 0 0 0 158.4 230.0Z"/><text x="118.7" y="259.8">BMP</text></g><g class="seg" style="--i:5" data-target="gif" role="radio" aria-checked="false" tabindex="0"><path d="M54.4 260.9A146 146 0 0 1 14.0 163.3L90.0 161.6A70 70 0 0 0 109.4 208.4Z"/><text x="60.2" y="201.3">GIF</text></g><g class="seg" style="--i:6" data-target="mkv-ffv1" role="radio" aria-checked="false" tabindex="0"><path d="M14.0 156.7A146 146 0 0 1 54.4 59.1L109.4 111.6A70 70 0 0 0 90.0 158.4Z"/><text x="60.2" y="118.7">MKV</text></g><g class="seg" style="--i:7" data-target="mp4-h264" role="radio" aria-checked="false" tabindex="0"><path d="M59.1 54.4A146 146 0 0 1 156.7 14.0L158.4 90.0A70 70 0 0 0 111.6 109.4Z"/><text x="118.7" y="60.2">MP4</text></g>
+        <g class="donut-go" id="donutGo" role="button" tabindex="0" aria-label="Dönüştür">
+          <circle class="donut-core" cx="160" cy="160" r="58"/>
+          <text class="donut-title" x="160" y="152">Dönüştür</text>
+          <text class="donut-sub" id="donutSub" x="160" y="174">dosya ekle</text>
+        </g>
       </svg>
+      <p class="donut-hint" id="donutHint" aria-live="polite"></p>
     </div>
   </section>
 
@@ -144,7 +147,7 @@
   <div class="footer-inner">
     <div class="footer-brand">
       <strong>Kontak Studio</strong>
-      <span>Sürüm <code id="appVersion">v2.3.0</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
+      <span>Sürüm <code id="appVersion">v2.4.0</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
       <p>Geliştirici: <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Ozguler Forge</a> · İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
     </div>
     <nav class="footer-links" aria-label="Yasal metinler">
@@ -215,7 +218,7 @@
     licenses: {
       title: 'Açık Kaynak Lisansları ve Sürüm Bilgisi',
       html: `
-        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.3.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
+        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.4.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
         <ul>
           <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği.</li>
           <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak.</li>
