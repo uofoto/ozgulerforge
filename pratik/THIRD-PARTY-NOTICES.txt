@@ -1,0 +1,7 @@
+Third-party software notice
+
+qrcode-generator 2.0.4
+Copyright (c) 2009 Kazuhiko Arase
+Licensed under the MIT License.
+Source: https://github.com/kazuhikoarase/qrcode-generator
+The MIT license notice is included in the header of qrcode.mjs.

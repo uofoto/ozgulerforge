@@ -276,3 +276,10 @@ details p { color: var(--muted); max-width: 780px; }
   .result-card a { margin-left: 52px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+
+.tool-status { display: inline-flex; width: fit-content; margin-top: 5px; padding: 2px 7px; border-radius: 999px; color: #805a12; background: #fff1d7; font-size: 9px; font-weight: 800; }
+.legal-contact-strip { display: grid; gap: 5px; margin-top: 22px; padding: 15px 17px; border-radius: 13px; background: var(--surface-2); color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+.legal-contact-strip strong { color: var(--ink); }
+.legal-contact-strip a, .footer-contact a { color: var(--accent-deep); font-weight: 750; }
+.footer-contact { display: flex; flex-wrap: wrap; gap: 4px 14px; overflow-wrap: anywhere; }
+.primary-btn:disabled { opacity: .62; cursor: not-allowed; transform: none; box-shadow: none; }

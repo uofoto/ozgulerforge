@@ -17,7 +17,8 @@
 - [x] Dosya seçme, sürükle-bırak alanı, dosya kuyruğu, dosya boyutu bilgisi ve temizleme aksiyonu ekle.
 - [x] Görsel işlemlerinde Canvas tabanlı format dönüştürme, kalite/boyutlandırma, metadata temizleme için yeniden dışa aktarma ve vesikalık oranı üretimini uygula.
 - [x] Video aracında yerel önizleme ve desteklenen gerçek kare yakalama çıktısını uygula.
-- [x] QR, PDF ve video araçları için aynı dosya çalışma alanı, işlem durumu ve güvenli çıktı geri bildirimi sun.
+- [x] QR üretimi, görselden çok sayfalı PDF ve videodan kare yakalama için gerçek cihaz-içi çıktı üret.
+- [x] Henüz uygulanmayan PDF/video araçlarını “Yakında” olarak göster; sahte başarı/çıktı oluşturma.
 - [x] Sonuç indirme bağlantısı, işlem sayısı ve son işlemler geçmişini cihazda tut; dosya içeriğini saklama.
 
 ## 4. Güven, içerik ve kalite
@@ -28,5 +29,6 @@
 
 ## 5. Yasal metinler ve iletişim
 - [x] Uygulama içinde Hakkımızda, Gizlilik Politikası, Kullanım Koşulları ve İletişim sayfalarını ekle.
-- [x] Yasal metinlerde web adresini `https://ozgulerforge.com.tr` ve iletişim adresini `iletisim@ozgulerforge.com.tr` olarak kullan.
-- [x] Ana sayfa footer’ında yasal navigasyon, alan adı ve telif bilgisini göster.
+- [x] Web adresini `https://ozgulerforge.com.tr` ve iletişim adresini `iletisim@ozgulerforge.com.tr` tüm yasal sayfalarda ortak yayıncı/iletişim bloğunda göster.
+- [ ] Yayıncı tüzel/ticari unvanı, tebligat adresi ve barındırma günlüklerinin saklama süresi işletmeci tarafından doğrulanmalı; bkz. `LEGAL-INFO-NEEDED.md`.
+- [x] Ana sayfa footer’ında yasal navigasyon, alan adı, e-posta ve telif bilgisini göster.

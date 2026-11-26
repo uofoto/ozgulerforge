@@ -11,7 +11,7 @@ Kullanıcının paylaştığı Pratik `index.html` içindeki 20 aracı, masaüst
 - 20 aracın tamamı tek bir araç veri modeli üzerinden oluşturulacak; böylece katalog, arama, kategori filtreleri, mobil menü ve çalışma alanları aynı kaynaktan beslenecek.
 - Görsel işleme için File API, Canvas, ImageBitmap ve download linkleri kullanılacak.
 - Video için yerel video önizleme ve desteklenen tarayıcı API’leriyle kare yakalama; diğer video işlemleri için tarayıcı içi motor durumu ve kullanıcıya açık destek mesajı.
-- PDF ve QR araçları gerçek dosya seçme/çıktı alanına sahip olacak; kütüphane gerektirmeyen hafif prototip akışları ve ileride genişletilebilir işlem sözleşmesi kullanılacak.
+- QR kodu çevrimdışı çalışan MIT lisanslı bir modülle, JPG→PDF çok sayfalı yerel PDF üreticisiyle çalışır. Tam PDF düzenleme ve video codec araçları hazır değilse açıkça devre dışı gösterilir; sahte çıktı sunulmaz.
 - `localStorage` ile son araçlar, işlem sayısı ve tema tercihi tutulacak; dosya içerikleri tutulmayacak.
 
 ## Proje yapısı
