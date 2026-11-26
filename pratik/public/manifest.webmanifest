@@ -1,7 +1,7 @@
 {
   "name": "Pratik — Gizli Dosya Araçları",
   "short_name": "Pratik",
-  "description": "Fotoğraf, video, PDF ve QR araçları. Dosyan cihazından çıkmaz.",
+  "description": "Cihazında çalışan fotoğraf ve QR araçları. Desteklenmeyen araçlar açıkça belirtilir.",
   "lang": "tr",
   "dir": "ltr",
   "start_url": "/",
@@ -9,7 +9,7 @@
   "display": "standalone",
   "background_color": "#f4f6f2",
   "theme_color": "#36c8b0",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {"src":"/manus-storage/async-images/093X6gvtsJaWHRfRi3Xper/image-1.webp","sizes":"512x512","type":"image/webp","purpose":"any maskable"},
     {"src":"/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},

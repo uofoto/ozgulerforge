@@ -1,5 +1,5 @@
-const CACHE_NAME = 'pratik-shell-v2';
-const APP_SHELL = ['/', '/index.html', '/styles.css', '/app.js', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/manus-routes.json'];
+const CACHE_NAME = 'pratik-shell-v5';
+const APP_SHELL = ['/', '/index.html', '/styles.css', '/app.js', '/qrcode.mjs', '/manifest.webmanifest', '/icon.svg', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png', '/manus-routes.json'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
