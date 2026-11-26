@@ -268,7 +268,8 @@ function planImage(info, v, d, t, ctx, effort, res) {
     if (t.id === 'webp' && webpLevels(effort, px).capped) res.notes.push('Büyük görsel: süre makul kalsın diye WebP sıkıştırma çabası düşürüldü (sonuç yine kayıpsız, dosya biraz büyük olabilir).');
     args.push(...imageEncArgs(t, effort, px), '-pix_fmt', pix);
   }
-  args.push(...(t.id === 'webp' ? ['-f', 'webp'] : ['-f', 'image2', '-update', '1']), ctx.outPath);
+  // Resim kapsayıcılarının desteklediği EXIF/XMP vb. metadata'yı kaynak akıştan taşı.
+  args.push('-map_metadata', '0', ...(t.id === 'webp' ? ['-f', 'webp'] : ['-f', 'image2', '-update', '1']), ctx.outPath);
   res.args = args;
   // GIF'te palet sırası değişebileceğinden ham indeks yerine çözülmüş RGBA karşılaştırılır.
   const vpix = t.id === 'gif' && res.exact ? 'rgba' : pix;
@@ -297,6 +298,7 @@ function planAnim(info, v, d, t, ctx, effort, pass, res) {
     if (t.id === 'webp-anim') args.push('-f', 'webp');
   }
   if (isFrames) args.push('-f', 'image2');
+  args.splice(args.length - (isFrames ? 1 : 0), 0, '-map_metadata', '0');
   args.push(ctx.outPath);
   res.args = args; res.frames = isFrames;
   if (!res.exact) res.verify = { skip: 'Kayıplı hedef; bit-bit karşılaştırma yapılmadı.' };

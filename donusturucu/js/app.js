@@ -87,7 +87,7 @@ function addFiles(files) {
   if (!files || !files.length) return;
   for (const f of files) {
     state.items.push({
-      id: state.nextId++, file: f, origName: f.name, origSize: f.size, thumbUrl: makeThumbUrl(f),
+      id: state.nextId++, file: f, sourceFile: f, origName: f.name, origSize: f.size, thumbUrl: makeThumbUrl(f),
       status: 'queued', kind: null, info: null, error: null, result: null,
       progress: 0, phase: '', elapsedMs: 0,
     });
@@ -320,6 +320,69 @@ const BROWSER_ENCODERS = {
   png: { mime: 'image/png', quality: undefined, exact: true, label: 'PNG (8 bit)' },
   webp: { mime: 'image/webp', quality: 1, exact: false, label: 'WebP (kalite %100)' },
 };
+
+// Canvas metadata yazmadığı için, yedek kodlayıcıda kaynak EXIF bloğunu yeniden ekle.
+async function readExifPayload(file) {
+  let b;
+  try { b = new Uint8Array(await file.arrayBuffer()); } catch { return null; }
+  const ascii = (a, at, n) => String.fromCharCode(...a.slice(at, at + n));
+  if (b.length >= 4 && b[0] === 0xff && b[1] === 0xd8) {
+    let p = 2;
+    while (p + 4 <= b.length && b[p] === 0xff) {
+      const marker = b[p + 1];
+      if (marker === 0xda || marker === 0xd9) break;
+      const len = (b[p + 2] << 8) | b[p + 3];
+      if (len < 2 || p + 2 + len > b.length) break;
+      if (marker === 0xe1 && len >= 8 && ascii(b, p + 4, 6) === 'Exif\0\0') return b.slice(p + 10, p + 2 + len);
+      p += 2 + len;
+    }
+  }
+  if (b.length >= 8 && ascii(b, 0, 8) === '\x89PNG\r\n\x1a\n') {
+    let p = 8;
+    while (p + 12 <= b.length) {
+      const len = new DataView(b.buffer, b.byteOffset + p, 4).getUint32(0);
+      if (p + 12 + len > b.length) break;
+      if (ascii(b, p + 4, 4) === 'eXIf') return b.slice(p + 8, p + 8 + len);
+      p += 12 + len;
+    }
+  }
+  if (b.length >= 12 && ascii(b, 0, 4) === 'RIFF' && ascii(b, 8, 4) === 'WEBP') {
+    let p = 12;
+    while (p + 8 <= b.length) {
+      const len = new DataView(b.buffer, b.byteOffset + p + 4, 4).getUint32(0, true);
+      if (p + 8 + len > b.length) break;
+      if (ascii(b, p, 4) === 'EXIF') return b.slice(p + 8, p + 8 + len);
+      p += 8 + len + (len & 1);
+    }
+  }
+  return null;
+}
+function crc32(bytes) {
+  let c = 0xffffffff;
+  for (const x of bytes) { c ^= x; for (let k = 0; k < 8; k++) c = (c >>> 1) ^ (0xedb88320 & -(c & 1)); }
+  return (c ^ 0xffffffff) >>> 0;
+}
+function put32(a, p, n, le = false) { const d = new DataView(a.buffer, a.byteOffset + p, 4); d.setUint32(0, n >>> 0, le); }
+async function restoreExif(blob, sourceFile, mime) {
+  const exif = await readExifPayload(sourceFile);
+  if (!exif?.length) return blob;
+  const out = new Uint8Array(await blob.arrayBuffer());
+  if (mime === 'image/jpeg' && out[0] === 0xff && out[1] === 0xd8 && exif.length + 2 <= 0xffff) {
+    const seg = new Uint8Array(exif.length + 10); const head = new TextEncoder().encode('Exif\0\0');
+    seg.set([0xff, 0xe1, (exif.length + 8) >> 8, (exif.length + 8) & 255], 0); seg.set(head, 4); seg.set(exif, 10);
+    return new Blob([out.slice(0, 2), seg, out.slice(2)], { type: mime });
+  }
+  if (mime === 'image/png' && out.length >= 8 && out.slice(0, 8).every((x, i) => x === [137,80,78,71,13,10,26,10][i])) {
+    const chunk = new Uint8Array(12 + exif.length); put32(chunk, 0, exif.length); chunk.set([101,88,73,102], 4); chunk.set(exif, 8); put32(chunk, 8 + exif.length, crc32(chunk.slice(4, 8 + exif.length));
+    return new Blob([out.slice(0, 8), chunk, out.slice(8)], { type: mime });
+  }
+  if (mime === 'image/webp' && out.length >= 12 && String.fromCharCode(...out.slice(0, 4)) === 'RIFF') {
+    const size = exif.length, pad = size & 1, chunk = new Uint8Array(8 + size + pad); chunk.set([69,88,73,70], 0); put32(chunk, 4, size, true); chunk.set(exif, 8);
+    const result = new Uint8Array(out.length + chunk.length); result.set(out.slice(0, 12), 0); result.set(chunk, 12); result.set(out.slice(12), 12 + chunk.length); put32(result, 4, result.length - 8, true);
+    return new Blob([result], { type: mime });
+  }
+  return blob;
+}
 async function browserEncode(it, t, used, t0) {
   const enc = BROWSER_ENCODERS[t.id];
   const bmp = await createImageBitmap(it.file, { colorSpaceConversion: 'none' });
@@ -328,8 +391,9 @@ async function browserEncode(it, t, used, t0) {
   if (t.id === 'jpg') { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, c.width, c.height); }
   ctx.drawImage(bmp, 0, 0);
   bmp.close();
-  const blob = await c.convertToBlob({ type: enc.mime, quality: enc.quality });
+  let blob = await c.convertToBlob({ type: enc.mime, quality: enc.quality });
   if (!blob || blob.type !== enc.mime) throw new Error('Tarayıcı bu biçimi yazamıyor.');
+  blob = await restoreExif(blob, it.sourceFile || it.file, enc.mime);
   const warnings = ['ffmpeg bu dosyada belleğe/süreye yetmediği için tarayıcının kendi kodlayıcısı kullanıldı.'];
   if (t.id === 'jpg') warnings.push('Saydam alanlar beyaza çevrildi.');
   if (t.id === 'webp') warnings.push('Tarayıcı kodlayıcısı WebP’yi tam kayıpsız yazamaz; kayıplı sayılır.');
