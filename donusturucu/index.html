@@ -130,6 +130,175 @@
       </div>
     </div>
     <div id="targets"></div>
+
+    <!-- PDF GRUBU (Resim / Video gibi): renderTargets içinde grupların altına taşınır -->
+    <div class="tgroup pdf-group" id="pdfGroup">
+      <h3>PDF</h3>
+      <div class="pdf-body">
+        <div class="pdf-cards" role="group" aria-label="PDF araçları">
+          <button type="button" class="pdf-card" data-pdf-tool="merge" aria-pressed="false" aria-controls="pdfWork"><strong>PDF Birleştir</strong><span>Birden fazla PDF’i tek dosya yap</span></button>
+          <button type="button" class="pdf-card" data-pdf-tool="split" aria-pressed="false" aria-controls="pdfWork"><strong>PDF Böl</strong><span>Sayfa seç, ayır ya da sil</span></button>
+          <button type="button" class="pdf-card" data-pdf-tool="tojpg" aria-pressed="false" aria-controls="pdfWork"><strong>PDF → JPG</strong><span>Sayfaları görsele çevir</span></button>
+          <button type="button" class="pdf-card" data-pdf-tool="fromjpg" aria-pressed="false" aria-controls="pdfWork"><strong>JPG → PDF</strong><span>Fotoğraflardan PDF üret</span></button>
+        </div>
+
+        <div class="pdf-work" id="pdfWork" hidden>
+
+          <!-- PDF BİRLEŞTİR -->
+          <section class="pdf-tool" data-tool="merge" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>PDF dosyalarını buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · birden fazla dosya eklenebilir</p>
+              <label class="btn primary small"><span>PDF Seç</span><input type="file" accept="application/pdf,.pdf" multiple></label>
+            </div>
+            <ul class="rs-list pdf-list"></ul>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>Birleştir</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note"><strong>Sıra önemli:</strong> Dosyalar listedeki sırayla birleşir; ↑ ↓ ile sırayı değiştirebilirsiniz. En az iki PDF gerekir. Sayfalar yeniden sıkıştırılmadan taşınır; yer imleri ve form alanları taşınmayabilir.</p>
+          </section>
+
+          <!-- PDF BÖL -->
+          <section class="pdf-tool" data-tool="split" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>Bölünecek PDF’i buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · tek dosya</p>
+              <label class="btn primary small"><span>PDF Seç</span><input type="file" accept="application/pdf,.pdf"></label>
+            </div>
+            <p class="meta pdf-fileinfo" hidden></p>
+            <div class="pt-card pdf-opts" hidden>
+              <div class="pt-row">
+                <span class="pt-lbl">İŞLEM</span>
+                <div class="pt-pills" role="group" aria-label="Bölme işlemi">
+                  <button type="button" class="pt-pill active" data-split-mode="select">Seç<small>seçilenleri yeni PDF yap</small></button>
+                  <button type="button" class="pt-pill" data-split-mode="separate">Ayır<small>her sayfa ayrı PDF</small></button>
+                  <button type="button" class="pt-pill" data-split-mode="delete">Sil<small>seçilenleri çıkar</small></button>
+                </div>
+              </div>
+              <div class="pt-row">
+                <span class="pt-lbl">SAYFA</span>
+                <div class="pdf-picker">
+                  <div class="pt-inline">
+                    <input type="text" class="pt-input pdf-range" placeholder="Örn: 1-3, 5, 8-" autocomplete="off" spellcheck="false" aria-label="Sayfa aralığı">
+                    <button type="button" class="btn ghost small" data-pick="all">Tümünü seç</button>
+                    <button type="button" class="btn ghost small" data-pick="none">Seçimi temizle</button>
+                  </div>
+                  <div class="pdf-pages" role="group" aria-label="Sayfa seçimi"></div>
+                  <span class="meta pdf-picker-meta" role="status"></span>
+                </div>
+              </div>
+            </div>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>Seçilenleri PDF yap</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note"><strong>Ayır</strong> modunda seçili her sayfa ayrı bir PDF olur (seçim yoksa tüm sayfalar) ve ZIP olarak indirilir. <strong>Sil</strong> modunda seçilen sayfalar çıkarılıp kalanı tek PDF olarak kaydedilir.</p>
+          </section>
+
+          <!-- PDF → JPG -->
+          <section class="pdf-tool" data-tool="tojpg" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>PDF’i buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · her sayfa ayrı JPG olur</p>
+              <label class="btn primary small"><span>PDF Seç</span><input type="file" accept="application/pdf,.pdf"></label>
+            </div>
+            <p class="meta pdf-fileinfo" hidden></p>
+            <div class="pt-card pdf-opts" hidden>
+              <div class="pt-row">
+                <span class="pt-lbl">ÇIKTI</span>
+                <div class="pt-inline">
+                  <label>Çözünürlük
+                    <select class="pt-select" data-opt="dpi">
+                      <option value="100">Hızlı · 100 DPI</option>
+                      <option value="150" selected>Standart · 150 DPI</option>
+                      <option value="200">Yüksek · 200 DPI</option>
+                      <option value="300">Baskı · 300 DPI</option>
+                    </select>
+                  </label>
+                  <label>JPG kalitesi
+                    <select class="pt-select" data-opt="quality">
+                      <option value="95" selected>En yüksek · %95</option>
+                      <option value="85">Yüksek · %85</option>
+                      <option value="70">Küçük dosya · %70</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <div class="pt-row">
+                <span class="pt-lbl">SAYFA</span>
+                <div class="pdf-picker">
+                  <div class="pt-inline">
+                    <input type="text" class="pt-input pdf-range" placeholder="Boş = tüm sayfalar" autocomplete="off" spellcheck="false" aria-label="Sayfa aralığı">
+                    <button type="button" class="btn ghost small" data-pick="all">Tümünü seç</button>
+                    <button type="button" class="btn ghost small" data-pick="none">Seçimi temizle</button>
+                  </div>
+                  <div class="pdf-pages" role="group" aria-label="Sayfa seçimi"></div>
+                  <span class="meta pdf-picker-meta" role="status"></span>
+                </div>
+              </div>
+            </div>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>JPG’ye çevir</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note">Sayfa seçmezseniz tüm sayfalar çevrilir. Birden fazla sayfa ZIP olarak, tek sayfa doğrudan JPG olarak indirilir. JPG kayıplı bir biçimdir; en yüksek kalite için PNG hedefini kullanabilirsiniz.</p>
+          </section>
+
+          <!-- JPG → PDF -->
+          <section class="pdf-tool" data-tool="fromjpg" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>Fotoğrafları buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · JPEG, PNG, WebP ve diğer resimler</p>
+              <label class="btn primary small"><span>Fotoğraf Seç</span><input type="file" accept="image/*" multiple></label>
+            </div>
+            <ul class="rs-list pdf-list"></ul>
+            <div class="pt-card pdf-opts">
+              <div class="pt-row">
+                <span class="pt-lbl">SAYFA</span>
+                <div class="pt-inline">
+                  <label>Boyut
+                    <select class="pt-select" data-opt="size">
+                      <option value="fit" selected>Görsel boyutu (boşluksuz)</option>
+                      <option value="a4">A4</option>
+                      <option value="letter">Letter</option>
+                    </select>
+                  </label>
+                  <label>Yön
+                    <select class="pt-select" data-opt="orient">
+                      <option value="auto" selected>Otomatik</option>
+                      <option value="portrait">Dikey</option>
+                      <option value="landscape">Yatay</option>
+                    </select>
+                  </label>
+                  <label>Kenar boşluğu
+                    <select class="pt-select" data-opt="margin">
+                      <option value="none" selected>Yok</option>
+                      <option value="small">Küçük (10 mm)</option>
+                      <option value="normal">Normal (20 mm)</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>PDF oluştur</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note">Her görsel bir sayfa olur; sırayı ↑ ↓ ile değiştirebilirsiniz. JPEG dosyalar yeniden sıkıştırılmadan olduğu gibi gömülür, telefon fotoğraflarının yönü otomatik düzeltilir. Yön ve kenar boşluğu yalnızca A4 / Letter seçildiğinde kullanılır.</p>
+          </section>
+
+        </div>
+      </div>
+    </div>
     <p id="targetNote" class="note"></p>
     <div class="opts">
       <label>Sıkıştırma çabası
@@ -153,11 +322,6 @@
       <svg class="fold-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
     </summary>
     <div class="fold-body">
-      <div class="pt-badges">
-        <span>✓ Dosyalarınız yüklenmez</span>
-        <span>✓ Toplu işlem</span>
-        <span>✓ Metadata (EXIF) silinir</span>
-      </div>
 
       <div id="rsDrop" class="pt-drop" tabindex="0">
         <p><strong>Fotoğrafları buraya sürükleyin</strong></p>
@@ -455,6 +619,8 @@
         <ul>
           <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği.</li>
           <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak.</li>
+          <li><strong>pdf-lib (v1.17):</strong> MIT Lisansı · PDF birleştirme, bölme ve oluşturma.</li>
+          <li><strong>PDF.js (Mozilla):</strong> Apache 2.0 Lisansı · PDF sayfalarını görsele çevirme.</li>
           <li><strong>Kontak Studio Arayüz ve Doğrulama Katmanı:</strong> Ozguler Forge.</li>
         </ul>
       `

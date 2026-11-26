@@ -7,6 +7,11 @@ Sürüm: `v2.6.1`
 Tamamen tarayıcıda çalışır (`ffmpeg.wasm 0.12` / `FFmpeg 5.1.4`). Dosyalar cihazdan çıkmaz, ilk açılıştan sonra çevrimdışı çalışır.
 Her dönüşümden sonra kaynak ve çıktının her karesi yeniden çözülüp özetleri (MD5) karşılaştırılır; ses de aynı şekilde doğrulanır.
 
+## PDF grubu eklendi
+- “Hedef biçim ve profil” panelinde Resim / Video gibi yeni bir **PDF** grubu: **PDF Birleştir**, **PDF Böl** (seç · ayır · sil), **PDF → JPG** ve **JPG → PDF**. (PDF İmzala yok.)
+- Her şey tarayıcıda çalışır, dosyalar cihazdan çıkmaz. Motorlar (`vendor/pdf-lib`, `vendor/pdfjs`) ilgili araç ilk kullanıldığında yüklenir; çevrimdışı önbelleğe alınır.
+- Yeni/değişen dosyalar: `js/pdf-tools.js` (yeni), `vendor/pdf-lib/`, `vendor/pdfjs/` (yeni), `index.html`, `styles.css`, `sw.js`; `js/app.js`'te yalnızca 3 satır (içe aktarma, başlatma, grubun yerleşimi).
+
 ## v2.6.1 — Açılış animasyonu geri geldi
 - Logo animasyonlu açılış (netleşme, kare kare yaylanma, ışık süpürmesi, üst menü logosuna kenetlenme) lavanta temaya uyarlanarak geri eklendi.
 - Alt çubuktaki turuncu renk eski manifestteki `theme_color: #f59e0b` değerinden gelir; telefon bunu önbellekte tutar. Manifest bağlantısına sürüm eklendi. Kalıcı çözüm: yüklü uygulamayı silip yeniden yükle.
@@ -44,4 +49,4 @@ Her dönüşümden sonra kaynak ve çıktının her karesi yeniden çözülüp �
 - **Nasıl Kullanılır Rehberi & Kurumsal Alt Bilgi:** 3 adımlı kullanım rehberi, sürüm bilgisi, Gizlilik Politikası, KVKK Aydınlatma Metni, Kullanım Koşulları ve Açık Kaynak Lisansları pencereleri eklendi.
 
 ## Kurulum / Dağıtım
-Bu ZIP paketindeki dosyaları (`index.html`, `styles.css`, `manifest.webmanifest`, `sw.js`, `README.md`) mevcut `donusturucu/` klasörünüzdeki dosyaların üzerine yazmanız yeterlidir. Mevcut `js/`, `vendor/` ve `icons/` klasörleriniz olduğu gibi korunur.
+Bu ZIP paketindeki dosyaları (`index.html`, `styles.css`, `manifest.webmanifest`, `sw.js`, `README.md`) mevcut `donusturucu/` klasörünüzdeki dosyaların üzerine yazmanız yeterlidir. `js/` ve `vendor/` klasörlerindeki yeni dosyaları (`js/pdf-tools.js`, `vendor/pdf-lib/`, `vendor/pdfjs/`) ve değişen `js/app.js`'i de kopyalayın; `icons/` klasörünüz olduğu gibi korunur.
