@@ -468,6 +468,6 @@ document.getElementById('promptClose').addEventListener('click', () => { documen
 window.addEventListener('hashchange', () => { parseHash(); render(); });
 window.addEventListener('beforeinstallprompt', (event) => { event.preventDefault(); deferredInstallPrompt = event; document.getElementById('installBtn').hidden = false; document.getElementById('installPrompt').hidden = false; });
 window.addEventListener('appinstalled', () => { document.getElementById('installPrompt').hidden = true; document.getElementById('installBtn').hidden = true; toast('Pratik ana ekranında.', 'Kuruldu'); });
-if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register(new URL('./sw.js', import.meta.url)).catch(() => {}));
 
 state.theme = saved.theme || 'light'; parseHash(); render();
