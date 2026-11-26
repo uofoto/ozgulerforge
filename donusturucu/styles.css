@@ -774,3 +774,30 @@ body::after {
   .pdf-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pdf-card { padding: 12px; overflow-wrap: anywhere; }
 }
+
+
+/* ===== MOBİL TAŞMA DÜZELTMESİ ===== */
+/* Izgara sütunu, uzun dosya adı gibi bölünmeyen içerik yüzünden karttan geniş olmasın */
+.pdf-body, .pdf-tool, .pdf-picker, .pdf-result, .rs-list { grid-template-columns: minmax(0, 1fr); }
+.tgroup { grid-template-columns: 9rem minmax(0, 1fr); }
+.pdf-work, .pdf-tool > *, .rs-item { min-width: 0; }
+.pdf-fileinfo, .pt-drop p, .pdf-tool .note, .pt-lbl { overflow-wrap: anywhere; }
+.rs-item-info { overflow: hidden; }
+.rs-item-info .meta { overflow-wrap: anywhere; }
+.pt-pills, .pt-inline, .pt-inline label { min-width: 0; max-width: 100%; }
+.pt-select, .pt-input { max-width: 100%; min-width: 0; }
+
+@media (max-width: 740px) {
+  .pt-row { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 580px) {
+  .tgroup { grid-template-columns: minmax(0, 1fr); }
+  .pt-drop .btn { max-width: 100%; white-space: normal; }
+  .pt-inline label { flex-wrap: wrap; }
+  /* Dosya satırı: ad üstte, düğmeler gerekirse alt satırda */
+  .rs-item { flex-wrap: wrap; }
+  .rs-item-info { flex: 1 1 150px; }
+  .rs-item-info strong { white-space: normal; overflow-wrap: anywhere; }
+  .rs-item-actions { flex-wrap: wrap; margin-left: auto; max-width: 100%; }
+  .pdf-list .rs-item-actions { flex-basis: 100%; justify-content: flex-end; }
+}
