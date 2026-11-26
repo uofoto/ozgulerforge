@@ -106,6 +106,42 @@ export function missingEncoders(t, caps) {
   return t.enc.filter(e => !caps.encoders.has(e));
 }
 
+/* ---------- Resim hedef boyut hesaplama ---------- */
+export function computeTargetSize(srcW, srcH, resize) {
+  if (!resize || !resize.enabled || !srcW || !srcH) return { w: srcW, h: srcH, scaled: false };
+  let w = srcW, h = srcH;
+  if (resize.mode === 'percent') {
+    const pct = Math.max(1, Math.min(400, Number(resize.percent) || 100));
+    w = Math.max(1, Math.round((srcW * pct) / 100));
+    h = Math.max(1, Math.round((srcH * pct) / 100));
+  } else {
+    const reqW = Number(resize.width) || 0;
+    const reqH = Number(resize.height) || 0;
+    if (resize.keepAspect !== false) {
+      if (reqW > 0 && reqH > 0) {
+        const r = Math.min(reqW / srcW, reqH / srcH);
+        w = Math.max(1, Math.round(srcW * r));
+        h = Math.max(1, Math.round(srcH * r));
+      } else if (reqW > 0) {
+        w = reqW;
+        h = Math.max(1, Math.round((srcH * reqW) / srcW));
+      } else if (reqH > 0) {
+        h = reqH;
+        w = Math.max(1, Math.round((srcW * reqH) / srcH));
+      }
+    } else {
+      if (reqW > 0) w = reqW;
+      if (reqH > 0) h = reqH;
+    }
+  }
+  if (resize.noUpscale && (w > srcW || h > srcH)) {
+    const r = Math.min(srcW / w, srcH / h, 1);
+    w = Math.max(1, Math.round(w * r));
+    h = Math.max(1, Math.round(h * r));
+  }
+  return { w, h, scaled: w !== srcW || h !== srcH };
+}
+
 /* ---------- Ses ---------- */
 const LOSSLESS_AUDIO = /^(flac|alac|wavpack|ape|tta|truehd|mlp|shorten|wmalossless|pcm_(?!f|alaw|mulaw))/;
 const PCM_ANY = /^pcm_/;
@@ -200,7 +236,7 @@ const EFFORT = {
 };
 
 /* ---------- Ana planlayıcı ---------- */
-// ctx: { inPath, outPath, caps, effort }
+// ctx: { inPath, outPath, caps, effort, imageOps?: { edited?: boolean, scale?: { w, h }, notes?: string[] } }
 export function plan(info, kind, t, ctx) {
   const v = pickVideo(info);
   if (!v) return { error: 'Görüntü akışı bulunamadı.' };
@@ -245,16 +281,21 @@ function imageEncArgs(t, effort, px = 0) {
 
 function planImage(info, v, d, t, ctx, effort, res) {
   if (t.id === 'jp2' && d.depth > 8) return { error: 'Bu ffmpeg çekirdeğinde 16 bit JPEG 2000 kayıpsız değil (doğrulamada fark çıktı). PNG veya TIFF seçin.' };
+  const ops = ctx.imageOps || null;
+  const effW = ops?.scale?.w || v.width || 0;
+  const effH = ops?.scale?.h || v.height || 0;
   const args = ['-noautorotate', '-i', ctx.inPath, '-map', '0:' + v.index, '-frames:v', '1', '-an', '-sn', '-dn'];
   let pix;
   if (t.id === 'jpg') {
     pix = 'yuvj444p'; res.exact = false;
     res.warnings.push('JPEG kayıplıdır: yüksek kalitede (q=1) yazılır ama bit-bit aynı olmaz.');
+    if (ops?.scale) args.push('-vf', `scale=${ops.scale.w}:${ops.scale.h}:flags=lanczos`);
     args.push(...imageEncArgs(t, effort), '-pix_fmt', pix);
   } else if (t.id === 'gif') {
-    res.exact = d.cls === 'pal';
-    if (!res.exact) res.warnings.push('GIF en fazla 256 renk tutar; renk sayısı fazlaysa görüntü nicemlenir (kayıplı).');
-    args.push('-vf', 'split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse', '-c:v', 'gif');
+    res.exact = d.cls === 'pal' && !ops?.edited && !ops?.scale;
+    if (!res.exact && d.cls !== 'pal') res.warnings.push('GIF en fazla 256 renk tutar; renk sayısı fazlaysa görüntü nicemlenir (kayıplı).');
+    const vfPrefix = ops?.scale ? `scale=${ops.scale.w}:${ops.scale.h}:flags=lanczos,` : '';
+    args.push('-vf', `${vfPrefix}split[a][b];[a]palettegen=stats_mode=full[p];[b][p]paletteuse`, '-c:v', 'gif');
   } else {
     const r = imagePix(d, IMG[t.id]);
     pix = r.pix;
@@ -262,18 +303,28 @@ function planImage(info, v, d, t, ctx, effort, res) {
       res.exact = false;
       res.warnings.push(r.narrowed ? `${t.label} ${d.depth} bit desteklemez; 8 bite indirildi (kayıplı).` : 'Kayan nokta kaynak tamsayıya çevrildi (kayıplı).');
     }
-    if (t.id === 'webp' && (v.width > 16383 || v.height > 16383)) return { error: 'WebP en fazla 16383 piksel destekler.' };
-    if (d.yuv) res.notes.push('Kaynak YUV; çözülmüş RGB görüntü birebir saklanır (kaynağın kendi sıkıştırma kaybı geri gelmez).');
-    const px = (v.width || 0) * (v.height || 0);
+    if (t.id === 'webp' && (effW > 16383 || effH > 16383)) return { error: 'WebP en fazla 16383 piksel destekler.' };
+    if (d.yuv && !ops?.edited) res.notes.push('Kaynak YUV; çözülmüş RGB görüntü birebir saklanır (kaynağın kendi sıkıştırma kaybı geri gelmez).');
+    const px = effW * effH;
     if (t.id === 'webp' && webpLevels(effort, px).capped) res.notes.push('Büyük görsel: süre makul kalsın diye WebP sıkıştırma çabası düşürüldü (sonuç yine kayıpsız, dosya biraz büyük olabilir).');
+    if (ops?.scale) args.push('-vf', `scale=${ops.scale.w}:${ops.scale.h}:flags=lanczos`);
     args.push(...imageEncArgs(t, effort, px), '-pix_fmt', pix);
   }
+
+  if (ops?.edited || ops?.scale) {
+    res.exact = false;
+    (ops.notes || []).forEach(n => res.notes.push(n));
+  }
+
   args.push(...(t.id === 'webp' ? ['-f', 'webp'] : ['-f', 'image2', '-update', '1']), ctx.outPath);
   res.args = args;
   // GIF'te palet sırası değişebileceğinden ham indeks yerine çözülmüş RGBA karşılaştırılır.
   const vpix = t.id === 'gif' && res.exact ? 'rgba' : pix;
-  res.verify = res.exact && vpix ? { v: { index: v.index, pix: vpix } } : { skip: res.exact ? '' : 'Kayıplı hedef; bit-bit karşılaştırma yapılmadı.' };
-  res.summary = `${t.label}${pix ? ' · ' + pix : ''}`;
+  res.verify = res.exact && vpix
+    ? { v: { index: v.index, pix: vpix } }
+    : { skip: (ops?.edited || ops?.scale) ? 'Resim üzerinde boyutlandırma/gizleme uygulandığı için orijinal kareyle bit-bit karşılaştırma yapılmadı.' : (res.exact ? '' : 'Kayıplı hedef; bit-bit karşılaştırma yapılmadı.') };
+  const dimTag = ops?.scale ? ` · ${ops.scale.w}×${ops.scale.h}` : '';
+  res.summary = `${t.label}${pix ? ' · ' + pix : ''}${dimTag}`;
   return res;
 }
 
