@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Pratik logo">
-  <rect width="512" height="512" rx="128" fill="#102a2a"/>
-  <g transform="translate(256 236)">
-    <path d="M0-139 33-78 98-98 78-33 139 0 78 33 98 98 33 78 0 139-33 78-98 98-78 33-139 0-78-33-98-98-33-78Z" fill="#36c8b0"/>
-    <path d="M0-92 22-42 75-52 52 0 75 52 22 42 0 92-22 42-75 52-52 0-75-52-22-42Z" fill="#102a2a"/>
-    <path d="m-47 5 31 31 66-76" fill="none" stroke="#ffc86a" stroke-linecap="round" stroke-linejoin="round" stroke-width="23"/>
-  </g>
-</svg>
