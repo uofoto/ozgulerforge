@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pratik-shell-v6';
+const CACHE_NAME = 'pratik-shell-v7';
 const APP_ROOT = new URL('./', self.location.href);
 const APP_SHELL = ['index.html', 'styles.css', 'app.js', 'qrcode.mjs', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'manus-routes.json'].map((path) => new URL(path, APP_ROOT).href);
 
