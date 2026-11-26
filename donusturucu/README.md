@@ -2,10 +2,14 @@
 
 Geliştirici: **Ozguler Forge** (`https://ozgulerforge.com.tr`)
 İletişim: `iletisim@ozgulerforge.com.tr`
-Sürüm: `v2.4.0`
+Sürüm: `v2.5.0`
 
 Tamamen tarayıcıda çalışır (`ffmpeg.wasm 0.12` / `FFmpeg 5.1.4`). Dosyalar cihazdan çıkmaz, ilk açılıştan sonra çevrimdışı çalışır.
 Her dönüşümden sonra kaynak ve çıktının her karesi yeniden çözülüp özetleri (MD5) karşılaştırılır; ses de aynı şekilde doğrulanır.
+
+## v2.5.0 — İlerleme yüzdesi ve yeni sıra
+- Sayfa sırası: halka → dosya alanı → dönüştürülecek dosyalar → düğmeler → biçim/profil paneli.
+- Dönüştürme sırasında halkanın ortasında genel **% ilerleme** ve çevresinde ilerleme halkası; her dosya kartında ve “Dönüştür” düğmesinde de yüzde görünür. Bitince kısa süre “Bitti ✓” yazar.
 
 ## v2.4.0 — Etkileşimli biçim halkası
 - Sağdaki halka artık **hedef biçim seçicidir**: biçime dokun, ortadaki **Dönüştür** düğmesine bas. Dosyayı doğrudan bir biçimin üstüne bırakırsan o biçime kendiliğinden çevrilir. Halka, aşağıdaki biçim etiketleriyle senkron çalışır.
