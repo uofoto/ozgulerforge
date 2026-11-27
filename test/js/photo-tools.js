@@ -708,4 +708,201 @@ function initRedactTool() {
 export function initPhotoTools() {
   initResizeTool();
   initRedactTool();
+  initMetadataTool();
 }
+
+/* ==========================================================================
+   3. FOTOĞRAF METADATA STÜDYOSU (EXIF inceleme + metadata'sız kopya)
+   ========================================================================== */
+const metadataState = { items: [], selectedId: null, nextId: 1, running: false };
+
+function readExifFromJpeg(buffer) {
+  const view = new DataView(buffer);
+  if (view.byteLength < 4 || view.getUint16(0) !== 0xffd8) return {};
+  let pos = 2;
+  while (pos + 4 < view.byteLength) {
+    if (view.getUint8(pos) !== 0xff) break;
+    const marker = view.getUint8(pos + 1);
+    if (marker === 0xda || marker === 0xd9) break;
+    const length = view.getUint16(pos + 2);
+    if (length < 2 || pos + 2 + length > view.byteLength) break;
+    if (marker === 0xe1 && length >= 8 && view.getUint32(pos + 4) === 0x45786966 && view.getUint16(pos + 8) === 0) {
+      const tiff = pos + 10;
+      const little = view.getUint16(tiff) === 0x4949;
+      const u16 = o => view.getUint16(o, little);
+      const u32 = o => view.getUint32(o, little);
+      if (!little && view.getUint16(tiff) !== 0x4d4d) return {};
+      if (u16(tiff + 2) !== 42) return {};
+      const base = tiff;
+      const tags = {};
+      const readIfd = offset => {
+        const start = base + offset;
+        if (start < base || start + 2 > view.byteLength) return null;
+        const count = Math.min(u16(start), 512);
+        const out = {};
+        for (let i = 0; i < count; i++) {
+          const e = start + 2 + i * 12;
+          if (e + 12 > view.byteLength) break;
+          const tag = u16(e), type = u16(e + 2), n = u32(e + 4);
+          const sizes = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
+          const unit = sizes[type];
+          if (!unit || n > 100000) continue;
+          const bytes = unit * n;
+          const data = bytes <= 4 ? e + 8 : base + u32(e + 8);
+          if (data < base || data + bytes > view.byteLength) continue;
+          const scalar = k => type === 3 ? view.getUint16(data + k * 2, little) : type === 4 ? view.getUint32(data + k * 4, little) : type === 9 ? view.getInt32(data + k * 4, little) : null;
+          let value = null;
+          if (type === 2) value = new TextDecoder().decode(new Uint8Array(buffer, data, Math.max(0, n - 1))).replace(/[\0\s]+$/g, '');
+          else if (type === 5 || type === 10) {
+            const signed = type === 10;
+            const arr = [];
+            for (let k = 0; k < Math.min(n, 16); k++) {
+              const a = signed ? view.getInt32(data + k * 8, little) : u32(data + k * 8);
+              const b = signed ? view.getInt32(data + k * 8 + 4, little) : u32(data + k * 8 + 4);
+              arr.push(b ? a / b : 0);
+            }
+            value = n === 1 ? arr[0] : arr;
+          } else if (type === 1 || type === 7) value = Array.from(new Uint8Array(buffer, data, Math.min(n, 32)));
+          else value = n === 1 ? scalar(0) : Array.from({ length: Math.min(n, 16) }, (_, k) => scalar(k));
+          out[tag] = value;
+        }
+        return out;
+      };
+      const ifd0 = readIfd(u32(base + 4)) || {};
+      Object.assign(tags, ifd0);
+      const exif = ifd0[0x8769] ? readIfd(ifd0[0x8769]) || {} : {};
+      const gps = ifd0[0x8825] ? readIfd(ifd0[0x8825]) || {} : {};
+      const names = {
+        0x010f: ['Kamera üreticisi', ifd0[0x010f]], 0x0110: ['Kamera modeli', ifd0[0x0110]],
+        0x0131: ['Yazılım', ifd0[0x0131]], 0x0132: ['Dosya tarihi', ifd0[0x0132]],
+        0x9003: ['Çekim tarihi', exif[0x9003]], 0x9004: ['Dijitalleştirme tarihi', exif[0x9004]],
+        0x829a: ['Pozlama süresi', exif[0x829a] ? `1/${Math.round(1 / exif[0x829a])} sn`.replace('1/0', '0') : null],
+        0x829d: ['Diyafram', exif[0x829d] ? `f/${(Math.sqrt(2) ** exif[0x829d]).toFixed(1)}` : null],
+        0x8827: ['ISO', exif[0x8827]], 0x920a: ['Odak uzaklığı', exif[0x920a] ? `${exif[0x920a]} mm` : null],
+        0x0112: ['Yön', ifd0[0x0112]],
+      };
+      const result = {};
+      for (const [key, [label, value]] of Object.entries(names)) if (value != null && value !== '') result[label] = Array.isArray(value) ? value.join(', ') : String(value);
+      if (gps[1] && gps[2] && gps[3] && gps[4]) {
+        const dms = v => Array.isArray(v) ? v : [0, 0, 0];
+        const toDec = (v, ref) => {
+          const a = dms(v); const dec = (a[0] || 0) + (a[1] || 0) / 60 + (a[2] || 0) / 3600;
+          return (ref === 'S' || ref === 'W' ? -dec : dec).toFixed(6);
+        };
+        const latRef = typeof gps[1] === 'string' ? gps[1].trim() : String.fromCharCode(...(Array.isArray(gps[1]) ? gps[1] : []).filter(Number.isFinite));
+        const lonRef = typeof gps[3] === 'string' ? gps[3].trim() : String.fromCharCode(...(Array.isArray(gps[3]) ? gps[3] : []).filter(Number.isFinite));
+        result['GPS konumu'] = `${toDec(gps[2], latRef)}, ${toDec(gps[4], lonRef)}`;
+      }
+      if (ifd0[0x010e]) result['Açıklama'] = String(ifd0[0x010e]);
+      return result;
+    }
+    pos += 2 + length;
+  }
+  return {};
+}
+
+function renderMetadataList() {
+  const list = $('#mdList');
+  const clean = $('#mdCleanBtn');
+  const clear = $('#mdClearBtn');
+  if (!list) return;
+  list.replaceChildren();
+  for (const item of metadataState.items) {
+    const row = el('li', { class: 'rs-item' });
+    const head = el('div', { class: 'rs-item-info' }, el('strong', {}, item.file.name), el('span', { class: 'meta' }, fmtSize(item.file.size)));
+    row.append(head);
+    if (item.error) row.append(el('p', { class: 'note' }, item.error));
+    else {
+      const facts = [
+        ['Tür', item.file.type || 'Bilinmiyor'],
+        ['Boyut', `${item.width} × ${item.height} px`],
+        ['Son değiştirilme', item.file.lastModified ? new Date(item.file.lastModified).toLocaleString('tr-TR') : 'Bilinmiyor'],
+        ...Object.entries(item.exif),
+      ];
+      const grid = el('div', { class: 'pt-inline' });
+      for (const [label, value] of facts) grid.append(el('span', { class: 'meta' }, `${label}: ${value}`));
+      row.append(grid);
+      if (!Object.keys(item.exif).length) row.append(el('p', { class: 'meta' }, 'Okunabilir EXIF alanı bulunamadı. Bu, dosyada hiçbir metadata olmadığı anlamına gelmez.'));
+    }
+    row.append(el('button', { type: 'button', class: 'btn ghost small', onclick: () => {
+      metadataState.items = metadataState.items.filter(x => x.id !== item.id);
+      renderMetadataList();
+    } }, 'Kaldır'));
+    list.append(row);
+  }
+  if (clean) clean.disabled = metadataState.running || !metadataState.items.some(i => !i.error && i.file.type.startsWith('image/'));
+  if (clear) clear.disabled = metadataState.running || !metadataState.items.length;
+}
+
+async function addMetadataFiles(files) {
+  for (const file of Array.from(files || [])) {
+    if (!file.type.startsWith('image/')) continue;
+    const item = { id: metadataState.nextId++, file, exif: {}, width: 0, height: 0, error: null };
+    metadataState.items.push(item);
+    renderMetadataList();
+    try {
+      if (file.size > 100 * 1024 * 1024) throw new Error('100 MB üzerindeki dosyalar bu araçta işlenmiyor.');
+      const [buffer, decoded] = await Promise.all([file.arrayBuffer(), decodeImageSource(file)]);
+      item.width = decoded.w; item.height = decoded.h;
+      const tooLarge = decoded.w * decoded.h > 80000000;
+      decoded.close();
+      if (tooLarge) throw new Error('80 megapiksel üzerindeki görseller bellek güvenliği için desteklenmiyor.');
+      if (/jpe?g/i.test(file.type) || /\.jpe?g$/i.test(file.name)) item.exif = readExifFromJpeg(buffer);
+      else item.exif = {};
+    } catch (err) { item.error = err?.message || 'Dosya okunamadı.'; }
+    renderMetadataList();
+  }
+}
+
+function initMetadataTool() {
+  const drop = $('#mdDrop'), input = $('#mdFile');
+  if (!drop || !input) return;
+  input.addEventListener('change', () => { addMetadataFiles(input.files); input.value = ''; });
+  ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { e.stopPropagation(); addMetadataFiles(e.dataTransfer?.files); });
+  $('#mdClearBtn')?.addEventListener('click', () => { metadataState.items = []; renderMetadataList(); });
+  $('#mdCleanBtn')?.addEventListener('click', async () => {
+    if (metadataState.running) return;
+    metadataState.running = true; renderMetadataList();
+    const status = $('#mdStatus');
+    if (status) { status.hidden = false; status.textContent = 'Metadata’sız kopyalar hazırlanıyor…'; }
+    let done = 0;
+    try {
+      const entries = [];
+      const used = new Set();
+      for (const item of metadataState.items.filter(i => !i.error && i.file.type.startsWith('image/'))) {
+        const decoded = await decodeImageSource(item.file);
+        try {
+          if (decoded.w * decoded.h > 80000000) throw new Error(`${item.file.name}: 80 megapiksel sınırı aşıldı.`);
+          const mime = item.file.type === 'image/png' ? 'image/png' : item.file.type === 'image/webp' ? 'image/webp' : 'image/jpeg';
+          const canvas = document.createElement('canvas');
+          canvas.width = decoded.w; canvas.height = decoded.h;
+          const ctx = canvas.getContext('2d', { alpha: mime !== 'image/jpeg' });
+          if (mime === 'image/jpeg') { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+          ctx.drawImage(decoded.src, 0, 0);
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, mime, mime === 'image/jpeg' ? 0.94 : undefined));
+          if (!blob) throw new Error(`${item.file.name}: görsel çıktı oluşturulamadı.`);
+          const ext = mime === 'image/png' ? 'png' : mime === 'image/webp' ? 'webp' : 'jpg';
+          const stem = item.file.name.replace(/\.[^.]+$/, '') || 'fotograf';
+          let name = `${stem}-metadata-temiz.${ext}`, n = 2;
+          while (used.has(name.toLowerCase())) name = `${stem}-metadata-temiz-${n++}.${ext}`;
+          used.add(name.toLowerCase());
+          entries.push({ name, data: blob });
+          done++;
+        } finally { decoded.close(); }
+      }
+      if (entries.length) {
+        const zipBlob = await makeZip(entries);
+        const url = URL.createObjectURL(zipBlob);
+        const a = el('a', { href: url, download: 'kontak-metadata-temiz.zip' });
+        document.body.append(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      }
+      if (status) status.textContent = `${done} temizlenmiş kopya ZIP olarak hazırlandı. Orijinal dosyalar değiştirilmedi.`;
+    } catch (err) {
+      if (status) status.textContent = `İşlem durdu: ${err?.message || err}. Hazırlanan dosya sayısı: ${done}.`;
+    } finally { metadataState.running = false; renderMetadataList(); }
+  });
+}
+

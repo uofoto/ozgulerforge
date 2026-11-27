@@ -1,4 +1,4 @@
-const VERSION = 'kontak-v2.7.0';
+const VERSION = 'kontak-v2.8.0';
 const SHELL = [
   './',
   'index.html',

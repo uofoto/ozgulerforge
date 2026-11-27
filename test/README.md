@@ -7,6 +7,13 @@ Sürüm: `v2.7.0`
 Dönüştürme işlemleri tarayıcıda ve yerel olarak yapılır (`ffmpeg.wasm 0.12` / `FFmpeg 5.1.4`); kullanıcı dosyaları sunucuya yüklenmez. Ancak bu ZIP paketinde yaklaşık 32 MB boyutundaki FFmpeg WASM dosyası bulunmadığından motor ilk kullanımda CDN bağlantısı gerektirir. Motor dosyası önceden indirilip çevrimdışı erişilebilir duruma getirilmeden tam çevrimdışı kullanım garanti edilmez. HEIC/HEIF için tarayıcı yerleşik desteği yoksa `heic2any` de CDN üzerinden yüklenir.
 Dönüşüm sonrası desteklenen görüntü ve ses akışları yeniden çözülerek özetleri karşılaştırılır. Bu kontrol, kapsayıcı metadata, altyazı veya bütün dosyanın bit düzeyinde aynı kaldığını tek başına kanıtlamaz.
 
+## v2.8.0 — Fotoğraf Metadata Stüdyosu
+- Fotoğrafların dosya türü, boyutu, piksel ölçüleri ve değişiklik tarihi incelenebilir; JPEG dosyalarında EXIF içindeki kamera, çekim tarihi, pozlama, ISO, odak uzaklığı ve GPS alanları okunabildiği ölçüde gösterilir.
+- Metadata temizlenmiş kopya oluşturma, görseli tarayıcıda yeniden kodlar ve bir ZIP arşivi olarak indirir. Orijinal dosya değiştirilmez; çıktı dosyası yeni bir dosya olarak indirilir.
+- Metadata okuma ve temizleme cihaz üzerinde yapılır. EXIF dışındaki tüm biçimlere ait metadata alanlarının eksiksiz listelendiği iddia edilmez. Yeniden kodlama piksel sıkıştırmasını etkileyebilir; hareketli görseller tek kareye dönüşebilir.
+- Araç mevcut `js/photo-tools.js` modülüne eklendi; ana dönüştürme motoruna ve mevcut araçların işleyişine müdahale edilmedi.
+- Service Worker önbellek sürümü `2.8.0` olarak artırıldı.
+
 ## v2.7.0 — PDF düzenleme araçları
 - PDF araçlarına yeni **PDF Düzenle** aracı eklendi: tüm sayfaları 90°/180°/270° döndürme, sayfa numarası ekleme (üst/alt orta) ve metin filigranı ekleme (ayarlanabilir saydamlık).
 - Kaynak PDF değiştirilmez; düzenlenmiş kopya indirilir. İşlem tarayıcıda `pdf-lib` ile yapılır.
