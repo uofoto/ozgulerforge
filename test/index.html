@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kontak Studio · Kayıpsız Resim ve Video Dönüştürücü | Ozguler Forge</title>
+<meta name="description" content="Ozguler Forge tarafından geliştirilen Kontak Studio; resim ve videoları cihazınızdan çıkarmadan dönüştürür ve dönüşüm sonuçlarını doğrular.">
+<meta name="author" content="Ozguler Forge">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f4ff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e0d1b" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest?v=2.7.0">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- SIGNATURE SPLASH -->
+<div id="splash" class="splash" aria-hidden="true">
+  <div class="splash-inner">
+    <div id="splashMark" class="splash-mark">
+      <svg viewBox="0 0 32 32" width="76" height="76" aria-hidden="true">
+        <rect class="sq sq-1" x="2" y="2" width="12" height="12" rx="2.5" fill="var(--ink)"/>
+        <rect class="sq sq-2" x="18" y="2" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+        <rect class="sq sq-4" x="2" y="18" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+        <rect class="sq sq-3" x="18" y="18" width="12" height="12" rx="2.5" fill="var(--ink)"/>
+        <rect class="sheen" x="-16" y="0" width="12" height="32" fill="url(#sheenGrad)"/>
+        <defs>
+          <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+            <stop offset="50%" stop-color="#ffffff" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <div class="splash-text">
+      <strong>Kontak Studio</strong>
+      <span>Ozguler Forge · Zero-Loss Media Engine</span>
+    </div>
+  </div>
+</div>
+
+
+<header class="top">
+  <div class="brand">
+    <svg id="headerLogo" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+      <rect x="2" y="2" width="12" height="12" rx="2.5" fill="currentColor"/>
+      <rect x="18" y="2" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+      <rect x="2" y="18" width="12" height="12" rx="2.5" fill="var(--accent)"/>
+      <rect x="18" y="18" width="12" height="12" rx="2.5" fill="currentColor"/>
+    </svg>
+    <div class="brand-titles">
+      <strong>Kontak Studio</strong>
+      <small>Ozguler Forge</small>
+    </div>
+  </div>
+
+  <div class="top-actions">
+    <button id="install" type="button" class="btn small primary">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span>Uygulamayı İndir</span>
+    </button>
+    <button id="update" type="button" class="btn small primary" hidden>Yeni Sürüm · Yükle</button>
+  </div>
+</header>
+
+<main>
+  <section class="intro hero">
+    <div class="hero-copy">
+      <span class="eyebrow">Kayıpsız · Yerel · Güvenli</span>
+      <h1>Piksel kaybı olmadan <span class="hl">stüdyo dönüşümü.</span></h1>
+      <p>Dosyaların kendisi cihazından çıkmaz ve dönüştürme yerel olarak yapılır. Dönüşüm sonrası desteklenen görüntü ve ses akışları ayrıca doğrulanır.</p>
+      <div class="hero-badges">
+        <span class="hbadge">Biçime dokun · dosyayı bırak · ortadan dönüştür</span>
+      </div>
+    </div>
+    <div class="hero-art">
+      <svg class="donut" viewBox="0 0 320 320" role="radiogroup" aria-label="Hedef biçim">
+        <g class="seg" style="--i:0" data-target="png" role="radio" aria-checked="false" tabindex="0"><path d="M163.3 14.0A146 146 0 0 1 260.9 54.4L208.4 109.4A70 70 0 0 0 161.6 90.0Z"/><text x="201.3" y="60.2">PNG</text></g><g class="seg" style="--i:1" data-target="webp" role="radio" aria-checked="false" tabindex="0"><path d="M265.6 59.1A146 146 0 0 1 306.0 156.7L230.0 158.4A70 70 0 0 0 210.6 111.6Z"/><text x="259.8" y="118.7">WebP</text></g><g class="seg" style="--i:2" data-target="tiff" role="radio" aria-checked="false" tabindex="0"><path d="M306.0 163.3A146 146 0 0 1 265.6 260.9L210.6 208.4A70 70 0 0 0 230.0 161.6Z"/><text x="259.8" y="201.3">TIFF</text></g><g class="seg" style="--i:3" data-target="jpg" role="radio" aria-checked="false" tabindex="0"><path d="M260.9 265.6A146 146 0 0 1 163.3 306.0L161.6 230.0A70 70 0 0 0 208.4 210.6Z"/><text x="201.3" y="259.8">JPEG</text></g><g class="seg" style="--i:4" data-target="bmp" role="radio" aria-checked="false" tabindex="0"><path d="M156.7 306.0A146 146 0 0 1 59.1 265.6L111.6 210.6A70 70 0 0 0 158.4 230.0Z"/><text x="118.7" y="259.8">BMP</text></g><g class="seg" style="--i:5" data-target="gif" role="radio" aria-checked="false" tabindex="0"><path d="M54.4 260.9A146 146 0 0 1 14.0 163.3L90.0 161.6A70 70 0 0 0 109.4 208.4Z"/><text x="60.2" y="201.3">GIF</text></g><g class="seg" style="--i:6" data-target="mkv-ffv1" role="radio" aria-checked="false" tabindex="0"><path d="M14.0 156.7A146 146 0 0 1 54.4 59.1L109.4 111.6A70 70 0 0 0 90.0 158.4Z"/><text x="60.2" y="118.7">MKV</text></g><g class="seg" style="--i:7" data-target="mp4-h264" role="radio" aria-checked="false" tabindex="0"><path d="M59.1 54.4A146 146 0 0 1 156.7 14.0L158.4 90.0A70 70 0 0 0 111.6 109.4Z"/><text x="118.7" y="60.2">MP4</text></g>
+        <circle class="donut-ring" cx="160" cy="160" r="62"/>
+        <circle class="donut-prog" id="donutProg" cx="160" cy="160" r="62" transform="rotate(-90 160 160)"/>
+        <g class="donut-go" id="donutGo" role="button" tabindex="0" aria-label="Dönüştür">
+          <circle class="donut-core" cx="160" cy="160" r="58"/>
+          <text class="donut-title" id="donutTitle" x="160" y="152">Dönüştür</text>
+          <text class="donut-sub" id="donutSub" x="160" y="174">dosya ekle</text>
+        </g>
+      </svg>
+      <p class="donut-hint" id="donutHint" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <div id="batchBar" class="batch-bar" hidden></div>
+
+  <p id="empty" class="empty">Henüz dosya yok. Bir resim ya da video ekleyince kuyruk burada açılır.</p>
+  <ul id="list" class="list"></ul>
+
+  <section class="actions">
+    <button id="go" class="btn primary big" disabled>Dönüştür</button>
+    <button id="cancel" class="btn" hidden>İptal</button>
+    <button id="zipAll" class="btn" hidden>Hepsini ZIP indir</button>
+    <button id="clear" class="btn ghost" hidden>Listeyi temizle</button>
+  </section>
+
+  <section id="drop" class="drop" tabindex="0" aria-label="Dosya ekle">
+    <span class="drop-ico" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg></span>
+    <p><strong>Dosyaları buraya bırak</strong>, panodan yapıştır <span class="kbd-hint">(<kbd>Ctrl+V</kbd>)</span> ya da seç</p>
+    <label class="btn primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <span>Dosya seç</span>
+      <input id="file" type="file" multiple accept="image/*,video/*,.mkv,.avi,.mov,.ts,.mts,.m2ts,.flv,.wmv,.tif,.tiff,.bmp,.qoi,.tga,.pam,.ppm,.pgm,.pbm,.jp2,.j2k,.exr,.psd,.dds,.pcx,.avif,.heic,.heif,.jxl,.apng,.ico">
+    </label>
+    <p class="sub-hint">Resim (PNG, WebP, TIFF, JP2, BMP, QOI, HEIC, AVIF) · Video (MP4, MKV, MOV, AVI) · Hareketli (APNG, GIF) · Kare Dizisi</p>
+  </section>
+
+  <details class="panel fold" id="panel" data-auto>
+    <summary class="fold-sum">
+      <span class="fold-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span>
+      <span class="fold-t"><strong id="h-target">Hedef biçim ve profil</strong><small id="panelSummary">PNG</small></span>
+      <svg class="fold-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="fold-body">
+    <div class="panel-top">
+      <div id="presets" class="presets" role="group" aria-label="Hızlı profiller">
+        <button type="button" class="preset" data-preset="archive">Arşiv · Bit-Bit Kayıpsız</button>
+        <button type="button" class="preset" data-preset="web-lossless">Web · Kayıpsız Hızlı</button>
+        <button type="button" class="preset" data-preset="frames">Kare Ayıkla · PNG ZIP</button>
+        <button type="button" class="preset" data-preset="anim">Hareketli · APNG</button>
+      </div>
+    </div>
+    <div id="targets"></div>
+
+    <!-- PDF GRUBU (Resim / Video gibi): renderTargets içinde grupların altına taşınır -->
+    <div class="tgroup pdf-group" id="pdfGroup">
+      <h3>PDF</h3>
+      <div class="pdf-body">
+        <div class="pdf-cards" role="group" aria-label="PDF araçları">
+          <button type="button" class="pdf-card" data-pdf-tool="merge" aria-pressed="false" aria-controls="pdfWork"><strong>PDF Birleştir</strong><span>Birden fazla PDF’i tek dosya yap</span></button>
+          <button type="button" class="pdf-card" data-pdf-tool="split" aria-pressed="false" aria-controls="pdfWork"><strong>PDF Böl</strong><span>Sayfa seç, ayır ya da sil</span></button>
+          <button type="button" class="pdf-card" data-pdf-tool="tojpg" aria-pressed="false" aria-controls="pdfWork"><strong>PDF → JPG</strong><span>Sayfaları görsele çevir</span></button>
+          <button type="button" class="pdf-card" data-pdf-tool="fromjpg" aria-pressed="false" aria-controls="pdfWork"><strong>JPG → PDF</strong><span>Fotoğraflardan PDF üret</span></button>
+          <button type="button" class="pdf-card" data-pdf-tool="edit" aria-pressed="false" aria-controls="pdfWork"><strong>PDF Düzenle</strong><span>Sayfa döndür, numara ve filigran ekle</span></button>
+        </div>
+
+        <div class="pdf-work" id="pdfWork" hidden>
+
+          <!-- PDF BİRLEŞTİR -->
+          <section class="pdf-tool" data-tool="merge" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>PDF dosyalarını buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · birden fazla dosya eklenebilir</p>
+              <label class="btn primary small"><span>PDF Seç</span><input type="file" accept="application/pdf,.pdf" multiple></label>
+            </div>
+            <ul class="rs-list pdf-list"></ul>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>Birleştir</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note"><strong>Sıra önemli:</strong> Dosyalar listedeki sırayla birleşir; ↑ ↓ ile sırayı değiştirebilirsiniz. En az iki PDF gerekir. Sayfalar yeniden sıkıştırılmadan taşınır; yer imleri ve form alanları taşınmayabilir.</p>
+          </section>
+
+          <!-- PDF BÖL -->
+          <section class="pdf-tool" data-tool="split" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>Bölünecek PDF’i buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · tek dosya</p>
+              <label class="btn primary small"><span>PDF Seç</span><input type="file" accept="application/pdf,.pdf"></label>
+            </div>
+            <p class="meta pdf-fileinfo" hidden></p>
+            <div class="pt-card pdf-opts" hidden>
+              <div class="pt-row">
+                <span class="pt-lbl">İŞLEM</span>
+                <div class="pt-pills" role="group" aria-label="Bölme işlemi">
+                  <button type="button" class="pt-pill active" data-split-mode="select">Seç<small>seçilenleri yeni PDF yap</small></button>
+                  <button type="button" class="pt-pill" data-split-mode="separate">Ayır<small>her sayfa ayrı PDF</small></button>
+                  <button type="button" class="pt-pill" data-split-mode="delete">Sil<small>seçilenleri çıkar</small></button>
+                </div>
+              </div>
+              <div class="pt-row">
+                <span class="pt-lbl">SAYFA</span>
+                <div class="pdf-picker">
+                  <div class="pt-inline">
+                    <input type="text" class="pt-input pdf-range" placeholder="Örn: 1-3, 5, 8-" autocomplete="off" spellcheck="false" aria-label="Sayfa aralığı">
+                    <button type="button" class="btn ghost small" data-pick="all">Tümünü seç</button>
+                    <button type="button" class="btn ghost small" data-pick="none">Seçimi temizle</button>
+                  </div>
+                  <div class="pdf-pages" role="group" aria-label="Sayfa seçimi"></div>
+                  <span class="meta pdf-picker-meta" role="status"></span>
+                </div>
+              </div>
+            </div>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>Seçilenleri PDF yap</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note"><strong>Ayır</strong> modunda seçili her sayfa ayrı bir PDF olur (seçim yoksa tüm sayfalar) ve ZIP olarak indirilir. <strong>Sil</strong> modunda seçilen sayfalar çıkarılıp kalanı tek PDF olarak kaydedilir.</p>
+          </section>
+
+          <!-- PDF → JPG -->
+          <section class="pdf-tool" data-tool="tojpg" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>PDF’i buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · her sayfa ayrı JPG olur</p>
+              <label class="btn primary small"><span>PDF Seç</span><input type="file" accept="application/pdf,.pdf"></label>
+            </div>
+            <p class="meta pdf-fileinfo" hidden></p>
+            <div class="pt-card pdf-opts" hidden>
+              <div class="pt-row">
+                <span class="pt-lbl">ÇIKTI</span>
+                <div class="pt-inline">
+                  <label>Çözünürlük
+                    <select class="pt-select" data-opt="dpi">
+                      <option value="100">Hızlı · 100 DPI</option>
+                      <option value="150" selected>Standart · 150 DPI</option>
+                      <option value="200">Yüksek · 200 DPI</option>
+                      <option value="300">Baskı · 300 DPI</option>
+                    </select>
+                  </label>
+                  <label>JPG kalitesi
+                    <select class="pt-select" data-opt="quality">
+                      <option value="95" selected>En yüksek · %95</option>
+                      <option value="85">Yüksek · %85</option>
+                      <option value="70">Küçük dosya · %70</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <div class="pt-row">
+                <span class="pt-lbl">SAYFA</span>
+                <div class="pdf-picker">
+                  <div class="pt-inline">
+                    <input type="text" class="pt-input pdf-range" placeholder="Boş = tüm sayfalar" autocomplete="off" spellcheck="false" aria-label="Sayfa aralığı">
+                    <button type="button" class="btn ghost small" data-pick="all">Tümünü seç</button>
+                    <button type="button" class="btn ghost small" data-pick="none">Seçimi temizle</button>
+                  </div>
+                  <div class="pdf-pages" role="group" aria-label="Sayfa seçimi"></div>
+                  <span class="meta pdf-picker-meta" role="status"></span>
+                </div>
+              </div>
+            </div>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>JPG’ye çevir</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note">Sayfa seçmezseniz tüm sayfalar çevrilir. Birden fazla sayfa ZIP olarak, tek sayfa doğrudan JPG olarak indirilir. JPG kayıplı bir biçimdir; en yüksek kalite için PNG hedefini kullanabilirsiniz.</p>
+          </section>
+
+          <!-- JPG → PDF -->
+          <section class="pdf-tool" data-tool="fromjpg" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>Fotoğrafları buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · JPEG, PNG, WebP ve diğer resimler</p>
+              <label class="btn primary small"><span>Fotoğraf Seç</span><input type="file" accept="image/*" multiple></label>
+            </div>
+            <ul class="rs-list pdf-list"></ul>
+            <div class="pt-card pdf-opts">
+              <div class="pt-row">
+                <span class="pt-lbl">SAYFA</span>
+                <div class="pt-inline">
+                  <label>Boyut
+                    <select class="pt-select" data-opt="size">
+                      <option value="fit" selected>Görsel boyutu (boşluksuz)</option>
+                      <option value="a4">A4</option>
+                      <option value="letter">Letter</option>
+                    </select>
+                  </label>
+                  <label>Yön
+                    <select class="pt-select" data-opt="orient">
+                      <option value="auto" selected>Otomatik</option>
+                      <option value="portrait">Dikey</option>
+                      <option value="landscape">Yatay</option>
+                    </select>
+                  </label>
+                  <label>Kenar boşluğu
+                    <select class="pt-select" data-opt="margin">
+                      <option value="none" selected>Yok</option>
+                      <option value="small">Küçük (10 mm)</option>
+                      <option value="normal">Normal (20 mm)</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>PDF oluştur</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note">Her görsel bir sayfa olur; sırayı ↑ ↓ ile değiştirebilirsiniz. JPEG dosyalar yeniden sıkıştırılmadan olduğu gibi gömülür, telefon fotoğraflarının yönü otomatik düzeltilir. Yön ve kenar boşluğu yalnızca A4 / Letter seçildiğinde kullanılır.</p>
+          </section>
+
+          <!-- PDF DÜZENLE -->
+          <section class="pdf-tool" data-tool="edit" hidden>
+            <div class="pt-drop" tabindex="0">
+              <p><strong>Düzenlenecek PDF’i buraya sürükleyin</strong></p>
+              <p class="meta">ya da tıklayıp seçin · tek PDF dosyası</p>
+              <label class="btn primary small"><span>PDF Seç</span><input type="file" accept="application/pdf,.pdf"></label>
+            </div>
+            <p class="meta pdf-fileinfo" hidden></p>
+            <div class="pt-card pdf-opts" hidden>
+              <div class="pt-row">
+                <span class="pt-lbl">DÖNDÜR</span>
+                <div class="pt-inline">
+                  <label>Sayfalar
+                    <select class="pt-select" data-opt="rotation">
+                      <option value="0">Döndürme</option>
+                      <option value="90">90° sağa</option>
+                      <option value="180">180°</option>
+                      <option value="270">90° sola</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <div class="pt-row">
+                <span class="pt-lbl">NUMARA</span>
+                <div class="pt-inline">
+                  <label><input type="checkbox" data-opt="pageNumbers"> Sayfa numarası ekle</label>
+                  <label>Konum
+                    <select class="pt-select" data-opt="numberPosition">
+                      <option value="bottom">Alt orta</option>
+                      <option value="top">Üst orta</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <div class="pt-row">
+                <span class="pt-lbl">FİLİGRAN</span>
+                <div class="pt-inline">
+                  <label>Metin <input class="pt-input" style="width: min(260px, 100%)" type="text" maxlength="60" data-opt="watermark" placeholder="Örn. TASLAK"></label>
+                  <label>Saydamlık
+                    <select class="pt-select" data-opt="opacity">
+                      <option value="0.12">Çok hafif</option>
+                      <option value="0.22" selected>Hafif</option>
+                      <option value="0.35">Belirgin</option>
+                      <option value="0.5">Koyu</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <p class="note pdf-status" role="status" hidden></p>
+            <div class="pt-actions">
+              <button type="button" class="btn primary small" data-act="run" disabled>PDF’i düzenle</button>
+              <button type="button" class="btn ghost small" data-act="clear" disabled>Temizle</button>
+            </div>
+            <div class="pdf-result" hidden></div>
+            <p class="note">İşlem tüm sayfalara uygulanır. Filigran ve sayfa numarası PDF içeriğine işlenir; bu araç dijital imza veya hukuki belge doğrulaması sağlamaz. Kaynak dosya değiştirilmez.</p>
+          </section>
+
+        </div>
+      </div>
+    </div>
+    </div>
+  </details>
+
+
+  <!-- FOTOĞRAF BOYUTLANDIRMA & HEDEF BOYUT ARACI -->
+  <details class="panel fold" id="resizePanel" data-auto>
+    <summary class="fold-sum">
+      <span class="fold-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></span>
+      <span class="fold-t"><strong>Fotoğraf Boyutlandır ve Sıkıştır</strong><small>Hedef dosya boyutuna (50 KB – 1 MB) göre akıllı çözünürlük ve kalite ayarı</small></span>
+      <svg class="fold-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="fold-body">
+
+      <div id="rsDrop" class="pt-drop" tabindex="0">
+        <p><strong>Fotoğrafları buraya sürükleyin</strong></p>
+        <p class="meta">ya da tıklayıp seçin · JPEG, PNG, WebP</p>
+        <label class="btn primary small">
+          <span>Fotoğraf Seç</span>
+          <input id="rsFile" type="file" multiple accept="image/*">
+        </label>
+      </div>
+
+      <div class="pt-card">
+        <div class="pt-row">
+          <span class="pt-lbl">HEDEF</span>
+          <div class="pt-pills" role="group" aria-label="Hedef dosya boyutu">
+            <button type="button" class="pt-pill" data-rs-target="51200">50 KB</button>
+            <button type="button" class="pt-pill active" data-rs-target="102400">100 KB</button>
+            <button type="button" class="pt-pill" data-rs-target="204800">200 KB</button>
+            <button type="button" class="pt-pill" data-rs-target="512000">500 KB</button>
+            <button type="button" class="pt-pill" data-rs-target="1048576">1 MB</button>
+            <button type="button" class="pt-pill" data-rs-target="custom">Özel<small>kendi değerin</small></button>
+            <button type="button" class="pt-pill" data-rs-target="keep">Kaliteyi koru<small>hedef yok</small></button>
+          </div>
+        </div>
+
+        <div class="pt-row" id="rsCustomRow" hidden>
+          <span class="pt-lbl">ÖZEL</span>
+          <div class="pt-inline">
+            <label>Hedef boyut <input id="rsCustomVal" type="number" min="5" max="50000" value="250" class="pt-input"></label>
+            <label>Birim
+              <select id="rsCustomUnit" class="pt-select">
+                <option value="KB" selected>KB</option>
+                <option value="MB">MB</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-row">
+          <span class="pt-lbl">ÇIKTI</span>
+          <div class="pt-inline">
+            <label>Format
+              <select id="rsFormat" class="pt-select">
+                <option value="image/jpeg" selected>JPEG — her yerde açılır</option>
+                <option value="image/webp">WebP — daha küçük dosya</option>
+                <option value="image/png">PNG — kayıpsız</option>
+              </select>
+            </label>
+            <label>Üst sınır
+              <select id="rsMaxEdge" class="pt-select">
+                <option value="0" selected>Çözünürlüğü araç seçsin</option>
+                <option value="2560">En fazla 2560 px</option>
+                <option value="1920">En fazla 1920 px (Full HD)</option>
+                <option value="1600">En fazla 1600 px</option>
+                <option value="1280">En fazla 1280 px</option>
+                <option value="1024">En fazla 1024 px</option>
+                <option value="800">En fazla 800 px</option>
+              </select>
+            </label>
+            <label class="check"><input id="rsSimplify" type="checkbox"> Dosya adını sadeleştir</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-actions">
+        <button type="button" id="rsZipBtn" class="btn primary small" disabled>ZIP indir</button>
+        <button type="button" id="rsSingleBtn" class="btn small" disabled>Tek tek indir</button>
+        <button type="button" id="rsClearBtn" class="btn ghost small" disabled>Temizle</button>
+      </div>
+
+      <ul id="rsList" class="rs-list"></ul>
+
+      <p class="note"><strong>Nasıl çalışıyor:</strong> Araç yalnızca sıkıştırmayı artırmıyor. Hedefi tutturan ve kalitesi %78'in altına düşmeyen en büyük çözünürlüğü arıyor — yani fotoğrafı bozmak yerine gerektiği kadar küçültüyor. Sonuçta ulaşılan kalite ve çözünürlük her dosyanın yanında yazıyor.</p>
+    </div>
+  </details>
+
+  <!-- YÜZ VE PLAKA GİZLEME ARACI -->
+  <details class="panel fold" id="redactPanel" data-auto>
+    <summary class="fold-sum">
+      <span class="fold-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg></span>
+      <span class="fold-t"><strong>Yüz ve Plaka Gizleme</strong><small>Bulanıklaştır, pikselleştir veya geri getirilemez düz blok ile sansürle</small></span>
+      <svg class="fold-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="fold-body">
+      <div class="rd-layout">
+        <div class="rd-canvas-col">
+          <div id="rdEmptyState" class="pt-drop" tabindex="0">
+            <p><strong>Gizleme yapılacak fotoğrafı seçin veya sürükleyin</strong></p>
+            <p class="meta">Yüklendikten sonra fotoğraf üzerinde fare veya parmağınızla sürükleyerek yüz ve plakaları işaretleyin.</p>
+            <label class="btn primary small">
+              <span>Fotoğraf Seç</span>
+              <input id="rdFile" type="file" accept="image/*">
+            </label>
+          </div>
+          <div id="rdStageWrap" class="rd-stage-wrap" hidden>
+            <canvas id="rdCanvas" class="rd-canvas"></canvas>
+          </div>
+        </div>
+
+        <aside class="rd-side">
+          <div class="rd-group">
+            <span class="pt-lbl">YÖNTEM</span>
+            <button type="button" class="rd-method-btn" data-rd-method="blur">
+              <strong>Bulanıklaştır</strong>
+              <small>doğal görünür</small>
+            </button>
+            <button type="button" class="rd-method-btn active" data-rd-method="pixelate">
+              <strong>Pikselleştir</strong>
+              <small>mozaik etkisi</small>
+            </button>
+            <button type="button" class="rd-method-btn" data-rd-method="solid">
+              <strong>Düz blok</strong>
+              <small>geri getirilemez</small>
+            </button>
+          </div>
+
+          <div class="rd-group">
+            <span class="pt-lbl">ŞİDDET</span>
+            <label class="rd-range-lbl">Güç <strong id="rdStrengthVal">70</strong></label>
+            <input id="rdStrength" type="range" min="15" max="100" value="70" class="rd-range">
+          </div>
+
+          <div class="rd-group">
+            <span class="pt-lbl">ALANLAR</span>
+            <div class="rd-btn-pair">
+              <button type="button" id="rdUndoBtn" class="btn small" disabled>Geri al</button>
+              <button type="button" id="rdClearBtn" class="btn small" disabled>Hepsini sil</button>
+            </div>
+            <span id="rdCount" class="meta">0 alan seçildi.</span>
+          </div>
+        </aside>
+      </div>
+
+      <div class="rd-footer-bar">
+        <div class="pt-inline">
+          <button type="button" id="rdDownloadBtn" class="btn primary small" disabled>İndir</button>
+          <label>Format
+            <select id="rdFormat" class="pt-select">
+              <option value="image/jpeg" selected>JPG</option>
+              <option value="image/png">PNG</option>
+              <option value="image/webp">WebP</option>
+            </select>
+          </label>
+          <button type="button" id="rdResetBtn" class="btn small" disabled>Sıfırla</button>
+        </div>
+        <span id="rdFileMeta" class="meta"></span>
+      </div>
+
+      <p class="note"><strong>Kalıcı gizleme için düz blok kullanın.</strong> Bulanıklaştırma ve pikselleştirme görüntüyü yok etmez, bilgiyi dağıtır — plaka ve yazı gibi içeriği tahmin edilebilen alanlarda kısmen geri çevrilebilir. Düz blokta altındaki pikseller tamamen silinir, geri getirilemez.</p>
+    </div>
+  </details>
+
+  <details class="guide fold" data-auto>
+    <summary class="fold-sum">
+      <span class="fold-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+      <span class="fold-t"><strong id="h-guide">Nasıl kullanılır?</strong><small>3 adımda dönüştür</small></span>
+      <svg class="fold-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="fold-body guide-grid">
+      <div class="guide-step">
+        <span class="step-num">1</span>
+        <h3>Dosyalarını Ekle</h3>
+        <p>Resim veya video dosyalarını alana sürükle, <kbd>Ctrl+V</kbd> ile yapıştır ya da "Dosya seç" ile cihazından belirle.</p>
+      </div>
+      <div class="guide-step">
+        <span class="step-num">2</span>
+        <h3>Profil ve Çabayı Seç</h3>
+        <p>Hızlı profillerden veya format etiketlerinden hedefi seç.</p>
+      </div>
+      <div class="guide-step">
+        <span class="step-num">3</span>
+        <h3>Dönüştür, Kıyasla ve İndir</h3>
+        <p>İşlem tamamen tarayıcı belleğinde tamamlanır; kare özetlerini incele, önce/sonra kıyasla ve tek tek veya ZIP indir.</p>
+      </div>
+    </div>
+  </details>
+
+  <details class="fine fold">
+    <summary class="fold-sum">
+      <span class="fold-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></span>
+      <span class="fold-t"><strong>Teknik bilgiler ve sınırlar</strong><small>Kayıpsız ne demek, dikkat edilecekler</small></span>
+      <svg class="fold-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <ul class="fold-body">
+      <li><strong>Çözülmüş piksel birebirliği:</strong> Çıktı, kaynağın çözülmüş piksellerini birebir korur. JPEG gibi önceden kayıplı sıkıştırılmış bir dosyanın eski kaybı geri gelmez; yalnızca yeni kayıp eklenmez.</li>
+      <li><strong>Ses akışı:</strong> Mümkünse olduğu gibi kopyalanır. Kapsayıcı izin vermezse kayıpsız ses (ALAC, PCM) seçilir. WebM çıktısında yalnızca Opus/Vorbis desteklendiği için ses yeniden kodlanır.</li>
+      <li><strong>Üst veri (Metadata):</strong> ICC renk profili ve EXIF bilgisi resimlere taşınmaz; video üst verileri korunur.</li>
+      <li><strong>Oynatıcı uyumluluğu:</strong> Kayıpsız H.264 (High 4:4:4 Predictive) her standart oynatıcıda açılmaz; VLC ve mpv sorunsuz açar. Arşivleme için MKV·FFV1 veya PNG önerilir.</li>
+      <li><strong>Bellek sınırı:</strong> İşlemler tarayıcı belleğinde (WebAssembly) yürütülür; yaklaşık 2 GB üzerindeki tekil dosyalar cihaz RAM kapasitesine bağlı olarak başarısız olabilir.</li>
+      <li><strong>Modern resim biçimleri:</strong> HEIC, AVIF ve JPEG XL girdileri için tarayıcının yerleşik çözücüsü kullanılır (8 bit sRGB).</li>
+      <li><strong>Çevrimdışı çalışma:</strong> İlk açılışta 32 MB boyutundaki FFmpeg çekirdeği önbelleğe alınır; sonrasında internet bağlantısı olmadan kullanılabilir.</li>
+    </ul>
+  </details>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <strong>Kontak Studio</strong>
+      <span>Sürüm <code id="appVersion">v2.7.0</code> · <span id="footerEngineInfo">FFmpeg 5.1.4 · WASM</span></span>
+      <p>Geliştirici: <a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">Ozguler Forge</a> · İletişim: <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a></p>
+    </div>
+    <nav class="footer-links" aria-label="Yasal metinler">
+      <button type="button" class="link-btn" data-modal="privacy">Gizlilik Politikası</button>
+      <button type="button" class="link-btn" data-modal="kvkk">KVKK Aydınlatma Metni</button>
+      <button type="button" class="link-btn" data-modal="terms">Kullanım Koşulları</button>
+      <button type="button" class="link-btn" data-modal="licenses">Açık Kaynak Lisansları</button>
+    </nav>
+    <p class="copyright">© 2026 Ozguler Forge (ozgulerforge.com.tr). Tüm hakları saklıdır.</p>
+  </div>
+</footer>
+
+<!-- MODAL (YASAL / KURULUM / ÖNCE-SONRA KIYAS) -->
+<dialog id="legalModal" class="modal" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <header class="modal-head">
+      <h2 id="modalTitle">Bilgilendirme</h2>
+      <button type="button" id="closeModal" class="x" aria-label="Pencereyi kapat">×</button>
+    </header>
+    <div id="modalBody" class="modal-body"></div>
+    <footer class="modal-foot">
+      <button type="button" id="closeModalBtn" class="btn primary small">Kapat</button>
+    </footer>
+  </div>
+</dialog>
+
+<script>
+(function initSignatureSplash() {
+  const splash = document.getElementById('splash');
+  const mark = document.getElementById('splashMark');
+  const targetLogo = document.getElementById('headerLogo');
+  if (!splash || !mark || !targetLogo) return;
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) { splash.remove(); return; }
+
+  setTimeout(() => {
+    const startRect = mark.getBoundingClientRect();
+    const endRect = targetLogo.getBoundingClientRect();
+    if (endRect.width > 0 && startRect.width > 0) {
+      const dx = (endRect.left + endRect.width / 2) - (startRect.left + startRect.width / 2);
+      const dy = (endRect.top + endRect.height / 2) - (startRect.top + startRect.height / 2);
+      const scale = endRect.width / startRect.width;
+      mark.style.transition = 'transform 520ms cubic-bezier(0.22, 1, 0.36, 1), opacity 420ms ease';
+      mark.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    }
+    splash.classList.add('is-leaving');
+    setTimeout(() => splash.remove(), 560);
+  }, 1050);
+})();
+
+(function initLegalModals() {
+  const modal = document.getElementById('legalModal');
+  const title = document.getElementById('modalTitle');
+  const body = document.getElementById('modalBody');
+  const closeTop = document.getElementById('closeModal');
+  const closeBottom = document.getElementById('closeModalBtn');
+
+  const LEGAL_DOCS = {
+    privacy: {
+      title: 'Gizlilik Politikası',
+      html: `
+        <p><strong>Son Güncelleme:</strong> 2026 · <strong>Sorumlu:</strong> Ozguler Forge (<a href="https://ozgulerforge.com.tr" target="_blank" rel="noopener">ozgulerforge.com.tr</a>)</p>
+        <h3>1. Sıfır Sunucu Aktarımı İlkesi</h3>
+        <p>Kontak Studio uygulamasında dönüştürmek üzere seçtiğiniz hiçbir resim, video veya ses dosyası cihazınızdan dışarı çıkarılmaz; Ozguler Forge sunucularına veya üçüncü taraf bulut sistemlerine yüklenmez. Tüm medya işleme süreçleri WebAssembly teknolojisi ile doğrudan tarayıcınızın yerel belleğinde gerçekleşir.</p>
+        <h3>2. Toplanan Veriler ve Çerezler</h3>
+        <p>Uygulama kullanıcı hesabı oluşturmaz, kimlik bilgisi talep etmez ve reklam/izleme çerezi kullanmaz. Uygulamanın çevrimdışı çalışabilmesi (PWA) amacıyla yalnızca arayüz dosyaları ve FFmpeg motoru tarayıcınızın yerel önbelleğinde saklanır.</p>
+        <h3>3. İletişim</h3>
+        <p>Sorularınız için <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> adresinden ulaşabilirsiniz.</p>
+      `
+    },
+    kvkk: {
+      title: 'KVKK Aydınlatma Metni',
+      html: `
+        <p><strong>Veri Sorumlusu:</strong> Ozguler Forge · <strong>Web:</strong> ozgulerforge.com.tr · <strong>E-posta:</strong> iletisim@ozgulerforge.com.tr</p>
+        <h3>1. İşlenen Kişisel Veriler ve Amaç</h3>
+        <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca Kontak Studio, yerel işlem (client-side) mimarisiyle çalışır. Uygulamaya aktardığınız medya dosyaları tarafımızca toplanmaz ve işlenmez.</p>
+        <h3>2. İlgili Kişinin Hakları</h3>
+        <p>KVKK'nın 11. maddesi kapsamındaki taleplerinizi <a href="mailto:iletisim@ozgulerforge.com.tr">iletisim@ozgulerforge.com.tr</a> üzerinden iletebilirsiniz.</p>
+      `
+    },
+    terms: {
+      title: 'Kullanım Koşulları',
+      html: `
+        <p><strong>Hizmet Sağlayıcı:</strong> Ozguler Forge (ozgulerforge.com.tr)</p>
+        <h3>1. Hizmetin Kapsamı</h3>
+        <p>Kontak Studio, kullanıcıların kendi cihazlarındaki medya dosyalarını kayıpsız veya seçilen formatlarda dönüştürmelerine ve kare özetlerini doğrulamalarına olanak tanıyan bir web uygulamasıdır.</p>
+        <h3>2. Sorumluluk Sınırı</h3>
+        <p>Uygulama "olduğu gibi" sunulmaktadır. Tarayıcı bellek sınırları veya oynatıcı uyumsuzluklarından kaynaklanabilecek durumlarda sorumluluk kullanıcıya aittir.</p>
+      `
+    },
+    licenses: {
+      title: 'Açık Kaynak Lisansları ve Sürüm Bilgisi',
+      html: `
+        <p><strong>Uygulama Sürümü:</strong> Kontak Studio v2.7.0 · <strong>Geliştirici:</strong> Ozguler Forge</p>
+        <ul>
+          <li><strong>FFmpeg (v5.1.4):</strong> LGPL v2.1+ / GPL lisansı kapsamında derlenmiş WebAssembly çekirdeği.</li>
+          <li><strong>ffmpeg.wasm (v0.12):</strong> MIT Lisansı altında açık kaynak.</li>
+          <li><strong>pdf-lib (v1.17):</strong> MIT Lisansı · PDF birleştirme, bölme ve oluşturma.</li>
+          <li><strong>PDF.js (Mozilla):</strong> Apache 2.0 Lisansı · PDF sayfalarını görsele çevirme.</li>
+          <li><strong>Kontak Studio Arayüz ve Doğrulama Katmanı:</strong> Ozguler Forge.</li>
+        </ul>
+      `
+    }
+  };
+
+  document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const doc = LEGAL_DOCS[btn.dataset.modal];
+      if (!doc || !modal) return;
+      title.textContent = doc.title;
+      body.innerHTML = doc.html;
+      modal.showModal();
+    });
+  });
+
+  const close = () => modal && modal.close();
+  closeTop?.addEventListener('click', close);
+  closeBottom?.addEventListener('click', close);
+  modal?.addEventListener('click', e => { if (e.target === modal) close(); });
+})();
+
+(function initPwaControls() {
+  const installBtn = document.getElementById('install');
+  const modal = document.getElementById('legalModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalBody = document.getElementById('modalBody');
+
+  let deferredPrompt = null;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone && installBtn) installBtn.hidden = true;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn && !isStandalone) installBtn.hidden = false;
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    if (installBtn) installBtn.hidden = true;
+  });
+
+  installBtn?.addEventListener('click', async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') installBtn.hidden = true;
+      deferredPrompt = null;
+      return;
+    }
+    if (modal && modalTitle && modalBody) {
+      modalTitle.textContent = 'Uygulamayı Cihazınıza Yükleyin';
+      modalBody.innerHTML = `
+        <p><strong>Kontak Studio</strong>, kurulduğunda tam ekran uygulama olarak çalışır.</p>
+        <h3>iPhone / iPad (Safari)</h3>
+        <ul>
+          <li><strong>Paylaş</strong> simgesine dokunun ve <strong>"Ana Ekrana Ekle"</strong> seçeneğini seçin.</li>
+        </ul>
+        <h3>Android / Masaüstü (Chrome, Edge)</h3>
+        <ul>
+          <li>Adres çubuğundaki <strong>Yükle</strong> simgesine veya <strong>⋮ → "Uygulamayı yükle"</strong> seçeneğine tıklayın.</li>
+        </ul>
+      `;
+      modal.showModal();
+    }
+  });
+})();
+</script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
